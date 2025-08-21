@@ -8,7 +8,7 @@ Contact: gunnar.flotterod@{vti,liu}.se
 
 ## Exploring ATAP functionality without MATSim
 
-The `se.vti.atap.minimalframework` package is meant for lightweight standalone experimentation. It depends neither on MATSim nor on any other code in this repository, meaning that it can be minimally used by copy & paste into any other Java project. There are two ways of using this package.
+The `se.vti.atap.minimalframework` package is meant for lightweight standalone experimentation. It depends neither on MATSim nor on any other code in this repository, meaning that it can be minimally used by copy & paste into any other Java project.
 
 At the package's top level, there are only interfaces and a single `Runner.java` class. The interfaces correspond to the terminology introduced in Flötteröd (2025). The `Runner.java` combines these interfaces in an ATAP assignment logic. This functions as a blueprint; to evaluate a concrete model, the corresponding interfaces need to be instantiated. The subpackage `defaults` provides limited default implementations.
 
@@ -27,7 +27,7 @@ The ATAP extension replaces MATSim's standard solver (a coevolutionary algorithm
 
 ### Accessing the code
 
-Either clone the repository or configure [GitHub packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages).
+Either clone the top-level repository or configure [GitHub packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages).
 
 Include the following Maven dependency in your `pom.xml` (replace `TODO` with the actual version):
 
@@ -82,7 +82,7 @@ Add an ATAP module to your MATSim config file. Example, using default values:
     <param name="cheapStrategies" value="TimeAllocationMutator" />
     <param name="expensiveStrategies" value="ReRoute,TimeAllocationMutator_ReRoute,ChangeSingleTripMode,SubtourModeChoice,ChangeTripMode,ChangeLegMode,ChangeSingleLegMode,TripSubtourModeChoice" />
 
-    <!-- DISTANCE TRANSFORMATIONS. OTHER THAN DEFAULT MAY NOT WORK. -->
+    <!-- DISTANCE TRANSFORMATIONS. OTHER THAN DEFAULTS MAY NOT WORK. -->
     <param name="useLinearDistance" value="true" />
     <param name="useQuadraticDistance" value="true" />
     <param name="useExponentialDistance" value="false" />
