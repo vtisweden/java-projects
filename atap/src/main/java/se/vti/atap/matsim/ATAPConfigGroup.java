@@ -37,7 +37,7 @@ import org.matsim.core.utils.misc.StringUtils;
  */
 public class ATAPConfigGroup extends ReflectiveConfigGroup {
 
-	public static final String GROUP_NAME = "greedo";
+	public static final String GROUP_NAME = "atap";
 
 	public ATAPConfigGroup() {
 		super(GROUP_NAME);
@@ -157,7 +157,7 @@ public class ATAPConfigGroup extends ReflectiveConfigGroup {
 
 	//
 
-	private boolean useQuadraticDistance = false;
+	private boolean useQuadraticDistance = true;
 
 	@StringGetter("useQuadraticDistance")
 	public boolean getUseQuadraticDistance() {
@@ -258,7 +258,7 @@ public class ATAPConfigGroup extends ReflectiveConfigGroup {
 
 	//
 
-	private int maxMemory = 5;
+	private int maxMemory = 1;
 
 	@StringGetter("maxMemory")
 	public int getMaxMemory() {
@@ -304,7 +304,7 @@ public class ATAPConfigGroup extends ReflectiveConfigGroup {
 		return new Function<>() {
 			@Override
 			public Double apply(Integer iteration) {
-				return initialStepSizeFactor * Math.pow(Math.max(1.0, iteration), replanningRateIterationExponent);
+				return initialStepSizeFactor * Math.pow(1.0 + iteration, replanningRateIterationExponent);
 			}
 		};
 	}
@@ -325,47 +325,47 @@ public class ATAPConfigGroup extends ReflectiveConfigGroup {
 
 	//
 
-	public static enum UpperboundStepSize {
-		Vanilla, RelativeToInitialGap, SbaytiCounterpart, SbaytiCounterpartExact
-	}
-
-	private UpperboundStepSize upperboundStepSize = UpperboundStepSize.Vanilla;
-
-	@StringGetter("upperboundStepSize")
-	public UpperboundStepSize getUpperboundStepSize() {
-		return this.upperboundStepSize;
-	}
-
-	@StringSetter("upperboundStepSize")
-	public void setUpperboundStepSize(final UpperboundStepSize upperboundStepSize) {
-		this.upperboundStepSize = upperboundStepSize;
-	}
+//	public static enum UpperboundStepSize {
+//		Vanilla, RelativeToInitialGap, SbaytiCounterpart, SbaytiCounterpartExact
+//	}
+//
+//	private UpperboundStepSize upperboundStepSize = UpperboundStepSize.Vanilla;
+//
+//	@StringGetter("upperboundStepSize")
+//	public UpperboundStepSize getUpperboundStepSize() {
+//		return this.upperboundStepSize;
+//	}
+//
+//	@StringSetter("upperboundStepSize")
+//	public void setUpperboundStepSize(final UpperboundStepSize upperboundStepSize) {
+//		this.upperboundStepSize = upperboundStepSize;
+//	}
 
 	//
 
-	public static enum PopulationDistanceType {
-		Hamming, Kernel
-	}
-
-	private PopulationDistanceType populationDistance = PopulationDistanceType.Kernel;
-
-	@StringGetter("populationDistance")
-	public PopulationDistanceType getPopulationDistance() {
-		return this.populationDistance;
-	}
-
-	@StringSetter("populationDistance")
-	public void setPopulationDistance(final PopulationDistanceType populationDistance) {
-		this.populationDistance = populationDistance;
-	}
+//	public static enum PopulationDistanceType {
+//		Hamming, Kernel
+//	}
+//
+//	private PopulationDistanceType populationDistance = PopulationDistanceType.Kernel;
+//
+//	@StringGetter("populationDistance")
+//	public PopulationDistanceType getPopulationDistance() {
+//		return this.populationDistance;
+//	}
+//
+//	@StringSetter("populationDistance")
+//	public void setPopulationDistance(final PopulationDistanceType populationDistance) {
+//		this.populationDistance = populationDistance;
+//	}
 
 	//
 
 	public static enum ReplannerIdentifierType {
-		IID, SBAYTI2007, UPPERBOUND, UPPERBOUND_ATOMIC, DONOTHING
+		UNIFORM, SORTING, ATAP_APPROXIMATE_DISTANCE, ATAP_EXACT_DISTANCE, DO_NOTHING
 	}
 
-	private ReplannerIdentifierType replannerIdentifier = ReplannerIdentifierType.SBAYTI2007;
+	private ReplannerIdentifierType replannerIdentifier = ReplannerIdentifierType.ATAP_APPROXIMATE_DISTANCE;
 
 	@StringGetter("replannerIdentifier")
 	public ReplannerIdentifierType getReplannerIdentifier() {

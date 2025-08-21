@@ -2,9 +2,7 @@
 
 ** This document is under construction. Please come back later. **
 
-This program implements a solution heuristic for the ATAP. It pushes the model system towards a Nash equilibrium (still without any guarantee that such an equilbrium exists or that it will be reached given that it exists). This document provides a detailed explanation of the method:
-
-*G. Flötteröd (2025). A simulation heuristic for traveler- and vehicle-discrete dynamic traffic assignment. Technical report. Linköping University and Swedish National Road and Transport Research Institute.*
+The `se.vti.atap` package implements a solution heuristic for the agent-based traffic assigment problem. It contains a MATSim extension (subpackage `matsim`) and a stand-alone implementation (subpackage `minimalframework`). Both are described further below. A detailed explanation of the method can be found in the following working paper (until publication only available via Email from gunnar.flotterod@vti.se): *G. Flötteröd (2025). A simulation heuristic for traveler- and vehicle-discrete dynamic traffic assignment. Linköping University and Swedish National Road and Transport Research Institute.*
 
 ## Using the ATAP MATSim extension
 
@@ -22,7 +20,7 @@ Include the following Maven dependency in your pom.xml:
 		<version>TODO</version>
 	</dependency>
 
-The MATSim extension lies in the se.vti.atap.matsim folder.
+The MATSim extension is located in the `se.vti.atap.matsim` package.
 
 ### Using the code
 
@@ -39,31 +37,50 @@ Minimal usage:
 	
 	controler.run();
 	
-This will use a default configuration, which may work for simple scenarios. Two additional configuration steps may be necessary.
+This will use a default configuration, which may work for simple MATSim scenarios. Two additional configurations may be necessary.
 
-Add an atap module to your MATSim config file. Example:
+Add an atap module to your MATSim config file. Example, using default values:
 
 	<module name="atap" >
-		<param name="cheapStrategies" value="TimeAllocationMutator" />
-		<param name="checkEmulatedAgentsCnt" value="0" />
-		<param name="expensiveStrategies" value="ReRoute,TimeAllocationMutator_ReRoute,ChangeSingleTripMode,SubtourModeChoice,ChangeTripMode,ChangeLegMode,ChangeSingleLegMode,TripSubtourModeChoice" />
+	
+		<!-- ASSIGNMENT METHOD. OPTIONS: DO_NOTHING, UNIFORM, SORTING, ATAP_APPROXIMATE_DISTANCE, ATAP_EXACT_DISTANCE ->
+		<param name="replannerIdentifier" value="ATAP_APPROXIMATE_DISTANCE" />
+	
+		<!-- STEPSIZE = initialStepSizeFactor * (1.0 + iteration)^replanningRateIterationExponent -->
 		<param name="initialStepSizeFactor" value="1.0" />
+		<param name="replanningRateIterationExponent" value="-0.5" />
+	
+		<!-- NUMBER OF ITERATIONS USED TO FILTER OUT DNL NOISE -->
+		<param name="maxMemory" value="1" />
+	
+		<!-- NETWORK FLOW SMOOTHING. DEFAULTS WORK FOR "STANDARD MATSIM" -->
 		<param name="kernelHalftime_s" value="300.0" />
 		<param name="kernelThreshold" value="0.01" />
-		<param name="maxMemory" value="1" />
-		<param name="populationDistance" value="Kernel" />
-		<param name="replannerIdentifier" value="UPPERBOUND_ATOMIC" />
-		<param name="replanningRateIterationExponent" value="-0.5" />
-		<param name="upperboundStepSize" value="Vanilla" />
-		<param name="useFilteredTravelTimesForEmulation" value="false" />
-		<param name="useFilteredTravelTimesForReplanning" value="false" />
+		
+		<!-- SPECIFY COMPUTATIONAL CHEAP AND HEAVY MATSIM STRATEGIES. FOR INTERNAL PERFORMANCE TUNING. -->
+		<param name="cheapStrategies" value="TimeAllocationMutator" />
+		<param name="expensiveStrategies" value="ReRoute,TimeAllocationMutator_ReRoute,ChangeSingleTripMode,SubtourModeChoice,ChangeTripMode,ChangeLegMode,ChangeSingleLegMode,TripSubtourModeChoice" />
+		
+		<!-- DISTANCE TRANSFORMATIONS. OTHER THAN DEFAULT MAY NOT WORK. -->
 		<param name="useLinearDistance" value="true" />
 		<param name="useQuadraticDistance" value="true" />
+		<param name="useExponentialDistance" value="false" />
+		<param name="useLogarithmicDistance" value="false" />
+		<param name="normalizeDistance" value="false" />
+		
+		<!-- TESTING AND/OR DEBUGGING ONLY. BETTER NOT CHANGE. -->
+		<param name="checkDistance" value=false" />
+		<param name="shuffleBeforeReplannerSelection" value="true" />
+		<param name="useFilteredTravelTimesForEmulation" value="false" />
+		<param name="useFilteredTravelTimesForReplanning" value="false" />
+		<param name="linkShareInDistance" value="1.0" />
+		<param name="checkEmulatedAgentsCnt" value="0" />
+		
 	</module>
 
-(Put explanations here, or in the code.)
+ATAP needs to anticipate the scores of not yet executed plans. This functionality is provided by the emulation package, on which ATAP depends. It is provided in the module `emulation` of this repositor.   
 
-ATAP needs to anticipate the scores of not yet executed plans. This functionality is provided by the emulation package, on which ATAP depends. Emulation is preconfigured for car as a congested network mode and for teleported modes. Other transport modes require to submit corresponding emulation functionality. For instance, the emulation of pt submodes is configured as follows:
+The `se.vti.emulation` package moves agents according to exogeneously specified travel times through the system and generates an event stream as if the agent was moved by the mobsim. Emulation is preconfigured for car as a congested network mode and for teleported modes. Other transport modes require to specify corresponding emulation functionality. For instance, the emulation of "pt submodes" can be configured as follows:
 
 	ATAP atap = new ATAP();
 	
@@ -82,6 +99,9 @@ ATAP needs to anticipate the scores of not yet executed plans. This functionalit
 	controler.run();
 	
 There is also (likely outdated) functionality for emulating roadpricing.
+
+### Example scenario
+
 
 The package `se.vti.atap.matsim.examples.parallel_links` offers a ready-to-run example of using the ATAP assignment logic in MATSim. (No input files needed, all required data is created in-code.) 
 

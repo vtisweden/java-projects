@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.population.Person;
-import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.router.util.TravelTime;
 
 /**
@@ -37,15 +36,15 @@ abstract class AbstractPopulationDistance {
 
 	static AbstractPopulationDistance newPopulationDistance(final Plans pop1, final Plans pop2, final Scenario scenario,
 			final Map<String, ? extends TravelTime> mode2travelTime) {
-		final ATAPConfigGroup greedoConfig = ConfigUtils.addOrGetModule(scenario.getConfig(),
-				ATAPConfigGroup.class);
-		if (ATAPConfigGroup.PopulationDistanceType.Hamming.equals(greedoConfig.getPopulationDistance())) {
-			return new HammingPopulationDistance();
-		} else if (ATAPConfigGroup.PopulationDistanceType.Kernel.equals(greedoConfig.getPopulationDistance())) {
-			return new KernelPopulationDistance(pop1, pop2, scenario, mode2travelTime);
-		} else {
-			throw new RuntimeException("Unknown distance type: " + greedoConfig.getPopulationDistance());
-		}
+//		final ATAPConfigGroup greedoConfig = ConfigUtils.addOrGetModule(scenario.getConfig(),
+//				ATAPConfigGroup.class);
+//		if (ATAPConfigGroup.PopulationDistanceType.Hamming.equals(greedoConfig.getPopulationDistance())) {
+//			return new HammingPopulationDistance();
+//		} else if (ATAPConfigGroup.PopulationDistanceType.Kernel.equals(greedoConfig.getPopulationDistance())) {
+		return new KernelPopulationDistance(pop1, pop2, scenario, mode2travelTime);
+//		} else {
+//			throw new RuntimeException("Unknown distance type: " + greedoConfig.getPopulationDistance());
+//		}
 	}
 
 	ConcurrentHashMap<Id<Person>, ConcurrentHashMap<Id<Person>, Double>> getPersonId2personId2aCoeff() {

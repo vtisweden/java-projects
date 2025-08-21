@@ -93,7 +93,7 @@ public class ParallelLinkExampleRunner {
 		config.addModule(new EmulationConfigGroup());
 		
 		ATAPConfigGroup atapConfig = new ATAPConfigGroup();
-		atapConfig.setReplannerIdentifier(ReplannerIdentifierType.UPPERBOUND_ATOMIC);
+		atapConfig.setReplannerIdentifier(ReplannerIdentifierType.ATAP_EXACT_DISTANCE);
 		atapConfig.setReplanningRateIterationExponent(-0.5);
 		atapConfig.setMaxMemory(4);
 		atapConfig.setKernelHalftime_s(60);
@@ -171,14 +171,14 @@ public class ParallelLinkExampleRunner {
 
 	public Scenario createSmallExampleWithUniform(String scenarioFolder) {
 		ATAPConfigGroup atapConfig = new ATAPConfigGroup();
-		atapConfig.setReplannerIdentifier(ReplannerIdentifierType.IID);
+		atapConfig.setReplannerIdentifier(ReplannerIdentifierType.UNIFORM);
 		atapConfig.setReplanningRateIterationExponent(-1.0);
 		return this.createSmallExample(scenarioFolder, atapConfig);
 	}
 
 	public Scenario createSmallExampleWithSorting(String scenarioFolder) {
 		ATAPConfigGroup atapConfig = new ATAPConfigGroup();
-		atapConfig.setReplannerIdentifier(ReplannerIdentifierType.SBAYTI2007);
+		atapConfig.setReplannerIdentifier(ReplannerIdentifierType.SORTING);
 		atapConfig.setReplanningRateIterationExponent(-0.5);
 		atapConfig.setMaxMemory(4);
 		atapConfig.setKernelHalftime_s(300);
@@ -199,7 +199,7 @@ public class ParallelLinkExampleRunner {
 
 	public Scenario createSmallExampleWithProposed(String scenarioFolder) {
 		ATAPConfigGroup atapConfig = new ATAPConfigGroup();
-		atapConfig.setReplannerIdentifier(ReplannerIdentifierType.UPPERBOUND_ATOMIC);
+		atapConfig.setReplannerIdentifier(ReplannerIdentifierType.ATAP_EXACT_DISTANCE);
 		atapConfig.setReplanningRateIterationExponent(-0.5);
 		atapConfig.setMaxMemory(4);
 		atapConfig.setKernelHalftime_s(60);

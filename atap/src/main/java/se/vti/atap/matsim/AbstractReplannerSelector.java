@@ -62,18 +62,18 @@ abstract class AbstractReplannerSelector {
 	// -------------------- CONSTRUCTION --------------------
 
 	static AbstractReplannerSelector newReplannerSelector(final ATAPConfigGroup greedoConfig) {
-		if (ATAPConfigGroup.ReplannerIdentifierType.IID.equals(greedoConfig.getReplannerIdentifier())) {
+		if (ATAPConfigGroup.ReplannerIdentifierType.UNIFORM.equals(greedoConfig.getReplannerIdentifier())) {
 			return new BasicReplannerSelector(false, greedoConfig.newIterationToTargetReplanningRate());
-		} else if (ATAPConfigGroup.ReplannerIdentifierType.SBAYTI2007.equals(greedoConfig.getReplannerIdentifier())) {
+		} else if (ATAPConfigGroup.ReplannerIdentifierType.SORTING.equals(greedoConfig.getReplannerIdentifier())) {
 			return new BasicReplannerSelector(true, greedoConfig.newIterationToTargetReplanningRate());
-		} else if (ATAPConfigGroup.ReplannerIdentifierType.UPPERBOUND.equals(greedoConfig.getReplannerIdentifier())) {
+		} else if (ATAPConfigGroup.ReplannerIdentifierType.ATAP_APPROXIMATE_DISTANCE.equals(greedoConfig.getReplannerIdentifier())) {
 			return new UpperBoundReplannerSelector(greedoConfig);
-		} else if (ATAPConfigGroup.ReplannerIdentifierType.UPPERBOUND_ATOMIC
+		} else if (ATAPConfigGroup.ReplannerIdentifierType.ATAP_EXACT_DISTANCE
 				.equals(greedoConfig.getReplannerIdentifier())) {
 			return new AtomicUpperBoundReplannerSelector(greedoConfig.newIterationToTargetReplanningRate(),
 //					greedoConfig.newQuadraticDistanceTransformation(), 
-					greedoConfig.newDistanceTransformation(), greedoConfig.getUpperboundStepSize());
-		} else if (ATAPConfigGroup.ReplannerIdentifierType.DONOTHING.equals(greedoConfig.getReplannerIdentifier())) {
+					greedoConfig.newDistanceTransformation());
+		} else if (ATAPConfigGroup.ReplannerIdentifierType.DO_NOTHING.equals(greedoConfig.getReplannerIdentifier())) {
 			return new AbstractReplannerSelector(null) {
 				@Override
 				Set<Id<Person>> selectReplanners(Map<Id<Person>, Double> personId2filteredGap, int replanIteration) {

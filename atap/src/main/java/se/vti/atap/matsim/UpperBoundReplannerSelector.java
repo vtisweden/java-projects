@@ -126,15 +126,13 @@ class UpperBoundReplannerSelector extends AbstractReplannerSelector {
 //	private final Function<Double, Double> quadraticDistanceTransformation;
 	private final ATAPConfigGroup.DistanceTransformation distanceTransformation;
 
-	private final ATAPConfigGroup.UpperboundStepSize stepSizeLogic;
-
 	// -------------------- MEMBERS --------------------
 
 	private AbstractPopulationDistance populationDistance = null;
 
 	private Double initialGap = null;
 
-	private Double sbaytiCounterpartGapThreshold = null;
+//	private Double sbaytiCounterpartGapThreshold = null;
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -142,26 +140,25 @@ class UpperBoundReplannerSelector extends AbstractReplannerSelector {
 		super(greedoConfig.newIterationToTargetReplanningRate());
 //		this.quadraticDistanceTransformation = quadraticDistanceTransformation;
 		this.distanceTransformation = greedoConfig.newDistanceTransformation();
-		this.stepSizeLogic = greedoConfig.getUpperboundStepSize();
 		this.greedoConfig = greedoConfig;
 	}
 
 	// -------------------- INTERNALS --------------------
 
 	private double effectiveEta(final double currentGap) {
-		if (ATAPConfigGroup.UpperboundStepSize.Vanilla.equals(this.stepSizeLogic)) {
+//		if (ATAPConfigGroup.UpperboundStepSize.Vanilla.equals(this.stepSizeLogic)) {
 			return this.getTargetReplanningRate();
-		} else if (ATAPConfigGroup.UpperboundStepSize.RelativeToInitialGap.equals(this.stepSizeLogic)) {
-			return Math.min(1.0, this.getTargetReplanningRate() * this.initialGap / currentGap);
-		} else if (ATAPConfigGroup.UpperboundStepSize.SbaytiCounterpart.equals(this.stepSizeLogic)) {
-			return (this.sbaytiCounterpartGapThreshold / currentGap);
-		} else if (ATAPConfigGroup.UpperboundStepSize.SbaytiCounterpartExact.equals(this.stepSizeLogic)) {
-
-			return (this.sbaytiGsum - this.sbaytiGcrit * this.sbaytiCnt) / currentGap;
-
-		} else {
-			throw new RuntimeException("Unknown step size logic: " + this.stepSizeLogic);
-		}
+//		} else if (ATAPConfigGroup.UpperboundStepSize.RelativeToInitialGap.equals(this.stepSizeLogic)) {
+//			return Math.min(1.0, this.getTargetReplanningRate() * this.initialGap / currentGap);
+//		} else if (ATAPConfigGroup.UpperboundStepSize.SbaytiCounterpart.equals(this.stepSizeLogic)) {
+//			return (this.sbaytiCounterpartGapThreshold / currentGap);
+//		} else if (ATAPConfigGroup.UpperboundStepSize.SbaytiCounterpartExact.equals(this.stepSizeLogic)) {
+//
+//			return (this.sbaytiGsum - this.sbaytiGcrit * this.sbaytiCnt) / currentGap;
+//
+//		} else {
+//			throw new RuntimeException("Unknown step size logic: " + this.stepSizeLogic);
+//		}
 	}
 
 	private double _Q(final double _G, final double _D2, final double epsilon, final double _D2max) {
@@ -177,9 +174,9 @@ class UpperBoundReplannerSelector extends AbstractReplannerSelector {
 		this.populationDistance = populationDistance;
 	}
 
-	private Double sbaytiGsum = null;
-	private Integer sbaytiCnt = null;
-	private Double sbaytiGcrit = null;
+//	private Double sbaytiGsum = null;
+//	private Integer sbaytiCnt = null;
+//	private Double sbaytiGcrit = null;
 
 	@Override
 	Set<Id<Person>> selectReplannersHook(Map<Id<Person>, Double> personId2gap) {
@@ -192,20 +189,20 @@ class UpperBoundReplannerSelector extends AbstractReplannerSelector {
 		 * (1) Initialize.
 		 */
 
-		if (ATAPConfigGroup.UpperboundStepSize.SbaytiCounterpart.equals(this.stepSizeLogic)) {
-			final BasicReplannerSelector sbaytiSelector = new BasicReplannerSelector(true, this.iterationToStepSize);
-			this.sbaytiCounterpartGapThreshold = sbaytiSelector
-					.selectReplanners(personId2gap, this.getReplanIteration()).stream()
-					.mapToDouble(id -> personId2gap.get(id)).sum();
-
-		} else if (ATAPConfigGroup.UpperboundStepSize.SbaytiCounterpartExact.equals(this.stepSizeLogic)) {
-			final BasicReplannerSelector sbaytiSelector = new BasicReplannerSelector(true, this.iterationToStepSize);
-			final Set<Id<Person>> sbaytiReplanners = sbaytiSelector.selectReplanners(personId2gap,
-					this.getReplanIteration());
-			this.sbaytiGsum = sbaytiReplanners.stream().mapToDouble(id -> personId2gap.get(id)).sum();
-			this.sbaytiGcrit = sbaytiReplanners.stream().mapToDouble(id -> personId2gap.get(id)).min().getAsDouble();
-			this.sbaytiCnt = sbaytiReplanners.size();
-		}
+//		if (ATAPConfigGroup.UpperboundStepSize.SbaytiCounterpart.equals(this.stepSizeLogic)) {
+//			final BasicReplannerSelector sbaytiSelector = new BasicReplannerSelector(true, this.iterationToStepSize);
+//			this.sbaytiCounterpartGapThreshold = sbaytiSelector
+//					.selectReplanners(personId2gap, this.getReplanIteration()).stream()
+//					.mapToDouble(id -> personId2gap.get(id)).sum();
+//
+//		} else if (ATAPConfigGroup.UpperboundStepSize.SbaytiCounterpartExact.equals(this.stepSizeLogic)) {
+//			final BasicReplannerSelector sbaytiSelector = new BasicReplannerSelector(true, this.iterationToStepSize);
+//			final Set<Id<Person>> sbaytiReplanners = sbaytiSelector.selectReplanners(personId2gap,
+//					this.getReplanIteration());
+//			this.sbaytiGsum = sbaytiReplanners.stream().mapToDouble(id -> personId2gap.get(id)).sum();
+//			this.sbaytiGcrit = sbaytiReplanners.stream().mapToDouble(id -> personId2gap.get(id)).min().getAsDouble();
+//			this.sbaytiCnt = sbaytiReplanners.size();
+//		}
 
 		// Start with a maximum amount of replanning gap.
 		final Set<Id<Person>> replannerIds = personId2gap.entrySet().stream().filter(e -> e.getValue() > 0.0)

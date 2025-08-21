@@ -51,8 +51,6 @@ class AtomicUpperBoundReplannerSelector extends AbstractReplannerSelector {
 //	private final Function<Double, Double> quadraticDistanceTransformation;
 	private final ATAPConfigGroup.DistanceTransformation distanceTransformation;
 
-	final ATAPConfigGroup.UpperboundStepSize stepSizeLogic;
-
 	// -------------------- MEMBERS --------------------
 
 	private AbstractPopulationDistance populationDistance = null;
@@ -61,12 +59,10 @@ class AtomicUpperBoundReplannerSelector extends AbstractReplannerSelector {
 
 	AtomicUpperBoundReplannerSelector(final Function<Integer, Double> iterationToEta,
 //			final Function<Double, Double> quadraticDistanceTransformation,
-			final ATAPConfigGroup.DistanceTransformation distanceTransformation,
-			final ATAPConfigGroup.UpperboundStepSize stepSizeLogic) {
+			final ATAPConfigGroup.DistanceTransformation distanceTransformation) {
 		super(iterationToEta);
 //		this.quadraticDistanceTransformation = quadraticDistanceTransformation;
 		this.distanceTransformation = distanceTransformation;
-		this.stepSizeLogic = stepSizeLogic;
 	}
 
 	// -------------------- INTERNALS --------------------
@@ -153,11 +149,6 @@ class AtomicUpperBoundReplannerSelector extends AbstractReplannerSelector {
 		 * (1) Initialize.
 		 */
 
-		if (!ATAPConfigGroup.UpperboundStepSize.Vanilla.equals(this.stepSizeLogic)) {
-			throw new RuntimeException(
-					"Accepting only " + ATAPConfigGroup.UpperboundStepSize.Vanilla + " step size logic.");
-		}
-
 		// Start with a maximum amount of replanning gap.
 		final Set<Id<Person>> replannerIds = personId2gap.entrySet().stream().filter(e -> e.getValue() > 0.0)
 				.map(e -> e.getKey()).collect(Collectors.toSet());
@@ -212,8 +203,8 @@ class AtomicUpperBoundReplannerSelector extends AbstractReplannerSelector {
 			for (Id<Person> candidateId : allPersonIds) {
 
 				final double candidateGap = personId2gap.get(candidateId);
-				final double a = this.populationDistance.getACoefficient(candidateId, candidateId);
-				final double b = personId2bParam.get(candidateId);
+//				final double a = this.populationDistance.getACoefficient(candidateId, candidateId);
+//				final double b = personId2bParam.get(candidateId);
 
 				final double deltaG;
 				final double deltaDsum;
