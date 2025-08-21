@@ -31,7 +31,7 @@ import se.vti.atap.minimalframework.Agent;
 import se.vti.atap.minimalframework.NetworkConditions;
 import se.vti.atap.minimalframework.Plan;
 import se.vti.atap.minimalframework.PlanSelection;
-import se.vti.atap.minimalframework.defaults.planselection.MSAStepSize;
+import se.vti.atap.minimalframework.defaults.replannerselection.MSAStepSize;
 
 /**
  * 

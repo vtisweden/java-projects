@@ -1,8 +1,18 @@
 # ATAP - Agent-based Traffic Assignment Problem
 
-** This document is under construction. Please come back later. **
+The `se.vti.atap` package implements a solution heuristic for the agent-based traffic assigment problem. It contains a MATSim extension (subpackage `matsim`) and a stand-alone implementation (subpackage `minimalframework`). Both are described further below. A detailed explanation of the method can be found in the following working paper (until publication only available from the author, Email below): *G. Flötteröd (2025). A simulation heuristic for traveler- and vehicle-discrete dynamic traffic assignment. Linköping University and Swedish National Road and Transport Research Institute.*
 
-The `se.vti.atap` package implements a solution heuristic for the agent-based traffic assigment problem. It contains a MATSim extension (subpackage `matsim`) and a stand-alone implementation (subpackage `minimalframework`). Both are described further below. A detailed explanation of the method can be found in the following working paper (until publication only available via Email from gunnar.flotterod@vti.se): *G. Flötteröd (2025). A simulation heuristic for traveler- and vehicle-discrete dynamic traffic assignment. Linköping University and Swedish National Road and Transport Research Institute.*
+Contact: gunnar.flotterod@{vti,liu}.se
+
+## Exploring ATAP functionality without MATSim
+
+The `se.vti.atap.minimalframework` package is meant for lightweight standalone experimentation. It depends neither on MATSim nor on any other code in this repository, meaning that it can be minimally used by copy&paste into any other java project. There are two ways of using this package.
+
+At the packages top-level, there are only interfaces and a single `Runner.java` class. The interfaces correspond to the terminology introduced in Flötteröd (2025). The `Runner.java` combines these interfaces in an ATAP assignment logic. This functions as a blueprint; to evaluate a concrete model, the corresponding interfaces need to be instantiated. The subpackage `defaults` provides limited default implementations. 
+
+The `defaults.replannerselection` subpackage contains default implementations of all assignment methods exlored in Flötteröd (2025). The subpackage `defaults.planselection.proposed` implements the "proposed method" of that article. `ProposedMethodWithLocalSearchPlanSelection.java` implements the proposed plan method relying on (implementations of) the other interfaces and abstract classes in that package. The class  `AbstractApproximateNetworkConditions.java` is slightly more involved than a naive implementation to avoid that it becomes a major computational bottleneck.
+
+The package `se.vti.atap.minimalframework.examples.parallel_links` offers ready-to-run examples, based on the parallel link nework described in Section 4 of Flötteröd (2025). `ExampleRunner.java` class contains an "agent-based" example (`ExampleRunner.runSmallTripMakerExample()`), an OD flow-based example(`ExampleRunner.runSmallODExample()`), and the original example from the article (`ExampleRunner.runArticleExample()`).
 
 ## Using the ATAP MATSim extension
 
@@ -102,25 +112,9 @@ There is also (likely outdated) functionality for emulating roadpricing.
 
 ### Example scenario
 
+The package `se.vti.atap.matsim.examples.parallel_links` contains ready-to-run examples. No input files needed, all required data is created in-code. 
 
-The package `se.vti.atap.matsim.examples.parallel_links` offers a ready-to-run example of using the ATAP assignment logic in MATSim. No input files needed, all required data is created in-code. 
+`ParallelLinkScenarioFactory.java` builds a network of parallel links and a corresponding population. The number of parallel links is configurable, so are their parameters. The population is built such that travel occurrs from upstream origin links to downstream destination links that are connected to individually configurable parallel network links. The links connecting origins and destination to the parallel links network are automatically configured such that all origins reach the parallel links at the same time. If there is a chance that congestion spills back into upstream diverges, an exception is thrown and recommendations for redimensioning the system are given.
 
-`ParallelLinkScenarioFactory.java` builds a network of parallel links and a corresponding population.
-
-The number of parallel links is configurable, so are their parameters. The population is built such that travel occurrs from upstream origin links to downstream destination links that are connected to individually configurable parallel network links. The links connecting origins and destination to the parallel links network are automatically configured such that all origins reach the parallel links at the same time. If there is a chance that congestion spills back into upstream diverges, an exception is thrown and recommendations for redimensioning the system are given.
-
-The class `ParallelLinkExampleRunner.java` instantiates concrete examples.
-
-## Exploring ATAP functionality without MATSim
-
-The package `se.vti.atap.minimalframework` is meant for lightweight standalone experimentation with the algorithm. It depends neither on MATSim nor on any other code in this repository, meaning that it can be used by copy&paste into any other java project. There are two ways of using this package.
-
-At the top-level of `se.vti.atap.minimalframework`, there are only interfaces and a single `Runner.java` class. The interfaces correspond to the terminology introduced in Flötteröd (2025). The `Runner.java` combines these interfaces in an ATAP assignment logic. This functions as a blueprint; to evaluate the model, one needs to specify a concrete agent representation, (dynamic) network loading, etc.
-
-The top-level classes of `se.vti.atap.minimalframework.defaults` provides limited default implementations. The `se.vti.atap.minimalframework.defaults.planselection` package provides default implementations of all plan selection algorithms exlored in Flötteröd (2025). 
-
-The package `se.vti.atap.minimalframework.defaults.planselection.proposed` contains an implementation of the "proposed method" of that article. The class `ProposedMethodWithLocalSearchPlanSelection.java` implements the prpoosed plan selection logic relying on (implementations of) the other interfaces and abstract classes in that package. The class  `AbstractApproximateNetworkConditions.java` is slightly more involved than a naive implementation such that it does not constitute a major computational bottleneck (it is evaluated many times).
-
-Ready-to run examples are proided by the `ExampleRunner.java` class in the package `se.vti.atap.minimalframework.examples.parallel_links`. This package contains a complete instantiation of the "minimal framework", for both an "agent-based" and an "OD-flow-based" assignment problem.
-
+`ParallelLinkExampleRunner.java` instantiates concrete examples.
 

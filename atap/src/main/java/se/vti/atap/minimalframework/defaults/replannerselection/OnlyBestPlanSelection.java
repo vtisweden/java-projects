@@ -17,12 +17,8 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.atap.minimalframework.defaults.planselection;
+package se.vti.atap.minimalframework.defaults.replannerselection;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import se.vti.atap.minimalframework.Agent;
@@ -34,24 +30,15 @@ import se.vti.atap.minimalframework.PlanSelection;
  * @author GunnarF
  *
  */
-public class UniformPlanSelection<A extends Agent<?>, T extends NetworkConditions> implements PlanSelection<A, T> {
+public class OnlyBestPlanSelection<A extends Agent<?>, T extends NetworkConditions> implements PlanSelection<A, T> {
 
-	private final MSAStepSize stepSize;
-
-	private final Random rnd;
-
-	public UniformPlanSelection(double stepSizeIterationExponent, Random rnd) {
-		this.stepSize = new MSAStepSize(stepSizeIterationExponent);
-		this.rnd = rnd;
+	public OnlyBestPlanSelection() {
 	}
 
 	@Override
 	public void assignSelectedPlans(Set<A> agents, T networkConditions, int iteration) {
-		List<A> allAgents = new ArrayList<>(agents);
-		Collections.shuffle(allAgents, this.rnd);
-		double numberOfReplanners = this.stepSize.compute(iteration) * allAgents.size();
-		for (int n = 0; n < numberOfReplanners; n++) {
-			allAgents.get(n).setCurrentPlanToCandidatePlan();
-		}
+		agents.stream().max((a1, a2) -> Double.compare(a1.computeGap(), a2.computeGap())).get()
+				.setCurrentPlanToCandidatePlan();
 	}
+
 }

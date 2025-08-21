@@ -30,10 +30,10 @@ import java.util.stream.IntStream;
 
 import se.vti.atap.minimalframework.Runner;
 import se.vti.atap.minimalframework.defaults.StatisticsComparisonPrinter;
-import se.vti.atap.minimalframework.defaults.planselection.OneAtATimePlanSelection;
-import se.vti.atap.minimalframework.defaults.planselection.SortingPlanSelection;
-import se.vti.atap.minimalframework.defaults.planselection.UniformPlanSelection;
 import se.vti.atap.minimalframework.defaults.planselection.proposed.ProposedMethodWithLocalSearchPlanSelection;
+import se.vti.atap.minimalframework.defaults.replannerselection.OneAtATimePlanSelection;
+import se.vti.atap.minimalframework.defaults.replannerselection.SortingPlanSelection;
+import se.vti.atap.minimalframework.defaults.replannerselection.UniformPlanSelection;
 
 public class ExampleRunner {
 

@@ -17,12 +17,12 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.atap.minimalframework.defaults.planselection;
+package se.vti.atap.minimalframework.defaults.replannerselection;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import se.vti.atap.minimalframework.Agent;
@@ -34,26 +34,35 @@ import se.vti.atap.minimalframework.PlanSelection;
  * @author GunnarF
  *
  */
-public class SortingPlanSelection<A extends Agent<?>, T extends NetworkConditions> implements PlanSelection<A, T> {
+public class OneAtATimePlanSelection<A extends Agent<?>, T extends NetworkConditions> implements PlanSelection<A, T> {
 
-	private final MSAStepSize stepSize;
+	private final Random rnd;
 
-	public SortingPlanSelection(double stepSizeIterationExponent) {
-		this.stepSize = new MSAStepSize(stepSizeIterationExponent);
+	private List<A> agents = null;
+
+	private int lastAgentIndex = -1;
+
+	public OneAtATimePlanSelection(Random rnd) {
+		this.rnd = rnd;
 	}
 
 	@Override
 	public void assignSelectedPlans(Set<A> agents, T networkConditions, int iteration) {
-		List<A> allAgents = new ArrayList<>(agents);
-		Collections.sort(allAgents, new Comparator<>() {
-			@Override
-			public int compare(A agent1, A agent2) { // sort in descending order
-				return Double.compare(agent2.computeGap(), agent1.computeGap());
-			}
-		});
-		double numberOfReplanners = this.stepSize.compute(iteration) * allAgents.size();
-		for (int n = 0; n < numberOfReplanners; n++) {
-			allAgents.get(n).setCurrentPlanToCandidatePlan();
+
+		if (this.agents == null) {
+			this.agents = Collections.unmodifiableList(new ArrayList<>(agents));
 		}
+		assert (this.agents.containsAll(agents) && agents.containsAll(this.agents));
+
+		if (this.rnd != null) {
+			this.lastAgentIndex = this.rnd.nextInt(0, this.agents.size());
+		} else {
+			this.lastAgentIndex++;
+			if (this.lastAgentIndex == this.agents.size()) {
+				this.lastAgentIndex = 0;
+			}
+		}
+
+		this.agents.get(this.lastAgentIndex).setCurrentPlanToCandidatePlan();
 	}
 }
