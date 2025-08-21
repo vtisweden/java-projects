@@ -103,7 +103,13 @@ There is also (likely outdated) functionality for emulating roadpricing.
 ### Example scenario
 
 
-The package `se.vti.atap.matsim.examples.parallel_links` offers a ready-to-run example of using the ATAP assignment logic in MATSim. (No input files needed, all required data is created in-code.) 
+The package `se.vti.atap.matsim.examples.parallel_links` offers a ready-to-run example of using the ATAP assignment logic in MATSim. No input files needed, all required data is created in-code. 
+
+`ParallelLinkScenarioFactory.java` builds a network of parallel links and a corresponding population.
+
+The number of parallel links is configurable, so are their parameters. The population is built such that travel occurrs from upstream origin links to downstream destination links that are connected to individually configurable parallel network links. The links connecting origins and destination to the parallel links network are automatically configured such that all origins reach the parallel links at the same time. If there is a chance that congestion spills back into upstream diverges, an exception is thrown and recommendations for redimensioning the system are given.
+
+The class `ParallelLinkExampleRunner.java` instantiates concrete examples.
 
 ## Exploring ATAP functionality without MATSim
 
