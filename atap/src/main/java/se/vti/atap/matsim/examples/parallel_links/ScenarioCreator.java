@@ -55,7 +55,7 @@ import se.vti.utils.misc.Units;
 
 /**
  * 
- * The {@link ParallelLinkScenarioFactory} builds a network of parallel links
+ * The {@link ScenarioCreator} builds a network of parallel links
  * and a corresponding population.
  * 
  * The number of parallel links is configurable, so are their parameters. The
@@ -72,7 +72,7 @@ import se.vti.utils.misc.Units;
  * @author GunnarF
  *
  */
-public class ParallelLinkScenarioFactory {
+public class ScenarioCreator {
 
 	// -------------------- CONSTANTS --------------------
 
@@ -86,7 +86,6 @@ public class ParallelLinkScenarioFactory {
 	private final double exitNodeYCoord_m;
 
 	private final double freeSpeed_m_s = Units.M_S_PER_KM_H * 100.0;
-//	private final double giganticCapacity_veh_h = 10_000.0;
 
 	private final double inflowDuration_s;
 	private final double inflowDuration_h;
@@ -98,7 +97,7 @@ public class ParallelLinkScenarioFactory {
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public ParallelLinkScenarioFactory(double inflowDuration_s, double sizeFactor) {
+	public ScenarioCreator(double inflowDuration_s, double sizeFactor) {
 		this.inflowDuration_s = inflowDuration_s;
 		this.inflowDuration_h = Units.H_PER_S * inflowDuration_s;
 
@@ -129,7 +128,7 @@ public class ParallelLinkScenarioFactory {
 		this.od2demand_veh_h.put(od, demand_veh_h);
 	}
 
-	public Config buildConfig() {
+	public Config createConfig() {
 		Config config = ConfigUtils.createConfig();
 		config.qsim().setTrafficDynamics(TrafficDynamics.queue);
 		config.replanning()
@@ -140,7 +139,7 @@ public class ParallelLinkScenarioFactory {
 		return config;
 	}
 
-	public Scenario build(Config config) {
+	public Scenario createScenario(Config config) {
 		Scenario scenario = ScenarioUtils.createScenario(config);
 		scenario.getNetwork().setCapacityPeriod(3600.0);
 

@@ -10,9 +10,9 @@ Contact: gunnar.flotterod@{vti,liu}.se
 
 The `se.vti.atap.minimalframework` package is meant for lightweight standalone experimentation. It depends neither on MATSim nor on any other code in this repository, meaning that it can be minimally used by copy & paste into any other Java project.
 
-At the package's top level, there are only interfaces and a single `Runner.java` class. The interfaces correspond to the terminology introduced in Flötteröd (2025). The `Runner.java` combines these interfaces in an ATAP assignment logic. This functions as a blueprint; to evaluate a concrete model, the corresponding interfaces need to be instantiated. The subpackage `defaults` provides limited default implementations.
+At the package's top level, there are only interfaces and a single `Runner.java` class. The interfaces correspond to the terminology introduced in Flötteröd (2025). The `Runner.java` combines these interfaces in an ATAP assignment logic. This functions as a blueprint; to evaluate a concrete model, the corresponding interfaces need to be instantiated.
 
-The `defaults.replannerselection` subpackage contains default implementations of all assignment methods explored in Flötteröd (2025). The subpackage `defaults.planselection.proposed` implements the "proposed method" of that article. Specifically, `ProposedMethodWithLocalSearchPlanSelection.java` implements the proposed replanner selection logic relying on (implementations of) the other interfaces and abstract classes in that package. The class `AbstractApproximateNetworkConditions.java` is slightly more involved than a naïve implementation to avoid it becoming a major computational bottleneck.
+The `defaults.replannerselection` subpackage contains default implementations of all assignment methods explored in Flötteröd (2025). The subpackage `defaults.replannerselection.proposed` implements the "proposed method" of that article. The class `ProposedMethodWithLocalSearchPlanSelection.java` relies on (implementations of) the other interfaces and abstract classes in that package. The class `AbstractApproximateNetworkConditions.java` is slightly more involved than a naïve implementation to avoid it becoming a major computational bottleneck.
 
 The package `se.vti.atap.minimalframework.examples.parallel_links` offers ready-to-run examples, based on the parallel link network described in Section 4 of Flötteröd (2025). The `ExampleRunner.java` class contains:
 - an agent-based example (`ExampleRunner.runSmallTripMakerExample()`),
@@ -29,13 +29,13 @@ The ATAP extension replaces MATSim's standard solver (a coevolutionary algorithm
 
 Either clone the top-level repository or configure [GitHub packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages).
 
-Include the following Maven dependency in your `pom.xml` (replace `TODO` with the actual version):
+Include the following Maven dependency in your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>se.vti.matsim-projects</groupId>
+    <groupId>se.vti.java-projects</groupId>
     <artifactId>atap</artifactId>
-    <version>TODO</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -73,6 +73,9 @@ Add an ATAP module to your MATSim config file. Example, using default values:
 
     <!-- NUMBER OF ITERATIONS USED TO FILTER OUT DNL NOISE -->
     <param name="maxMemory" value="1" />
+
+	<!-- REDUCED LOGGING ONLY MONITORS STEP SIZES AND EQUILIBRIUM GAPS -->
+	param name="reduceLogging" value="false" />
 
     <!-- NETWORK FLOW SMOOTHING. DEFAULTS WORK FOR "STANDARD MATSIM" -->
     <param name="kernelHalftime_s" value="300.0" />
@@ -123,6 +126,18 @@ There is also (likely outdated) functionality for emulating road pricing.
 
 ### Example MATSim scenario
 
-The package `se.vti.atap.matsim.examples.parallel_links` contains ready-to-run examples. No input files are needed; all required data is created in-code.
+The package `se.vti.atap.matsim.examples.parallel_links` contains ready-to-run examples.
 
-`ParallelLinkScenarioFactory.java` builds a network of parallel links and a corresponding population. The number of parallel links is configurable, as are their parameters. The population is built such that travel occurs from upstream origin links to downstream destination links that are connected to individually configurable parallel network links. The links connecting origins and destinations to the parallel links network are automatically configured such that all origins reach the parallel links at the same time. If there is a chance that congestion spills back into upstream diverges, an exception is thrown and recommendations for redimensioning the system are given. `ParallelLinkExampleRunner.java` instantiates concrete examples.
+`ScenarioCreator.java` builds a network of parallel links and a corresponding population. The number of parallel links is configurable, as are their parameters. The population is built such that travel occurs from upstream origin links to downstream destination links that are connected to individually configurable parallel network links. The links connecting origins and destinations to the parallel links network are automatically configured such that all origins reach the parallel links at the same time. If there is a chance that congestion spills back into upstream diverges, an exception is thrown and recommendations for redimensioning the system are given. 
+
+`ExampleRunner.java` instantiates minimalistic examples (with two parallel routes only):
+- for the uniform method (`ExampleRunner.runSmallExampleWithUniform()`),
+- for the sorting method (`ExampleRunner.runSmallExampleWithSorting()`),
+- and the proposed method (`ExampleRunner.runSmalExampleWithProposed()`).
+
+With only two alternatives and a homogeneous agent population, these MATSim examples are only meant as blueprints for creating richer testcases (and as a basis for unit tests).
+
+Running an example creates an output folder `.small-example/[method name]`, which contains MATSim xml files of the used network, population, and configuration. The `output` subfolder contains the usual matsim logs, plus a file `ATAP.log` with assignment specific statistics. 
+
+
+

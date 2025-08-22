@@ -257,6 +257,21 @@ public class ATAPConfigGroup extends ReflectiveConfigGroup {
 	}
 
 	//
+	
+	private boolean reduceLogging = false;
+	
+	@StringGetter("reduceLogging")
+	public boolean getReduceLogging() {
+		return this.reduceLogging;
+	}
+
+	@StringSetter("reduceLogging")
+	public void setReduceLogging(final boolean reduceLogging) {
+		this.reduceLogging = reduceLogging;
+	}
+	
+	
+	//
 
 	private int maxMemory = 1;
 
@@ -286,7 +301,7 @@ public class ATAPConfigGroup extends ReflectiveConfigGroup {
 
 	//
 
-	private double replanningRateIterationExponent = -1.0;
+	private double replanningRateIterationExponent = -0.5;
 
 	@StringGetter("replanningRateIterationExponent")
 	public double getReplanningRateIterationExponent() {

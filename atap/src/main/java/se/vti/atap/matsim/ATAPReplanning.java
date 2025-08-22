@@ -66,7 +66,7 @@ public final class ATAPReplanning implements PlansReplanning, ReplanningListener
 	@SuppressWarnings("unused")
 	private final static Logger log = LogManager.getLogger(ATAPReplanning.class);
 
-	private final ATAPConfigGroup greedoConfig;
+	private final ATAPConfigGroup atapConfig;
 
 	private final Provider<EmulationEngine> emulationEngineProvider;
 
@@ -97,14 +97,14 @@ public final class ATAPReplanning implements PlansReplanning, ReplanningListener
 	@Inject
 	ATAPReplanning(final Provider<EmulationEngine> emulationEngineProvider, final MatsimServices services) {
 
-		this.greedoConfig = ConfigUtils.addOrGetModule(services.getConfig(), ATAPConfigGroup.class);
+		this.atapConfig = ConfigUtils.addOrGetModule(services.getConfig(), ATAPConfigGroup.class);
 		this.emulationEngineProvider = emulationEngineProvider;
 		this.services = services;
 
 		this.personIds = services.getScenario().getPopulation().getPersons().keySet();
 		this.persons = services.getScenario().getPopulation().getPersons().values();
 
-		this.replannerSelector = AbstractReplannerSelector.newReplannerSelector(this.greedoConfig);
+		this.replannerSelector = AbstractReplannerSelector.newReplannerSelector(this.atapConfig);
 
 		this.emulationErrorAnalyzer = new EmulationErrorAnalyzer();
 
@@ -115,7 +115,7 @@ public final class ATAPReplanning implements PlansReplanning, ReplanningListener
 //				new File(services.getConfig().controler().getOutputDirectory(), "GreedoReplanning.log").toString(),
 //				false);
 		this.statsWriter = new StatisticsWriter<>(
-				new File(services.getConfig().controller().getOutputDirectory(), "GreedoReplanning.log").toString(),
+				new File(services.getConfig().controller().getOutputDirectory(), "ATAP.log").toString(),
 				false);
 
 		this.statsWriter.addSearchStatistic(new TimeStampStatistic<>());
@@ -174,95 +174,98 @@ public final class ATAPReplanning implements PlansReplanning, ReplanningListener
 				return data.gap.toString();
 			}
 		});
-		this.statsWriter.addSearchStatistic(new Statistic<>() {
-			@Override
-			public String label() {
-				return "MeanFilteredGap";
-			}
+		
+		if (!this.atapConfig.getReduceLogging()) {
+			this.statsWriter.addSearchStatistic(new Statistic<>() {
+				@Override
+				public String label() {
+					return "MeanFilteredGap";
+				}
 
-			@Override
-			public String value(ATAPReplanning data) {
-				return Statistic.toString(data.replannerSelector.getMeanFilteredGap());
-			}
-		});
-		this.statsWriter.addSearchStatistic(new Statistic<>() {
-			@Override
-			public String label() {
-				return "MeanReplannerFilteredGap";
-			}
+				@Override
+				public String value(ATAPReplanning data) {
+					return Statistic.toString(data.replannerSelector.getMeanFilteredGap());
+				}
+			});
+			this.statsWriter.addSearchStatistic(new Statistic<>() {
+				@Override
+				public String label() {
+					return "MeanReplannerFilteredGap";
+				}
 
-			@Override
-			public String value(ATAPReplanning data) {
-				return Statistic.toString(data.replannerSelector.getMeanReplannerFilteredGap());
-			}
-		});
-		this.statsWriter.addSearchStatistic(new Statistic<>() {
-			@Override
-			public String label() {
-				return "PopMeanEmulationError";
-			}
+				@Override
+				public String value(ATAPReplanning data) {
+					return Statistic.toString(data.replannerSelector.getMeanReplannerFilteredGap());
+				}
+			});
+			this.statsWriter.addSearchStatistic(new Statistic<>() {
+				@Override
+				public String label() {
+					return "PopMeanEmulationError";
+				}
 
-			@Override
-			public String value(ATAPReplanning data) {
-				return Statistic.toString(data.emulationErrorAnalyzer.getMeanError());
-			}
-		});
-		this.statsWriter.addSearchStatistic(new Statistic<>() {
-			@Override
-			public String label() {
-				return "PopMeanAbsEmulationError";
-			}
+				@Override
+				public String value(ATAPReplanning data) {
+					return Statistic.toString(data.emulationErrorAnalyzer.getMeanError());
+				}
+			});
+			this.statsWriter.addSearchStatistic(new Statistic<>() {
+				@Override
+				public String label() {
+					return "PopMeanAbsEmulationError";
+				}
 
-			@Override
-			public String value(ATAPReplanning data) {
-				return Statistic.toString(data.emulationErrorAnalyzer.getMeanAbsError());
-			}
-		});
+				@Override
+				public String value(ATAPReplanning data) {
+					return Statistic.toString(data.emulationErrorAnalyzer.getMeanAbsError());
+				}
+			});
 
-		this.statsWriter.addSearchStatistic(new Statistic<>() {
-			@Override
-			public String label() {
-				return "MinScore";
-			}
+			this.statsWriter.addSearchStatistic(new Statistic<>() {
+				@Override
+				public String label() {
+					return "MinScore";
+				}
 
-			@Override
-			public String value(ATAPReplanning data) {
-				return Statistic.toString(data.gapAnalyzer.getMinScore());
-			}
-		});
-		this.statsWriter.addSearchStatistic(new Statistic<>() {
-			@Override
-			public String label() {
-				return "MeanScore";
-			}
+				@Override
+				public String value(ATAPReplanning data) {
+					return Statistic.toString(data.gapAnalyzer.getMinScore());
+				}
+			});
+			this.statsWriter.addSearchStatistic(new Statistic<>() {
+				@Override
+				public String label() {
+					return "MeanScore";
+				}
 
-			@Override
-			public String value(ATAPReplanning data) {
-				return Statistic.toString(data.gapAnalyzer.getMeanScore());
-			}
-		});
-		this.statsWriter.addSearchStatistic(new Statistic<>() {
-			@Override
-			public String label() {
-				return "MaxScore";
-			}
+				@Override
+				public String value(ATAPReplanning data) {
+					return Statistic.toString(data.gapAnalyzer.getMeanScore());
+				}
+			});
+			this.statsWriter.addSearchStatistic(new Statistic<>() {
+				@Override
+				public String label() {
+					return "MaxScore";
+				}
 
-			@Override
-			public String value(ATAPReplanning data) {
-				return Statistic.toString(data.gapAnalyzer.getMaxScore());
-			}
-		});
-		this.statsWriter.addSearchStatistic(new Statistic<>() {
-			@Override
-			public String label() {
-				return GapAnalyzer.createPercentileHeader(percentileStep, p -> "abs" + p + "%");
-			}
+				@Override
+				public String value(ATAPReplanning data) {
+					return Statistic.toString(data.gapAnalyzer.getMaxScore());
+				}
+			});
+			this.statsWriter.addSearchStatistic(new Statistic<>() {
+				@Override
+				public String label() {
+					return GapAnalyzer.createPercentileHeader(percentileStep, p -> "abs" + p + "%");
+				}
 
-			@Override
-			public String value(ATAPReplanning data) {
-				return data.gapAnalyzer.getAbsolutePercentiles();
-			}
-		});
+				@Override
+				public String value(ATAPReplanning data) {
+					return data.gapAnalyzer.getAbsolutePercentiles();
+				}
+			});
+		}		
 	}
 
 	// -------------------- INTERNALS --------------------
@@ -317,7 +320,7 @@ public final class ATAPReplanning implements PlansReplanning, ReplanningListener
 	@Override
 	public void notifyAfterMobsim(final AfterMobsimEvent event) {
 
-		while (this.listOfMode2travelTimes.size() >= this.greedoConfig.getMaxMemory()) {
+		while (this.listOfMode2travelTimes.size() >= this.atapConfig.getMaxMemory()) {
 			this.listOfMode2travelTimes.removeLast();
 		}
 
@@ -388,7 +391,7 @@ public final class ATAPReplanning implements PlansReplanning, ReplanningListener
 
 		this.emulationErrorAnalyzer.setSimulatedScores(this.services.getScenario().getPopulation());
 		final EventsChecker emulatedEventsChecker;
-		if (this.greedoConfig.getCheckEmulatedAgentsCnt() > 0) {
+		if (this.atapConfig.getCheckEmulatedAgentsCnt() > 0) {
 			emulatedEventsChecker = new EventsChecker("observedPersons.txt", false);
 		} else {
 			emulatedEventsChecker = null;

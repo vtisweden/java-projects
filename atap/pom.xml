@@ -9,7 +9,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>atap</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.1.0</version>
   
 	<repositories>
 	  <!--Note that in general repositories are not transitive, so they need to be repeated at every level where needed.-->
@@ -47,15 +47,15 @@
 		</dependency>
 
 	  	<dependency>
-			<groupId>se.vti.matsim-projects</groupId>
+			<groupId>se.vti.java-projects</groupId>
 			<artifactId>emulation</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>0.1.0</version>
 		</dependency>
 	
 	  	<dependency>
-			<groupId>se.vti.matsim-projects</groupId>
+			<groupId>se.vti.java-projects</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>0.1.2</version>
 		</dependency>
 		
 		<dependency>
