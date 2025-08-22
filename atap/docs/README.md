@@ -60,7 +60,7 @@ controler.run();
 
 This will use a default configuration, which may work for simple MATSim scenarios. Two additional configurations may be necessary.
 
-Add an ATAP module to your MATSim config file. Example, using default values:
+Add an ATAP module to your MATSim config file (and include with `ConfigUtils.loadConfig(configFileName, new ATAPConfigGroup());` when loading that file). Example, using default values:
 
 ```xml
 <module name="atap">
