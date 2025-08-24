@@ -19,6 +19,8 @@ The package `se.vti.atap.minimalframework.examples.parallel_links` offers ready-
 - an OD flow-based example (`ExampleRunner.runSmallODExample()`),
 - and the original example from the article (`ExampleRunner.runArticleExample()`).
 
+Each example creates a (indvidually named) `.tsv` file with the same convergence statistics as used in the article.
+
 ---
 
 ## Using the ATAP MATSim extension
@@ -27,7 +29,7 @@ The ATAP extension replaces MATSim's standard solver (a coevolutionary algorithm
 
 ### Accessing the code
 
-Either clone the top-level repository or configure [GitHub packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages).
+This requires [GitHub packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages).
 
 Include the following Maven dependency in your `pom.xml`:
 
