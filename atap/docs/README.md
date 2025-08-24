@@ -2,6 +2,8 @@
 
 The `se.vti.atap` package implements a solution heuristic for the agent-based traffic assignment problem. It contains a MATSim extension (subpackage `matsim`) and a stand-alone implementation (subpackage `minimalframework`). Both are described further below. A detailed explanation of the method can be found in the following working paper (until publication only available from the author, email below): *G. Flötteröd (2025). A simulation heuristic for traveler- and vehicle-discrete dynamic traffic assignment. Linköping University and Swedish National Road and Transport Research Institute.*
 
+This repository is rather new, if anything does not work as it should, please let us know.
+
 Contact: gunnar.flotterod@{vti,liu}.se
 
 ---
