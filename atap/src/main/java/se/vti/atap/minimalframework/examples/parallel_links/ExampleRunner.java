@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import se.vti.atap.minimalframework.Runner;
@@ -173,6 +174,36 @@ public class ExampleRunner {
 
 	//
 
+	private static class Percentile implements Function<List<Double>, Double> {
+		private final double fractionalPercentile;
+
+		Percentile(double percentile) {
+			this.fractionalPercentile = percentile / 100.0;
+		}
+
+		@Override
+		public Double apply(List<Double> data) {
+			if (data == null || data.size() == 0) {
+				return null;
+			}
+			Collections.sort(data);
+
+			double rank = this.fractionalPercentile * (data.size() - 1);
+			int lowerIndex = (int) Math.floor(rank);
+			int upperIndex = (int) Math.ceil(rank);
+
+			if (lowerIndex == upperIndex) {
+				return data.get(lowerIndex);
+			}
+
+			double lowerValue = data.get(lowerIndex);
+			double upperValue = data.get(upperIndex);
+			double weight = rank - lowerIndex;
+
+			return lowerValue + weight * (upperValue - lowerValue);
+		}
+	}
+
 	public void run() {
 
 		LoggerImpl oneAtATimeLogger = new LoggerImpl();
@@ -183,8 +214,7 @@ public class ExampleRunner {
 		var comparison = new StatisticsComparisonPrinter();
 		comparison.addLogger("OneAtATime", oneAtATimeLogger).addLogger("Uniform", uniformLogger)
 				.addLogger("Sorting", sortingLogger).addLogger("Proposed", proposedLogger);
-		comparison.addStatistic("10Percentile", ds -> ds.getPercentile(10)).addStatistic("90Percentile",
-				ds -> ds.getPercentile(90));
+		comparison.addStatistic("10Percentile", new Percentile(10)).addStatistic("90Percentile", new Percentile(90));
 
 		for (int replication = 0; replication < this.replications; replication++) {
 			System.out.println((replication + 1) + "/" + this.replications);
@@ -214,8 +244,8 @@ public class ExampleRunner {
 
 	static void runSmallTripMakerExample() {
 		new ExampleRunner(new Random(4711)).setMode(Mode.TRIPMAKERS).seMinT0_s(60.0).setMaxT0_s(600.0)
-				.setMinCap_veh(1.0).setMaxCap_veh(3.0).setNumberOfLinks(100)
-				.setNumberOfPaths(10).setVolumeCapacityRatio(1.0).setIterations(1000).setReplications(10)
+				.setMinCap_veh(1.0).setMaxCap_veh(3.0).setNumberOfLinks(100).setNumberOfPaths(10)
+				.setVolumeCapacityRatio(1.0).setIterations(1000).setReplications(10)
 				.setFileName("SmallTripMakerExample.tsv").run();
 	}
 
@@ -225,12 +255,12 @@ public class ExampleRunner {
 				.setNumberOfPaths(10).setVolumeCapacityRatio(1.0).setIterations(1000).setReplications(10)
 				.setFileName("SmallODFlowExample.tsv").run();
 	}
-	
+
 	static void runArticleExample() {
 		new ExampleRunner(new Random(4711)).setMode(Mode.ODPAIRS).seMinT0_s(60.0).setMaxT0_s(600.0)
-		.setMinCap_veh(1000.0).setMaxCap_veh(3000.0).setNumberOfLinks(1000).setNumberOfODPairs(1000)
-		.setNumberOfPaths(10).setVolumeCapacityRatio(1.0).setIterations(10000).setReplications(1000)
-		.setFileName("ArticleExample.tsv").run();
+				.setMinCap_veh(1000.0).setMaxCap_veh(3000.0).setNumberOfLinks(1000).setNumberOfODPairs(1000)
+				.setNumberOfPaths(10).setVolumeCapacityRatio(1.0).setIterations(10000).setReplications(1000)
+				.setFileName("ArticleExample.tsv").run();
 	}
 
 	public static void main(String[] args) {

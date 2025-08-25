@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-
 /**
  * 
  * @author GunnarF
@@ -41,14 +39,14 @@ public class StatisticsComparisonPrinter {
 
 		int getNumberOfIterations();
 
-		DescriptiveStatistics getDataOrNull(int iteration);
+		List<Double> getDataOrNull(int iterations);
 	}
 
 	private List<String> loggerLabels = new ArrayList<>();
 	private List<DescriptiveStatisticsLogger> loggers = new ArrayList<>();
 
 	private List<String> statisticLabels = new ArrayList<>();
-	private List<Function<DescriptiveStatistics, Double>> statistics = new ArrayList<>();
+	private List<Function<List<Double>, Double>> statistics = new ArrayList<>();
 
 	public StatisticsComparisonPrinter() {
 	}
@@ -59,7 +57,7 @@ public class StatisticsComparisonPrinter {
 		return this;
 	}
 
-	public StatisticsComparisonPrinter addStatistic(String label, Function<DescriptiveStatistics, Double> statistic) {
+	public StatisticsComparisonPrinter addStatistic(String label, Function<List<Double>, Double> statistic) {
 		this.statisticLabels.add(label);
 		this.statistics.add(statistic);
 		return this;

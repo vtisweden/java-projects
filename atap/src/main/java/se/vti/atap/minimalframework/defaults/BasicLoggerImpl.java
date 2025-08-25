@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-
 import se.vti.atap.minimalframework.Agent;
 import se.vti.atap.minimalframework.Logger;
 import se.vti.atap.minimalframework.NetworkConditions;
@@ -39,7 +37,7 @@ import se.vti.atap.minimalframework.NetworkConditions;
 public class BasicLoggerImpl<A extends Agent<?>, T extends NetworkConditions>
 		implements Logger<A, T>, StatisticsComparisonPrinter.DescriptiveStatisticsLogger {
 
-	private final List<DescriptiveStatistics> gapStatistics = new ArrayList<>();
+	private final List<List<Double>> gapStatistics = new ArrayList<>();
 
 	public BasicLoggerImpl() {
 	}
@@ -47,26 +45,26 @@ public class BasicLoggerImpl<A extends Agent<?>, T extends NetworkConditions>
 	@Override
 	public final void log(Set<A> agents, T networkConditions, int iteration) {
 		while (this.gapStatistics.size() <= iteration) {
-			this.gapStatistics.add(new DescriptiveStatistics());
+			this.gapStatistics.add(new ArrayList<>());
 		}
-		this.gapStatistics.get(iteration).addValue(this.computeGap(agents, networkConditions, iteration));
+		this.gapStatistics.get(iteration).add(this.computeGap(agents, networkConditions, iteration));
 	}
 
 	public double computeGap(Set<A> agents, T networkConditions, int iteration) {
 		return agents.stream().mapToDouble(a -> a.computeGap()).average().getAsDouble();
 	}
 
-	public List<DescriptiveStatistics> getAverageGaps() {
+	public List<List<Double>> getAverageGaps() {
 		return this.gapStatistics;
 	}
-
+	
 	@Override
 	public int getNumberOfIterations() {
 		return this.gapStatistics.size();
 	}
 
 	@Override
-	public DescriptiveStatistics getDataOrNull(int iteration) {
+	public List<Double> getDataOrNull(int iteration) {
 		if (this.gapStatistics.size() <= iteration) {
 			return null;
 		} else {
