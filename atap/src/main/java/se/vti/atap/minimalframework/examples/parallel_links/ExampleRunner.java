@@ -30,10 +30,10 @@ import java.util.stream.IntStream;
 
 import se.vti.atap.minimalframework.Runner;
 import se.vti.atap.minimalframework.defaults.StatisticsComparisonPrinter;
-import se.vti.atap.minimalframework.defaults.planselection.proposed.ProposedMethodWithLocalSearchPlanSelection;
 import se.vti.atap.minimalframework.defaults.replannerselection.OneAtATimePlanSelection;
 import se.vti.atap.minimalframework.defaults.replannerselection.SortingPlanSelection;
 import se.vti.atap.minimalframework.defaults.replannerselection.UniformPlanSelection;
+import se.vti.atap.minimalframework.defaults.replannerselection.proposed.ProposedMethodWithLocalSearchPlanSelection;
 
 public class ExampleRunner {
 
@@ -234,9 +234,9 @@ public class ExampleRunner {
 	}
 
 	public static void main(String[] args) {
-//		runSmallTripMakerExample();
-//		runSmallODExample();
-		runArticleExample();
+		runSmallTripMakerExample();
+		runSmallODExample();
+//		runArticleExample();
 	}
 
 }

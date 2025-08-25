@@ -17,12 +17,9 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.atap.minimalframework.defaults.planselection.proposed;
-
-import java.util.Set;
+package se.vti.atap.minimalframework.defaults.replannerselection.proposed;
 
 import se.vti.atap.minimalframework.Agent;
-import se.vti.atap.minimalframework.NetworkConditions;
 import se.vti.atap.minimalframework.Plan;
 
 /**
@@ -30,8 +27,14 @@ import se.vti.atap.minimalframework.Plan;
  * @author GunnarF
  *
  */
-public interface ApproximateNetworkLoading<P extends Plan, A extends Agent<P>, T extends NetworkConditions, Q extends ApproximateNetworkConditions<P, A, Q>> {
+public interface ApproximateNetworkConditions<P extends Plan, A extends Agent<P>, Q extends ApproximateNetworkConditions<P, A, Q>> {
 
-	Q compute(Set<A> agentsUsingCurrentPlan, Set<A> agentsUsingCandidatePlan, T networkConditions);
+	void switchToPlan(P plan, A agent);
+
+	void undoLastSwitch();
+	
+	double computeLeaveOneOutDistance(Q other);
+
+	double computeDistance(Q other);
 
 }

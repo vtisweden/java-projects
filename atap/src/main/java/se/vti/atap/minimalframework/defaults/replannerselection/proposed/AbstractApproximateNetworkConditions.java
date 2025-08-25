@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.atap.minimalframework.defaults.planselection.proposed;
+package se.vti.atap.minimalframework.defaults.replannerselection.proposed;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

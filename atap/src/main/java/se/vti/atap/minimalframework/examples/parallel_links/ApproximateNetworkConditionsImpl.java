@@ -21,7 +21,7 @@ package se.vti.atap.minimalframework.examples.parallel_links;
 
 import java.util.Set;
 
-import se.vti.atap.minimalframework.defaults.planselection.proposed.AbstractApproximateNetworkConditions;
+import se.vti.atap.minimalframework.defaults.replannerselection.proposed.AbstractApproximateNetworkConditions;
 
 /**
  * 

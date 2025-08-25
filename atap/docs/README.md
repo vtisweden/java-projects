@@ -1,8 +1,8 @@
 # ATAP - Agent-based Traffic Assignment Problem
 
-The `se.vti.atap` package implements a solution heuristic for the agent-based traffic assignment problem. It contains a MATSim extension (subpackage `matsim`) and a stand-alone implementation (subpackage `minimalframework`). Both are described further below. A detailed explanation of the method can be found in the following working paper (until publication only available from the author, email below): *G. Flötteröd (2025). A simulation heuristic for traveler- and vehicle-discrete dynamic traffic assignment. Linköping University and Swedish National Road and Transport Research Institute.*
+The `se.vti.atap` package implements a solution heuristic for the agent-based traffic assignment problem. It contains a MATSim extension (subpackage `matsim`) and a stand-alone implementation (subpackage `minimalframework`). Both are described further below. A detailed description of the method can be found in the following working paper (until publication only available from the author, email below): *G. Flötteröd (2025). A simulation heuristic for traveler- and vehicle-discrete dynamic traffic assignment. Linköping University and Swedish National Road and Transport Research Institute.*
 
-This repository is rather new, if anything does not work as it should, please let us know.
+This repository is rather new - if anything does not work as it should, please let us know.
 
 Contact: gunnar.flotterod@{vti,liu}.se
 
@@ -31,7 +31,7 @@ The ATAP extension replaces MATSim's standard solver (a coevolutionary algorithm
 
 ### Accessing the code
 
-This requires [GitHub packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages).
+This requires [GitHub packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages). As the repository is set up now, it may be difficult to get around this because there also are internal dependencies on GitHub packages. Directly downloading the repository and only using SNAPSHOT versions *may* work.
 
 Include the following Maven dependency in your `pom.xml`:
 
@@ -64,7 +64,7 @@ controler.run();
 
 This will use a default configuration, which may work for simple MATSim scenarios. Two additional configurations may be necessary.
 
-Add an ATAP module to your MATSim config file (and include with `ConfigUtils.loadConfig(configFileName, new ATAPConfigGroup());` when loading that file). Example, using default values:
+Add an ATAP module to your MATSim config file (and include it with `ConfigUtils.loadConfig(configFileName, new ATAPConfigGroup());`). Example, using default values:
 
 ```xml
 <module name="atap">
@@ -132,16 +132,15 @@ There is also (likely outdated) functionality for emulating road pricing.
 
 The package `se.vti.atap.matsim.examples.parallel_links` contains ready-to-run examples.
 
-`ScenarioCreator.java` builds a network of parallel links and a corresponding population. The number of parallel links is configurable, as are their parameters. The population is built such that travel occurs from upstream origin links to downstream destination links that are connected to individually configurable parallel network links. The links connecting origins and destinations to the parallel links network are automatically configured such that all origins reach the parallel links at the same time. If there is a chance that congestion spills back into upstream diverges, an exception is thrown and recommendations for redimensioning the system are given. 
+`ScenarioCreator.java` builds a network of parallel links and a corresponding population. The number of parallel links is configurable, so are their outflow capacities. The population is built such that travel occurs from upstream origin links to downstream destination links that are connected to individually configurable parallel network links. The links connecting origins and destinations to the parallel links network are automatically configured such that all origins reach the parallel links at the same time. 
+
+If the demand/network configuration is such there is a chance that congestion spills back into upstream diverges, an exception is thrown and recommendations for redimensioning the system are given. This attempts to approximate point queue traffic dynamics, for simplicity only.
 
 `ExampleRunner.java` instantiates minimalistic examples (with two parallel routes only):
 - for the uniform method (`ExampleRunner.runSmallExampleWithUniform()`),
 - for the sorting method (`ExampleRunner.runSmallExampleWithSorting()`),
 - and the proposed method (`ExampleRunner.runSmalExampleWithProposed()`).
 
-With only two alternatives and a homogeneous agent population, these MATSim examples are only meant as blueprints for creating richer testcases (and as a basis for unit tests).
+These MATSim examples are only meant as blueprints (and as a basis for unit tests).
 
 Running an example creates an output folder `.small-example/[method name]`, which contains MATSim xml files of the used network, population, and configuration. The `output` subfolder contains the usual matsim logs, plus a file `ATAP.log` with assignment specific statistics. 
-
-
-
