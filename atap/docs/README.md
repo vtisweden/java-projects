@@ -10,7 +10,7 @@ Contact: gunnar.flotterod@{vti,liu}.se
 
 ## Exploring ATAP functionality without MATSim
 
-The `se.vti.atap.minimalframework` package is meant for lightweight standalone experimentation. It depends neither on MATSim nor on any other code in this repository, meaning that it can be minimally used by copy & paste into any other Java project.
+The `se.vti.atap.minimalframework` package is meant for lightweight standalone experimentation. It depends neither on MATSim nor on any other code in this repository, meaning that it can be minimally used by copy & paste into any other Java project. (Logging currently uses Apache Commons, see the atap pom file for the concrete dependency.)
 
 At the package's top level, there are only interfaces and a single `Runner.java` class. The interfaces correspond to the terminology introduced in Flötteröd (2025). The `Runner.java` combines these interfaces in an ATAP assignment logic. This functions as a blueprint; to evaluate a concrete model, the corresponding interfaces need to be instantiated.
 
