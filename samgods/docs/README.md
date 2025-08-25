@@ -1,6 +1,6 @@
 # se.vti.samgods
 
-*Under construction. Please come back later.*
+*Documentation is under construction. Please come back later.*
 
 ---
 
