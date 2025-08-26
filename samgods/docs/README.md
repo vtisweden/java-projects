@@ -11,6 +11,8 @@
 
 ## Functionality
 
+![](program-flow.png)
+
 ---
 
 ## Package overview
