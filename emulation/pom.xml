@@ -4,12 +4,12 @@
   <parent>
     <groupId>se.vti.java-projects</groupId>
   	<artifactId>java-projects</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.1.0</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>emulation</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.1.5</version>
 
 	<repositories>
 	  <!--Note that in general repositories are not transitive, so they need to be repeated at every level where needed.-->
@@ -83,6 +83,14 @@
 		</dependency>
 
 	</dependencies>
+
+  	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub vtisweden Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+		</repository>
+	</distributionManagement>
 
 	<build>
 		<plugins>
