@@ -264,9 +264,9 @@ public class ExampleRunner {
 	}
 
 	public static void main(String[] args) {
-		runSmallTripMakerExample();
-		runSmallODExample();
-//		runArticleExample();
+//		runSmallTripMakerExample();
+//		runSmallODExample();
+		runArticleExample();
 	}
 
 }

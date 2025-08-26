@@ -39,7 +39,7 @@ Include the following Maven dependency in your `pom.xml`:
 <dependency>
     <groupId>se.vti.java-projects</groupId>
     <artifactId>atap</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.7</version>
 </dependency>
 ```
 
