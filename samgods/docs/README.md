@@ -5,9 +5,9 @@
 
 ## Outline 
 
-The program se.vti.samgods ("VTI-samgods") approximates and extends (primarily the logistics module of) the Swedish national freight model system Samgods ("TRV-samgods"). The national model is maintained and documented by Trafikverket, see [here](https://bransch.trafikverket.se/tjanster/system-och-verktyg/Prognos--och-analysverktyg/Samgods/).
+The program se.vti.samgods ("VTI-Samgods") approximates and extends (primarily the logistics module of) the Swedish national freight model system Samgods ("TRV-Samgods"). The national model is maintained and documented by Trafikverket, see [here](https://bransch.trafikverket.se/tjanster/system-och-verktyg/Prognos--och-analysverktyg/Samgods/).
 
-The purpose of VTI-samgods is to enable lightweight experimentation with and further developments of TRV-Samgods in an open and flexible programming environment. VTI-samgods uses ony a subset of all parameters available in TRV-Samgods. VTI-samgods does not aim to reproduce Sweden's current freight transport system at the greatest possible level of detail; focus is more on the underlying models and their possible refinements.
+The purpose of VTI-Samgods is to enable lightweight experimentation with and further developments of TRV-Samgods in an open and flexible programming environment. VTI-Samgods uses ony a subset of all parameters available in TRV-Samgods. VTI-Samgods does not aim to reproduce Sweden's current freight transport system at the greatest possible level of detail; focus is more on the underlying models and their possible refinements.
 
 One motivation for writing this program was to refine the modeling of consolidation (different shipments sharing the same vehicle). The currently implemented solution is still relatively simple (and the topic of continuous improvements). Vehicles are merely assumed to travel from an origin to a destination, and to then return back to the origin. A representation of richer driving patterns, including several loading/unloading episodes along the way, is the topic of ongoing work. Currently, consolidation works best for "small" vehicles (trucks) and worst for "large" vehicles (vessels).
 
@@ -18,11 +18,11 @@ The overall program flow of se.vti.samgods is illustrated below.
 
 ![](program-flow.png)
 
-1. **Data preparation** In-data extraced from the Samgods production version (this is a different program operated by TRV) is extracted into csv files. These files are described further below.
+1. **Data preparation** Scenario data and parameters from TRV-Samgods are extracted into csv files. These files are described further below.
 
 2. **Routing** If routes between all terminals are not yet available, they are computed and stored in a json file. If they have been computed before, they can be loaded from a json file.
 
-3. **Shipper choices** All shippers choose the transport chains along their goods are to be transported. In the first iteration, transport costs are guessed. In all following, they are decided by the carriers.
+3. **Shipper choices** All shippers choose the transport chains along which their goods are to be transported. In the first iteration, transport costs are guessed. In all following iterations, they are decided by the carriers.
 
 4. **Carrier choices** Given the transportation requests from the shippers, the carriers decide how many vehicles of different classes are deployed between all pairs of terminals.
 
@@ -37,28 +37,28 @@ The program considers the same commodities as the Samgods production version: *A
 
 Transport happens along *transport chains*, which are composed of *transport episodes*, which in turn may be composed of *transport segments*.
 
-*Transport chain* connects a producer (sender) to a consumer (receiver). It is defined by a *commodity*, if it uses *containers* or not, and by one or more *transport episodes*. Implemented in `se.vti.samgods.lgistics.TransportChain`.
+A *Transport chain* connects a producer (sender) to a consumer (receiver). It is defined by a *commodity*, if it uses *containers* or not, and by one or more *transport episodes*. Implementation in `se.vti.samgods.lgistics.TransportChain`.
 
-*Transport episodes* connects a producer or a terminal to a consumer or a terminal, using a unique *transport mode*. A *transport episode* is defined by (i) its parent *transport chain*, (ii) its *transport mode*, (iii) the transport segments it contains.
+A *Transport episode* connects a producer or a terminal to a consumer or a terminal, using a unique *transport mode*. A *transport episode* is defined by (i) its parent *transport chain*, (ii) its *transport mode*, (iii) the transport segments it contains. Implementation in `se.vti.samgods.lgistics.TransportEpisode`.
 
 The figure below illustrates a transport chain that consists of three transport episodes, using the modes Road/Rail/Road.
 
 ![](road-rail-road-chain.png)
 
-During a *Transport segment*, the load of a vehicle does not change. In the majority of cases, a *transport episode* consists of a single *transport segment*. This also holds when trucks or trains are moved on a ferry -- their load does not change. The only exception are rail segments with intermediate marshalling, where the waggons of a train may be reassembled into a new train. Here the content of a waggon does not change, but the train containing the waggon does.
+During a *Transport segment*, the load of a vehicle does not change. In the majority of cases, a *transport episode* consists of a single *transport segment*. This also holds when trucks or trains are moved on a ferry - their load does not change. The only exception are rail segments with intermediate marshalling, where the waggons of a train may be reassembled into a new train. Here, the content of a waggon does not change, but the train containing the waggon does.
 
-The figure below provides an example including a ferry and a marshalling episode:
+The figure below provides an example including a truck ferry and a rail marshalling episode:
 
 ![](road-rail-road-with-transfers-chain.png)
 
-All consolidation is modeled within transport segments (details further below) because this couples a unique vehicle configuration to a unique load, allowing to distribute the vehicle operation etc. cost over its load for the computation of transport prices.
+All consolidation is modeled within transport segments (details further below) because this couples a unique vehicle configuration to a unique load. This allows to compute transport prices by distributing the vehicle costs over its load.
 
 
 ## Network
 
 The network is represented by a node csv file and a link csv file. These files represent tables in the Samgods database; fields definitions are available from the Samgods production version documentation. Unavailable fields are left blank; no "magic numbers" are used.
 
-The file formats indicated below are used for compatibility with the production version of Samgods. The program-internal datastructures representing this information can be populated without using these files. However, this requires coding in the Java environment.
+The file formats indicated below are used for compatibility with TRV-Samgods. The program-internal datastructures representing this information can be populated without using these files. However, this requires coding in the Java environment.
 
 An example node file is given below:
 
@@ -113,9 +113,9 @@ The `se.vti.transportation.fleet` package contains vehicle fleet related functio
 
 ## Transport demand
 
-The transport demand is represented by one csv table per commodity type. These files are the *output* of a run of the Samgods production model, which already contains an assignment of shipments to transport chains. This information is used to (i) identify nodes where the legs/episodes within a chain may be connected, and (ii) to sum up the total freight demand in one sender/receiver relation. 
+The annual transport demand is represented by one csv table per commodity type. These files are the *output* of a run of TRV-Samgods, and hence already contain an assignment of shipments to transport chains. This information is used to (i) identify transfer nodes where the episodes/segments within a chain may be connected, and (ii) to sum up the total freight demand in each sender/receiver relation. 
 
-The file formats indicated below are used for compatibility with the production version of Samgods. The program-internal datastructures representing this information can be populated without using these files. However, this requires coding in the Java environment.
+The file formats indicated below are used for compatibility with TRV-Samgods. The program-internal datastructures representing this information can be populated without using these files. However, this requires coding in the Java environment.
 
 An example file for a single transport commodity is given below:
 
@@ -132,18 +132,23 @@ The `se.vti.logistics`  package contrains transport demand related functionality
 
 ## Shipper choices
 
-Each sender/receiver (producer/consumer) pair of network nodes may have, per commodity, one or more shipment relations of different size. Shipper choices are modeled individually per shipment relation. They comprise (i) choice of transport chain, and (ii) choice of shipment size (and, resultingly, shipment frequency). The underlying choice model is of multinomial logit form, currently a linear-in-parameters adaptation of the model described [here](https://swopec.hhs.se/vtiwps/abs/vtiwps2024_005.htm). The choice model is implemented in the package `se.vti.samgods.logistics.choice`. This is parallelized code to evaluate the choices of many shippers simultaneously.
+Each sender/receiver (producer/consumer) pair of network nodes may have, per commodity, one or more shipment relations of different size. Shipper choices are modeled individually per shipment relation. They comprise (i) choice of transport chain, and (ii) choice of shipment size (and, resultingly, annual shipment frequency). The underlying choice model is of multinomial logit form, currently a linear-in-parameters adaptation of what is described [here](https://swopec.hhs.se/vtiwps/abs/vtiwps2024_005.htm). 
+
+The choice model is implemented in the package `se.vti.samgods.logistics.choice`. This is parall code to evaluate the choices of many shippers simultaneously.
 
 
 ## Carrier choices and consolidation
 
-The model makes the fundamental assumption that (i) vehicles move in loops and that (ii) each vehicle loop is operated by one carrier.  (An extension to carriers interacting across loops is underway.) The carrier operating a given loop which type of vehicle and how many vehicles to use to serve the transport demand arising along that loop.
+The model makes the fundamental assumption that (i) vehicles move in loops and that (ii) each vehicle loop is operated by one carrier.  (An extension to carriers interacting across loops is underway.) The carrier operating a given loop decides which type of vehicle and how many vehicles to use in order to serve the transport demand arising along that loop.
 
-The currently considered loop structure is very simple and serves as a placeholder for richer vehicle move patterns. Assume that shipments arrive at some network node for (further) transportation to some other network node. One loop is constructed for this node pair, with (i) vehicle movements and loads truly evaulated on the forward half-loop, and (ii) merely assuming that the return-half loop happens with the same vehicle loads and, hence, costs. It is illustrated below. 
+The currently considered loop structure is very simple and serves as a placeholder for richer vehicle movement patterns. Assume that shipments arrive at some network node for transportation to some other network node. One loop is constructed for this node pair, with (i) vehicle movements and loads properly evaulated on the forward half-loop, and (ii) merely assuming that the return-half loop happens with the same vehicle loads and, hence, costs. This is illustrated below. 
 
 ![](half-loop-consolidation.png)
 
-This is in principle similar to TRV-samgods. A difference is that VTI-samgods explicitly models the annual time-line of shipment days. In the consolidation model, this is accounted for as follows. (i) When a shipper chooses an annual shipment frequency, it is assumed that the realized number of shipments per year follows a Possion distribution with expectation equal to the chosen shipment frequency. (ii) Carriers can consolidate along the daily time line by consolidating all shipments arising within, say, one week. (iii) The probability that there at all arise shipments within a week, and the expected amount of shipments *given* that shipments arise at all are then the basis for dimensining the deployed vehicle fleet.
+This is in principle similar to TRV-Samgods. A difference is that VTI-Samgods explicitly models the annual time-line of shipment days. In the consolidation model, this is accounted for as follows. (i) When a shipper chooses an annual shipment frequency, it is assumed that the realized number of shipments per year follows a Possion distribution with expectation equal to the chosen shipment frequency. (ii) Carriers can make use of the daily time line by consolidating all shipments arising within, say, one week. (iii) This allows carriers to anticipate the probability that shipments arise at all within a given week, as well as the expected amount of shipments arising *given* that there are at all shipments within that week. 
+
+
+Consolidation is implemented in the package `se.vti.samgods.transportation.consolidation`. This is parallel code to evaluate the consolidation choices of many shippers simultaneously.
 
 
 
