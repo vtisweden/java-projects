@@ -29,7 +29,7 @@ The overall program flow of se.vti.samgods is illustrated below.
 5. **Transport costs** The unit cost of transport [monetary units per ton kilometer per commodity type] is obtained by distributing the operation costs of all used vehicles over all goods transported by these vehicles.
 
 
-## Terminology Transport modes, Commodities, Chains, Episodes, Segments, ...
+## Terminology: Transport modes, Commodities, Chains, Episodes, Segments, ...
 
 The program considers the transport modes *Road*, *Rail*, *Sea*. A *Ferry* mode represents transport of trucks or trains over water. There also is a not yet tested *Air* mode encoded. The current version of the model uses only a rudimentary representation of consolidation, which works best for (relatively small) trucks and worst for (relatively large) vessels. Consolidation refinement is ongoing work.
 
