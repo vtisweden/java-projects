@@ -7,9 +7,9 @@ Published under GPL, see [LICENSE](LICENSE), [COPYING](COPYING), [WARRANTY](WARR
 **Maven dependency (using [github packages](https://docs.github.com/en/packages))**:
 
 	<dependency>
-		<groupId>se.vti.matsim-projects</groupId>
+		<groupId>se.vti.java-projects</groupId>
 		<artifactId>utils</artifactId>
-		<version>0.1.1</version>
+		<version>0.1.4</version>
 	</dependency>
 
 	
