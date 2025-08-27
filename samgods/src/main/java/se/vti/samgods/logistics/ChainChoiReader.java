@@ -228,8 +228,8 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 		assert (segmentODs.size() == modes.size());
 
 		/*
-		 * Compose episodes from legs. The only case where an episode contains more than
-		 * one leg are rail legs in sequence.
+		 * Compose episodes from segments. The only case where an episode contains more than
+		 * one segment are rail segments in sequence with marshalling in between.
 		 */
 
 		if (segmentODs.size() > 0) {

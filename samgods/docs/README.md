@@ -33,11 +33,21 @@ The program considers the transport modes *Road*, *Rail*, *Sea*. A *Ferry* mode 
 
 The program considers the same commodities as the Samgods production version: *Agriculture*, *Coal*, *Metal*, *Food*, *Textiles*, *Wood*, *Coke*, *Chemicals*, *Othermineral*, *Basicmetals*, *Machinery*, *Transport*, *Furniture*, *Secondaryraw*, *Timber*. The *Air* commodity is also encoded but not tested.
 
-Transport happens along *transport chains*, which are composed of *transport episodes*, which in turn may be composed of *transport legs*.
+Transport happens along *transport chains*, which are composed of *transport episodes*, which in turn may be composed of *transport segments*.
 
+*Transport chain* connects a producer (sender) to a consumer (receiver). It is defined by a *commodity*, if it uses *containers* or not, and by one or more *transport episodes*. Implemented in `se.vti.samgods.lgistics.TransportChain`.
+
+*Transport episodes* connects a producer or a terminal to a consumer or a terminal, using a unique *transport mode*. A *transport episode* is defined by (i) its parent *transport chain*, (ii) its *transport mode*, (iii) the transport segments it contains.
+
+The figure below illustrates a transport chain that consists of three transport episodes, using the modes Road/Rail/Road.
 ![](road-rail-road-chain.png)
 
+During a *Transport segment*, the load of a vehicle does not change. In the majority of cases, a *transport episode* consists of a single *transport segment*. This also holds when trucks or trains are moved on a ferry -- their load does not change. The only exception are rail segments with intermediate marshalling, where the waggons of a train may be reassembled into a new train. Here the content of a waggon does not change, but the train containing the waggon does.
+
+The figure below provides an example including a ferry and a marshalling episode:
 ![](road-rail-road-with-transfers-chain.png)
+
+All consolidation is modeled within transport segments (details further below) because this couples a unique vehicle configuration to a unique load, allowing to distribute the vehicle operation etc. cost over its load for the computation of transport prices.
 
 ---
 
