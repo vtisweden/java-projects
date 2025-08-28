@@ -168,6 +168,10 @@ public class Scenario<N extends Node> {
 	public Double getTime_h(N from, N to) {
 		return this.od2time_h.get(new Tuple<>(from, to));
 	}
+	
+	public Map<Tuple<N,N>, Double> getOD2Time_h() {
+		return this.od2time_h;
+	}
 
 	// -------------------- UTILITIES --------------------
 

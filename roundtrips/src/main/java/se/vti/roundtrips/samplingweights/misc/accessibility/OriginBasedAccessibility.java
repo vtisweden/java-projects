@@ -51,6 +51,8 @@ public class OriginBasedAccessibility<N extends Node> {
 
 	private Map<N, double[]> node2Accessibilities = null;
 
+	private Long missedConsideredNodes = null;
+
 	// -------------------- CONSTRUCTION --------------------
 
 	public OriginBasedAccessibility(N origin, AccessibilityUpdater<N> accessibilityUpdater) {
@@ -70,6 +72,10 @@ public class OriginBasedAccessibility<N extends Node> {
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
+
+	public Long getMissedConsideredNodes() {
+		return this.missedConsideredNodes;
+	}
 
 	public void compute(MultiRoundTrip<N> roundTrips) {
 
@@ -113,6 +119,14 @@ public class OriginBasedAccessibility<N extends Node> {
 				}
 			}
 		} while (changed);
+
+		if (this.consideredNodes != null) {
+			this.missedConsideredNodes = this.consideredNodes.size()
+					- this.consideredNodes.stream().filter(n -> this.node2Accessibilities.containsKey(n)).count();
+		} else {
+			this.missedConsideredNodes = null;
+		}
+
 	}
 
 	public Map<N, double[]> getNode2Accessibilities() {
