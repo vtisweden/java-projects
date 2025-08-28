@@ -103,6 +103,13 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 		}
 	}
 
+	public ChainChoiReader(final SamgodsConstants.Commodity commodity, final TransportDemandAndChains transportDemand,
+			boolean includeContainer, boolean includeNonContainer) {
+		this.commodity = commodity;
+		this.transportDemand = transportDemand;
+		this.feasibleIsContainerValues = new boolean[] { includeContainer, includeNonContainer };
+	}
+
 	public ChainChoiReader setSamplingRate(double rate, Random rnd) {
 		this.samplingRate = rate;
 		this.rnd = rnd;
@@ -142,6 +149,13 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 	}
 
 	// --------------- IMPLEMENTATION OF TabularFileHandler ---------------
+
+	private int reducedChainTypeWarnCnt = 0;
+
+	@Override
+	public void startDocument() {
+		this.reducedChainTypeWarnCnt = 0;
+	}
 
 	@Override
 	public void startCurrentDataRow() {
@@ -185,7 +199,13 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 				chainType = chainType.replace("" + i, "");
 			}
 			if (oldChainType.length() > chainType.length()) {
-				log.warn("Reduced chain type " + oldChainType + " to " + chainType + ".");
+				this.reducedChainTypeWarnCnt++;
+				if (this.reducedChainTypeWarnCnt <= 10) {
+					log.warn("Reduced chain type " + oldChainType + " to " + chainType + ".");
+					if (this.reducedChainTypeWarnCnt == 10) {
+						log.warn("Further messages of this type are suppressed.");
+					}
+				}
 			}
 		}
 
@@ -228,8 +248,8 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 		assert (segmentODs.size() == modes.size());
 
 		/*
-		 * Compose episodes from segments. The only case where an episode contains more than
-		 * one segment are rail segments in sequence with marshalling in between.
+		 * Compose episodes from segments. The only case where an episode contains more
+		 * than one segment are rail segments in sequence with marshalling in between.
 		 */
 
 		if (segmentODs.size() > 0) {
