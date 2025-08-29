@@ -29,15 +29,11 @@ import se.vti.roundtrips.common.Node;
  * @author GunnarF
  *
  */
-public interface AccessibilityUpdater<N extends Node> {
+public interface AccessibilityUpdater<N extends Node, L extends Object> {
 
-	String[] getLabels();
+	void initializeOrigin(N node, Map<N, L> node2Labels);
 
-	void initialize(N node, Map<N, double[]> node2measures);
+	Integer computeClosestNodeIndex(List<N> nodeSequence, List<Integer> departureSequence, Map<N, L> node2Labels);
 
-	Integer computeMostAccessibleNodeIndex(List<N> nodeSequence, List<Integer> departureSequence,
-			Map<N, double[]> node2accessibilities);
-
-	boolean updateDestinationNodeAccessibility(List<N> nodeSequence, List<Integer> departureSequence,
-			Map<N, double[]> node2accessibilities);
+	boolean updateDestinationNodeLabels(List<N> nodeSequence, List<Integer> departureSequence, Map<N, L> node2Labels);
 }
