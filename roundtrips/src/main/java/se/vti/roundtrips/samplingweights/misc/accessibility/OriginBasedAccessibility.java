@@ -51,7 +51,8 @@ public class OriginBasedAccessibility<N extends Node, L extends Object> {
 
 	private Map<N, L> node2Labels = null;
 
-	private Long missedConsideredNodes = null;
+//	 private Long missedConsideredNodes = null;	
+//	private Set<N> reachedDestinations = null;
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -73,9 +74,13 @@ public class OriginBasedAccessibility<N extends Node, L extends Object> {
 
 	// -------------------- IMPLEMENTATION --------------------
 
-	public Long getMissedConsideredNodes() {
-		return this.missedConsideredNodes;
-	}
+//	public Long getMissedConsideredNodes() {
+//		return this.missedConsideredNodes;
+//	}
+	
+//	public Set<N> getReachedDestinations() {
+//		return this.reachedDestinations;
+//	}
 
 	public void compute(MultiRoundTrip<N> roundTrips) {
 
@@ -119,14 +124,6 @@ public class OriginBasedAccessibility<N extends Node, L extends Object> {
 				}
 			}
 		} while (changed);
-
-		if (this.consideredNodes != null) {
-			this.missedConsideredNodes = this.consideredNodes.size()
-					- this.consideredNodes.stream().filter(n -> this.node2Labels.containsKey(n)).count();
-		} else {
-			this.missedConsideredNodes = null;
-		}
-
 	}
 
 	public Map<N, L> getNode2Labels() {
