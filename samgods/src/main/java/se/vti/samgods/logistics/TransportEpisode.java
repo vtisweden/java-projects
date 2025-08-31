@@ -92,6 +92,10 @@ public class TransportEpisode {
 			return this.segmentODs.getLast().destination;
 		}
 	}
+	
+	public OD getLoadingUnloadingOD() {
+		return new OD(this.getLoadingNodeId(), this.getUnloadingNodeId());
+	}
 
 	public Commodity getCommodity() {
 		if (this.parent == null) {

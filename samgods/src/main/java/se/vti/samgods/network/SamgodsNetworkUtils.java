@@ -1,5 +1,5 @@
 /**
- * se.vti.roundtrips.samplingweights.misc.accessibility
+ * se.vti.samgods.network
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -17,22 +17,28 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.samplingweights.misc.accessibility;
+package se.vti.samgods.network;
 
-import java.util.Map;
-
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.single.RoundTrip;
+import org.matsim.api.core.v01.network.Link;
 
 /**
+ * Do not use in parallel code!
  * 
  * @author GunnarF
  *
  */
-public interface AccessibilityUpdater<N extends Node, L extends Object> {
+public class SamgodsNetworkUtils {
 
-	void initialize(N originNode, Map<N, L> node2Labels);
-
-	boolean update(RoundTrip<N> roundTrip, int fromIndex, int toIndex, Map<N, L> node2Labels);
+	// For use without instantiation.
+	public static final SamgodsNetworkUtils instance = new SamgodsNetworkUtils();
 	
+	// For parallel use.
+	public SamgodsNetworkUtils() {		
+	}
+	
+	public SamgodsLinkAttributes getLinkAttrs(Link link) {
+		return (SamgodsLinkAttributes) link.getAttributes()
+				.getAttribute(SamgodsLinkAttributes.ATTRIBUTE_NAME);
+	}
+
 }

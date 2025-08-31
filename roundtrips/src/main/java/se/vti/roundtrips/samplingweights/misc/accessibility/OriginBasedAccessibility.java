@@ -19,14 +19,13 @@
  */
 package se.vti.roundtrips.samplingweights.misc.accessibility;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
@@ -47,12 +46,11 @@ public class OriginBasedAccessibility<N extends Node, L extends Object> {
 
 	// -------------------- MEMBERS --------------------
 
-	private Set<N> consideredNodes = null;
+//	private Set<N> consideredNodes = null;
+
+	private boolean verbose = false;
 
 	private Map<N, L> node2Labels = null;
-
-//	 private Long missedConsideredNodes = null;	
-//	private Set<N> reachedDestinations = null;
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -61,73 +59,60 @@ public class OriginBasedAccessibility<N extends Node, L extends Object> {
 		this.accessibilityUpdater = accessibilityUpdater;
 	}
 
-	public OriginBasedAccessibility<N, L> setConsideredNodes(Set<N> consideredNodes) {
-		this.consideredNodes = consideredNodes;
-		return this;
-	}
+//	public OriginBasedAccessibility<N, L> setConsideredNodes(Set<N> consideredNodes) {
+//		this.consideredNodes = consideredNodes;
+//		return this;
+//	}
 
-	// -------------------- INTERNALS --------------------
-
-	private boolean isConsidered(N node) {
-		return ((this.consideredNodes == null) || this.consideredNodes.contains(node));
-	}
+//	// -------------------- INTERNALS --------------------
+//
+//	private boolean isConsidered(N node) {
+//		return ((this.consideredNodes == null) || this.consideredNodes.contains(node));
+//	}
 
 	// -------------------- IMPLEMENTATION --------------------
 
-//	public Long getMissedConsideredNodes() {
-//		return this.missedConsideredNodes;
-//	}
-	
-//	public Set<N> getReachedDestinations() {
-//		return this.reachedDestinations;
-//	}
+	public Map<N, L> getNode2Labels() {
+		return this.node2Labels;
+	}
 
 	public void compute(MultiRoundTrip<N> roundTrips) {
 
 		this.node2Labels = new LinkedHashMap<>();
-		this.accessibilityUpdater.initializeOrigin(this.origin, this.node2Labels);
+		this.accessibilityUpdater.initialize(this.origin, this.node2Labels);
 
-		boolean changed;
+		boolean changedAnyRoundTrip;
 		do {
-			changed = false;
+			changedAnyRoundTrip = false;
+
 			for (RoundTrip<N> roundTrip : roundTrips) {
+				if (this.verbose) {
+					System.out.println("  Round trip:" + roundTrip);
+				}
 
-				Integer fromNodeIndex = this.accessibilityUpdater.computeClosestNodeIndex(roundTrip.getNodesView(),
-						roundTrip.getDeparturesView(), this.node2Labels);
-				if (fromNodeIndex != null) {
-					N fromNode = roundTrip.getNode(fromNodeIndex);
+				Set<Integer> activeNodeIndices = IntStream.range(0, roundTrip.size())
+						.filter(i -> this.node2Labels.containsKey(roundTrip.getNode(i))).boxed()
+						.collect(Collectors.toSet());
 
-					List<N> nodeSequence = new ArrayList<>(roundTrip.size());
-					List<Integer> departureSequence = new ArrayList<>(roundTrip.size());
-					nodeSequence.add(fromNode);
-					departureSequence.add(roundTrip.getDeparture(fromNodeIndex));
-
-					if (this.isConsidered(fromNode)) {
-
-						for (int toNodeIndex = fromNodeIndex + 1; toNodeIndex < fromNodeIndex
-								+ roundTrip.size(); toNodeIndex++) {
-							int effectiveToNodeIndex = toNodeIndex % roundTrip.size();
-							N toNode = roundTrip.getNode(effectiveToNodeIndex);
-							nodeSequence.add(toNode);
-							departureSequence.add(roundTrip.getDeparture(effectiveToNodeIndex));
-							if (this.isConsidered(toNode)) {
-								changed |= this.accessibilityUpdater.updateDestinationNodeLabels(nodeSequence,
-										departureSequence, this.node2Labels);
-								fromNode = toNode;
-								nodeSequence = new ArrayList<>(roundTrip.size());
-								departureSequence = new ArrayList<>(roundTrip.size());
-								nodeSequence.add(fromNode);
-								departureSequence.add(roundTrip.getDeparture(fromNodeIndex));
-							}
+				while (activeNodeIndices.size() > 0) {
+					if (this.verbose) {
+						System.out.println("    active node indices = " + activeNodeIndices);
+					}
+					Set<Integer> changedNodeIndices = new LinkedHashSet<>(activeNodeIndices.size());
+					for (int activeNodeIndex : activeNodeIndices) {
+						int succNodeIndex = (activeNodeIndex + 1) % roundTrip.size();
+						if (this.accessibilityUpdater.update(roundTrip, activeNodeIndex,
+								(activeNodeIndex + 1) % roundTrip.size(), this.node2Labels)) {
+							changedNodeIndices.add(succNodeIndex);
+							changedAnyRoundTrip = true;
 						}
 					}
+					activeNodeIndices = changedNodeIndices;
 				}
 			}
-		} while (changed);
-	}
 
-	public Map<N, L> getNode2Labels() {
-		return this.node2Labels;
+		} while (changedAnyRoundTrip);
+
 	}
 
 	// -------------------- MAIN-FUNCTION, ONLY FOR TESTING --------------------
@@ -149,65 +134,46 @@ public class OriginBasedAccessibility<N extends Node, L extends Object> {
 		multiRT.setRoundTripAndUpdateSummaries(1,
 				new RoundTrip<>(1, Arrays.asList(d, e, f, b), Arrays.asList(0, 0, 0, 0)));
 
-		AccessibilityUpdater<Node, Double> updater = new AccessibilityUpdater<>() {
+		AccessibilityUpdater<Node, Integer> updater = new AccessibilityUpdater<>() {
 
 			@Override
-			public void initializeOrigin(Node node, Map<Node, Double> node2accessibilities) {
-				node2accessibilities.put(node, 0.0);
-				this.printMeasures(node2accessibilities);
+			public void initialize(Node origin, Map<Node, Integer> node2Labels) {
+				node2Labels.put(origin, 0);
 			}
 
 			@Override
-			public boolean updateDestinationNodeLabels(List<Node> nodeSequence, List<Integer> departureSequence,
-					Map<Node, Double> node2accessibilities) {
-				System.out.println("updating");
-				System.out.println("  nodes = " + nodeSequence);
-				System.out.println("  departures = " + departureSequence);
+			public boolean update(RoundTrip<Node> roundTrip, int fromIndex, int toIndex, Map<Node, Integer> node2accessibilities) {
 
-				Node firstNode = nodeSequence.get(0);
-				Node lastNode = nodeSequence.get(nodeSequence.size() - 1);
+				Node predNode = roundTrip.getNode(fromIndex);
+				Node updatedNode = roundTrip.getNode(toIndex);
 				
-				Double oldValue = node2accessibilities.get(lastNode);
-//				if (oldValue == null) {
-//					oldValue = Double.POSITIVE_INFINITY;
-//					node2accessibilities.put(updatedNode, oldValue);
-//					changed = true;
-//				}
-				double newValue = node2accessibilities.get(firstNode) + (nodeSequence.size() - 1);
+				int predValue = node2accessibilities.get(predNode);
+				int succValue = node2accessibilities.getOrDefault(updatedNode, Integer.MAX_VALUE);
 
+				int dist;
+				if (fromIndex < toIndex) {
+					dist = toIndex - fromIndex;
+				} else {
+					dist = (roundTrip.size() + toIndex) - fromIndex;
+				}
+				
 				boolean changed = false;
-				if (oldValue == null || newValue < oldValue) {
-					node2accessibilities.put(lastNode, newValue);
+				if (predValue + dist < succValue) {
+					node2accessibilities.put(updatedNode, predValue + dist);
 					changed = true;
 				}
 				this.printMeasures(node2accessibilities);
 				return changed;
 			}
 
-			@Override
-			public Integer computeClosestNodeIndex(List<Node> nodeSequence, List<Integer> departureSequence,
-					Map<Node, Double> node2measures) {
-				Integer minIndex = null;
-				double minHops = Double.POSITIVE_INFINITY;
-
-				for (int i = 0; i < nodeSequence.size(); i++) {
-					Double measure = node2measures.get(nodeSequence.get(i));
-					if ((measure != null) && (measure < minHops)) {
-						minIndex = i;
-						minHops = measure;
-					}
-				}
-				return minIndex;
-			}
-
-			private void printMeasures(Map<Node, Double> node2measures) {
+			private void printMeasures(Map<Node, Integer> node2measures) {
 				System.out.println(node2measures.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue())
 						.collect(Collectors.joining(", ")));
 			}
 		};
 
 		var oba = new OriginBasedAccessibility<>(a, updater);
-		oba.setConsideredNodes(new LinkedHashSet<>(Arrays.asList(a, d, f)));
+		oba.verbose = true;
 		oba.compute(multiRT);
 
 		System.out.println("... DONE");
