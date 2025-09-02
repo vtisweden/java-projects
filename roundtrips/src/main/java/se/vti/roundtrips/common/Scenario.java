@@ -160,6 +160,13 @@ public class Scenario<N extends Node> {
 		this.od2time_h.put(new Tuple<>(from, to), time_h);
 	}
 
+	// TODO Once tested, allow string args in all time/distance setters.
+	public void setTime_h(String fromName, String toName, double time_h) {
+		N from = this.getNode(fromName);
+		N to = this.getNode(toName);
+		this.od2time_h.put(new Tuple<>(from, to), time_h);
+	}
+
 	public void setSymmetricTime_h(N loc1, N loc2, double time_h) {
 		this.setTime_h(loc1, loc2, time_h);
 		this.setTime_h(loc2, loc1, time_h);
