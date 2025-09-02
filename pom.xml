@@ -14,7 +14,9 @@
   	<maven.compiler.source>17</maven.compiler.source>
   	<maven.compiler.target>17</maven.compiler.target>
   	<matsim.version>2024.0</matsim.version>
-  	<geotools.version>20.5</geotools.version>	
+  	<geotools.version>20.5</geotools.version>
+	<junit.jupiter.version>5.10.2</junit.jupiter.version>
+	<surefire.plugin.version>3.2.5</surefire.plugin.version>
   </properties>
 
   <modules>
@@ -51,6 +53,10 @@
 			<id>slimjars</id>
 			<url>https://mvn.slimjars.com</url>
 		</repository>
+		<repository>
+			<id>java-projects</id>
+			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+		</repository>
 	</repositories>
   
   <dependencies>
@@ -60,6 +66,12 @@
 		<groupId>org.matsim</groupId>
 		<artifactId>matsim</artifactId>
 		<version>${matsim.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.junit.jupiter</groupId>
+		<artifactId>junit-jupiter</artifactId>
+		<version>${junit.jupiter.version}</version>
+		<scope>test</scope>
 	</dependency>
 
   </dependencies>
@@ -87,6 +99,28 @@
         		</execution>
    	   		</executions>
     	</plugin>
+			<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<version>${surefire.plugin.version}</version>
+			<dependencies>
+				<dependency>
+					<groupId>me.fabriciorby</groupId>
+					<artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+					<version>1.4.0</version>
+				</dependency>
+			</dependencies>
+			<configuration>
+				<reportFormat>plain</reportFormat>
+				<consoleOutputReporter>
+					<disable>true</disable>
+				</consoleOutputReporter>
+				<statelessTestsetInfoReporter
+						implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
+						<!-- <theme>UNICODE</theme> -->
+				</statelessTestsetInfoReporter>
+			</configuration>				
+			</plugin>		  		
   	</plugins>
 	</build>
 

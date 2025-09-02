@@ -48,13 +48,13 @@
 			<version>${matsim.version}</version>
 		</dependency>
 
-		<dependency>
+		<!-- <dependency> -->
 			<!-- Include the JUnit testing library.  Not transitive. -->
-			<groupId>junit</groupId>
+			<!-- <groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.13.1</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency> -->
 
 		<dependency>
 			<!--MATSim test infrastructure.  Not transitive.-->
