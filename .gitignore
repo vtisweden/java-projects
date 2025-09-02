@@ -1,6 +1,8 @@
 output/
 data/
+
 .settings
+.vscode/
 
 # maven gitignore template
 
