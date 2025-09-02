@@ -1,7 +1,7 @@
 /**
  * se.vti.samgods.logistics
  * 
- * Copyright (C) 2024 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2024, 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -26,22 +26,22 @@ package se.vti.samgods.logistics.costs;
  */
 public class NonTransportCost {
 
-	public final double annualAmount_ton;
+	public final double amount_ton_yr;
 
 	public final double frequency_1_yr;
 
-	public final double totalOrderCost;
+	public final double orderCost_1_yr;
 
-	public final double totalEnRouteMonetaryLoss;
+	public final double enRouteMonetaryLoss_1_yr;
 
-	public final double totalInventoryCost;
+	public final double inventoryCost_1_yr;
 
-	public NonTransportCost(double annualAmount_ton, double frequency_1_yr, double totalOrderCost,
-			double totalEnRouteMonetaryLoss, double totalInventoryCost) {
-		this.annualAmount_ton = annualAmount_ton;
+	public NonTransportCost(double amount_ton_yr, double frequency_1_yr, double orderCost_1_yr,
+			double enRouteMonetaryLoss_1_yr, double inventoryCost_1_yr) {
+		this.amount_ton_yr = amount_ton_yr;
 		this.frequency_1_yr = frequency_1_yr;
-		this.totalOrderCost = totalOrderCost;
-		this.totalInventoryCost = totalInventoryCost;
-		this.totalEnRouteMonetaryLoss = totalEnRouteMonetaryLoss;
+		this.orderCost_1_yr = orderCost_1_yr;
+		this.enRouteMonetaryLoss_1_yr = enRouteMonetaryLoss_1_yr;
+		this.inventoryCost_1_yr = inventoryCost_1_yr;
 	}
 }

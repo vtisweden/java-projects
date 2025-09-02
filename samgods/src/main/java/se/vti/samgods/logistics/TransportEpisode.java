@@ -44,7 +44,7 @@ public class TransportEpisode {
 
 	private final LinkedList<OD> segmentODs = new LinkedList<>();
 
-	private TransportChain parent;
+	private TransportChain parent = null;
 
 	private List<ConsolidationUnit> consolidationUnits = null;
 
@@ -54,7 +54,8 @@ public class TransportEpisode {
 		this.mode = mode;
 	}
 
-	/* package */ void setParent(TransportChain parent) {
+	// Package private -- called by TransportChain when adding an Episode.
+	void setParent(TransportChain parent) {
 		this.parent = parent;
 	}
 
@@ -65,10 +66,6 @@ public class TransportEpisode {
 	public void setConsolidationUnits(List<ConsolidationUnit> consolidationUnits) {
 		this.consolidationUnits = consolidationUnits;
 	}
-
-//	public List<? extends Link> allLinks(NetworkData networkData) {
-//		return this.consolidationUnits.stream().map(cu -> cu.allLinks(networkData)).flatMap(list -> list.stream()).toList();
-//	}
 
 	// -------------------- IMPLEMENTATION --------------------
 
@@ -95,6 +92,10 @@ public class TransportEpisode {
 			return this.segmentODs.getLast().destination;
 		}
 	}
+	
+	public OD getLoadingUnloadingOD() {
+		return new OD(this.getLoadingNodeId(), this.getUnloadingNodeId());
+	}
 
 	public Commodity getCommodity() {
 		if (this.parent == null) {
@@ -116,12 +117,8 @@ public class TransportEpisode {
 		return this.consolidationUnits;
 	}
 
-	public boolean hasSignatures() {
-		return (this.consolidationUnits != null);
-	}
-
 	public boolean isRouted() {
-		return (this.hasSignatures() && (this.consolidationUnits.stream()
+		return ((this.consolidationUnits != null) && (this.consolidationUnits.stream()
 				.allMatch(cu -> (cu != null) && (cu.vehicleType2route.size() > 0))));
 	}
 

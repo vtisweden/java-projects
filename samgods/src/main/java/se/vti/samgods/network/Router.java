@@ -107,18 +107,11 @@ public class Router {
 	private class RouteProcessor implements Runnable {
 
 		private final String name;
-
-//		private final Commodity commodity;
-
-//		private final NetworkData networkData;
-//		private final FleetData fleetData;
 		private final NetworkAndFleetData networkAndFleetData;
+		private final BlockingQueue<ConsolidationUnit> jobQueue;
 
 		private final AStarLandmarksFactory routerFactory = new AStarLandmarksFactory(4);
-
 		private final Map<VehicleType, LeastCostPathCalculator> vehicleType2router = new LinkedHashMap<>();
-
-		private final BlockingQueue<ConsolidationUnit> jobQueue;
 
 		RouteProcessor(String name, NetworkAndFleetData networkAndFleetData,
 				BlockingQueue<ConsolidationUnit> jobQueue) {
@@ -127,46 +120,44 @@ public class Router {
 			this.jobQueue = jobQueue;
 		}
 
-		private List<Link> computeRoute(ConsolidationUnit job, VehicleType vehicleType) {
+		List<Link> computeRoute(ConsolidationUnit job, VehicleType vehicleType) {
+
+			final Network unimodalNetwork = this.networkAndFleetData.getUnimodalNetwork(vehicleType);
+			if (unimodalNetwork == null) {
+				log.warn("No network available. Skipping consolidationUnit " + job);
+				return null;
+			}
 
 			final LeastCostPathCalculator router = this.vehicleType2router.computeIfAbsent(vehicleType, vt -> {
 				final TravelDisutility travelDisutility = this.networkAndFleetData.getTravelDisutility(vehicleType);
 				if (travelDisutility == null) {
-					log.warn("No TravelDisutility available. ConsolidationUnit: " + job);
+					log.warn("No TravelDisutility available. Skipping consolidationUnit " + job);
 					return null;
 				}
 				final TravelTime travelTime = this.networkAndFleetData.getTravelTime(vehicleType);
 				if (travelTime == null) {
-					log.warn("No TravelTime available. ConsolidationUnit: " + job);
+					log.warn("No TravelTime available. Skipping consolidationUnit: " + job);
 					return null;
 				}
-				return this.routerFactory.createPathCalculator(this.networkAndFleetData.getUnimodalNetwork(vt),
-						travelDisutility, travelTime);
+				return this.routerFactory.createPathCalculator(unimodalNetwork, travelDisutility, travelTime);
 			});
 			if (router == null) {
-				log.warn("No Router available. ConsolidationUnit: " + job);
+				log.warn("No Router available. Skipping consolidationUnit: " + job);
 				return null;
 			}
 
-			final Network network = this.networkAndFleetData.getUnimodalNetwork(vehicleType);
-			final Id<Node> fromId = job.od.origin;
-			final Id<Node> toId = job.od.destination;
-			if (fromId.equals(toId)) {
+			final Id<Node> fromNodeId = job.od.origin;
+			final Id<Node> toNodeId = job.od.destination;
+			if (fromNodeId.equals(toNodeId)) {
 				if (logProgress) {
 					registerFoundRoute(this);
 				}
 				return (new ArrayList<>());
 			} else {
-				final Node from = network.getNodes().get(fromId);
-				final Node to = network.getNodes().get(toId);
+				final Node from = unimodalNetwork.getNodes().get(fromNodeId);
+				final Node to = unimodalNetwork.getNodes().get(toNodeId);
 				if ((from != null) && (to != null) && (router != null)) {
-
-					
-					Level level = LogManager.getLogger(Dijkstra.class).getLevel();
-					Configurator.setLevel(Dijkstra.class, Level.OFF);
-					Path path = router.calcLeastCostPath(from, to, 0, null, null);
-					Configurator.setLevel(Dijkstra.class, level);
-
+					final Path path = router.calcLeastCostPath(from, to, 0, null, null);
 					if (path == null) {
 						if (logProgress) {
 							registerFailedRouteNoConnection(this);
@@ -190,19 +181,16 @@ public class Router {
 			}
 		}
 
-		private void process(ConsolidationUnit consolidationUnit) {
+		void process(ConsolidationUnit consolidationUnit) {
 			consolidationUnit.vehicleType2route.clear();
 			final Set<VehicleType> compatibleVehicleTypes = this.networkAndFleetData.getCompatibleVehicleTypes(
 					consolidationUnit.commodity, consolidationUnit.samgodsMode, consolidationUnit.isContainer);
 			for (VehicleType vehicleType : compatibleVehicleTypes) {
 				final List<Link> links = this.computeRoute(consolidationUnit, vehicleType);
 				if (links != null) {
-//					final Map<Id<Link>, BasicTransportCost> linkId2withFerryUnitCost = this.networkData
-//							.getLinkId2unitCost(vehicleType);
-					consolidationUnit.setRouteLinks(vehicleType, links);
+					consolidationUnit.setRouteFromLinks(vehicleType, links);
 				}
 			}
-			consolidationUnit.compress();
 		}
 
 		@Override
@@ -227,10 +215,10 @@ public class Router {
 	// -------------------- CONSTANTS AND MEMBERS --------------------
 
 	private final NetworkAndFleetDataProvider networkAndFleetDataProvider;
-	
-	private boolean logProgress = true;
 
-	private int maxThreads = Integer.MAX_VALUE;
+	private boolean logProgress = false;
+
+	private int maxThreads = 64;
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -256,6 +244,9 @@ public class Router {
 			final BlockingQueue<ConsolidationUnit> jobQueue = new LinkedBlockingQueue<>(10 * threadCnt);
 			final List<Thread> routingThreads = new ArrayList<>();
 
+			Level level = LogManager.getLogger(Dijkstra.class).getLevel();
+			Configurator.setLevel(Dijkstra.class, Level.OFF);
+
 			log.info("Starting " + threadCnt + " routing threads.");
 			for (int i = 0; i < threadCnt; i++) {
 				final RouteProcessor routeProcessor = new RouteProcessor(RouteProcessor.class.getSimpleName() + i,
@@ -277,6 +268,9 @@ public class Router {
 			for (Thread routingThread : routingThreads) {
 				routingThread.join();
 			}
+
+			Configurator.setLevel(Dijkstra.class, level);
+
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}

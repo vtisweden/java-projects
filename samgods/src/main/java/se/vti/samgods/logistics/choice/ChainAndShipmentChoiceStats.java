@@ -62,7 +62,7 @@ public class ChainAndShipmentChoiceStats {
 		this.commodity2size2cnt.get(choice.annualShipment.getCommodity()).compute(choice.sizeClass, (s, c) -> c + 1);
 		this.commodity2lengths.get(choice.annualShipment.getCommodity())
 				.add(choice.transportChain.getEpisodes().stream().flatMap(e -> e.getConsolidationUnits().stream())
-						.mapToDouble(cu -> cu.computeAverageLength_km(this.networkAndFleetData)).sum());
+						.mapToDouble(cu -> cu.computeLengthStats_km(this.networkAndFleetData).getMean()).sum());
 	}
 
 	public String createChoiceStatsTable() {

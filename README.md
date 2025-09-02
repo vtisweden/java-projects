@@ -1,4 +1,4 @@
-# matsim-projects
+# java-projects
 
 Various java projects, mostly related to MATSim.
 

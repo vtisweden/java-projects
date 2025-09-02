@@ -22,19 +22,20 @@ package se.vti.samgods.logistics;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
+import org.matsim.vehicles.Vehicles;
 
 import se.vti.samgods.common.OD;
 import se.vti.samgods.common.SamgodsConstants;
-import se.vti.samgods.common.SamgodsConstants.TransportMode;
+import se.vti.samgods.network.TransportModes;
+import se.vti.samgods.transportation.fleet.SamgodsVehicleAttributes;
 import se.vti.utils.misc.tabularfileparser.AbstractTabularFileHandlerWithHeaderLine;
 import se.vti.utils.misc.tabularfileparser.TabularFileParser;
 
@@ -68,59 +69,45 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 			Arrays.asList(Orig2, Dest), Arrays.asList(Orig2, Orig3, Dest), Arrays.asList(Orig2, Orig3, Orig4, Dest),
 			Arrays.asList(Orig2, Orig3, Orig4, Orig5, Dest));
 
-	private static final char SamgodsRoadFerryMode = 'P';
-	private static final char SamgodsRailFerryMode = 'Q';
-	private static final List<Character> SamgodsFerryModes = Collections
-			.unmodifiableList(Arrays.asList(SamgodsRoadFerryMode, SamgodsRailFerryMode));
-
-	private final static Map<Character, TransportMode> code2samgodsMode;
-	static {
-		code2samgodsMode = new LinkedHashMap<>();
-		code2samgodsMode.put('A', SamgodsConstants.TransportMode.Road);
-		code2samgodsMode.put('X', SamgodsConstants.TransportMode.Road);
-		code2samgodsMode.put('D', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('d', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('E', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('F', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('f', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('J', SamgodsConstants.TransportMode.Sea);
-		code2samgodsMode.put('K', SamgodsConstants.TransportMode.Sea);
-		code2samgodsMode.put('L', SamgodsConstants.TransportMode.Sea);
-		code2samgodsMode.put('V', SamgodsConstants.TransportMode.Sea);
-		code2samgodsMode.put('B', SamgodsConstants.TransportMode.Road);
-		code2samgodsMode.put('C', SamgodsConstants.TransportMode.Road);
-		code2samgodsMode.put('S', SamgodsConstants.TransportMode.Road);
-		code2samgodsMode.put('c', SamgodsConstants.TransportMode.Road);
-		code2samgodsMode.put('G', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('H', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('h', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('I', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('T', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('U', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('i', SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('M', SamgodsConstants.TransportMode.Sea);
-		code2samgodsMode.put('N', SamgodsConstants.TransportMode.Sea);
-		code2samgodsMode.put('O', SamgodsConstants.TransportMode.Sea);
-		code2samgodsMode.put('W', SamgodsConstants.TransportMode.Sea);
-		code2samgodsMode.put(SamgodsRoadFerryMode, SamgodsConstants.TransportMode.Road);
-		code2samgodsMode.put(SamgodsRailFerryMode, SamgodsConstants.TransportMode.Rail);
-		code2samgodsMode.put('R', SamgodsConstants.TransportMode.Air);
-	}
-
 	// -------------------- MEMBERS --------------------
 
 	private final SamgodsConstants.Commodity commodity;
 
-	private final TransportDemand transportDemand;
+	private final TransportDemandAndChains transportDemand;
+
+	private final boolean[] feasibleIsContainerValues;
 
 	private double samplingRate = 1.0;
 	private Random rnd = null;
 
 	// -------------------- CONSTRUCTION/CONFIGURATION --------------------
 
-	public ChainChoiReader(final SamgodsConstants.Commodity commodity, final TransportDemand transportDemand) {
+	public ChainChoiReader(final SamgodsConstants.Commodity commodity, final TransportDemandAndChains transportDemand,
+			Vehicles vehicles) {
 		this.commodity = commodity;
 		this.transportDemand = transportDemand;
+
+		if (this.thereIsAtLeastOneCompatibleVehicle(true, vehicles)) {
+			if (this.thereIsAtLeastOneCompatibleVehicle(false, vehicles)) {
+				this.feasibleIsContainerValues = new boolean[] { true, false };
+			} else {
+				this.feasibleIsContainerValues = new boolean[] { true };
+			}
+		} else {
+			if (this.thereIsAtLeastOneCompatibleVehicle(false, vehicles)) {
+				this.feasibleIsContainerValues = new boolean[] { false };
+			} else {
+				throw new RuntimeException(
+						"No vehicles (neither container nor bulk) available for commodity: " + commodity);
+			}
+		}
+	}
+
+	public ChainChoiReader(final SamgodsConstants.Commodity commodity, final TransportDemandAndChains transportDemand,
+			boolean includeContainer, boolean includeNonContainer) {
+		this.commodity = commodity;
+		this.transportDemand = transportDemand;
+		this.feasibleIsContainerValues = new boolean[] { includeContainer, includeNonContainer };
 	}
 
 	public ChainChoiReader setSamplingRate(double rate, Random rnd) {
@@ -130,6 +117,17 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 	}
 
 	// -------------------- INTERNALS --------------------
+
+	private boolean thereIsAtLeastOneCompatibleVehicle(boolean isContainer, Vehicles vehicles) {
+		for (var vehicleType : vehicles.getVehicleTypes().values()) {
+			var attrs = (SamgodsVehicleAttributes) vehicleType.getAttributes()
+					.getAttribute(SamgodsVehicleAttributes.ATTRIBUTE_NAME);
+			if ((isContainer == attrs.isContainer) && attrs.isCompatible(this.commodity)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private Long key = null;
 	private Double singleInstanceVolume_ton_yr = null;
@@ -141,7 +139,7 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 				|| Math.abs(this.od2proba.values().stream().mapToDouble(p -> p).sum() - 1.0) <= 0.001);
 		final Map.Entry<OD, Double> odEntry = this.od2proba.entrySet().stream()
 				.max((e, f) -> e.getValue().compareTo(f.getValue())).get();
-		this.transportDemand.add(this.commodity, odEntry.getKey(), this.singleInstanceVolume_ton_yr,
+		this.transportDemand.addShipments(this.commodity, odEntry.getKey(), this.singleInstanceVolume_ton_yr,
 				this.numberOfInstances);
 
 		this.key = null;
@@ -152,12 +150,18 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 
 	// --------------- IMPLEMENTATION OF TabularFileHandler ---------------
 
+	private int reducedChainTypeWarnCnt = 0;
+
+	@Override
+	public void startDocument() {
+		this.reducedChainTypeWarnCnt = 0;
+	}
+
 	@Override
 	public void startCurrentDataRow() {
 
 		if ((this.samplingRate < 1.0) && (this.rnd.nextDouble() >= this.samplingRate)) {
-			// Only for testing.
-			return;
+			return; // Only for testing.
 		}
 
 		// Load chain parameters.
@@ -195,7 +199,13 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 				chainType = chainType.replace("" + i, "");
 			}
 			if (oldChainType.length() > chainType.length()) {
-				log.warn("Reduced chain type " + oldChainType + " to " + chainType + ".");
+				this.reducedChainTypeWarnCnt++;
+				if (this.reducedChainTypeWarnCnt <= 10) {
+					log.warn("Reduced chain type " + oldChainType + " to " + chainType + ".");
+					if (this.reducedChainTypeWarnCnt == 10) {
+						log.warn("Further messages of this type are suppressed.");
+					}
+				}
 			}
 		}
 
@@ -208,19 +218,19 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 			final long intermedOrigin = Long.parseLong(this.getStringValue(originColumns.get(i)));
 			final long intermedDestination = Long.parseLong(this.getStringValue(destinationColumns.get(i)));
 			segmentODs.add(new OD(Id.createNodeId(intermedOrigin), Id.createNodeId(intermedDestination)));
-			modes.add(code2samgodsMode.get(chainType.charAt(i)));
+			modes.add(TransportModes.CODE_2_SAMGODSMODE.get(chainType.charAt(i)));
 		}
 
 		// filter out ferry episodes
 
-		assert (!SamgodsFerryModes.contains(chainType.charAt(0)));
-		assert (!SamgodsFerryModes.contains(chainType.charAt(chainType.length() - 1)));
+		assert (!TransportModes.SAMGODS_FERRYMODES.contains(chainType.charAt(0)));
+		assert (!TransportModes.SAMGODS_FERRYMODES.contains(chainType.charAt(chainType.length() - 1)));
 
 		int i = 1;
 		while (i < segmentODs.size() - 1) {
-			if (SamgodsFerryModes.contains(chainType.charAt(i))) {
-				assert (!SamgodsFerryModes.contains(chainType.charAt(i - 1)));
-				assert (!SamgodsFerryModes.contains(chainType.charAt(i + 1)));
+			if (TransportModes.SAMGODS_FERRYMODES.contains(chainType.charAt(i))) {
+				assert (!TransportModes.SAMGODS_FERRYMODES.contains(chainType.charAt(i - 1)));
+				assert (!TransportModes.SAMGODS_FERRYMODES.contains(chainType.charAt(i + 1)));
 				assert (modes.get(i - 1).equals(modes.get(i)));
 				assert (modes.get(i).equals(modes.get(i + 1)));
 
@@ -238,29 +248,33 @@ public class ChainChoiReader extends AbstractTabularFileHandlerWithHeaderLine {
 		assert (segmentODs.size() == modes.size());
 
 		/*
-		 * Compose episodes from legs. The only case where an episode contains more than
-		 * one leg are rail legs in sequence.
+		 * Compose episodes from segments. The only case where an episode contains more
+		 * than one segment are rail segments in sequence with marshalling in between.
 		 */
 
 		if (segmentODs.size() > 0) {
-			// TODO Could already here filter out impossible commodity/container
-			// combinations.
-			for (boolean isContainer : new boolean[] { true, false }) {
-				final TransportChain transportChain = new TransportChain(this.commodity, isContainer);
+			for (boolean isContainer : this.feasibleIsContainerValues) {
+				var transportChain = new TransportChain(this.commodity, isContainer);
 				TransportEpisode currentEpisode = null;
 				for (int segmentIndex = 0; segmentIndex < segmentODs.size(); segmentIndex++) {
-					final OD segmentOD = segmentODs.get(segmentIndex);
-					final SamgodsConstants.TransportMode segmentMode = modes.get(segmentIndex);
-					if (currentEpisode == null || !SamgodsConstants.TransportMode.Rail.equals(currentEpisode.getMode())
+					var segmentOD = segmentODs.get(segmentIndex);
+					var segmentMode = modes.get(segmentIndex);
+					if ((currentEpisode == null)
+							|| !SamgodsConstants.TransportMode.Rail.equals(currentEpisode.getMode())
 							|| !SamgodsConstants.TransportMode.Rail.equals(segmentMode)) {
-						// There are NOT two subsequent rail legs.
 						currentEpisode = new TransportEpisode(segmentMode);
 						transportChain.addEpisode(currentEpisode);
 					}
-					assert (currentEpisode.getMode().equals(segmentMode));
+//					assert (currentEpisode.getMode().equals(segmentMode));
 					currentEpisode.addSegmentOD(segmentOD);
+					if (!currentEpisode.getMode().equals(segmentMode)) {
+						log.warn(
+								"Episode mode is " + currentEpisode.getMode() + ", but segment mode is " + segmentMode);
+						log.warn("  Current chain: " + transportChain);
+						log.warn("  Current episode: " + currentEpisode);
+					}
 				}
-				this.transportDemand.add(transportChain);
+				this.transportDemand.addChain(transportChain);
 			}
 		}
 	}

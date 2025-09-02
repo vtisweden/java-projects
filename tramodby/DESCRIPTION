@@ -1,0 +1,1 @@
+The program se.vti.tramodby takes origin/destination matrices from the Norwegian travel demand model TraMod_By as input and uses MATSim to compute a dynamic traffic assignment. Based on this, the program creates travel cost matrices for congestion feedback into TraMod_By.

@@ -2,9 +2,9 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <parent>
-    <groupId>se.vti.matsim-projects</groupId>
-  	<artifactId>matsim-projects</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <groupId>se.vti.java-projects</groupId>
+  	<artifactId>java-projects</artifactId>
+    <version>0.1.1</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -49,16 +49,18 @@
 		</dependency>
 
 		<dependency>
-			<groupId>se.vti.matsim-projects</groupId>
+			<groupId>se.vti.java-projects</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.1.2-SNAPSHOT</version>
+			<version>0.1.5-SNAPSHOT</version>
 		</dependency>
 
+		<!--
 		<dependency>
-			<groupId>se.vti.matsim-projects</groupId>
+			<groupId>se.vti.java-projects</groupId>
 			<artifactId>matsimutils</artifactId>
 			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
+		-->
 
 		<!-- This is the matsim "core": -->
 		<dependency>
@@ -95,6 +97,26 @@
     		<version>0.3.2</version>
 		</dependency>
 
+    <!-- JUnit 5 API and Engine -->
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.0</version>
+        <scope>test</scope>
+    </dependency>
+
 	</dependencies>
+
+	<!--
+	<build>
+    	<plugins>
+        	<plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+            	<artifactId>maven-surefire-plugin</artifactId>
+            	<version>3.1.2</version>
+        	</plugin>
+    	</plugins>
+	</build>
+	-->
 
 </project>

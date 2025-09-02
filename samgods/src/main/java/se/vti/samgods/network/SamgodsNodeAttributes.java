@@ -28,7 +28,7 @@ public class SamgodsNodeAttributes {
 
 	// -------------------- CONSTANTS --------------------
 
-	public static final String ATTRIBUTE_NAME = "freight";
+	public static final String ATTRIBUTE_NAME = "samgods";
 
 	public final boolean isDomestic;
 

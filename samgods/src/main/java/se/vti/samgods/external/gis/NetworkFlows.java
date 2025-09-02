@@ -52,8 +52,8 @@ public class NetworkFlows {
 			final FleetAssignment fleetAssignment = entry.getValue();
 			for (Id<Link> linkId : consolidationUnit.getRoute(fleetAssignment.vehicleType)) {
 				this.id2commodity2flow_ton.computeIfAbsent(linkId, id -> new LinkedHashMap<>(Commodity.values().length))
-						.compute(consolidationUnit.commodity, (c, q) -> q == null ? fleetAssignment.realDemand_ton
-								: q + fleetAssignment.realDemand_ton);
+						.compute(consolidationUnit.commodity, (c, q) -> q == null ? fleetAssignment.annualDemand_ton
+								: q + fleetAssignment.annualDemand_ton);
 			}
 		}
 		return this;

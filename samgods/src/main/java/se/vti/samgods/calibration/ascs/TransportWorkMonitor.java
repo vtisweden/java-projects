@@ -119,7 +119,7 @@ public class TransportWorkMonitor {
 				.entrySet()) {
 			final ConsolidationUnit consolidationUnit = entry.getKey();
 			final FleetAssignment fleetAssignment = entry.getValue();
-			final double realized_GTonKm = 1e-9 * fleetAssignment.realDemand_ton * 0.5
+			final double realized_GTonKm = 1e-9 * fleetAssignment.annualDemand_ton * 0.5
 					* fleetAssignment.domesticLoopLength_km;
 			this.vehicleType2lastRealizedDomesticGTonKm.compute(fleetAssignment.vehicleType,
 					(v, s) -> s == null ? realized_GTonKm : s + realized_GTonKm);

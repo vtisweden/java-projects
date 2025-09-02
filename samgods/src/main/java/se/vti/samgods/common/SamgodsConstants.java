@@ -19,12 +19,6 @@
  */
 package se.vti.samgods.common;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
  * 
  * @author GunnarF
@@ -33,30 +27,6 @@ import java.util.stream.Collectors;
 public class SamgodsConstants {
 
 	// -------------------- TRANSPORT MODES --------------------
-
-//	public static enum TransportMode {
-//
-//		Road(org.matsim.api.core.v01.TransportMode.car), Rail(org.matsim.api.core.v01.TransportMode.train),
-//		Sea(org.matsim.api.core.v01.TransportMode.ship), Air(org.matsim.api.core.v01.TransportMode.airplane),
-//		Ferry(org.matsim.api.core.v01.TransportMode.car, org.matsim.api.core.v01.TransportMode.train);
-//
-//		public final Set<String> matsimModes;
-//
-//		public boolean isFerry() {
-//			return Ferry.equals(this);
-//		}
-//
-//		public boolean isRail() {
-//			return Rail.equals(this);
-//		}
-//
-//		private TransportMode(String... matsimModes) {
-//			this.matsimModes = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(matsimModes)));
-//		}
-//		
-//		public static Set<String> allMatsimModes() {
-//			return Arrays.stream(TransportMode.values()).map(m -> m.matsimModes).flatMap(s -> s.stream()).collect(Collectors.toSet());
-//		}
 
 	public static enum TransportMode {
 

@@ -1,7 +1,7 @@
 /**
  * se.vti.samgods.network
  * 
- * Copyright (C) 2024 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2024, 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -40,6 +40,14 @@ public class NetworkStatsTable {
 	private NetworkStatsTable() {
 	}
 
+	private static String divideOrEmpty(Double num, Integer den) {
+		if (num == null || den == null || den == 0) {
+			return "";
+		} else {
+			return "" + (num / den);
+		}
+	}
+	
 	public static String create(Network network) {
 		final Map<TransportMode, Integer> mode2cnt = new LinkedHashMap<>();
 		final Map<TransportMode, Integer> mode2speed1cnt = new LinkedHashMap<>();
@@ -97,13 +105,5 @@ public class NetworkStatsTable {
 			table.addRule();
 		}
 		return table.render();
-	}
-
-	private static String divideOrEmpty(Double num, Integer den) {
-		if (num == null || den == null || den == 0) {
-			return "";
-		} else {
-			return "" + (num / den);
-		}
 	}
 }

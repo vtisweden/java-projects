@@ -37,33 +37,16 @@ import se.vti.samgods.transportation.costs.DetailedTransportCost;
  */
 public class MonetaryChainAndShipmentSizeUtilityFunction implements ChainAndShipmentSizeUtilityFunction {
 
-//	private final Map<TransportMode, Double> mode2meanASC;
 	private final Map<Commodity, Double> commodity2railASC;
 	private final Map<Commodity, Double> commodity2scale;
 
 	public MonetaryChainAndShipmentSizeUtilityFunction(Map<Commodity, Double> commodity2scale,
-//			Map<TransportMode, Double> mode2meanASC, 
 			Map<Commodity, Double> commodity2railASC) {
 		this.commodity2scale = commodity2scale;
-//		this.mode2meanASC = mode2meanASC;
 		this.commodity2railASC = commodity2railASC;
 	}
 
 	public double totalASC(TransportChain transportChain) {
-//		if (this.mode2meanASC == null) {
-//			return 0.0;
-//		} else {
-//			final Set<TransportMode> modes = new LinkedHashSet<>();
-//			final Set<Commodity> railCommodities = new LinkedHashSet<>();
-//			for (TransportEpisode episode : transportChain.getEpisodes()) {
-//				modes.add(episode.getMode());
-//				if (TransportMode.Rail.equals(episode.getMode())) {
-//					railCommodities.add(episode.getCommodity());
-//				}
-//			}
-//			return modes.stream().mapToDouble(m -> this.mode2meanASC.getOrDefault(m, 0.0)).sum()
-//					+ railCommodities.stream().mapToDouble(c -> this.commodity2railASC.getOrDefault(c, 0.0)).sum();
-//		}
 		if (this.commodity2railASC == null) {
 			return 0.0;
 		} else {
@@ -79,8 +62,8 @@ public class MonetaryChainAndShipmentSizeUtilityFunction implements ChainAndShip
 
 	public double totalMonetaryCost(double amount_ton, DetailedTransportCost transportUnitCost,
 			NonTransportCost totalNonTransportCost) {
-		return transportUnitCost.monetaryCost * amount_ton + totalNonTransportCost.totalOrderCost
-				+ totalNonTransportCost.totalEnRouteMonetaryLoss + totalNonTransportCost.totalInventoryCost;
+		return transportUnitCost.monetaryCost * amount_ton + totalNonTransportCost.orderCost_1_yr
+				+ totalNonTransportCost.enRouteMonetaryLoss_1_yr + totalNonTransportCost.inventoryCost_1_yr;
 	}
 
 	@Override

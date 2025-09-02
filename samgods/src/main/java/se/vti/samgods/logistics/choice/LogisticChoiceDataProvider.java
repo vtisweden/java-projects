@@ -34,7 +34,7 @@ import se.vti.samgods.logistics.TransportEpisode;
 import se.vti.samgods.transportation.consolidation.ConsolidationUnit;
 import se.vti.samgods.transportation.consolidation.HalfLoopConsolidationJobProcessor.FleetAssignment;
 import se.vti.samgods.transportation.costs.DetailedTransportCost;
-import se.vti.samgods.transportation.costs.RealizedInVehicleCostCalculator;
+import se.vti.samgods.transportation.costs.TransportCostCalculator;
 import se.vti.samgods.transportation.fleet.SamgodsVehicleAttributes;
 
 /**
@@ -48,7 +48,7 @@ public class LogisticChoiceDataProvider {
 
 	private final double initialTransportEfficiency = 0.7;
 
-	private final RealizedInVehicleCostCalculator realizedInVehicleCost = new RealizedInVehicleCostCalculator();
+	private final TransportCostCalculator realizedInVehicleCost = new TransportCostCalculator();
 
 	private final NetworkAndFleetData internalNetworkAndFleetData;
 
@@ -106,12 +106,12 @@ public class LogisticChoiceDataProvider {
 		 * Compute in-vehicle cost.
 		 */
 		if (this.consolidationUnit2fleetAssignment != null) {
-			costBuilder.add(this.realizedInVehicleCost.compute(vehicleAttributes, payload_ton, consolidationUnit,
-					vehicleType, this.internalNetworkAndFleetData.getLinkId2unitCost(vehicleType),
+			costBuilder.add(this.realizedInVehicleCost.computeInVehicleCost(vehicleType, vehicleAttributes, payload_ton,
+					consolidationUnit, this.internalNetworkAndFleetData.getLinkId2unitCost(vehicleType),
 					this.internalNetworkAndFleetData.getFerryLinkIds()), false);
 		} else {
-			costBuilder.add(this.realizedInVehicleCost.compute(vehicleAttributes, payload_ton, consolidationUnit,
-					vehicleType, this.internalNetworkAndFleetData.getLinkId2unitCost(vehicleType),
+			costBuilder.add(this.realizedInVehicleCost.computeInVehicleCost(vehicleType, vehicleAttributes, payload_ton,
+					consolidationUnit, this.internalNetworkAndFleetData.getLinkId2unitCost(vehicleType),
 					this.internalNetworkAndFleetData.getFerryLinkIds()), false);
 		}
 

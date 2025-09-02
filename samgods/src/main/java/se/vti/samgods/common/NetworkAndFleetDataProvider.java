@@ -44,7 +44,7 @@ import se.vti.samgods.common.SamgodsConstants.Commodity;
 import se.vti.samgods.common.SamgodsConstants.TransportMode;
 import se.vti.samgods.network.SamgodsLinkAttributes;
 import se.vti.samgods.network.SamgodsNodeAttributes;
-import se.vti.samgods.network.TransportModeMatching;
+import se.vti.samgods.network.TransportModes;
 import se.vti.samgods.transportation.costs.BasicTransportCost;
 import se.vti.samgods.transportation.fleet.SamgodsVehicleAttributes;
 
@@ -186,7 +186,7 @@ public class NetworkAndFleetDataProvider {
 
 		final Network unimodalNetwork = NetworkUtils.createNetwork();
 		new TransportModeNetworkFilter(this.multimodalNetwork).filter(unimodalNetwork,
-				Collections.singleton(TransportModeMatching.getMatsimModeIgnoreFerry(vehicleAttrs.samgodsMode)));
+				Collections.singleton(TransportModes.getMatsimModeIgnoreFerry(vehicleAttrs.samgodsMode)));
 
 		final Set<Id<Link>> removeLinkIds = new LinkedHashSet<>();
 		for (Link link : this.multimodalNetwork.getLinks().values()) {

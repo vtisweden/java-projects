@@ -2,14 +2,16 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <parent>
-    <groupId>se.vti.matsim-projects</groupId>
-  	<artifactId>matsim-projects</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <groupId>se.vti.java-projects</groupId>
+  	<artifactId>java-projects</artifactId>
+    <version>0.1.1</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>atap</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  
+  <!-- last published version: 0.1.7 -->
+  <version>0.1.8-SNAPSHOT</version>
   
 	<repositories>
 	  <!--Note that in general repositories are not transitive, so they need to be repeated at every level where needed.-->
@@ -40,18 +42,24 @@
 
 	<dependencies>
 
-	  	<dependency>
-			<groupId>se.vti.matsim-projects</groupId>
-			<artifactId>emulation</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+		<dependency>
+    		<groupId>org.apache.commons</groupId>
+    		<artifactId>commons-math3</artifactId>
+    		<version>3.6.1</version>
 		</dependency>
-	
+
 	  	<dependency>
-			<groupId>se.vti.matsim-projects</groupId>
+			<groupId>se.vti.java-projects</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>0.1.5-SNAPSHOT</version>
 		</dependency>
-		
+
+	  	<dependency>
+			<groupId>se.vti.java-projects</groupId>
+			<artifactId>emulation</artifactId>
+			<version>0.1.8-SNAPSHOT</version>
+		</dependency>
+			
 		<dependency>
 			<!-- This is the matsim "core": -->
 			<groupId>org.matsim</groupId>
@@ -89,6 +97,15 @@
 		</dependency>
 
 	</dependencies>
+
+  	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub vtisweden Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+		</repository>
+	</distributionManagement>
+
 
 	<build>
 		<plugins>

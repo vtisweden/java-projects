@@ -209,6 +209,40 @@ public class SamgodsConfigGroup extends ReflectiveConfigGroup {
 
 	//
 
+	private String chainChoiPrefix = null;
+
+	@StringGetter("chainChoiPrefix")
+	public String getChainChoiPrefix() {
+		return this.chainChoiPrefix;
+	}
+
+	@StringSetter("chainChoiPrefix")
+	public void setChainChoiPrefix(String chainChoiPrefix) {
+		this.chainChoiPrefix = chainChoiPrefix;
+	}
+
+	//
+
+	private String chainChoiSuffix = null;
+
+	@StringGetter("chainChoiSuffix")
+	public String getChainChoiSuffix() {
+		return this.chainChoiSuffix;
+	}
+
+	@StringSetter("chainChoiSuffix")
+	public void setChainChoiSuffix(String chainChoiSuffix) {
+		this.chainChoiSuffix = chainChoiSuffix;
+	}
+	
+	// 
+	
+	public String getChainChoiFileName(SamgodsConstants.Commodity commodity)  {
+		return this.chainChoiPrefix + commodity.twoDigitCode() + this.chainChoiSuffix;
+	}
+
+	//
+
 	public static void main(String[] args) {
 
 //		Config config = ConfigUtils.createConfig();

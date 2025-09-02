@@ -53,21 +53,6 @@ public class TransportChain {
 		this.episodes.add(episode);
 	}
 
-//	public List<? extends Link> allLinks(NetworkData networkData) {
-//		return this.episodes.stream().map(e -> e.allLinks(networkData)).flatMap(list -> list.stream()).toList();
-//	}
-
-//	public boolean isConnected(NetworkData networkData) {
-//		Link previousLink = null;
-//		for (Link currentLink : this.allLinks(networkData)) {
-//			if (previousLink != null && previousLink.getToNode() != currentLink.getFromNode()) {
-//				return false;
-//			}
-//			previousLink = currentLink;
-//		}
-//		return true;
-//	}
-
 	// -------------------- IMPLEMENTATION --------------------
 
 	public Commodity getCommodity() {

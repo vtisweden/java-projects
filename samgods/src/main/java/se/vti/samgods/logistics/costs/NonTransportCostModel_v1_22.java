@@ -1,7 +1,7 @@
 /**
  * se.vti.samgods.logistics
  * 
- * Copyright (C) 2024 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2024, 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -99,13 +99,13 @@ public class NonTransportCostModel_v1_22 implements NonTransportCostModel {
 	@Override
 	public NonTransportCost computeNonTransportCost(SamgodsConstants.Commodity commodity,
 			SamgodsConstants.ShipmentSize shipmentSize, double annualAmount_ton, double transportChainDuration_h) {
-		final double frequency_1_yr = annualAmount_ton / shipmentSize.getRepresentativeValue_ton();
-		final double totalOrderCost = this.commodity2orderCost.get(commodity) * frequency_1_yr;
-		final double totalEnRouteLoss = this.annualInterestRate * (transportChainDuration_h / 365.0 / 24.0)
+		var frequency_1_yr = annualAmount_ton / shipmentSize.getRepresentativeValue_ton();
+		var orderCost_1_yr = this.commodity2orderCost.get(commodity) * frequency_1_yr;
+		var enRouteLoss_1_yr = this.annualInterestRate * (transportChainDuration_h / 365.0 / 24.0)
 				* this.commodity2value_1_ton.get(commodity) * annualAmount_ton;
-		final double totalInventoryCost = this.commodity2inventoryCost_1_yrTon.get(commodity)
+		var inventoryCost_1_yr = this.commodity2inventoryCost_1_yrTon.get(commodity)
 				* (shipmentSize.getRepresentativeValue_ton() / 2.0);
-		return new NonTransportCost(annualAmount_ton, frequency_1_yr, totalOrderCost, totalEnRouteLoss,
-				totalInventoryCost);
+		return new NonTransportCost(annualAmount_ton, frequency_1_yr, orderCost_1_yr, enRouteLoss_1_yr,
+				inventoryCost_1_yr);
 	}
 }

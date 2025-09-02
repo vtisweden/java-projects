@@ -98,8 +98,6 @@ public class TestSamgods {
 
 		runner.setNetworkFlowsFileName("linkId2commodity2annualAmount_ton.json");
 		
-		runner.loadLinkRegionalWeights("./input_2024/link_regions_domestic.csv");
-
 		runner.loadTransportDemand("./input_2024/ChainChoi", "XTD.out");
 
 		runner.createOrLoadConsolidationUnits();

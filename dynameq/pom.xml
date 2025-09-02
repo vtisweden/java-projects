@@ -2,9 +2,9 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <parent>
-    <groupId>se.vti.matsim-projects</groupId>
-  	<artifactId>matsim-projects</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <groupId>se.vti.java-projects</groupId>
+  	<artifactId>java-projects</artifactId>
+    <version>0.1.1</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>

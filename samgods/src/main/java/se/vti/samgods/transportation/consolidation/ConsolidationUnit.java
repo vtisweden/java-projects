@@ -1,7 +1,7 @@
 /**
  * se.vti.samgods
  * 
- * Copyright (C) 2024 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2024, 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Node;
@@ -60,6 +61,11 @@ import se.vti.samgods.common.SamgodsConstants.TransportMode;
 import se.vti.samgods.logistics.TransportEpisode;
 import se.vti.utils.misc.Units;
 
+/**
+ * 
+ * @author GunnarF
+ *
+ */
 @JsonSerialize(using = ConsolidationUnit.Serializer.class)
 public class ConsolidationUnit {
 
@@ -75,18 +81,10 @@ public class ConsolidationUnit {
 	public final SamgodsConstants.TransportMode samgodsMode;
 	public final Boolean isContainer;
 
-	public final ConcurrentMap<Set<VehicleType>, CopyOnWriteArrayList<Id<Link>>> vehicleType2route = new ConcurrentHashMap<>();
-
-//	public CopyOnWriteArrayList<Id<Link>> linkIds = null;
-//	public Double length_km = null;
-//	public Double domesticLength_km = null;
-//	public Boolean containsFerry = null;
-//	public CopyOnWriteArraySet<VehicleType> linkCompatibleVehicleTypes = null;
-
 	// --------------------CONSTRUCTION --------------------
 
-	private ConsolidationUnit(OD od, SamgodsConstants.Commodity commodity, SamgodsConstants.TransportMode mode,
-			Boolean isContainer) {
+	/* package for testing */ ConsolidationUnit(OD od, SamgodsConstants.Commodity commodity,
+			SamgodsConstants.TransportMode mode, Boolean isContainer) {
 		this.od = od;
 		this.commodity = commodity;
 		this.samgodsMode = mode;
@@ -103,76 +101,8 @@ public class ConsolidationUnit {
 		}
 	}
 
-	public ConsolidationUnit createRoutingEquivalentTemplate() {
+	public ConsolidationUnit cloneWithoutRoutes() {
 		return new ConsolidationUnit(this.od, this.commodity, this.samgodsMode, this.isContainer);
-	}
-
-	// -------------------- IMPLEMENTATION --------------------
-
-	public void setRouteLinks(VehicleType vehicleType, List<Link> links) {
-		if (links == null) {
-			throw new IllegalArgumentException();
-		} else {
-			this.setRouteLinkIds(vehicleType, links.stream().map(l -> l.getId()).toList());
-		}
-	}
-
-	public void setRouteLinkIds(VehicleType vehicleType, List<Id<Link>> routeIds) {
-		if (routeIds == null) {
-			throw new IllegalArgumentException();
-		} else {
-			this.vehicleType2route.put(Collections.singleton(vehicleType), new CopyOnWriteArrayList<>(routeIds));
-		}
-	}
-
-	public void compress() {
-		final Map<CopyOnWriteArrayList<Id<Link>>, Set<VehicleType>> linkIds2vehicleTypes = new LinkedHashMap<>();
-		for (Map.Entry<Set<VehicleType>, CopyOnWriteArrayList<Id<Link>>> entry : this.vehicleType2route.entrySet()) {
-			final Set<VehicleType> vehicleTypes = entry.getKey();
-			final CopyOnWriteArrayList<Id<Link>> linkIds = entry.getValue();
-			linkIds2vehicleTypes.computeIfAbsent(linkIds, lids -> ConcurrentHashMap.newKeySet()).addAll(vehicleTypes);
-		}
-		this.vehicleType2route.clear();
-		for (Map.Entry<CopyOnWriteArrayList<Id<Link>>, Set<VehicleType>> entry : linkIds2vehicleTypes.entrySet()) {
-			this.vehicleType2route.put(entry.getValue(), entry.getKey());
-		}
-	}
-
-	// TODO make private
-//	public void computeNetworkCharacteristics(NetworkData networkData, FleetData fleetData) {
-//		this.length_km = Units.KM_PER_M
-//				* this.linkIds.stream().mapToDouble(lid -> networkData.getLinks().get(lid).getLength()).sum();
-//		this.domesticLength_km = Units.KM_PER_M * this.linkIds.stream()
-//				.mapToDouble(lid -> networkData.getDomesticLinkIds().contains(lid)
-//						? networkData.getLinks().get(lid).getLength()
-//						: 0.0)
-//				.sum();
-//		this.containsFerry = this.linkIds.stream().anyMatch(lid -> networkData.getFerryLinkIds().contains(lid));
-//		this.linkCompatibleVehicleTypes = new CopyOnWriteArraySet<>(fleetData.computeLinkCompatibleVehicleTypes(this));
-//	}
-
-//	public List<? extends Link> allLinks(NetworkData networkData) {
-//		return this.linkIds.stream().map(lid -> networkData.getLinks().get(lid)).toList();
-//	}
-
-	public Double computeAverageLength_km(NetworkAndFleetData networkData) {
-		if (this.vehicleType2route.size() == 0) {
-			return null;
-		}
-		double sum_m = 0.0;
-		for (List<Id<Link>> linkIds : this.vehicleType2route.values()) {
-			sum_m += linkIds.stream().mapToDouble(id -> networkData.getLinks().get(id).getLength()).sum();
-		}
-		return Units.KM_PER_M * sum_m / this.vehicleType2route.size();
-	}
-
-	public List<Id<Link>> getRoute(VehicleType vehicleType) {
-		for (Map.Entry<Set<VehicleType>, ? extends List<Id<Link>>> entry : this.vehicleType2route.entrySet()) {
-			if (entry.getKey().contains(vehicleType)) {
-				return entry.getValue();
-			}
-		}
-		return null;
 	}
 
 	// -------------------- OVERRIDING Object --------------------
@@ -204,12 +134,74 @@ public class ConsolidationUnit {
 		content.add("isContainer=" + this.isContainer);
 		content.add("mode=" + this.samgodsMode);
 		content.add("od=" + this.od);
-//		content.add("length=" + this.length_km + "km");
-//		content.add("domesticLength=" + this.domesticLength_km + "km");
-//		content.add("numberOfRouteLinks=" + (this.linkIds != null ? this.linkIds.stream().count() : null));
 		return this.getClass().getSimpleName() + "[" + content.stream().collect(Collectors.joining(",")) + "]";
 	}
 
+	// -------------------- ROUTE MANAGEMENT --------------------
+
+	/*
+	 * Even the Set<VehicleType> key must be concurrent. Implementation ensures that
+	 * there is at most one key containing any vehicle type.
+	 */
+	public final ConcurrentMap<Set<VehicleType>, CopyOnWriteArrayList<Id<Link>>> vehicleType2route = new ConcurrentHashMap<>();
+
+	public List<Id<Link>> getRoute(VehicleType vehicleType) {
+		return this.vehicleType2route.entrySet().stream().filter(e -> e.getKey().contains(vehicleType)).findFirst()
+				.map(e -> e.getValue()).orElseGet(() -> null);
+	}
+
+	public void removeRoute(VehicleType vehicleType) {
+		var entry = this.vehicleType2route.entrySet().stream().filter(e -> e.getKey().contains(vehicleType)).findFirst()
+				.orElseGet(() -> null);
+		if (entry != null) {
+			this.vehicleType2route.remove(entry.getKey());
+			if (entry.getKey().size() > 1) {
+				entry.getKey().remove(vehicleType);
+				this.vehicleType2route.put(entry.getKey(), entry.getValue());
+			}
+		}
+	}
+
+	public void setRouteFromLinkIds(VehicleType vehicleType, List<Id<Link>> routeIds) {
+		if (routeIds == null) {
+			throw new IllegalArgumentException("Route must not be null.");
+		}
+		this.removeRoute(vehicleType);
+		var entry = this.vehicleType2route.entrySet().stream().filter(e -> e.getValue().equals(routeIds)).findFirst()
+				.orElseGet(() -> null);
+		if (entry == null) {
+			Set<VehicleType> key = ConcurrentHashMap.newKeySet();
+			key.add(vehicleType);
+			this.vehicleType2route.put(key, new CopyOnWriteArrayList<>(routeIds));
+		} else {
+			this.vehicleType2route.remove(entry.getKey());
+			entry.getKey().add(vehicleType);
+			this.vehicleType2route.put(entry.getKey(), entry.getValue());
+		}
+	}
+
+	public void setRouteFromLinks(VehicleType vehicleType, List<Link> links) {
+		if (links == null) {
+			throw new IllegalArgumentException();
+		} else {
+			this.setRouteFromLinkIds(vehicleType, links.stream().map(l -> l.getId()).toList());
+		}
+	}
+
+	public SummaryStatistics computeLengthStats_km(NetworkAndFleetData networkData) {
+		SummaryStatistics result = new SummaryStatistics();
+		for (var linkIds : this.vehicleType2route.values()) {
+			result.addValue(Units.KM_PER_M
+					* linkIds.stream().mapToDouble(id -> networkData.getLinks().get(id).getLength()).sum());
+		}
+		return result;
+	}
+
+	/* package for testing */
+	int distinctRoutes() {
+		return this.vehicleType2route.size();
+	}
+	
 	// -------------------- Json Serializer --------------------
 
 	public static class Serializer extends JsonSerializer<ConsolidationUnit> {

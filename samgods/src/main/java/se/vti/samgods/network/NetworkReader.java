@@ -1,7 +1,7 @@
 /**
  * se.vti.samgods
  * 
- * Copyright (C) 2023 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2023, 2024, 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -28,8 +28,8 @@ import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Link;
@@ -92,19 +92,19 @@ public class NetworkReader {
 	}
 
 	public NetworkReader setMinSpeed_km_h(double minSpeed_km_h) {
-		log.info("Setting minimal link speed to " + minSpeed_km_h + "km/h, links below that are not loaded.");
+		log.info("Setting minimal link speed to " + minSpeed_km_h + " km/h, links below that are not loaded.");
 		this.minSpeed_km_h = minSpeed_km_h;
 		return this;
 	}
 
 	public NetworkReader setMinCapacity_veh_h(double minCapacity_veh_h) {
-		log.info("Setting minimal link capacity to " + minCapacity_veh_h + "veh/h, links below that are not loaded.");
+		log.info("Setting minimal link capacity to " + minCapacity_veh_h + " veh/h, links below that are not loaded.");
 		this.minCapacity_veh_h = minCapacity_veh_h;
 		return this;
 	}
 
 	public NetworkReader setFallbackSpeed_km_h(TransportMode mode, double speed_km_h) {
-		log.info("Setting fallback speed for mode " + mode + " to " + speed_km_h + "km/h");
+		log.info("Setting fallback speed for mode " + mode + " to " + speed_km_h + " km/h");
 		this.mode2fallbackSpeed_km_h.put(mode, speed_km_h);
 		return this;
 	}
@@ -203,7 +203,7 @@ public class NetworkReader {
 							Units.M_S_PER_KM_H * speed_km_h, capacity_veh_h, lanes, null, null);
 					final SamgodsLinkAttributes linkAttributes = new SamgodsLinkAttributes(samgodsMode, speed1_km_h,
 							speed2_km_h, isDomestic, networkModes);
-					link.setAllowedModes(TransportModeMatching.computeMatsimModes(linkAttributes));
+					link.setAllowedModes(TransportModes.computeMatsimModesMapFerryToCarriedModes(linkAttributes));
 					link.getAttributes().putAttribute(SamgodsLinkAttributes.ATTRIBUTE_NAME, linkAttributes);
 				}
 			}
@@ -213,17 +213,5 @@ public class NetworkReader {
 		log.info("Loaded " + network.getLinks().size() + " links.");
 
 		return network;
-	}
-
-	// -------------------- MAIN-FUNCTION, ONLY FOR TESTING --------------------
-
-	public static void main(String[] args) throws IOException {
-
-		Network network = new NetworkReader().setMinSpeed_km_h(1.0).load("./input_2024/node_parameters.csv",
-				"./input_2024/link_parameters.csv");
-		NetworkUtils.writeNetwork(network, "./input_2024/matsim-network.xml");
-
-		System.out.println();
-		System.out.println(NetworkStatsTable.create(network));
 	}
 }

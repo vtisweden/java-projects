@@ -1,8 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>se.vti.matsim-projects</groupId>
-  <artifactId>matsim-projects</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <groupId>se.vti.java-projects</groupId>
+  <artifactId>java-projects</artifactId>
+
+  <!-- <version>0.0.2-SNAPSHOT</version> -->
+  <version>0.1.1</version>
+
   <packaging>pom</packaging>
   
   <properties>
@@ -18,8 +21,6 @@
 	<module>atap</module>
   	<module>dynameq</module>
   	<module>emulation</module>
-  	<module>greedo</module>
-  	<module>matsimutils</module>
 	<module>samgods</module>
 	<module>utils</module>
 	<module>tramodby</module>
@@ -67,7 +68,7 @@
 		<repository>
 			<id>github</id>
 			<name>GitHub vtisweden Apache Maven Packages</name>
-			<url>https://maven.pkg.github.com/vtisweden/matsim-projects</url>
+			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
 		</repository>
 	</distributionManagement>
 

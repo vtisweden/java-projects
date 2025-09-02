@@ -32,10 +32,10 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.population.Activity;
@@ -43,8 +43,6 @@ import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.population.Plan;
 import org.matsim.api.core.v01.population.PopulationFactory;
 import org.matsim.contrib.emulation.EmulationConfigGroup;
-import org.matsim.contrib.greedo.Greedo;
-import org.matsim.contrib.greedo.GreedoConfigGroup;
 import org.matsim.contrib.roadpricing.RoadPricing;
 import org.matsim.contrib.roadpricing.RoadPricingConfigGroup;
 import org.matsim.contrib.roadpricing.RoadPricingEmulationHandler;
@@ -61,14 +59,16 @@ import org.matsim.core.events.EventsManagerImpl;
 import org.matsim.core.network.algorithms.NetworkCleaner;
 import org.matsim.core.scenario.ScenarioUtils;
 
+import se.vti.atap.matsim.ATAP;
+import se.vti.atap.matsim.ATAPConfigGroup;
 import se.vti.tramodby.module.TramodByConfigGroup;
 import se.vti.tramodby.od.InterZonalMatrices;
+import se.vti.tramodby.od.InterZonalMatrices.Matrix;
 import se.vti.tramodby.od.ODMatrixUtils;
 import se.vti.tramodby.od.SkimMatrixCalculator;
 import se.vti.tramodby.od.ZonalSystem;
-import se.vti.tramodby.od.ZonalSystemUtils;
-import se.vti.tramodby.od.InterZonalMatrices.Matrix;
 import se.vti.tramodby.od.ZonalSystem.Zone;
+import se.vti.tramodby.od.ZonalSystemUtils;
 
 public class TramodSim {
 	private static final Logger log = LogManager.getLogger(TramodSim.class);
@@ -84,7 +84,7 @@ public class TramodSim {
 		Config config = ConfigUtils.loadConfig(configFilePath.toString(), 
 											   new TramodByConfigGroup(),
 											   new EmulationConfigGroup(),
-											   new GreedoConfigGroup(),
+											   new ATAPConfigGroup(),
 											   new RoadPricingConfigGroup()
 											   );
 		// Initialize logging to controller log file.
@@ -102,10 +102,10 @@ public class TramodSim {
 		config.qsim().setFlowCapFactor(tramodByConfig.getSamplingRate());
 		config.qsim().setStorageCapFactor(tramodByConfig.getSamplingRate());
 
-		Greedo greedo = new Greedo();
-		greedo.meet(config);
+		ATAP atap = new ATAP();
+		atap.configure(config);
 
-		greedo.addHandler(RoadPricingEmulationHandler.class);
+		atap.addHandler(RoadPricingEmulationHandler.class);
 		
 		// Loading the scenario and cleaning the network from inconsistencies.
 		Scenario scenario = ScenarioUtils.loadScenario(config);
@@ -184,7 +184,7 @@ public class TramodSim {
 		// Set up listener for printing output data.
 		controler.addControlerListener(new SkimMatrixCalculator(zonalSystem));
 
-		greedo.meet(controler);
+		atap.configure(controler);
 
 		// Running the simulation.
 		log.info("Starting simulation.");
