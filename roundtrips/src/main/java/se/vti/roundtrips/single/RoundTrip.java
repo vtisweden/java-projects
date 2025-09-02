@@ -196,23 +196,23 @@ public class RoundTrip<N extends Node> implements Iterable<RoundTrip<N>> {
 		return result;
 	}
 
-	@Override
-	public boolean equals(Object other) {
-		throw new UnsupportedOperationException("Don't want to use this method, talk to Gunnar.");
-//		if (other instanceof RoundTrip) {
-//			RoundTrip<?> otherRoundTrip = (RoundTrip<?>) other;
-//			return (this.index == otherRoundTrip.index) && this.nodes.equals(otherRoundTrip.nodes)
-//					&& this.departures.equals(otherRoundTrip.departures);
-//		} else {
-//			return false;
-//		}
-	}
-
-	@Override
-	public int hashCode() {
-		throw new UnsupportedOperationException("Don't want to use this method, talk to Gunnar.");
-//		return this.nodes.hashCode() + 31 * this.departures.hashCode();
-	}
+//	@Override
+//	public boolean equals(Object other) {
+//		throw new UnsupportedOperationException("Don't want to use this method, talk to Gunnar.");
+////		if (other instanceof RoundTrip) {
+////			RoundTrip<?> otherRoundTrip = (RoundTrip<?>) other;
+////			return (this.index == otherRoundTrip.index) && this.nodes.equals(otherRoundTrip.nodes)
+////					&& this.departures.equals(otherRoundTrip.departures);
+////		} else {
+////			return false;
+////		}
+//	}
+//
+//	@Override
+//	public int hashCode() {
+//		throw new UnsupportedOperationException("Don't want to use this method, talk to Gunnar.");
+////		return this.nodes.hashCode() + 31 * this.departures.hashCode();
+//	}
 
 	@Override
 	public String toString() {
