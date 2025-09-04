@@ -31,10 +31,16 @@ import se.vti.roundtrips.single.RoundTrip;
  */
 public interface MultiRoundTripSummary<L extends Node> {
 
-	public void clear();
+	void clear();
 
-	public void update(int roundTripIndex, RoundTrip<L> oldRoundTrip, RoundTrip<L> newRoundTrip);
+	void update(int roundTripIndex, RoundTrip<L> oldRoundTrip, RoundTrip<L> newRoundTrip);
 
-	public MultiRoundTripSummary<L> clone();
+	default void update(RoundTrip<L> newRoundTrip, MultiRoundTrip<L> allRoundTrips) {
+		int roundTripIndex = newRoundTrip.getIndex();
+		update(roundTripIndex, allRoundTrips.getRoundTrip(roundTripIndex), newRoundTrip);
+	}
+
+
+	MultiRoundTripSummary<L> clone();
 
 }

@@ -175,8 +175,8 @@ public class Scenario<N extends Node> {
 	public Double getTime_h(N from, N to) {
 		return this.od2time_h.get(new Tuple<>(from, to));
 	}
-	
-	public Map<Tuple<N,N>, Double> getOD2Time_h() {
+
+	public Map<Tuple<N, N>, Double> getOD2Time_h() {
 		return this.od2time_h;
 	}
 
@@ -199,23 +199,28 @@ public class Scenario<N extends Node> {
 		return this.createInitialRoundTrip(0, node, departure);
 	}
 
-	public MultiRoundTrip<N> createInitialMultiRoundTrip(N node, Integer departure, int numberOfRoundTrips) {
-		MultiRoundTrip<N> result = new MultiRoundTrip<>(numberOfRoundTrips);
-		for (int i = 0; i < numberOfRoundTrips; i++) {
+	public void populateInitialMultiRoundTrip(MultiRoundTrip<N> result, List<N> nodes, List<Integer> departures) {
+		for (int i = 0; i < result.size(); i++) {
+			N node = nodes.get(this.rnd.nextInt(nodes.size()));
+			Integer departure = departures.get(this.rnd.nextInt(departures.size()));
 			result.setRoundTripAndUpdateSummaries(i, this.createInitialRoundTrip(i, node, departure));
 		}
+	}
+
+	public void populateInitialMultiRoundTrip(MultiRoundTrip<N> result, N node, Integer departure) {
+		this.populateInitialMultiRoundTrip(result, Arrays.asList(node), Arrays.asList(departure));
+	}
+
+	public MultiRoundTrip<N> createInitialMultiRoundTrip(N node, Integer departure, int numberOfRoundTrips) {
+		MultiRoundTrip<N> result = new MultiRoundTrip<>(numberOfRoundTrips);
+		this.populateInitialMultiRoundTrip(result, node, departure);
 		return result;
 	}
 
 	public MultiRoundTrip<N> createInitialMultiRoundTrip(List<N> nodes, List<Integer> departures,
 			int numberOfRoundTrips) {
 		MultiRoundTrip<N> result = new MultiRoundTrip<>(numberOfRoundTrips);
-		for (int i = 0; i < numberOfRoundTrips; i++) {
-			N node = nodes.get(this.rnd.nextInt(nodes.size()));
-			Integer departure = departures.get(this.rnd.nextInt(departures.size()));
-			result.setRoundTripAndUpdateSummaries(i, this.createInitialRoundTrip(i, node, departure));
-		}
+		this.populateInitialMultiRoundTrip(result, nodes, departures);
 		return result;
 	}
-
 }
