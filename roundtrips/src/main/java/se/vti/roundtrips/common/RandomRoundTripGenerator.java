@@ -108,7 +108,8 @@ public class RandomRoundTripGenerator<N extends Node> {
 					IntStream.range(0, this.scenario.getTimeBinCnt()).boxed().toList());
 			Collections.shuffle(allDepartures, this.rnd);
 			List<Integer> departures = allDepartures.subList(0, size);
-
+			Collections.sort(departures);
+			
 			RoundTrip<N> candidate = new RoundTrip<>(index, nodes, departures);
 			candidate.setEpisodes(this.scenario.getOrCreateSimulator().simulate(candidate));
 			if (this.feasibilityCheck.apply(candidate)) {
