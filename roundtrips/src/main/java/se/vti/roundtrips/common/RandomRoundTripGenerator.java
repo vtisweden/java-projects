@@ -137,6 +137,9 @@ public class RandomRoundTripGenerator<N extends Node> {
 
 	public void populateRandomly(MultiRoundTrip<N> multiRoundTrip) {
 		for (int index = 0; index < multiRoundTrip.size(); index++) {
+			if (index == 999) {
+				System.out.print("");
+			}
 			multiRoundTrip.setRoundTripAndUpdateSummaries(index, this.createRandomRoundTrip(index));
 		}
 	}
