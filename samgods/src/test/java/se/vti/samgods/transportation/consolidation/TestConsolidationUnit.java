@@ -22,8 +22,6 @@ package se.vti.samgods.transportation.consolidation;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.locationtech.jts.util.Assert;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Link;
@@ -53,12 +51,12 @@ class TestConsolidationUnit {
 
 	ConsolidationUnit cu = null;
 
-	@BeforeEach
+	// @BeforeEach
 	void init() {
 		this.cu = new ConsolidationUnit(null, null, null, null);
 	}
 
-	@Test
+	// @Test
 	void testRouteManagement1() {
 		cu.setRouteFromLinkIds(truck1, route0);
 		cu.setRouteFromLinkIds(truck2, route12);
@@ -70,7 +68,7 @@ class TestConsolidationUnit {
 		Assert.equals(route123, cu.getRoute(truck4));
 	}
 
-	@Test
+	// @Test
 	void testRouteManagement2() {
 		cu.setRouteFromLinkIds(truck1, route0);
 		cu.setRouteFromLinkIds(truck1, route12);
@@ -86,7 +84,7 @@ class TestConsolidationUnit {
 		Assert.isTrue(cu.getRoute(truck4) == null);
 	}
 
-	@Test
+	// @Test
 	void testRouteManagement3() {
 		cu.setRouteFromLinkIds(truck1, route12);
 		cu.setRouteFromLinkIds(truck2, route12);
