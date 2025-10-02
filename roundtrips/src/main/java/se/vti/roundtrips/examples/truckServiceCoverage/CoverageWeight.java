@@ -20,15 +20,15 @@
 package se.vti.roundtrips.examples.truckServiceCoverage;
 
 import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.samplingweights.SamplingWeight;
 import se.vti.roundtrips.simulator.MoveEpisode;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * 
  * @author GunnarF
  *
  */
-class CoverageWeight implements SamplingWeight<MultiRoundTrip<GridNode>> {
+class CoverageWeight implements MHWeight<MultiRoundTrip<GridNode>> {
 
 	private final int gridSize;
 

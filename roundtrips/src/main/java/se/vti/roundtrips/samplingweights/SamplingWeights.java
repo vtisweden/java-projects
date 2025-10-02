@@ -32,23 +32,23 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class SamplingWeights<X> implements MHWeight<X> {
 
-	private List<SamplingWeight<X>> components = new ArrayList<>();
+	private List<MHWeight<X>> components = new ArrayList<>();
 
 	private List<Double> weights = new ArrayList<>();
 
 	public SamplingWeights() {
 	}
 
-	public List<SamplingWeight<X>> getComponentsView() {
+	public List<MHWeight<X>> getComponentsView() {
 		return Collections.unmodifiableList(this.components);
 	}
 	
-	public void add(SamplingWeight<X> component, double weight) {
+	public void add(MHWeight<X> component, double weight) {
 		this.components.add(component);
 		this.weights.add(weight);
 	}
 
-	public void add(SamplingWeight<X> component) {
+	public void add(MHWeight<X> component) {
 		this.add(component, 1.0);
 	}
 

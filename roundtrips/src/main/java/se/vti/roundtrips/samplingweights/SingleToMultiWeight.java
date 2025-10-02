@@ -26,26 +26,27 @@ import java.util.List;
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.single.RoundTrip;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * 
  * @author GunnarF
  *
  */
-public class SingleToMultiWeight<L extends Node> implements SamplingWeight<MultiRoundTrip<L>> {
+public class SingleToMultiWeight<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
 
-	private final SamplingWeight<RoundTrip<L>> singleComponent;
+	private final MHWeight<RoundTrip<N>> singleRoundTripLogWeight;
 
-	private List<RoundTrip<L>> previousRoundTrips = null;
-	
+	private List<RoundTrip<N>> previousRoundTrips = null;
+
 	private List<Double> previousLogWeights = null;
 
-	public SingleToMultiWeight(SamplingWeight<RoundTrip<L>> singleComponent) {
-		this.singleComponent = singleComponent;
+	public SingleToMultiWeight(MHWeight<RoundTrip<N>> singleRoundTripLogWeight) {
+		this.singleRoundTripLogWeight = singleRoundTripLogWeight;
 	}
 
 	@Override
-	public double logWeight(MultiRoundTrip<L> multiRoundTrip) {
+	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
 
 		double logWeightSum = 0.0;
 
@@ -55,11 +56,11 @@ public class SingleToMultiWeight<L extends Node> implements SamplingWeight<Multi
 		}
 
 		for (int i = 0; i < multiRoundTrip.size(); i++) {
-			final RoundTrip<L> roundTrip = multiRoundTrip.getRoundTrip(i);
+			final RoundTrip<N> roundTrip = multiRoundTrip.getRoundTrip(i);
 			if (this.previousRoundTrips.get(i) == roundTrip) {
 				logWeightSum += this.previousLogWeights.get(i);
 			} else {
-				final double logWeight = this.singleComponent.logWeight(roundTrip);
+				final double logWeight = this.singleRoundTripLogWeight.logWeight(roundTrip);
 				this.previousRoundTrips.set(i, roundTrip);
 				this.previousLogWeights.set(i, logWeight);
 				logWeightSum += logWeight;
@@ -68,10 +69,10 @@ public class SingleToMultiWeight<L extends Node> implements SamplingWeight<Multi
 
 		return logWeightSum;
 	}
-	
+
 	@Override
 	public String name() {
-		return "1toN(" + this.singleComponent.name() + ")";
+		return "1toN(" + this.singleRoundTripLogWeight.name() + ")";
 	}
 
 }

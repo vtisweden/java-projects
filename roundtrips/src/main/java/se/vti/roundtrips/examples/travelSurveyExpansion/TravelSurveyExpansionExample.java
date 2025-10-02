@@ -125,7 +125,7 @@ public class TravelSurveyExpansionExample {
 		var weights = new SamplingWeights<MultiRoundTrip<GridNodeWithActivity>>();
 
 		// Uniformed prior
-		weights.add(new SingleToMultiWeight<>(new UniformPrior<>(scenario.getNodesCnt(), scenario.getTimeBinCnt())));
+		weights.add(new SingleToMultiWeight<>(new UniformPrior<>(scenario)));
 
 		// Enforce that all round trips are completed within the day.
 		weights.add(new SingleToMultiWeight<>(

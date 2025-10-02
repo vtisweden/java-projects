@@ -20,16 +20,16 @@
 package se.vti.roundtrips.samplingweights.misc;
 
 import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.samplingweights.SamplingWeight;
 import se.vti.roundtrips.simulator.Episode;
 import se.vti.roundtrips.single.RoundTrip;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * 
  * @author GunnarF
  *
  */
-public class StrictlyForbidShortStays<L extends Node> implements SamplingWeight<RoundTrip<L>> {
+public class StrictlyForbidShortStays<N extends Node> implements MHWeight<RoundTrip<N>> {
 
 	private final double minStayDuration_h;
 
@@ -38,7 +38,7 @@ public class StrictlyForbidShortStays<L extends Node> implements SamplingWeight<
 	}
 
 	@Override
-	public double logWeight(RoundTrip<L> roundTrip) {
+	public double logWeight(RoundTrip<N> roundTrip) {
 		for (int i = 0; i < roundTrip.getEpisodes().size(); i += 2) {
 			Episode stay = roundTrip.getEpisodes().get(i);
 			if (stay.getDuration_h() < this.minStayDuration_h) {

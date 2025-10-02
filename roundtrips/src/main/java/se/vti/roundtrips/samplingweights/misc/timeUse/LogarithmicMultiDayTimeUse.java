@@ -21,7 +21,7 @@ package se.vti.roundtrips.samplingweights.misc.timeUse;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.samplingweights.SamplingWeight;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * 
@@ -29,7 +29,7 @@ import se.vti.roundtrips.samplingweights.SamplingWeight;
  *
  */
 public class LogarithmicMultiDayTimeUse<N extends Node> extends LogarithmicTimeUse<N>
-		implements SamplingWeight<MultiRoundTrip<N>> {
+		implements MHWeight<MultiRoundTrip<N>> {
 
 	public LogarithmicMultiDayTimeUse() {
 	}

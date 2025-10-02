@@ -19,8 +19,8 @@
  */
 package se.vti.roundtrips.logging;
 
-import se.vti.roundtrips.samplingweights.SamplingWeight;
 import se.vti.roundtrips.samplingweights.SamplingWeights;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * 
@@ -39,7 +39,7 @@ public class SamplingWeightLogger<R> extends ToFileLogger<R> {
 	@Override
 	public String createHeaderLine() {
 		StringBuffer result = new StringBuffer("Iteration");
-		for (SamplingWeight<R> samplingWeight : this.samplingWeights.getComponentsView()) {
+		for (MHWeight<R> samplingWeight : this.samplingWeights.getComponentsView()) {
 			result.append("\t");
 			result.append(samplingWeight.name());
 		}
@@ -49,7 +49,7 @@ public class SamplingWeightLogger<R> extends ToFileLogger<R> {
 	@Override
 	public String createDataLine(R state) {
 		StringBuffer result = new StringBuffer(Long.toString(this.iteration()));
-		for (SamplingWeight<R> samplingWeight : this.samplingWeights.getComponentsView()) {
+		for (MHWeight<R> samplingWeight : this.samplingWeights.getComponentsView()) {
 			result.append("\t");
 			result.append(samplingWeight.logWeight(state));
 		}

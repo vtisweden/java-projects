@@ -20,15 +20,15 @@
 package se.vti.roundtrips.samplingweights.misc;
 
 import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.samplingweights.SamplingWeight;
 import se.vti.roundtrips.single.RoundTrip;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * 
  * @author GunnarF
  *
  */
-public class StrictlyPeriodicSchedule<L extends Node> implements SamplingWeight<RoundTrip<L>> {
+public class StrictlyPeriodicSchedule<N extends Node> implements MHWeight<RoundTrip<N>> {
 
 	private final double periodLength_h;
 
@@ -37,7 +37,7 @@ public class StrictlyPeriodicSchedule<L extends Node> implements SamplingWeight<
 	}
 
 	@Override
-	public double logWeight(RoundTrip<L> roundTrip) {
+	public double logWeight(RoundTrip<N> roundTrip) {
 		if (roundTrip.size() == 1) {
 			return 0.0;
 		} else {

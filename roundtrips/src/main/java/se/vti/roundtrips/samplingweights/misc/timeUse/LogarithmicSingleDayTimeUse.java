@@ -20,15 +20,15 @@
 package se.vti.roundtrips.samplingweights.misc.timeUse;
 
 import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.samplingweights.SamplingWeight;
 import se.vti.roundtrips.single.RoundTrip;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * 
  * @author GunnarF
  *
  */
-public class LogarithmicSingleDayTimeUse<N extends Node> extends LogarithmicTimeUse<N> implements SamplingWeight<RoundTrip<N>> {
+public class LogarithmicSingleDayTimeUse<N extends Node> extends LogarithmicTimeUse<N> implements MHWeight<RoundTrip<N>> {
 
 	public LogarithmicSingleDayTimeUse() {
 	}

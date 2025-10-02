@@ -19,15 +19,15 @@
  */
 package se.vti.roundtrips.examples.activityExpandedGridNetwork;
 
-import se.vti.roundtrips.samplingweights.SamplingWeight;
 import se.vti.roundtrips.single.RoundTrip;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * 
  * @author GunnarF
  *
  */
-public class StrictlyEnforceUniqueHomeLocation implements SamplingWeight<RoundTrip<GridNodeWithActivity>> {
+public class StrictlyEnforceUniqueHomeLocation implements MHWeight<RoundTrip<GridNodeWithActivity>> {
 
 	@Override
 	public double logWeight(RoundTrip<GridNodeWithActivity> roundTrip) {

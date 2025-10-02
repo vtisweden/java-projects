@@ -25,18 +25,18 @@ import java.util.function.Function;
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.grouping.PopulationGroupFilter;
-import se.vti.roundtrips.samplingweights.SamplingWeight;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * 
  * @author GunnarF
  *
  */
-public abstract class MultiRoundTripTargetDeviationWeight<L extends Node> implements SamplingWeight<MultiRoundTrip<L>> {
+public abstract class MultiRoundTripTargetDeviationWeight<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
 
 	// -------------------- MEMBERS --------------------
 
-	private PopulationGroupFilter<L> filter = null;
+	private PopulationGroupFilter<N> filter = null;
 
 	private double[] target;
 
@@ -72,11 +72,11 @@ public abstract class MultiRoundTripTargetDeviationWeight<L extends Node> implem
 		this.totalDiscretizationErrorToLogWeight = totalDiscretizationErrorToLogWeight;
 	}
 
-	public void setFilter(PopulationGroupFilter<L> filter) {
+	public void setFilter(PopulationGroupFilter<N> filter) {
 		this.filter = filter;
 	}
 
-	public PopulationGroupFilter<L> getFilter() {
+	public PopulationGroupFilter<N> getFilter() {
 		return this.filter;
 	}
 
@@ -91,7 +91,7 @@ public abstract class MultiRoundTripTargetDeviationWeight<L extends Node> implem
 	// --------------- IMPLEMENTATION OF MHPreferenceComponent ---------------
 
 	@Override
-	public double logWeight(MultiRoundTrip<L> multiRoundTrip) {
+	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
 
 		final double[] sample = this.computeSample(multiRoundTrip, this.filter);
 		final double sampleSize = Math.max(Arrays.stream(sample).sum(), 1e-8);
@@ -120,6 +120,6 @@ public abstract class MultiRoundTripTargetDeviationWeight<L extends Node> implem
 
 	public abstract double[] computeTarget();
 
-	public abstract double[] computeSample(MultiRoundTrip<L> multiRoundTrip, PopulationGroupFilter<L> filter);
+	public abstract double[] computeSample(MultiRoundTrip<N> multiRoundTrip, PopulationGroupFilter<N> filter);
 
 }

@@ -24,7 +24,7 @@ import java.util.List;
 
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.samplingweights.SamplingWeight;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * This weight function requires that *each* round trip is explained by a survey
@@ -36,7 +36,7 @@ import se.vti.roundtrips.samplingweights.SamplingWeight;
  * @author GunnarF
  *
  */
-class ExplainRoundTripsByResponses implements SamplingWeight<MultiRoundTrip<GridNodeWithActivity>> {
+class ExplainRoundTripsByResponses implements MHWeight<MultiRoundTrip<GridNodeWithActivity>> {
 
 	private final List<SurveyResponse> responses;
 

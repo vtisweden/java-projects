@@ -30,4 +30,8 @@ public interface MHWeight<S extends Object> {
 
 	public double logWeight(final S state);
 
+	default String name() {
+		return this.getClass().getSimpleName();
+	}
+	
 }

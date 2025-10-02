@@ -105,7 +105,7 @@ class ActivityTimeUseExample {
 		var weights = new SamplingWeights<RoundTrip<GridNodeWithActivity>>();
 
 		// An uniformed prior spreading out sampling where information is missing.
-		weights.add(new UniformPrior<GridNodeWithActivity>(scenario.getNodesCnt(), scenario.getTimeBinCnt()));
+		weights.add(new UniformPrior<>(scenario));
 
 		// Enforce that every single round trip is completed within the day.
 		weights.add(new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()));
