@@ -37,12 +37,19 @@ public class SingleToMultiWeight<N extends Node> implements MHWeight<MultiRoundT
 
 	private final MHWeight<RoundTrip<N>> singleRoundTripLogWeight;
 
+	private final String name;
+	
 	private List<RoundTrip<N>> previousRoundTrips = null;
 
 	private List<Double> previousLogWeights = null;
 
-	public SingleToMultiWeight(MHWeight<RoundTrip<N>> singleRoundTripLogWeight) {
+	public SingleToMultiWeight(MHWeight<RoundTrip<N>> singleRoundTripLogWeight, String name) {
 		this.singleRoundTripLogWeight = singleRoundTripLogWeight;
+		this.name = name;
+	}
+
+	public SingleToMultiWeight(MHWeight<RoundTrip<N>> singleRoundTripLogWeight) {
+		this(singleRoundTripLogWeight, "SingleToMulti(" + singleRoundTripLogWeight.name() + ")");
 	}
 
 	@Override
@@ -72,7 +79,7 @@ public class SingleToMultiWeight<N extends Node> implements MHWeight<MultiRoundT
 
 	@Override
 	public String name() {
-		return "1toN(" + this.singleRoundTripLogWeight.name() + ")";
+		return this.name;
 	}
 
 }

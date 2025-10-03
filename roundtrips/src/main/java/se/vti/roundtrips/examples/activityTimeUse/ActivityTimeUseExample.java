@@ -28,7 +28,7 @@ import se.vti.roundtrips.samplingweights.SamplingWeights;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.samplingweights.misc.timeUse.LogarithmicSingleDayTimeUse;
 import se.vti.roundtrips.samplingweights.misc.timeUse.LogarithmicTimeUse;
-import se.vti.roundtrips.samplingweights.priors.UniformPrior;
+import se.vti.roundtrips.samplingweights.priors.UniformPriorFactory;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.roundtrips.single.RoundTripProposal;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
@@ -105,7 +105,7 @@ class ActivityTimeUseExample {
 		var weights = new SamplingWeights<RoundTrip<GridNodeWithActivity>>();
 
 		// An uniformed prior spreading out sampling where information is missing.
-		weights.add(new UniformPrior<>(scenario));
+		weights.add(new UniformPriorFactory<>(scenario).createSingle());
 
 		// Enforce that every single round trip is completed within the day.
 		weights.add(new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()));

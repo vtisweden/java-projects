@@ -21,6 +21,8 @@ package se.vti.roundtrips.samplingweights.priors;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.common.Scenario;
+import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
@@ -29,21 +31,34 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class UniformPrior<N extends Node> implements MHWeight<RoundTrip<N>> {
+public class UniformPriorFactory<N extends Node> {
 
 	private final SingleRoundTripCombinatorics combinatorics;
 
-	public UniformPrior(int nodeCnt, int timeBinCnt) {
+	public UniformPriorFactory(int nodeCnt, int timeBinCnt) {
 		this.combinatorics = new SingleRoundTripCombinatorics(nodeCnt, timeBinCnt);
 	}
 
-	public UniformPrior(Scenario<N> scenario) {
+	public UniformPriorFactory(Scenario<N> scenario) {
 		this(scenario.getNodesCnt(), scenario.getTimeBinCnt());
 	}
 
-	@Override
-	public double logWeight(RoundTrip<N> roundTrip) {
-		return (-1.0) * this.combinatorics.getLogNumberOfRoundTrips(roundTrip.size());
+	public MHWeight<RoundTrip<N>> createSingle() {
+		return new MHWeight<RoundTrip<N>>() {
+			@Override
+			public double logWeight(RoundTrip<N> roundTrip) {
+				return (-1.0) * combinatorics.getLogNumberOfRoundTrips(roundTrip.size());
+			}
+
+			@Override
+			public String name() {
+				return "UniformPriorSingle";
+			}
+		};
+	}
+
+	public MHWeight<MultiRoundTrip<N>> createMulti() {
+		return new SingleToMultiWeight<>(this.createSingle(), "UniformPriorMulti");
 	}
 
 }

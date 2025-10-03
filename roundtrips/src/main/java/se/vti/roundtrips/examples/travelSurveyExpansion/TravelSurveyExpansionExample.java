@@ -32,7 +32,7 @@ import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SamplingWeights;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
-import se.vti.roundtrips.samplingweights.priors.UniformPrior;
+import se.vti.roundtrips.samplingweights.priors.UniformPriorFactory;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
 
 /**
@@ -125,7 +125,7 @@ public class TravelSurveyExpansionExample {
 		var weights = new SamplingWeights<MultiRoundTrip<GridNodeWithActivity>>();
 
 		// Uniformed prior
-		weights.add(new SingleToMultiWeight<>(new UniformPrior<>(scenario)));
+		weights.add(new UniformPriorFactory<>(scenario).createMulti());
 
 		// Enforce that all round trips are completed within the day.
 		weights.add(new SingleToMultiWeight<>(

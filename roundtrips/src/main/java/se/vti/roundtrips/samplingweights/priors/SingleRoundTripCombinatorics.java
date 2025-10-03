@@ -31,7 +31,7 @@ public class SingleRoundTripCombinatorics {
 	private double[] logNumberOfRoundTripsOverSize;
 
 	public SingleRoundTripCombinatorics(int locationCnt, int timeBinCnt) {
-		this.logNumberOfRoundTripsOverSize = new double[timeBinCnt + 1];
+		this.logNumberOfRoundTripsOverSize = new double[timeBinCnt + 1]; // max timeBinCnt stops in a round trip
 		for (int roundTripSize = 0; roundTripSize <= timeBinCnt; roundTripSize++) {
 			this.logNumberOfRoundTripsOverSize[roundTripSize] = CombinatoricsUtils.binomialCoefficientLog(timeBinCnt,
 					roundTripSize) + roundTripSize * Math.log(locationCnt);

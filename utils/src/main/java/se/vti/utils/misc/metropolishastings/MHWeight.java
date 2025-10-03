@@ -28,7 +28,7 @@ package se.vti.utils.misc.metropolishastings;
  */
 public interface MHWeight<S extends Object> {
 
-	public double logWeight(final S state);
+	double logWeight(final S state);
 
 	default String name() {
 		return this.getClass().getSimpleName();
