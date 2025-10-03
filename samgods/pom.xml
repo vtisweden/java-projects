@@ -37,10 +37,12 @@
 			<id>slimjars</id>
 			<url>https://mvn.slimjars.com</url>
 		</repository>
+		<!--
 		<repository>
 			<id>java-projects</id>
 			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
 		</repository>
+		-->
 	</repositories>
 
   	<distributionManagement>
