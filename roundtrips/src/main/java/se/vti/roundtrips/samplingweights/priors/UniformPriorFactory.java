@@ -33,10 +33,10 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class UniformPriorFactory<N extends Node> {
 
-	private final SingleRoundTripCombinatorics combinatorics;
+	private final SingleRoundTripCombinatorics sizeCombinatorics;
 
 	public UniformPriorFactory(int nodeCnt, int timeBinCnt) {
-		this.combinatorics = new SingleRoundTripCombinatorics(nodeCnt, timeBinCnt);
+		this.sizeCombinatorics = new SingleRoundTripCombinatorics(nodeCnt, timeBinCnt);
 	}
 
 	public UniformPriorFactory(Scenario<N> scenario) {
@@ -47,7 +47,7 @@ public class UniformPriorFactory<N extends Node> {
 		return new MHWeight<RoundTrip<N>>() {
 			@Override
 			public double logWeight(RoundTrip<N> roundTrip) {
-				return (-1.0) * combinatorics.getLogNumberOfRoundTrips(roundTrip.size());
+				return (-1.0) * sizeCombinatorics.getLogNumberOfRoundTrips(roundTrip.size());
 			}
 
 			@Override
@@ -57,7 +57,7 @@ public class UniformPriorFactory<N extends Node> {
 		};
 	}
 
-	public MHWeight<MultiRoundTrip<N>> createMulti() {
+	public MHWeight<MultiRoundTrip<N>> createSingles() {
 		return new SingleToMultiWeight<>(this.createSingle(), "UniformPriorMulti");
 	}
 

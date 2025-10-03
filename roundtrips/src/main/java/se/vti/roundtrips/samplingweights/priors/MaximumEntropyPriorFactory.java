@@ -1,6 +1,10 @@
 package se.vti.roundtrips.samplingweights.priors;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
@@ -13,6 +17,9 @@ import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
+ * EXPERIMENTAL!
+ * 
+ * TODO Chi2Prior needs refinement.
  * 
  * @author GunnarF
  *
@@ -23,16 +30,16 @@ public class MaximumEntropyPriorFactory<N extends Node> {
 
 	private final int nodeCnt;
 	private final int timeBinCnt;
-	private final int maxRoundTripLength;
+	private final int maxRoundTripSize;
 
 	private final SingleRoundTripCombinatorics sizeCombinatorics;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public MaximumEntropyPriorFactory(int nodeCnt, int timeBinCnt, int maxRoundTripLength) {
+	public MaximumEntropyPriorFactory(int nodeCnt, int timeBinCnt, int maxRoundTripSize) {
 		this.nodeCnt = nodeCnt;
 		this.timeBinCnt = timeBinCnt;
-		this.maxRoundTripLength = Math.min(maxRoundTripLength, timeBinCnt);
+		this.maxRoundTripSize = Math.min(maxRoundTripSize, timeBinCnt);
 		this.sizeCombinatorics = new SingleRoundTripCombinatorics(nodeCnt, timeBinCnt);
 	}
 
@@ -46,140 +53,188 @@ public class MaximumEntropyPriorFactory<N extends Node> {
 
 	// -------------------- INTERNALS --------------------
 
-	private double[] createSingleLogWeights(double meanRoundTripLength, boolean correctForCombinatorics) {
-		assert (meanRoundTripLength >= 0);
-		assert (meanRoundTripLength <= this.maxRoundTripLength);
-		final BinomialDistribution binDistr = new BinomialDistribution(this.maxRoundTripLength,
-				meanRoundTripLength / this.maxRoundTripLength);
-		double[] result = new double[this.maxRoundTripLength + 1];
-		for (int j = 0; j < result.length; j++) {
-			result[j] = correctForCombinatorics
+	private double[] createSingleLogWeights(double meanRoundTripSize, boolean correctForCombinatorics) {
+		assert (meanRoundTripSize >= 0);
+		assert (meanRoundTripSize <= this.maxRoundTripSize);
+		final BinomialDistribution binDistr = new BinomialDistribution(this.maxRoundTripSize,
+				meanRoundTripSize / this.maxRoundTripSize);
+		double[] logWeights = new double[this.maxRoundTripSize + 1];
+		for (int j = 0; j < logWeights.length; j++) {
+			logWeights[j] = correctForCombinatorics
 					? binDistr.logProbability(j) - this.sizeCombinatorics.getLogNumberOfRoundTrips(j)
 					: binDistr.logProbability(j);
 		}
-		return result;
+		return logWeights;
 	}
 
 	private double[] probasFromLogWeights(double[] logWeights) {
 		final double maxLogWeight = Arrays.stream(logWeights).max().getAsDouble();
-		final double[] result = new double[logWeights.length];
-		double sum = 0.0;
-		for (int j = 0; j < result.length; j++) {
-			result[j] = Math.exp(logWeights[j] - maxLogWeight);
-			sum += result[j];
+		final double[] probas = new double[logWeights.length];
+		double probaSum = 0.0;
+		for (int j = 0; j < logWeights.length; j++) {
+			probas[j] = Math.exp(logWeights[j] - maxLogWeight);
+			probaSum += probas[j];
 		}
-		assert (sum >= 1e-8);
-
-		for (int j = 0; j < result.length; j++) {
-			result[j] /= sum;
+		// No sum check because there was at least one addend equal to exp(0).
+		for (int j = 0; j < probas.length; j++) {
+			probas[j] /= probaSum;
 		}
-		return result;
+		return probas;
 	}
 
 	// -------------------- SINGLE(S) IMPLEMENTATION --------------------
 
-	public MHWeight<RoundTrip<N>> createSingle(double meanRoundTripLength) {
+	public MHWeight<RoundTrip<N>> createSingle(double meanRoundTripSize) {
 		return new MHWeight<RoundTrip<N>>() {
-			private final double[] logWeights = createSingleLogWeights(meanRoundTripLength, true);
+			double[] logWeights = createSingleLogWeights(meanRoundTripSize, true);
 
 			@Override
-			public double logWeight(RoundTrip<N> state) {
-				return this.logWeights[state.size()];
+			public double logWeight(RoundTrip<N> roundTrips) {
+				return this.logWeights[roundTrips.size()];
 			}
 		};
 	}
 
-	public MHWeight<MultiRoundTrip<N>> createSingles(int _N, double meanRoundTripLength) {
-		return new SingleToMultiWeight<>(this.createSingle(meanRoundTripLength));
+	public MHWeight<MultiRoundTrip<N>> createSingles(double meanRoundTripSize) {
+		return new SingleToMultiWeight<>(this.createSingle(meanRoundTripSize));
 	}
 
 	// -------------------- MULTIPLE IMPLEMENTATION --------------------
 
 	private class Chi2Prior implements MHWeight<MultiRoundTrip<N>> {
 
-		private final int maxRoundTripLength;
-
-		private final Double targetMeanLength;
+		final Double targetMeanSize;
 
 		/*
-		 * singleProbasGivenMeanLength[meanLength][j] is the probability of sampling a
-		 * particular size-j roundtrip given the mean round trip length "meanLength".
+		 * singleProbasGivenMeanLength[meanSize][j] is the probability of sampling a
+		 * single size-j roundtrip given a particular mean round trip size.
 		 */
-		private final double[][] singleProbasGivenMeanLength;
+		final double[][] singleProbasGivenMeanSize;
 
-		// lazy initialization, don't know number of round trips from the beginning
-		private ChiSquaredDistribution chi2distr = null;
+		// Lazy initialization, don't know number of round trips from the beginning.
+		ChiSquaredDistribution chi2distr = null;
 
 		// -------------------- CONSTRUCTION --------------------
 
-		Chi2Prior(int nodeCnt, int timeBinCnt, int maxRoundTripLength, Double targetMeanLength) {
-			this.maxRoundTripLength = maxRoundTripLength;
-			this.targetMeanLength = targetMeanLength;
-
-			this.singleProbasGivenMeanLength = new double[maxRoundTripLength + 1][];
-			for (int meanLength = 0; meanLength <= maxRoundTripLength; meanLength++) {
-				this.singleProbasGivenMeanLength[meanLength] = probasFromLogWeights(
-						createSingleLogWeights(meanLength, false));
+		Chi2Prior(int nodeCnt, int timeBinCnt, Double targetMeanSize, boolean correctForSampling) {
+			this.targetMeanSize = targetMeanSize;
+			this.singleProbasGivenMeanSize = new double[maxRoundTripSize + 1][];
+			for (int meanSize = 0; meanSize <= maxRoundTripSize; meanSize++) {
+				this.singleProbasGivenMeanSize[meanSize] = probasFromLogWeights(
+						createSingleLogWeights(meanSize, correctForSampling));
 			}
 		}
 
 		// -------------------- INTERNALS --------------------
 
-		private double getOrComputeTargetMeanLength(MultiRoundTrip<?> roundTrips) {
-			if (this.targetMeanLength != null) {
-				return this.targetMeanLength;
+		double getOrComputeTargetSize(MultiRoundTrip<?> roundTrips) {
+			if (this.targetMeanSize != null) {
+				return this.targetMeanSize;
 			} else {
-				double count = 0;
-				for (RoundTrip<?> roundTrip : roundTrips) {
-					count += roundTrip.size();
-				}
-				return (count / roundTrips.size());
+				return StreamSupport.stream(roundTrips.spliterator(), false).mapToDouble(r -> r.size()).average()
+						.getAsDouble();
 			}
 		}
 
 		// -------------------- IMPLEMENTATION --------------------
 
-		@Override
-		public double logWeight(MultiRoundTrip<N> roundTrips) {
-
-			int[] realizedLengthFrequencies = new int[maxRoundTripLength + 1];
+		int[] computeSizeFrequencies(MultiRoundTrip<N> roundTrips) {
+			int[] sizeFrequencies = new int[maxRoundTripSize + 1];
 			for (RoundTrip<?> roundTrip : roundTrips) {
-				realizedLengthFrequencies[roundTrip.size()]++;
+				sizeFrequencies[roundTrip.size()]++;
 			}
+			return sizeFrequencies;
+		}
 
-			final double targetMeanLength = this.getOrComputeTargetMeanLength(roundTrips);
-			final int targetMeanLengthFloor = (int) targetMeanLength;
-			final double[] lowerInterpolationSingleProbas = this.singleProbasGivenMeanLength[targetMeanLengthFloor];
-			final double[] upperInterpolationSingleProbas = this.singleProbasGivenMeanLength[(targetMeanLengthFloor == this.maxRoundTripLength)
-					? this.maxRoundTripLength
-					: targetMeanLengthFloor + 1];
-			final double upperInterpolationWeight = targetMeanLength - targetMeanLengthFloor;
+		double computeChi2LogDensity(int[] realizedSizeFrequencies, double targetSize, int numberOfRoundTrips) {
+			final int targetSizeFloor = (int) targetSize;
+			final double[] lowerSingleProbas = this.singleProbasGivenMeanSize[targetSizeFloor];
+			final double[] upperSingleProbas = this.singleProbasGivenMeanSize[Math.min(targetSizeFloor + 1,
+					maxRoundTripSize)];
+			final double upperInterpolationWeight = targetSize - targetSizeFloor;
 
 			double chi2 = 0.0;
-			for (int j = 0; j < realizedLengthFrequencies.length; j++) {
-				final double sizeProba = (1.0 - upperInterpolationWeight) * lowerInterpolationSingleProbas[j]
-						+ upperInterpolationWeight * upperInterpolationSingleProbas[j];
-				chi2 += Math.pow(realizedLengthFrequencies[j] - sizeProba * roundTrips.size(), 2.0) / sizeProba;
+			for (int j = 0; j < realizedSizeFrequencies.length; j++) {
+				final double targetSizeProba = (1.0 - upperInterpolationWeight) * lowerSingleProbas[j]
+						+ upperInterpolationWeight * upperSingleProbas[j];
+				final double targetSizeFrequency = targetSizeProba * numberOfRoundTrips;
+				chi2 += Math.pow(realizedSizeFrequencies[j] - targetSizeFrequency, 2.0) / targetSizeFrequency;
 			}
 
 			if (this.chi2distr == null) {
-				this.chi2distr = new ChiSquaredDistribution(roundTrips.size());
+				this.chi2distr = new ChiSquaredDistribution(maxRoundTripSize - 1);
 			}
-			return this.chi2distr.logDensity(chi2);
+			return this.chi2distr.logDensity(chi2) + Math.log(1e-8); // TODO
+		}
+
+		@Override
+		public double logWeight(MultiRoundTrip<N> roundTrips) {
+			// Funktionality split up for testing.
+			int[] realizedSizeFrequencies = this.computeSizeFrequencies(roundTrips);
+			return this.computeChi2LogDensity(realizedSizeFrequencies, this.getOrComputeTargetSize(roundTrips),
+					roundTrips.size());
 		}
 
 		@Override
 		public String name() {
-			return "Chi2PriorExogMean";
+			return (this.targetMeanSize == null) ? "Chi2Prior(endog.mean)"
+					: "Chi2Prior(mean=" + this.targetMeanSize + ")";
 		}
 
 	}
 
-	public MHWeight<MultiRoundTrip<N>> createMultiple(double targetMeanLength) {
-		return new Chi2Prior(this.nodeCnt, this.timeBinCnt, this.maxRoundTripLength, targetMeanLength);
+	public Chi2Prior createMultiple(Double targetMeanSize) {
+		return new Chi2Prior(this.nodeCnt, this.timeBinCnt, targetMeanSize, true);
 	}
 
 	public MHWeight<MultiRoundTrip<N>> createMultiple() {
-		return new Chi2Prior(this.nodeCnt, this.timeBinCnt, this.maxRoundTripLength, null);
+		return this.createMultiple(null);
+	}
+
+	Chi2Prior createMultiple(double targetMeanSize, boolean correctForSampling) {
+		return new Chi2Prior(this.nodeCnt, this.timeBinCnt, targetMeanSize, correctForSampling);
+	}
+
+	// -------------------- MAIN-FUNCTION, ONLY FOR TESTING --------------------
+
+	static void testSingle() {
+		var factory = new MaximumEntropyPriorFactory<>(10, 24);
+		for (int targetSize = 0; targetSize <= 24; targetSize++) {
+			double adjustedTargetSize = Math.max(1e-3, Math.min(24 - 1e-3, targetSize));
+			double[] logWeights = factory.createSingleLogWeights(adjustedTargetSize, false); // No size correction!
+			double maxLogWeight = Arrays.stream(logWeights).max().getAsDouble();
+			List<Double> weights = Arrays.stream(logWeights).map(lw -> Math.exp(lw - maxLogWeight)).boxed().toList();
+			double weightSum = weights.stream().mapToDouble(w -> w).sum();
+			System.out.println(weights.stream().mapToDouble(w -> w / weightSum).boxed().map(w -> "" + w)
+					.collect(Collectors.joining("\t")));
+		}
+	}
+
+	static void testMultiple() {
+		int numberOfRoundTrips = 5;
+		var factory = new MaximumEntropyPriorFactory<>(10, 24);
+		for (int targetSize = 0; targetSize <= 24; targetSize++) {
+			double adjustedTargetSize = Math.max(1e-3, Math.min(24 - 1e-3, targetSize));
+			var multiple = factory.createMultiple(adjustedTargetSize, false); // No size correction!
+			List<Double> chi2logDensities = new ArrayList<>();
+			for (int realizedSizes = 0; realizedSizes <= 24; realizedSizes++) {
+				int[] realizedSizeFrequencies = new int[25];
+				realizedSizeFrequencies[realizedSizes] = numberOfRoundTrips;
+				chi2logDensities.add(multiple.computeChi2LogDensity(realizedSizeFrequencies, adjustedTargetSize,
+						numberOfRoundTrips));
+			}
+			// size correction?
+			double maxLogWeight = chi2logDensities.stream().mapToDouble(d -> d).max().getAsDouble();
+			List<Double> weights = chi2logDensities.stream().mapToDouble(lw -> Math.exp(lw - maxLogWeight)).boxed()
+					.toList();
+			double weightSum = weights.stream().mapToDouble(w -> w).sum();
+			System.out.println(weights.stream().mapToDouble(w -> w / weightSum).boxed().map(w -> "" + w)
+					.collect(Collectors.joining("\t")));
+		}
+	}
+
+	public static void main(String[] args) {
+		// testSingle();
+		testMultiple();
 	}
 }
