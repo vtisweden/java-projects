@@ -37,8 +37,19 @@
 			<id>slimjars</id>
 			<url>https://mvn.slimjars.com</url>
 		</repository>
-		
+		<repository>
+			<id>java-projects</id>
+			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+		</repository>
 	</repositories>
+
+  	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub vtisweden Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+		</repository>
+	</distributionManagement>
 
 	<dependencies>
 		
@@ -109,26 +120,19 @@
 
 	</dependencies>
 
-	<!--
 	<build>
-    	<plugins>
-        	<plugin>
-            	<groupId>org.apache.maven.plugins</groupId>
-            	<artifactId>maven-surefire-plugin</artifactId>
-            	<version>3.1.2</version>
-        	</plugin>
-    	</plugins>
+		<plugins>
+			<plugin>
+				<!-- This plugin makes source files and javadocs available inside eclipse.  In IntelliJ, this works without plugin.-->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.10</version>
+				<configuration>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>true</downloadJavadocs>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
-	-->
-	
-	
-<distributionManagement>
-  <repository>
-    <id>github</id>
-    <name>GitHub Packages</name>
-    <url>https://maven.pkg.github.com/vtisweden/java-projects</url>
-  </repository>
-</distributionManagement>
-
 
 </project>
