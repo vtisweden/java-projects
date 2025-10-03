@@ -70,6 +70,7 @@
 		</dependency>
 
 		<!--MATSim test infrastructure. Not transitive. -->
+		<!--
 		<dependency>
 			<groupId>org.matsim</groupId>
 			<artifactId>matsim</artifactId>
@@ -77,7 +78,8 @@
 			<version>${matsim.version}</version>
 			<scope>test</scope>
 		</dependency>
-
+		-->
+	
 		<!--to get ExamplesUtils: -->
 		<dependency>
 			<groupId>org.matsim</groupId>
@@ -118,5 +120,15 @@
     	</plugins>
 	</build>
 	-->
+	
+	
+<distributionManagement>
+  <repository>
+    <id>github</id>
+    <name>GitHub Packages</name>
+    <url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+  </repository>
+</distributionManagement>
+
 
 </project>
