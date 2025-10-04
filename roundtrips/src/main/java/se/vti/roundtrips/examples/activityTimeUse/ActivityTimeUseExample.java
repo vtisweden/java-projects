@@ -26,7 +26,6 @@ import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUni
 import se.vti.roundtrips.logging.SamplingWeightLogger;
 import se.vti.roundtrips.samplingweights.SamplingWeights;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
-import se.vti.roundtrips.samplingweights.misc.timeUse.LogarithmicTimeUseComponent;
 import se.vti.roundtrips.samplingweights.misc.timeUse.LogarithmicTimeUseSinglePersonSingleDay;
 import se.vti.roundtrips.samplingweights.priors.UniformPriorFactory;
 import se.vti.roundtrips.single.RoundTrip;
