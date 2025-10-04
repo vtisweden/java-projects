@@ -26,8 +26,8 @@ import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUni
 import se.vti.roundtrips.logging.SamplingWeightLogger;
 import se.vti.roundtrips.samplingweights.SamplingWeights;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
-import se.vti.roundtrips.samplingweights.misc.timeUse.LogarithmicSingleDayTimeUse;
-import se.vti.roundtrips.samplingweights.misc.timeUse.LogarithmicTimeUse;
+import se.vti.roundtrips.samplingweights.misc.timeUse.LogarithmicTimeUseComponent;
+import se.vti.roundtrips.samplingweights.misc.timeUse.LogarithmicTimeUseSinglePersonSingleDay;
 import se.vti.roundtrips.samplingweights.priors.UniformPriorFactory;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.roundtrips.single.RoundTripProposal;
@@ -115,13 +115,11 @@ class ActivityTimeUseExample {
 
 		// Sample round trips according to time use assumptions. See LogarithmicTimeUse
 		// implementation for details.
-		LogarithmicSingleDayTimeUse<GridNodeWithActivity> timeUse = new LogarithmicSingleDayTimeUse<>();
-		LogarithmicTimeUse.Component homeComponent = new LogarithmicTimeUse.Component(12.0, 24.0)
+		var timeUse = new LogarithmicTimeUseSinglePersonSingleDay<GridNodeWithActivity>(24.0);
+		var homeComponent = timeUse.createComponent(12.0).setMinEnBlockDurationAtLeastOnce_h(8.0);
+		var workComponent = timeUse.createComponent(9.0).setOpeningTimes_h(6.0, 18.0)
 				.setMinEnBlockDurationAtLeastOnce_h(8.0);
-		LogarithmicTimeUse.Component workComponent = new LogarithmicTimeUse.Component(9.0, 24.0)
-				.setOpeningTimes_h(6.0, 18.0).setMinEnBlockDurationAtLeastOnce_h(8.0);
-		LogarithmicTimeUse.Component otherComponent = new LogarithmicTimeUse.Component(3.0, 24.0).setOpeningTimes_h(10,
-				20.0);
+		var otherComponent = timeUse.createComponent(3.0).setOpeningTimes_h(10, 20.0);
 		for (var node : scenario.getNodesView()) {
 			if (Activity.HOME.equals(node.getActivity())) {
 				timeUse.assignComponent(node, homeComponent);

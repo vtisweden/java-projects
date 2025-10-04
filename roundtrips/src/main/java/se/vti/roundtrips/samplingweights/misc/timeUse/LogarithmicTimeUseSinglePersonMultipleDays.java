@@ -20,7 +20,7 @@
 package se.vti.roundtrips.samplingweights.misc.timeUse;
 
 import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.single.RoundTrip;
+import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
@@ -28,18 +28,22 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class LogarithmicSingleDayTimeUse<N extends Node> extends LogarithmicTimeUse<N> implements MHWeight<RoundTrip<N>> {
+public class LogarithmicTimeUseSinglePersonMultipleDays<N extends Node> extends LogarithmicTimeUse<N>
+		implements MHWeight<MultiRoundTrip<N>> {
 
-	public LogarithmicSingleDayTimeUse() {
+	public LogarithmicTimeUseSinglePersonMultipleDays(double period_h) {
+		super(period_h);
 	}
 
-	public void assignComponent(N node, Component component) {
-		super.assignComponent(component, node, 0);
+	public void assignComponent(LogarithmicTimeUseComponent component, N node, int... indices) {
+		for (int index : indices) {
+			super.assignComponent(component, node, index);
+		}
 	}
 
 	@Override
-	public double logWeight(RoundTrip<N> roundTrip) {
-		return super.computeLogWeight(roundTrip);
+	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
+		return super.computeLogWeight(multiRoundTrip);
 	}
 
 }

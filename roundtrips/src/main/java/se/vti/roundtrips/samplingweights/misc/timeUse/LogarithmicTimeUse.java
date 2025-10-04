@@ -19,7 +19,6 @@
  */
 package se.vti.roundtrips.samplingweights.misc.timeUse;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,80 +38,28 @@ import se.vti.utils.misc.Tuple;
  */
 public class LogarithmicTimeUse<N extends Node> {
 
-	public static class Component {
-
-		private final double targetDuration_h;
-		private final double period_h;
-
-		private List<Tuple<Double, Double>> openInterval_h;
-		private double minEnBlockDurationAtLeastOnce_h;
-		private double minEnBlockDurationEachTime_h;
-
-		private boolean valid = false;
-		private double effectiveDurationSum_h = 0;
-
-		public Component(double targetDuration_h, double period_h) {
-			this.targetDuration_h = targetDuration_h;
-			this.period_h = period_h;
-			this.openInterval_h = Arrays.asList(new Tuple<>(0.0, period_h));
-			this.minEnBlockDurationAtLeastOnce_h = 0.0;
-			this.minEnBlockDurationEachTime_h = 0.0;
-		}
-
-		public Component setOpeningTimes_h(double start_h, double end_h) {
-			if (start_h < end_h) {
-				this.openInterval_h = Arrays.asList(new Tuple<>(start_h, end_h));
-			} else {
-				// wraparound
-				this.openInterval_h = Arrays.asList(new Tuple<>(0.0, end_h), new Tuple<>(start_h, this.period_h));				
-			}
-			return this;
-		}
-
-		public Component setMinEnBlockDurationAtLeastOnce_h(double dur_h) {
-			this.minEnBlockDurationAtLeastOnce_h = dur_h;
-			return this;
-		}
-
-		public Component setMinEnBlockDurationEachTime_h(double dur_h) {
-			this.minEnBlockDurationEachTime_h = dur_h;
-			return this;
-		}
-
-		private void resetEffectiveDuration_h() {
-			this.valid = false;
-			this.effectiveDurationSum_h = 0;
-		}
-
-		private void update(StayEpisode<?> stay) {
-			double effectiveDuration_h = stay.overlap_h(this.openInterval_h, this.period_h);
-			if (effectiveDuration_h >= this.minEnBlockDurationEachTime_h) {
-				this.effectiveDurationSum_h += effectiveDuration_h;
-				this.valid = this.valid || (effectiveDuration_h >= this.minEnBlockDurationAtLeastOnce_h);
-			}
-		}
-
-		public double getEffectiveDuration_h() {
-			return this.valid ? this.effectiveDurationSum_h : 0.0;
-		}
-
-	}
-
 	private final double minDur_h = 0.001;
 
-	private final Map<Tuple<N, Integer>, Component> nodeAndIndex2component = new LinkedHashMap<>();
+	private final double period_h;
+	
+	private final Map<Tuple<N, Integer>, LogarithmicTimeUseComponent> nodeAndIndex2component = new LinkedHashMap<>();
 
-	private final Set<Component> components = new LinkedHashSet<>();
+	private final Set<LogarithmicTimeUseComponent> components = new LinkedHashSet<>();
 
-	LogarithmicTimeUse() {
+	LogarithmicTimeUse(double period_h) {
+		this.period_h = period_h;
 	}
 
-	void assignComponent(Component component, N node, int index) {
+	public LogarithmicTimeUseComponent createComponent(double targetDuration_h) {
+		return new LogarithmicTimeUseComponent(targetDuration_h, this.period_h);
+	}
+	
+	void assignComponent(LogarithmicTimeUseComponent component, N node, int index) {
 		this.nodeAndIndex2component.put(new Tuple<>(node, index), component);
 		this.components.add(component);
 	}
 
-	public void update(Iterable<RoundTrip<N>> roundTrips) {
+	void update(Iterable<RoundTrip<N>> roundTrips) {
 		for (var component : this.components) {
 			component.resetEffectiveDuration_h();
 		}
@@ -120,7 +67,7 @@ public class LogarithmicTimeUse<N extends Node> {
 			List<Episode> episodes = roundTrip.getEpisodes();
 			for (int i = 0; i < episodes.size(); i += 2) {
 				StayEpisode<?> stay = (StayEpisode<?>) episodes.get(i);
-				Component component = this.nodeAndIndex2component
+				LogarithmicTimeUseComponent component = this.nodeAndIndex2component
 						.get(new Tuple<>(stay.getLocation(), roundTrip.getIndex()));
 				if (component != null) {
 					component.update(stay);
@@ -138,4 +85,5 @@ public class LogarithmicTimeUse<N extends Node> {
 		}
 		return result;
 	}
+	
 }
