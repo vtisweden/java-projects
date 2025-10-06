@@ -36,7 +36,6 @@
 			<id>slimjars</id>
 			<url>https://mvn.slimjars.com</url>
 		</repository>
-		
 		<!-- for package publication -->
 		<repository>
 			<id>github</id>
