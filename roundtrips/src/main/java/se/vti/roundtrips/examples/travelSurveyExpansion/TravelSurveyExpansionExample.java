@@ -26,14 +26,14 @@ import se.vti.roundtrips.common.Scenario;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
-import se.vti.roundtrips.logging.SamplingWeightLogger;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
-import se.vti.roundtrips.samplingweights.SamplingWeights;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.samplingweights.priors.UniformPriorFactory;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
+import se.vti.utils.misc.metropolishastings.MHWeightContainer;
+import se.vti.utils.misc.metropolishastings.SamplingWeightLogger;
 
 /**
  * 
@@ -122,7 +122,7 @@ public class TravelSurveyExpansionExample {
 		 * populate it with SamplingWeight instances.
 		 */
 
-		var weights = new SamplingWeights<MultiRoundTrip<GridNodeWithActivity>>();
+		var weights = new MHWeightContainer<MultiRoundTrip<GridNodeWithActivity>>();
 
 		// Uniformed prior
 		weights.add(new UniformPriorFactory<>(scenario).createSingles());

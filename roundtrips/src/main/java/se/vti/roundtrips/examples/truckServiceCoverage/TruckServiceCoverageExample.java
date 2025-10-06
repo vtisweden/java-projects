@@ -20,16 +20,16 @@
 package se.vti.roundtrips.examples.truckServiceCoverage;
 
 import se.vti.roundtrips.common.Scenario;
-import se.vti.roundtrips.logging.SamplingWeightLogger;
 import se.vti.roundtrips.logging.multiple.SizeDistributionLogger;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
-import se.vti.roundtrips.samplingweights.SamplingWeights;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.misc.StrictlyForbidShortStays;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.samplingweights.priors.UniformPriorFactory;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
+import se.vti.utils.misc.metropolishastings.MHWeightContainer;
+import se.vti.utils.misc.metropolishastings.SamplingWeightLogger;
 
 /**
  * 
@@ -110,7 +110,7 @@ class TruckServiceCoverageExample {
 		 * populate it with SamplingWeight instances.
 		 */
 
-		SamplingWeights<MultiRoundTrip<GridNode>> weights = new SamplingWeights<>();
+		MHWeightContainer<MultiRoundTrip<GridNode>> weights = new MHWeightContainer<>();
 
 		// A uniform prior spreading out sampling where information is missing.
 		weights.add(new UniformPriorFactory<>(scenario).createSingles());

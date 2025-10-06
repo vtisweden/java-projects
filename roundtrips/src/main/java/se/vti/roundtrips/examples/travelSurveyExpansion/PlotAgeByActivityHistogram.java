@@ -24,17 +24,17 @@ import java.util.List;
 
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
-import se.vti.roundtrips.logging.AbstractStateProcessor;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.simulator.Episode;
 import se.vti.roundtrips.simulator.StayEpisode;
+import se.vti.utils.misc.metropolishastings.MHAbstractStateProcessor;
 
 /**
  * 
  * @author GunnarF
  *
  */
-class PlotAgeByActivityHistogram extends AbstractStateProcessor<MultiRoundTrip<GridNodeWithActivity>> {
+class PlotAgeByActivityHistogram extends MHAbstractStateProcessor<MultiRoundTrip<GridNodeWithActivity>> {
 
 	private final List<Person> syntheticPopulation;
 

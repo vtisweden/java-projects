@@ -23,9 +23,9 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import se.vti.roundtrips.logging.ToFileLogger;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.simulator.StayEpisode;
+import se.vti.utils.misc.metropolishastings.ToFileLogger;
 
 /**
  * 

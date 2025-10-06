@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.logging.ToFileLogger;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.utils.misc.metropolishastings.ToFileLogger;
 
 /**
  * 

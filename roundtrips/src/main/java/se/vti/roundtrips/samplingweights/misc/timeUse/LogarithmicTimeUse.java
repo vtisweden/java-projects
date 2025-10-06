@@ -36,7 +36,7 @@ import se.vti.utils.misc.Tuple;
  * @author GunnarF
  *
  */
-public class LogarithmicTimeUse<N extends Node> {
+class LogarithmicTimeUse<N extends Node> {
 
 	private final double minDur_h = 0.001;
 

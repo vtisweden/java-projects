@@ -33,13 +33,20 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class LogarithmicTimeMultiplePersonsSingleDay<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
 
+	private final double period_h;
+	
 	private final List<LogarithmicTimeUse<N>> logarithmicTimeUsePerTraveler;
 
 	public LogarithmicTimeMultiplePersonsSingleDay(int numberOfTravelers, double period_h) {
+		this.period_h = period_h;
 		this.logarithmicTimeUsePerTraveler = new ArrayList<>(numberOfTravelers);
 		for (int n = 0; n < numberOfTravelers; n++) {
 			this.logarithmicTimeUsePerTraveler.add(new LogarithmicTimeUse<>(period_h));
 		}
+	}
+	
+	public LogarithmicTimeUseComponent createComponent(double targetDuration_h) {
+		return new LogarithmicTimeUseComponent(targetDuration_h, this.period_h);
 	}
 
 	public void assignComponent(LogarithmicTimeUseComponent component, N node, int personIndex) {

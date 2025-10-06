@@ -19,8 +19,8 @@
  */
 package se.vti.roundtrips.examples.truckServiceCoverage;
 
-import se.vti.roundtrips.logging.ToFileLogger;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.utils.misc.metropolishastings.ToFileLogger;
 
 /**
  * 

@@ -25,19 +25,19 @@ import java.util.Map;
 
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
-import se.vti.roundtrips.logging.AbstractStateProcessor;
 import se.vti.roundtrips.simulator.Episode;
 import se.vti.roundtrips.simulator.MoveEpisode;
 import se.vti.roundtrips.simulator.StayEpisode;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.Tuple;
+import se.vti.utils.misc.metropolishastings.MHAbstractStateProcessor;
 
 /**
  * 
  * @author GunnarF
  *
  */
-class PlotTimeUseHistogram extends AbstractStateProcessor<RoundTrip<GridNodeWithActivity>> {
+class PlotTimeUseHistogram extends MHAbstractStateProcessor<RoundTrip<GridNodeWithActivity>> {
 
 	private Map<Activity, long[]> activity2histogram;
 

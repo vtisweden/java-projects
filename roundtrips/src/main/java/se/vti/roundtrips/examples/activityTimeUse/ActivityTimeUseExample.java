@@ -23,14 +23,14 @@ import se.vti.roundtrips.common.Scenario;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
-import se.vti.roundtrips.logging.SamplingWeightLogger;
-import se.vti.roundtrips.samplingweights.SamplingWeights;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.samplingweights.misc.timeUse.LogarithmicTimeUseSinglePersonSingleDay;
 import se.vti.roundtrips.samplingweights.priors.UniformPriorFactory;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.roundtrips.single.RoundTripProposal;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
+import se.vti.utils.misc.metropolishastings.MHWeightContainer;
+import se.vti.utils.misc.metropolishastings.SamplingWeightLogger;
 
 /**
  * 
@@ -101,7 +101,7 @@ class ActivityTimeUseExample {
 		 * populate it with SamplingWeight instances.
 		 */
 
-		var weights = new SamplingWeights<RoundTrip<GridNodeWithActivity>>();
+		var weights = new MHWeightContainer<RoundTrip<GridNodeWithActivity>>();
 
 		// An uniformed prior spreading out sampling where information is missing.
 		weights.add(new UniformPriorFactory<>(scenario).createSingle());
