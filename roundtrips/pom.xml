@@ -35,6 +35,13 @@
 			<id>slimjars</id>
 			<url>https://mvn.slimjars.com</url>
 		</repository>
+		
+		<!-- for package publication -->
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+		</repository>
+
 	</repositories>
 
 	<dependencies>
@@ -51,6 +58,14 @@
 		</dependency>
 
 	</dependencies>
+
+  	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub vtisweden Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+		</repository>
+	</distributionManagement>
 
 	<build>
 		<plugins>
