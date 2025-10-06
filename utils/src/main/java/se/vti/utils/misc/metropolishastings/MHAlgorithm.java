@@ -45,11 +45,13 @@ public class MHAlgorithm<S extends Object> {
 
 	// -------------------- MEMBERS --------------------
 
+	private MHStateProcessor<S> stateLogger;
+	
 	private S initialState = null;
 
 	private List<MHStateProcessor<S>> stateProcessors = new ArrayList<MHStateProcessor<S>>();
 
-	private long msgInterval = 1;
+//	private long msgInterval = 1;
 
 	private long lastCompTime_ms = 0;
 
@@ -77,6 +79,9 @@ public class MHAlgorithm<S extends Object> {
 		this.proposal = proposal;
 //		this.weight = weight;
 //		this.rnd = rnd;
+
+
+		
 	}
 
 	public MHAlgorithm(final MHProposal<S> proposal, final MHWeight<S> weight, final Random rnd) {
@@ -98,14 +103,11 @@ public class MHAlgorithm<S extends Object> {
 	}
 
 	public void setMsgInterval(final long msgInterval) {
-//		if (msgInterval < 1) {
-//			throw new IllegalArgumentException("message interval < 1");
-//		}
-		this.msgInterval = msgInterval;
-	}
-
-	public long getMsgInterval() {
-		return this.msgInterval;
+		if (msgInterval <= 0) {
+			this.stateLogger = null;
+		} else {
+			this.stateLogger = new MHStateLogger<>(msgInterval);
+		}
 	}
 
 	public void addStateProcessor(final MHStateProcessor<S> stateProcessor) {
@@ -125,6 +127,10 @@ public class MHAlgorithm<S extends Object> {
 
 		this.lastCompTime_ms = 0;
 
+		if (this.stateLogger != null) {
+			this.stateProcessors.add(0, this.stateLogger);
+		}
+		
 		/*
 		 * initialize (iteration 0)
 		 */
@@ -153,12 +159,12 @@ public class MHAlgorithm<S extends Object> {
 		 */
 		for (long i = 1; i <= iterations; i++) {
 
-			if ((this.msgInterval >= 1) && (i % this.msgInterval == 0)) {
-				System.out.println("MH iteration " + i);
-				System.out.println("  state     = " + currentState.getState());
+//			if ((this.msgInterval >= 1) && (i % this.msgInterval == 0)) {
+//				System.out.println("MH iteration " + i);
+//				System.out.println("  state     = " + currentState.getState());
 //				System.out.println("  logweight = " + currentLogWeight);
 //				System.out.println("  weight    = " + Math.exp(currentLogWeight));
-			}
+//			}
 
 			tick_ms = System.currentTimeMillis();
 

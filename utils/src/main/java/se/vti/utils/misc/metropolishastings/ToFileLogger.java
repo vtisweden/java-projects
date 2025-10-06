@@ -17,20 +17,18 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.logging;
+package se.vti.utils.misc.metropolishastings;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 
 /**
  * 
  * @author GunnarF
  *
  */
-public abstract class ToFileLogger<R> extends AbstractStateProcessor<R> implements MHStateProcessor<R> {
+public abstract class ToFileLogger<R> extends MHAbstractStateProcessor<R> implements MHStateProcessor<R> {
 
 	private final File logFile;
 

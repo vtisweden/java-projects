@@ -17,10 +17,7 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.logging;
-
-import se.vti.roundtrips.samplingweights.SamplingWeights;
-import se.vti.utils.misc.metropolishastings.MHWeight;
+package se.vti.utils.misc.metropolishastings;
 
 /**
  * 
@@ -29,9 +26,9 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class SamplingWeightLogger<R> extends ToFileLogger<R> {
 
-	final SamplingWeights<R> samplingWeights;
+	final MHWeightContainer<R> samplingWeights;
 
-	public SamplingWeightLogger(long samplingInterval, SamplingWeights<R> samplingWeights, String logFileName) {
+	public SamplingWeightLogger(long samplingInterval, MHWeightContainer<R> samplingWeights, String logFileName) {
 		super(samplingInterval, logFileName);
 		this.samplingWeights = samplingWeights;
 	}

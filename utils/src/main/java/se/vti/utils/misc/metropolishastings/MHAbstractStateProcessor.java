@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.logging;
-
-import se.vti.utils.misc.metropolishastings.MHStateProcessor;
+package se.vti.utils.misc.metropolishastings;
 
 /**
  * 
@@ -27,14 +25,14 @@ import se.vti.utils.misc.metropolishastings.MHStateProcessor;
  *
  * @param <X>
  */
-public abstract class AbstractStateProcessor<X> implements MHStateProcessor<X> {
+public abstract class MHAbstractStateProcessor<X> implements MHStateProcessor<X> {
 
 	private final long burnInIterations;
 	private final long samplingInterval;
 	private long iteration;
 	private long samples;
 	
-	public AbstractStateProcessor(long burnInIterations, long samplingInterval) {
+	public MHAbstractStateProcessor(long burnInIterations, long samplingInterval) {
 		super();
 		this.burnInIterations = burnInIterations;
 		this.samplingInterval = samplingInterval;

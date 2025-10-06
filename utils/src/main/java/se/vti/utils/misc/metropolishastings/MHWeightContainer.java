@@ -17,26 +17,24 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.samplingweights;
+package se.vti.utils.misc.metropolishastings;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * 
  * @author GunnarF
  *
  */
-public class SamplingWeights<X> implements MHWeight<X> {
+public class MHWeightContainer<X> implements MHWeight<X> {
 
 	private List<MHWeight<X>> components = new ArrayList<>();
 
 	private List<Double> weights = new ArrayList<>();
 
-	public SamplingWeights() {
+	public MHWeightContainer() {
 	}
 
 	public List<MHWeight<X>> getComponentsView() {
