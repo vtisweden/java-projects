@@ -8,10 +8,9 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>utils</artifactId>
-  
+  <artifactId>utils</artifactId>  
   <!-- last published version: 0.1.4 -->
-  <version>0.1.5-SNAPSHOT</version>
+  <version>0.1.5</version>
   
 	<repositories>
 	  <!--Note that in general repositories are not transitive, so they need to be repeated at every level where needed.-->
@@ -38,7 +37,21 @@
 			<url>https://mvn.slimjars.com</url>
 		</repository>
 		
+		<!-- for package publication -->
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+		</repository>
+
 	</repositories>
+
+  	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub vtisweden Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+		</repository>
+	</distributionManagement>
 
 	<dependencies>
 
@@ -63,36 +76,26 @@
 			<!-- <scope>test</scope> -->
 		<!-- </dependency> -->
 
+		<!--
 		<dependency>
-			<!--MATSim test infrastructure.  Not transitive.-->
 			<groupId>org.matsim</groupId>
 			<artifactId>matsim</artifactId>
 			<type>test-jar</type>
 			<version>${matsim.version}</version>
 			<scope>test</scope>
 		</dependency>
+		-->
 
 		<!--dependencies from here to where stated below are added as a service; they can be removed if you don't need them-->
-		<!--to get ExamplesUtils: -->
+		<!--to get ExamplesUtils:
 		<dependency>
 			<groupId>org.matsim</groupId>
 			<artifactId>matsim-examples</artifactId>
 			<version>${matsim.version}</version>
-			<!--<scope>test</scope>-->
-			<!--I think that having it in the "main" scope is acceptable for a "leaf" project, and makes life easier.  move the-->
-			<!--matsim-examples dependency into "test" scope if you want to make other projects dependent on your this project here. kai,-->
-			<!--jan'21-->
 		</dependency>
+		-->
 
 	</dependencies>
-
-  	<distributionManagement>
-		<repository>
-			<id>github</id>
-			<name>GitHub vtisweden Apache Maven Packages</name>
-			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
-		</repository>
-	</distributionManagement>
 
 	<build>
 		<plugins>
@@ -107,22 +110,6 @@
 				</configuration>
 			</plugin>
 
-		<!--
-    	<plugin>
-	      	<groupId>org.apache.maven.plugins</groupId>
-    	  	<artifactId>maven-source-plugin</artifactId>
-      		<version>3.2.1</version>
-      		<executions>
-        		<execution>
-          		<id>attach-sources</id>
-          		<goals>
-            		<goal>jar</goal>
-	          	</goals>
-        		</execution>
-   	   		</executions>
-    	</plugin>
-    	-->
-    	
   	</plugins>
 	</build>
 
