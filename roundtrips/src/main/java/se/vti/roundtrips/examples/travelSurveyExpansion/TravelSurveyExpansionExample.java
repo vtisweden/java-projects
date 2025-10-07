@@ -30,7 +30,7 @@ import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
-import se.vti.roundtrips.samplingweights.priors.UniformPriorFactory;
+import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
 import se.vti.utils.misc.metropolishastings.MHWeightContainer;
 import se.vti.utils.misc.metropolishastings.SamplingWeightLogger;
@@ -125,7 +125,7 @@ public class TravelSurveyExpansionExample {
 		var weights = new MHWeightContainer<MultiRoundTrip<GridNodeWithActivity>>();
 
 		// Uniformed prior
-		weights.add(new UniformPriorFactory<>(scenario).createSingles());
+		weights.add(new SingleToMultiWeight<>(new SingleRoundTripUniformPrior<>(scenario)));
 
 		// Enforce that all round trips are completed within the day.
 		weights.add(new SingleToMultiWeight<>(
@@ -150,7 +150,8 @@ public class TravelSurveyExpansionExample {
 		// Log summary statistics over sampling iterations. See code for interpretation.
 		algo.addStateProcessor(new SamplingWeightLogger<>(totalIterations / 100, weights,
 				"./output/travelSurveyExpansion/logWeights.log"));
-		algo.addStateProcessor(new PlotAgeByActivityHistogram(totalIterations / 2, totalIterations / 100, syntheticPopulation));
+		algo.addStateProcessor(
+				new PlotAgeByActivityHistogram(totalIterations / 2, totalIterations / 100, syntheticPopulation));
 
 		algo.setMsgInterval(totalIterations / 100);
 		algo.run(totalIterations);

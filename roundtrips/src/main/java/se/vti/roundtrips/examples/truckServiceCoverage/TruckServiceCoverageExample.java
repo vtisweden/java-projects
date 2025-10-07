@@ -26,7 +26,7 @@ import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.misc.StrictlyForbidShortStays;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
-import se.vti.roundtrips.samplingweights.priors.UniformPriorFactory;
+import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
 import se.vti.utils.misc.metropolishastings.MHWeightContainer;
 import se.vti.utils.misc.metropolishastings.SamplingWeightLogger;
@@ -113,7 +113,7 @@ class TruckServiceCoverageExample {
 		MHWeightContainer<MultiRoundTrip<GridNode>> weights = new MHWeightContainer<>();
 
 		// A uniform prior spreading out sampling where information is missing.
-		weights.add(new UniformPriorFactory<>(scenario).createSingles());
+		weights.add(new SingleToMultiWeight<>(new SingleRoundTripUniformPrior<>(scenario)));
 
 		// Ensure that every single round trip is completed within the day.
 		weights.add(new SingleToMultiWeight<>(new StrictlyPeriodicSchedule<GridNode>(scenario.getPeriodLength_h())),

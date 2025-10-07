@@ -77,6 +77,14 @@ public class MultiRoundTrip<L extends Node> implements Iterable<RoundTrip<L>> {
 	public int size() {
 		return this.roundTrips.size();
 	}
+	
+	public int computeSumOfRoundTripSizes() {
+		int sizeSum = 0;
+		for (var roundTrip : this) {
+			sizeSum += roundTrip.size();
+		}
+		return sizeSum;		
+	}
 
 	public void addSummary(MultiRoundTripSummary<L> summary) {
 		this.class2summary.put(summary.getClass(), summary);

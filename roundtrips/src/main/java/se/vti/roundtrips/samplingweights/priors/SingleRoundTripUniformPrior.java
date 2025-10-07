@@ -1,5 +1,5 @@
 /**
- * se.vti.roundtrips.samplingweights.priors
+ * se.vti.roundtrips
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -19,27 +19,31 @@
  */
 package se.vti.roundtrips.samplingweights.priors;
 
-import org.apache.commons.math3.util.CombinatoricsUtils;
+import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.common.Scenario;
+import se.vti.roundtrips.single.RoundTrip;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * 
  * @author GunnarF
  *
  */
-public class SingleRoundTripCombinatorics {
+public class SingleRoundTripUniformPrior<N extends Node> implements MHWeight<RoundTrip<N>> {
 
-	private double[] logNumberOfRoundTripsOverSize;
+	private final double[] logWeights;
 
-	public SingleRoundTripCombinatorics(int nodeCnt, int timeBinCnt) {
-		this.logNumberOfRoundTripsOverSize = new double[timeBinCnt + 1]; // max timeBinCnt stops in a round trip
-		for (int roundTripSize = 0; roundTripSize <= timeBinCnt; roundTripSize++) {
-			this.logNumberOfRoundTripsOverSize[roundTripSize] = CombinatoricsUtils.binomialCoefficientLog(timeBinCnt,
-					roundTripSize) + roundTripSize * Math.log(nodeCnt);
-		}
+	public SingleRoundTripUniformPrior(int nodeCnt, int timeBinCnt, int maxRoundTripSize) {
+		this.logWeights = PriorUtils.computeUniformLogWeights(nodeCnt, timeBinCnt, maxRoundTripSize);
 	}
 
-	public double getLogNumberOfRoundTrips(int roundTripSize) {
-		return this.logNumberOfRoundTripsOverSize[roundTripSize];
+	public SingleRoundTripUniformPrior(Scenario<N> scenario) {
+		this(scenario.getNodesCnt(), scenario.getTimeBinCnt(), scenario.getMaxPossibleStayEpisodes());
+	}
+
+	@Override
+	public double logWeight(RoundTrip<N> roundTrip) {
+		return this.logWeights[roundTrip.size()];
 	}
 
 }
