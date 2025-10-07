@@ -12,18 +12,15 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class SingleRoundTripBinomialPrior<N extends Node> implements MHWeight<RoundTrip<N>> {
 
-	// -------------------- CONSTANTS --------------------
-
 	private final SingleRoundTripUniformPrior<N> uniformPrior;
 
 	private final double[] binomialLogWeightsOverSize;
 
-	// -------------------- CONSTRUCTION --------------------
-
 	public SingleRoundTripBinomialPrior(int nodeCnt, int timeBinCnt, double expectedRoundTripSize,
-			int maxRoundTripSize) {
-		this.uniformPrior = new SingleRoundTripUniformPrior<>(nodeCnt, timeBinCnt, maxRoundTripSize);
-		this.binomialLogWeightsOverSize = PriorUtils.computeBinomialLogWeights(expectedRoundTripSize, maxRoundTripSize);
+			int maximumRoundTripSize) {
+		this.uniformPrior = new SingleRoundTripUniformPrior<>(nodeCnt, timeBinCnt, maximumRoundTripSize);
+		this.binomialLogWeightsOverSize = PriorUtils.computeBinomialLogWeights(expectedRoundTripSize,
+				maximumRoundTripSize);
 	}
 
 	public SingleRoundTripBinomialPrior(Scenario<N> scenario, double expectedRoundTripSize) {
@@ -31,11 +28,9 @@ public class SingleRoundTripBinomialPrior<N extends Node> implements MHWeight<Ro
 				scenario.getMaxPossibleStayEpisodes());
 	}
 
-	// -------------------- SINGLE(S) IMPLEMENTATION --------------------
-
 	@Override
-	public double logWeight(RoundTrip<N> state) {
-		return (this.uniformPrior.logWeight(state) + this.binomialLogWeightsOverSize[state.size()]);
+	public double logWeight(RoundTrip<N> roundTrip) {
+		return (this.uniformPrior.logWeight(roundTrip) + this.binomialLogWeightsOverSize[roundTrip.size()]);
 	}
 
 }

@@ -22,15 +22,12 @@ public class MultiRoundTripBinomialPrior<N extends Node> implements MHWeight<Mul
 
 	private final MHWeight<MultiRoundTrip<N>> uniformPrior;
 
-	// lazy initialization
-	private double[] binomialLogWeightsOverTotalSize = null;
+	private double[] binomialLogWeightsOverTotalSize = null; // lazy initialization
 
 	// -------------------- CONSTRUCTION --------------------
 
 	public MultiRoundTripBinomialPrior(int nodeCnt, int timeBinCnt, double expectedRoundTripSize,
 			int maximumRoundTripSize) {
-		assert (expectedRoundTripSize >= 0);
-		assert (expectedRoundTripSize <= maximumRoundTripSize);
 		this.expectedRoundTripSize = expectedRoundTripSize;
 		this.maximumRoundTripSize = maximumRoundTripSize;
 		this.uniformPrior = new SingleToMultiWeight<>(
@@ -47,6 +44,7 @@ public class MultiRoundTripBinomialPrior<N extends Node> implements MHWeight<Mul
 	@Override
 	public double logWeight(MultiRoundTrip<N> roundTrips) {
 		if (this.binomialLogWeightsOverTotalSize == null) {
+			// Upon the first call to this function, we know the number of round trips.
 			double expectation = this.expectedRoundTripSize * roundTrips.size();
 			int numberOfTrials = this.maximumRoundTripSize * roundTrips.size();
 			this.binomialLogWeightsOverTotalSize = PriorUtils.computeBinomialLogWeights(expectation, numberOfTrials);

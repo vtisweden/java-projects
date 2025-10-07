@@ -31,10 +31,10 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class SingleRoundTripUniformPrior<N extends Node> implements MHWeight<RoundTrip<N>> {
 
-	private final double[] logWeights;
+	private final double[] uniformLogWeightsOverSize;
 
-	public SingleRoundTripUniformPrior(int nodeCnt, int timeBinCnt, int maxRoundTripSize) {
-		this.logWeights = PriorUtils.computeUniformLogWeights(nodeCnt, timeBinCnt, maxRoundTripSize);
+	public SingleRoundTripUniformPrior(int nodeCnt, int timeBinCnt, int maximumRoundTripSize) {
+		this.uniformLogWeightsOverSize = PriorUtils.computeUniformLogWeights(nodeCnt, timeBinCnt, maximumRoundTripSize);
 	}
 
 	public SingleRoundTripUniformPrior(Scenario<N> scenario) {
@@ -43,7 +43,7 @@ public class SingleRoundTripUniformPrior<N extends Node> implements MHWeight<Rou
 
 	@Override
 	public double logWeight(RoundTrip<N> roundTrip) {
-		return this.logWeights[roundTrip.size()];
+		return this.uniformLogWeightsOverSize[roundTrip.size()];
 	}
 
 }

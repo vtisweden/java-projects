@@ -19,6 +19,9 @@
  */
 package se.vti.roundtrips.samplingweights.priors;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.util.CombinatoricsUtils;
 
@@ -29,6 +32,9 @@ import org.apache.commons.math3.util.CombinatoricsUtils;
  */
 class PriorUtils {
 
+	private PriorUtils() {
+	}
+
 	static double[] computeUniformLogWeights(int nodeCnt, int timeBinCnt, int maxRoundTripSize) {
 		double[] logWeights = new double[Math.min(maxRoundTripSize, timeBinCnt) + 1];
 		for (int j = 0; j < logWeights.length; j++) {
@@ -37,14 +43,11 @@ class PriorUtils {
 		return logWeights;
 	}
 
-	static double[] computeUniformLogWeights(int nodeCnt, int timeBinCnt) {
-		return computeUniformLogWeights(nodeCnt, timeBinCnt, timeBinCnt); // max timeBinCnt stops in a round trip
-	}
-
-	static double[] computeBinomialLogWeights(double expectation, int numberOfTrials) {
-		assert (expectation >= 0);
-		assert (expectation <= numberOfTrials);
-		BinomialDistribution binDistr = new BinomialDistribution(numberOfTrials, expectation / numberOfTrials);
+	static double[] computeBinomialLogWeights(double numberOfSuccesses, int numberOfTrials) {
+		assert (numberOfSuccesses >= 0);
+		assert (numberOfSuccesses <= numberOfTrials);
+		assert (numberOfTrials > 0);
+		BinomialDistribution binDistr = new BinomialDistribution(numberOfTrials, numberOfSuccesses / numberOfTrials);
 		double[] logWeights = new double[numberOfTrials + 1];
 		for (int j = 0; j < logWeights.length; j++) {
 			logWeights[j] = binDistr.logProbability(j);
@@ -52,19 +55,17 @@ class PriorUtils {
 		return logWeights;
 	}
 
-//	static double[] computeProbasFromLogWeights(double[] logWeights) {
-//		final double maxLogWeight = Arrays.stream(logWeights).max().getAsDouble();
-//		final double[] probas = new double[logWeights.length];
-//		double probaSum = 0.0;
-//		for (int j = 0; j < logWeights.length; j++) {
-//			probas[j] = Math.exp(logWeights[j] - maxLogWeight);
-//			probaSum += probas[j];
-//		}
-//		// No sum check because there was at least one addend equal to exp(0).
-//		for (int j = 0; j < probas.length; j++) {
-//			probas[j] /= probaSum;
-//		}
-//		return probas;
-//	}
+	public static void main(String[] args) {
+		int nodeCnt = 100;
+		int timeBinCnt = 24;
+		int maxRoundTripSize = timeBinCnt;
 
+		double[] uniform = computeUniformLogWeights(nodeCnt, timeBinCnt, maxRoundTripSize);
+		double[] binomial = computeBinomialLogWeights(12, 24);
+
+		System.out.println(
+				"uniform\t" + Arrays.stream(uniform).boxed().map(p -> "" + p).collect(Collectors.joining("\t")));
+		System.out.println(
+				"binomial\t" + Arrays.stream(binomial).boxed().map(p -> "" + p).collect(Collectors.joining("\t")));
+	}
 }
