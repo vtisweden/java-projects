@@ -9,8 +9,8 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>utils</artifactId>  
-  <!-- last published version: 0.1.4 -->
-  <version>0.1.5</version>
+  <!-- last published version: 0.1.5 -->
+  <version>0.1.6-SNAPSHOT</version>
   
 	<repositories>
 	  <!--Note that in general repositories are not transitive, so they need to be repeated at every level where needed.-->

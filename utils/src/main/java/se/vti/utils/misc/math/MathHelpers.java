@@ -185,6 +185,19 @@ public class MathHelpers {
 	}
 
 	// TODO NEW
+	public static int drawIndex(double[] probas, Random rnd) {
+		double u = rnd.nextDouble();
+		double probaSum = 0.0;
+		for (int i = 0; i < probas.length; i++) {
+			probaSum += probas[i];
+			if (u < probaSum) {
+				return i;
+			}
+		}
+		return (probas.length - 1);
+	}
+	
+	// TODO NEW
 	// the order of the bounds does not matter
 	public static double projectOnInterval(final double value,
 			final double bound1, final double bound2) {
