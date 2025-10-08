@@ -33,7 +33,7 @@ import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
 import se.vti.utils.misc.metropolishastings.MHWeightContainer;
-import se.vti.utils.misc.metropolishastings.SamplingWeightLogger;
+import se.vti.utils.misc.metropolishastings.MHWeightsToFileLogger;
 
 /**
  * 
@@ -148,7 +148,7 @@ public class TravelSurveyExpansionExample {
 		algo.setInitialState(initialRoundTrip);
 
 		// Log summary statistics over sampling iterations. See code for interpretation.
-		algo.addStateProcessor(new SamplingWeightLogger<>(totalIterations / 100, weights,
+		algo.addStateProcessor(new MHWeightsToFileLogger<>(totalIterations / 100, weights,
 				"./output/travelSurveyExpansion/logWeights.log"));
 		algo.addStateProcessor(
 				new PlotAgeByActivityHistogram(totalIterations / 2, totalIterations / 100, syntheticPopulation));

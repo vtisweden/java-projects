@@ -25,14 +25,14 @@ import java.util.stream.IntStream;
 
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.simulator.StayEpisode;
-import se.vti.utils.misc.metropolishastings.ToFileLogger;
+import se.vti.utils.misc.metropolishastings.MHToFileLogger;
 
 /**
  * 
  * @author GunnarF
  *
  */
-class EarliestArrivalLogger extends ToFileLogger<MultiRoundTrip<GridNode>> {
+class EarliestArrivalLogger extends MHToFileLogger<MultiRoundTrip<GridNode>> {
 
 	private final GridNode depot;
 	private final int gridSize;

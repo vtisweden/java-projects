@@ -30,7 +30,7 @@ import se.vti.roundtrips.single.RoundTrip;
 import se.vti.roundtrips.single.RoundTripProposal;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
 import se.vti.utils.misc.metropolishastings.MHWeightContainer;
-import se.vti.utils.misc.metropolishastings.SamplingWeightLogger;
+import se.vti.utils.misc.metropolishastings.MHWeightsToFileLogger;
 
 /**
  * 
@@ -115,19 +115,20 @@ class ActivityTimeUseExample {
 		// Sample round trips according to time use assumptions. See LogarithmicTimeUse
 		// implementation for details.
 		var timeUse = new LogarithmicTimeUseSinglePersonSingleDay<GridNodeWithActivity>(24.0);
+
 		var homeComponent = timeUse.createComponent(12.0).setMinEnBlockDurationAtLeastOnce_h(8.0);
+		homeComponent.addObservedNodes(scenario, node -> Activity.HOME.equals(node.getActivity()));
+		timeUse.addConfiguredComponent(homeComponent);
+
 		var workComponent = timeUse.createComponent(9.0).setOpeningTimes_h(6.0, 18.0)
 				.setMinEnBlockDurationAtLeastOnce_h(8.0);
+		workComponent.addObservedNodes(scenario, node -> Activity.WORK.equals(node.getActivity()));
+		timeUse.addConfiguredComponent(workComponent);
+
 		var otherComponent = timeUse.createComponent(3.0).setOpeningTimes_h(10, 20.0);
-		for (var node : scenario.getNodesView()) {
-			if (Activity.HOME.equals(node.getActivity())) {
-				timeUse.assignComponent(node, homeComponent);
-			} else if (Activity.WORK.equals(node.getActivity())) {
-				timeUse.assignComponent(node, workComponent);
-			} else if (Activity.OTHER.equals(node.getActivity())) {
-				timeUse.assignComponent(node, otherComponent);
-			}
-		}
+		otherComponent.addObservedNodes(scenario, node -> Activity.OTHER.equals(node.getActivity()));
+		timeUse.addConfiguredComponent(otherComponent);
+
 		weights.add(timeUse);
 
 		/*
@@ -142,7 +143,7 @@ class ActivityTimeUseExample {
 		algo.setInitialState(initialRoundTrip);
 
 		// Log summary statistics over sampling iterations. See code for interpretation
-		algo.addStateProcessor(new SamplingWeightLogger<>(totalIterations / 100, weights,
+		algo.addStateProcessor(new MHWeightsToFileLogger<>(totalIterations / 100, weights,
 				"./output/activityExpansion/logWeights.log"));
 		algo.addStateProcessor(new PlotTimeUseHistogram(totalIterations / 2, totalIterations / 100));
 

@@ -25,14 +25,14 @@ import java.util.stream.IntStream;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.utils.misc.metropolishastings.ToFileLogger;
+import se.vti.utils.misc.metropolishastings.MHToFileLogger;
 
 /**
  * 
  * @author GunnarF
  *
  */
-public class SizeDistributionLogger<N extends Node> extends ToFileLogger<MultiRoundTrip<N>> {
+public class SizeDistributionLogger<N extends Node> extends MHToFileLogger<MultiRoundTrip<N>> {
 
 	private final int maxLength;
 

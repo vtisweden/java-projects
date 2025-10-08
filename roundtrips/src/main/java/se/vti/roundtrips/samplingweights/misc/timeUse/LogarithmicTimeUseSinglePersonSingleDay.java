@@ -28,19 +28,18 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class LogarithmicTimeUseSinglePersonSingleDay<N extends Node> extends LogarithmicTimeUse<N> implements MHWeight<RoundTrip<N>> {
+public class LogarithmicTimeUseSinglePersonSingleDay<N extends Node>  extends LogarithmicTimeUse<N> implements MHWeight<RoundTrip<N>> {
 
 	public LogarithmicTimeUseSinglePersonSingleDay(double period_h) {
-		super(period_h);
+		super(period_h, 1);
 	}
 
-	public void assignComponent(N node, LogarithmicTimeUseComponent component) {
-		super.assignComponent(component, node, 0);
+	public LogarithmicTimeUseComponent<N> createComponent(double targetDuration_h) {
+		return super.createComponent(targetDuration_h, 0);
 	}
 
 	@Override
 	public double logWeight(RoundTrip<N> roundTrip) {
 		return super.computeLogWeight(roundTrip);
 	}
-
 }

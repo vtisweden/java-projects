@@ -19,9 +19,6 @@
  */
 package se.vti.roundtrips.samplingweights.misc.timeUse;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
@@ -31,36 +28,19 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class LogarithmicTimeMultiplePersonsSingleDay<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
+public class LogarithmicTimeMultiplePersonsSingleDay<N extends Node> extends LogarithmicTimeUse<N>
+		implements MHWeight<MultiRoundTrip<N>> {
 
-	private final double period_h;
-	
-	private final List<LogarithmicTimeUse<N>> logarithmicTimeUsePerTraveler;
-
-	public LogarithmicTimeMultiplePersonsSingleDay(int numberOfTravelers, double period_h) {
-		this.period_h = period_h;
-		this.logarithmicTimeUsePerTraveler = new ArrayList<>(numberOfTravelers);
-		for (int n = 0; n < numberOfTravelers; n++) {
-			this.logarithmicTimeUsePerTraveler.add(new LogarithmicTimeUse<>(period_h));
-		}
-	}
-	
-	public LogarithmicTimeUseComponent createComponent(double targetDuration_h) {
-		return new LogarithmicTimeUseComponent(targetDuration_h, this.period_h);
+	public LogarithmicTimeMultiplePersonsSingleDay(double period_h, int numberOfPersons) {
+		super(period_h, numberOfPersons);
 	}
 
-	public void assignComponent(LogarithmicTimeUseComponent component, N node, int personIndex) {
-		this.logarithmicTimeUsePerTraveler.get(personIndex).assignComponent(component, node, 0);
+	public LogarithmicTimeUseComponent<N> createComponent(double targetDuration_h, int personIndex) {
+		return super.createComponent(targetDuration_h, personIndex);
 	}
 
 	@Override
 	public double logWeight(MultiRoundTrip<N> roundTrips) {
-		double logWeight = 0.0;
-		for (int roundTripIndex = 0; roundTripIndex < roundTrips.size(); roundTripIndex++) {
-			logWeight += this.logarithmicTimeUsePerTraveler.get(roundTripIndex)
-					.computeLogWeight(roundTrips.getRoundTrip(roundTripIndex));
-		}
-		return logWeight;
+		return super.computeLogWeight(roundTrips);
 	}
-
 }

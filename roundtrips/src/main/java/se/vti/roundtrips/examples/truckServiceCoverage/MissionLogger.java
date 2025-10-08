@@ -20,14 +20,14 @@
 package se.vti.roundtrips.examples.truckServiceCoverage;
 
 import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.utils.misc.metropolishastings.ToFileLogger;
+import se.vti.utils.misc.metropolishastings.MHToFileLogger;
 
 /**
  * 
  * @author GunnarF
  *
  */
-class MissionLogger extends ToFileLogger<MultiRoundTrip<GridNode>> {
+class MissionLogger extends MHToFileLogger<MultiRoundTrip<GridNode>> {
 
 	private final GridNode depot;
 

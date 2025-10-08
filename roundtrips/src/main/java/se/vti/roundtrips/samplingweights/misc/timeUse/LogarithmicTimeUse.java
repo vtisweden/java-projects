@@ -19,6 +19,7 @@
  */
 package se.vti.roundtrips.samplingweights.misc.timeUse;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,7 +30,6 @@ import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.simulator.Episode;
 import se.vti.roundtrips.simulator.StayEpisode;
 import se.vti.roundtrips.single.RoundTrip;
-import se.vti.utils.misc.Tuple;
 
 /**
  * 
@@ -41,43 +41,43 @@ class LogarithmicTimeUse<N extends Node> {
 	private final double minDur_h = 0.001;
 
 	private final double period_h;
-	
-	private final Map<Tuple<N, Integer>, LogarithmicTimeUseComponent> nodeAndIndex2component = new LinkedHashMap<>();
 
-	private final Set<LogarithmicTimeUseComponent> components = new LinkedHashSet<>();
+	// Depending on the subclass, index may refer to a person or a weekday.
+	private final List<Map<N, LinkedHashSet<LogarithmicTimeUseComponent<N>>>> node2ComponentsOverIndices;
 
-	LogarithmicTimeUse(double period_h) {
+	private final Set<LogarithmicTimeUseComponent<N>> components = new LinkedHashSet<>();
+
+	// -------------------- PACKAGE PRIVATE IMPLEMENTATION --------------------
+
+	LogarithmicTimeUse(double period_h, int numberOfIndices) {
 		this.period_h = period_h;
+		this.node2ComponentsOverIndices = new ArrayList<>(numberOfIndices);
+		for (int i = 0; i < numberOfIndices; i++) {
+			this.node2ComponentsOverIndices.add(new LinkedHashMap<>());
+		}
 	}
 
-	public LogarithmicTimeUseComponent createComponent(double targetDuration_h) {
-		return new LogarithmicTimeUseComponent(targetDuration_h, this.period_h);
-	}
-	
-	void assignComponent(LogarithmicTimeUseComponent component, N node, int index) {
-		this.nodeAndIndex2component.put(new Tuple<>(node, index), component);
-		this.components.add(component);
+	LogarithmicTimeUseComponent<N> createComponent(double targetDuration_h, int... roundTripIndices) {
+		if (roundTripIndices.length == 0) {
+			throw new RuntimeException("Pass at least one index.");
+		}
+		return new LogarithmicTimeUseComponent<>(targetDuration_h, this.period_h, roundTripIndices);
 	}
 
-	void update(Iterable<RoundTrip<N>> roundTrips) {
+	double computeLogWeight(Iterable<RoundTrip<N>> roundTrips) {
 		for (var component : this.components) {
-			component.resetEffectiveDuration_h();
+			component.reset();
 		}
 		for (RoundTrip<N> roundTrip : roundTrips) {
+			var node2Components = this.node2ComponentsOverIndices.get(roundTrip.getIndex());
 			List<Episode> episodes = roundTrip.getEpisodes();
 			for (int i = 0; i < episodes.size(); i += 2) {
-				StayEpisode<?> stay = (StayEpisode<?>) episodes.get(i);
-				LogarithmicTimeUseComponent component = this.nodeAndIndex2component
-						.get(new Tuple<>(stay.getLocation(), roundTrip.getIndex()));
-				if (component != null) {
+				StayEpisode<N> stay = (StayEpisode<N>) episodes.get(i);
+				for (var component : node2Components.get(stay.getLocation())) {
 					component.update(stay);
 				}
 			}
 		}
-	}
-
-	double computeLogWeight(Iterable<RoundTrip<N>> roundTrips) {
-		this.update(roundTrips);
 		double result = 0.0;
 		for (var component : this.components) {
 			result += component.targetDuration_h
@@ -85,5 +85,20 @@ class LogarithmicTimeUse<N extends Node> {
 		}
 		return result;
 	}
-	
+
+	// -------------------- PUBLIC IMPLEMENTATION --------------------
+
+	public void addConfiguredComponent(LogarithmicTimeUseComponent<N> component) {
+		if (component.isLocked()) {
+			throw new RuntimeException("Component is locked.");
+		}
+		for (int roundTripIndex : component.roundTripIndices) {
+			var node2Components = this.node2ComponentsOverIndices.get(roundTripIndex);
+			for (N node : component.nodes) {
+				node2Components.computeIfAbsent(node, n -> new LinkedHashSet<>()).add(component);
+			}
+		}
+		this.components.add(component);
+		component.lock();
+	}
 }
