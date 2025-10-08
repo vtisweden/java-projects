@@ -28,7 +28,7 @@ import java.io.PrintWriter;
  * @author GunnarF
  *
  */
-public abstract class ToFileLogger<R> extends MHAbstractStateProcessor<R> implements MHStateProcessor<R> {
+public abstract class MHToFileLogger<R> extends MHAbstractStateProcessor<R> implements MHStateProcessor<R> {
 
 	private final File logFile;
 
@@ -36,7 +36,7 @@ public abstract class ToFileLogger<R> extends MHAbstractStateProcessor<R> implem
 
 	private boolean flushEachLine = true;
 
-	public ToFileLogger(long samplingInterval, String logFileName) {
+	public MHToFileLogger(long samplingInterval, String logFileName) {
 		super(0, samplingInterval);
 		this.logFile = new File(logFileName);
 	}

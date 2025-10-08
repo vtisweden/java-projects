@@ -24,11 +24,11 @@ package se.vti.utils.misc.metropolishastings;
  * @author GunnarF
  *
  */
-public class SamplingWeightLogger<R> extends ToFileLogger<R> {
+public class MHWeightsToFileLogger<R> extends MHToFileLogger<R> {
 
 	final MHWeightContainer<R> samplingWeights;
 
-	public SamplingWeightLogger(long samplingInterval, MHWeightContainer<R> samplingWeights, String logFileName) {
+	public MHWeightsToFileLogger(long samplingInterval, MHWeightContainer<R> samplingWeights, String logFileName) {
 		super(samplingInterval, logFileName);
 		this.samplingWeights = samplingWeights;
 	}
