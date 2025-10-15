@@ -11,6 +11,11 @@ The purpose of VTI-Samgods is to enable lightweight experimentation with and fur
 
 One motivation for writing this program was to refine the modeling of consolidation (different shipments sharing the same vehicle). The currently implemented solution is still relatively simple (and the topic of continuous improvements). Vehicles are merely assumed to travel from an origin to a destination, and to then return back to the origin. A representation of richer driving patterns, including several loading/unloading episodes along the way, is the topic of ongoing work. Currently, consolidation works best for "small" vehicles (trucks) and worst for "large" vehicles (vessels).
 
+The development of this program was initiated in the context of [this R&D project](https://www.vinnova.se/en/p/climate-sensitive-decision-support-for-freight-transport-planning-and-policy-making/) funded by VINNOVA (Sweden's Innovation Agency). Additional results obtained within this project (not included in the java program):
+* [Downstream model for emission calculations](./ai-samgods_emissions-report.pdf)
+* [Alternative rail traffic model](./ai-samgods_rail-model-report.pdf)
+
+
 
 ## Functionality
 
