@@ -120,8 +120,6 @@ var id2Vehicle = Vehicle.readFromJsonFile(vehiclesFile, id2VehicleType, id2Stati
 
 Second, a simulation scenario needs to be specified. The example below considers a winter scenario with daylight from 9am to 4pm. It defines a sequence of 90 consecutive workdays.
 
-**[[TODO If there are ony workdays, how do the type-of-day weights take effect? There needs to be an additional pre-weighting!]]**
-
 ```
 var daylightStart_h = 9.0;
 var daylightEnd_h = 16.0;
