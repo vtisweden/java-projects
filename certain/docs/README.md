@@ -118,7 +118,7 @@ var id2Station = Station.readFromJsonFile(stationsFile, id2Zone, distances);
 var id2Vehicle = Vehicle.readFromJsonFile(vehiclesFile, id2VehicleType, id2Station);
 ```
 
-Second, a simulation scenario needs to be specified. The example below considers a winter scenario with daylight from 9am to 4pm. It defines a sequence of 90 consecutive workdays.
+Second, a simulation scenario needs to be specified. The example below considers a winter scenario with daylight from 9am to 4pm. It defines a sequence of 90 consecutive workdays. (This means that incidents are simulted for 90 days in sequence, and in each simulated day they arise with intensities corresponding to a workday.)
 
 ```
 var daylightStart_h = 9.0;
@@ -151,7 +151,7 @@ var systemState = missionImplementationSimulator.simulateMissionImplementation(s
 var mission2VehicleLogs = systemState.getMission2VehicleDispachmentLog();
 ```
 
-The `mission2VehicleLogs` object maps each simulated mission to a list of vehicle logs that contain detailed information about the time and energy profiles of all vehicles used in each mission.
+The `mission2VehicleLogs` object maps each simulated mission to a list of vehicle logs that contain detailed information about the time and energy profiles of all vehicles used in all missions.
 
 
 
