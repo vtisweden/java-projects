@@ -1,0 +1,7 @@
+[ {
+  "id" : "NorthernStation",
+  "zoneId" : "NorthernAmal"
+}, {
+  "id" : "SouthernStation",
+  "zoneId" : "SouthernAmal"
+} ]

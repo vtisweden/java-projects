@@ -1,0 +1,25 @@
+[ {
+  "id" : "NorthernAmal",
+  "incidentTypeId2Intensity_1_yr" : {
+    "CarCrash" : 10.0,
+    "BuildingFire" : 10.0
+  }
+}, {
+  "id" : "SouthernAmal",
+  "incidentTypeId2Intensity_1_yr" : {
+    "CarCrash" : 1.0,
+    "BuildingFire" : 10.0
+  }
+}, {
+  "id" : "WesternAmal",
+  "incidentTypeId2Intensity_1_yr" : {
+    "CarCrash" : 10.0,
+    "BuildingFire" : 1.0
+  }
+}, {
+  "id" : "EasternAmal",
+  "incidentTypeId2Intensity_1_yr" : {
+    "CarCrash" : 1.0,
+    "BuildingFire" : 1.0
+  }
+} ]

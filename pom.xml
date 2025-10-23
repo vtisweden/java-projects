@@ -21,12 +21,13 @@
 
   <modules>
 	<module>atap</module>
+	<module>certain</module>
   	<module>dynameq</module>
   	<module>emulation</module>
-	<module>samgods</module>
-	<module>utils</module>
-	<module>tramodby</module>
 	<module>roundtrips</module>
+	<module>samgods</module>
+	<module>tramodby</module>
+	<module>utils</module>
   </modules>
 
   <repositories>

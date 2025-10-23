@@ -1,0 +1,52 @@
+[ {
+  "incidentTypeId" : "BuildingFire",
+  "vehicleMissions" : [ {
+    "vehicleTypeId" : "EV_Car",
+    "offset_h" : 0.0,
+    "duration_h" : 2.0
+  }, {
+    "vehicleTypeId" : "EV_Truck",
+    "offset_h" : 0.0,
+    "duration_h" : 2.0
+  } ]
+}, {
+  "incidentTypeId" : "BuildingFire",
+  "vehicleMissions" : [ {
+    "vehicleTypeId" : "EV_Car",
+    "offset_h" : 0.0,
+    "duration_h" : 2.0
+  }, {
+    "vehicleTypeId" : "EV_Truck",
+    "offset_h" : 0.0,
+    "duration_h" : 2.0
+  } ]
+}, {
+  "incidentTypeId" : "BuildingFire",
+  "vehicleMissions" : [ {
+    "vehicleTypeId" : "EV_Car",
+    "offset_h" : 0.0,
+    "duration_h" : 2.0
+  }, {
+    "vehicleTypeId" : "EV_Car",
+    "offset_h" : 0.0,
+    "duration_h" : 2.0
+  }, {
+    "vehicleTypeId" : "EV_Truck",
+    "offset_h" : 0.0,
+    "duration_h" : 2.0
+  } ]
+}, {
+  "incidentTypeId" : "CarCrash",
+  "vehicleMissions" : [ {
+    "vehicleTypeId" : "EV_Car",
+    "offset_h" : 0.0,
+    "duration_h" : 1.0
+  } ]
+}, {
+  "incidentTypeId" : "CarCrash",
+  "vehicleMissions" : [ {
+    "vehicleTypeId" : "EV_Car",
+    "offset_h" : 0.0,
+    "duration_h" : 1.0
+  } ]
+} ]
