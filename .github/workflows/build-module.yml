@@ -29,7 +29,7 @@ jobs:
           <settings>
             <servers>
               <server>
-                <id>matsim-projects</id>
+                <id>java-projects</id>
                 <username>${{ secrets.ACTIONS_USER }}</username>
                 <password>${{ secrets.ACTIONS_TOKEN }}</password>
               </server>
@@ -38,4 +38,4 @@ jobs:
           EOF
 
       - name: Build module
-        run: mvn -pl ${{ inputs.module }} -am clean install
+        run: mvn -pl ${{ inputs.module }} -am -U clean install
