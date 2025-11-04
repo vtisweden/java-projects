@@ -1,11 +1,10 @@
+name: Build roundtrips
 
-    name: Build roundtrips
+on: [pull_request, workflow_dispatch]
 
-    on: [pull_request, workflow_dispatch]
-
-    jobs:
-      call-build:
-        uses: ./.github/workflows/build-module.yml
-        with:
-          module: 'roundtrips'
-    
+jobs:
+  call-build:
+    uses: ./.github/workflows/build-module.yml
+    with:
+      module: 'roundtrips'
+    secrets: inherit

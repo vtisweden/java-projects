@@ -28,8 +28,8 @@ jobs:
             <servers>
               <server>
                 <id>matsim-projects</id>
-                <username>${{ secrets.MAVEN_USER }}</username>
-                <password>${{ secrets.MAVEN_TOKEN }}</password>
+                <username>${{ secrets.ACTIONS_USER }}</username>
+                <password>${{ secrets.ACTIONS_TOKEN }}</password>
               </server>
             </servers>
           </settings>
