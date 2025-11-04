@@ -33,6 +33,11 @@ jobs:
                 <username>${{ secrets.ACTIONS_USER }}</username>
                 <password>${{ secrets.ACTIONS_TOKEN }}</password>
               </server>
+              <server>
+                <id>github</id>
+                <username>${{ secrets.ACTIONS_USER }}</username>
+                <password>${{ secrets.ACTIONS_TOKEN }}</password>
+              </server>          
             </servers>
           </settings>
           EOF
