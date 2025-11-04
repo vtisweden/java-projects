@@ -25,20 +25,42 @@ jobs:
       - name: Configure Maven settings
         run: |
           mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml <<EOF
+          cat > ~/.m2/settings.xml <<'EOF'
           <settings>
             <servers>
               <server>
                 <id>java-projects</id>
-                <username>${{ secrets.ACTIONS_USER }}</username>
-                <password>${{ secrets.ACTIONS_TOKEN }}</password>
+                <username>${env.ACTIONS_USER}</username>
+                <password>${env.ACTIONS_TOKEN}</password>
               </server>
               <server>
                 <id>github</id>
-                <username>${{ secrets.ACTIONS_USER }}</username>
-                <password>${{ secrets.ACTIONS_TOKEN }}</password>
-              </server>          
+                <username>${env.ACTIONS_USER}</username>
+                <password>${env.ACTIONS_TOKEN}</password>
+              </server>
             </servers>
+            <profiles>
+              <profile>
+                <id>gh-packages</id>
+                <repositories>
+                  <repository>
+                    <id>java-projects</id>
+                    <url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>true</enabled></snapshots>
+                  </repository>
+                </repositories>
+                <pluginRepositories>
+                  <pluginRepository>
+                    <id>java-projects</id>
+                    <url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+                  </pluginRepository>
+                </pluginRepositories>
+              </profile>
+            </profiles>
+            <activeProfiles>
+              <activeProfile>gh-packages</activeProfile>
+            </activeProfiles>
           </settings>
           EOF
 
