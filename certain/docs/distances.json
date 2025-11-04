@@ -1,0 +1,124 @@
+{
+  "zone2Zone2Distances" : {
+    "NorthernAmal" : {
+      "NorthernAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 5.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "SouthernAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "WesternAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "EasternAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ]
+    },
+    "SouthernAmal" : {
+      "NorthernAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "SouthernAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 5.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "WesternAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "EasternAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ]
+    },
+    "WesternAmal" : {
+      "NorthernAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "SouthernAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "WesternAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 5.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "EasternAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ]
+    },
+    "EasternAmal" : {
+      "NorthernAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "SouthernAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "WesternAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 10.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ],
+      "EasternAmal" : [ {
+        "distanceTypeId" : "UrbanRoad",
+        "distance_km" : 5.0
+      }, {
+        "distanceTypeId" : "CrossCountry",
+        "distance_km" : 0.0
+      } ]
+    }
+  }
+}

@@ -1,0 +1,7 @@
+[ {
+  "id" : "UrbanRoad",
+  "maxSpeed_km_h" : 50.0
+}, {
+  "id" : "CrossCountry",
+  "maxSpeed_km_h" : 10.0
+} ]

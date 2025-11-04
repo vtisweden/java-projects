@@ -1,0 +1,15 @@
+[ {
+  "id" : "EV_Car",
+  "batteryCapacity_kWh" : 75.0,
+  "energyNeed_kWh_per_km" : 0.15,
+  "chargingRate_kW" : 50.0,
+  "energyNeedDuringMission_kW" : 0.5,
+  "maxSpeed_km_h" : 130.0
+}, {
+  "id" : "EV_Truck",
+  "batteryCapacity_kWh" : 300.0,
+  "energyNeed_kWh_per_km" : 0.8,
+  "chargingRate_kW" : 150.0,
+  "energyNeedDuringMission_kW" : 1.5,
+  "maxSpeed_km_h" : 90.0
+} ]

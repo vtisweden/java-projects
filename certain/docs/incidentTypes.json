@@ -1,0 +1,33 @@
+[ {
+  "id" : "BuildingFire",
+  "season2Weight" : {
+    "SUMMER" : 1.0,
+    "WINTER" : 1.0,
+    "AUTUMN" : 1.0,
+    "SPRING" : 1.0
+  },
+  "typeOfDay2Weight" : {
+    "HOLIDAY" : 1.0,
+    "WORKDAY" : 1.0
+  },
+  "timeOfDay2Weight" : {
+    "NIGHT" : 1.0,
+    "DAY" : 2.0
+  }
+}, {
+  "id" : "CarCrash",
+  "season2Weight" : {
+    "SUMMER" : 1.0,
+    "WINTER" : 4.0,
+    "AUTUMN" : 2.0,
+    "SPRING" : 2.0
+  },
+  "typeOfDay2Weight" : {
+    "HOLIDAY" : 1.0,
+    "WORKDAY" : 2.0
+  },
+  "timeOfDay2Weight" : {
+    "NIGHT" : 1.0,
+    "DAY" : 4.0
+  }
+} ]

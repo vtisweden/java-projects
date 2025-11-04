@@ -1,0 +1,13 @@
+[ {
+  "id" : "Car_001",
+  "typeId" : "EV_Car",
+  "stationId" : "NorthernStation"
+}, {
+  "id" : "Truck_001",
+  "typeId" : "EV_Truck",
+  "stationId" : "NorthernStation"
+}, {
+  "id" : "Car_002",
+  "typeId" : "EV_Car",
+  "stationId" : "SouthernStation"
+} ]
