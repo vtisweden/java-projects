@@ -5,6 +5,7 @@
     <groupId>se.vti.java-projects</groupId>
   	<artifactId>java-projects</artifactId>
     <version>0.1.1</version>
+  <relativePath/>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -37,6 +38,15 @@
 			<id>slimjars</id>
 			<url>https://mvn.slimjars.com</url>
 		</repository>
+<!--        <repository>-->
+<!--            <id>java-project</id>-->
+<!--            <name>GitHub vtisweden Apache Maven Packages</name>-->
+<!--            <url>https://maven.pkg.github.com/vtisweden/java-projects</url>-->
+<!--        </repository>-->
+        <repository>
+            <id>github</id> <!-- must match settings.xml -->
+            <url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+        </repository>
 		
 	</repositories>
 

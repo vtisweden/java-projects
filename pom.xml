@@ -58,6 +58,10 @@
 			<id>java-projects</id>
 			<url>https://maven.pkg.github.com/vtisweden/java-projects</url>
 		</repository>
+      <repository>
+          <id>github</id>
+          <url>https://maven.pkg.github.com/vtisweden/java-projects</url>
+      </repository>
 	</repositories>
   
   <dependencies>

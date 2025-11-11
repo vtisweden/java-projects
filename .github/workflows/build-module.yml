@@ -27,13 +27,18 @@ jobs:
           <settings>
             <servers>
               <server>
-                <id>matsim-projects</id>
-                <username>${{ secrets.MAVEN_USER }}</username>
-                <password>${{ secrets.MAVEN_TOKEN }}</password>
+                <id>java-projects</id>
+                <username>${{ secrets.ACTIONS_USER }}</username>
+                <password>${{ secrets.ACTIONS_TOKEN }}</password>
               </server>
+              <server>
+                <id>github</id>
+                <username>${{ secrets.ACTIONS_USER }}</username>
+                <password>${{ secrets.ACTIONS_TOKEN }}</password>
+              </server>          
             </servers>
           </settings>
           EOF
 
       - name: Build module
-        run: mvn -pl ${{ inputs.module }} -am clean install
+        run: mvn -pl ${{ inputs.module }} -am -U clean install

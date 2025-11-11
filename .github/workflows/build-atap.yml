@@ -1,11 +1,10 @@
+name: Build atap
 
-    name: Build atap
+on: [pull_request, workflow_dispatch, push]
 
-    on: [pull_request, workflow_dispatch]
-
-    jobs:
-      call-build:
-        uses: ./.github/workflows/build-module.yml
-        with:
-          module: 'atap'
-    
+jobs:
+  call-build:
+    uses: ./.github/workflows/build-module.yml
+    with:
+      module: 'atap'
+    secrets: inherit
