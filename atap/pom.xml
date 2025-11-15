@@ -58,18 +58,6 @@
     		<version>3.6.1</version>
 		</dependency>
 
-	  	<dependency>
-			<groupId>se.vti.java-projects</groupId>
-			<artifactId>utils</artifactId>
-			<version>0.1.6</version>
-		</dependency>
-
-	  	<dependency>
-			<groupId>se.vti.java-projects</groupId>
-			<artifactId>emulation</artifactId>
-			<version>0.1.8-SNAPSHOT</version>
-		</dependency>
-			
 		<dependency>
 			<!-- This is the matsim "core": -->
 			<groupId>org.matsim</groupId>

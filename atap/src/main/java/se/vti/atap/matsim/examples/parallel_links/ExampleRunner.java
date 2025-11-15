@@ -1,5 +1,5 @@
 /**
- * se.vti.atap.examples.parallel_links
+ * se.vti.atap
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -25,7 +25,6 @@ import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.emulation.EmulationConfigGroup;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.Controler;
@@ -36,6 +35,7 @@ import org.matsim.core.population.PopulationUtils;
 import se.vti.atap.matsim.ATAP;
 import se.vti.atap.matsim.ATAPConfigGroup;
 import se.vti.atap.matsim.ATAPConfigGroup.ReplannerIdentifierType;
+import se.vti.emulation.EmulationConfigGroup;
 
 /**
  * 
@@ -62,6 +62,8 @@ public class ExampleRunner {
 		config.travelTimeCalculator().setTraveltimeBinSize(60);
 		config.qsim().setStuckTime(Double.POSITIVE_INFINITY);
 		config.addModule(new EmulationConfigGroup());
+		// not available in matsim 2025
+		// config.routing().setNetworkRouteConsistencyCheck(NetworkRouteConsistencyCheck.disable);
 
 		ATAPConfigGroup atapConfig = new ATAPConfigGroup();
 		atapConfig.setReplannerIdentifier(replannerIdentifier);
@@ -110,18 +112,14 @@ public class ExampleRunner {
 	}
 
 	public static void main(String[] args) {
-//		var example = new ParallelLinkExampleRunner();
-//		System.out.println("CheckSum = " + example.computeChecksumForTinyTestCase());		
-		// 314257185 ... make this a unit test
+//		 System.out.println("UNIFORM METHOD");
+//		 runSmallExampleWithUniform();
 
-		System.out.println("UNIFORM METHOD");
-		runSmallExampleWithUniform();
+//		 System.out.println("SORTING METHOD");
+//		 runSmallExampleWithSorting();
 
-		System.out.println("SORTING METHOD");
-		runSmallExampleWithSorting();
-
-		System.out.println("PROPOSED METHOD");
-		runSmallExampleWithProposed();
+		 System.out.println("PROPOSED METHOD");
+		 runSmallExampleWithProposed();
 	}
 
 }

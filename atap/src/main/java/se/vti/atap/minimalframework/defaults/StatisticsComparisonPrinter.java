@@ -1,5 +1,5 @@
 /**
- * se.vti.atap.examples.minimalframework.parallel_links.ods
+ * se.vti.atap
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -46,7 +46,7 @@ public class StatisticsComparisonPrinter {
 	private List<DescriptiveStatisticsLogger> loggers = new ArrayList<>();
 
 	private List<String> statisticLabels = new ArrayList<>();
-	private List<Function<List<Double>, Double>> statistics = new ArrayList<>();
+	private List<Function<List<Double>, String>> statistics = new ArrayList<>();
 
 	public StatisticsComparisonPrinter() {
 	}
@@ -57,7 +57,7 @@ public class StatisticsComparisonPrinter {
 		return this;
 	}
 
-	public StatisticsComparisonPrinter addStatistic(String label, Function<List<Double>, Double> statistic) {
+	public StatisticsComparisonPrinter addStatistic(String label, Function<List<Double>, String> statistic) {
 		this.statisticLabels.add(label);
 		this.statistics.add(statistic);
 		return this;
@@ -83,7 +83,7 @@ public class StatisticsComparisonPrinter {
 			for (var logger : this.loggers) {
 				var data = logger.getDataOrNull(iteration);
 				for (var statistic : this.statistics) {
-					internalWriter.write(data == null ? "" : Double.toString(statistic.apply(data)));
+					internalWriter.write(data == null ? "" : statistic.apply(data));
 					internalWriter.write("\t");
 				}
 			}

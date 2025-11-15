@@ -1,5 +1,5 @@
 /**
- * se.vti.atap.minimalframework
+ * se.vti.atap
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -46,10 +46,26 @@ public class ProposedMethodWithLocalSearchPlanSelection<P extends Plan, A extend
 
 	private final ApproximateNetworkLoading<P, A, T, Q> approximateNetworkLoading;
 
-	private boolean approximateDistance = false;
+	private double epsPsi = 1e-6;
 
-	private double minimalRelativeImprovement = 1e-8;
-	
+	private double epsT = 1e-6;
+
+	private boolean approximateDistance = true;
+
+	private boolean normalizeDistance = false;
+
+	private double minimalImprovement = 1e-6;
+
+	private double initialStepSize = 1.0;
+
+	private int maxNumberOfFailures = 0;
+
+	private Double maxPsi = null;
+
+	private Double maxD = null;
+
+	private Double maxT = null;
+
 	public ProposedMethodWithLocalSearchPlanSelection(double stepSizeIterationExponent, Random rnd,
 			ApproximateNetworkLoading<P, A, T, Q> approximateNetworkLoading) {
 		this.stepSize = new MSAStepSize(stepSizeIterationExponent);
@@ -57,21 +73,44 @@ public class ProposedMethodWithLocalSearchPlanSelection<P extends Plan, A extend
 		this.approximateNetworkLoading = approximateNetworkLoading;
 	}
 
+	public ProposedMethodWithLocalSearchPlanSelection<P, A, T, Q> setGapEpsilon(double epsPsi) {
+		this.epsPsi = epsPsi;
+		return this;
+	}
+
+	public ProposedMethodWithLocalSearchPlanSelection<P, A, T, Q> setDistanceEpsilon(double epsT) {
+		this.epsT = epsT;
+		return this;
+	}
+
 	public ProposedMethodWithLocalSearchPlanSelection<P, A, T, Q> setApproximateDistance(boolean approximateDistance) {
 		this.approximateDistance = approximateDistance;
 		return this;
 	}
 
-	public ProposedMethodWithLocalSearchPlanSelection<P, A, T, Q> setMinimalRelativeImprovement(double minimalImprovement) {
-		this.minimalRelativeImprovement = minimalImprovement;
+	public ProposedMethodWithLocalSearchPlanSelection<P, A, T, Q> setNormalizeDistance(boolean normalizeDistance) {
+		this.normalizeDistance = normalizeDistance;
 		return this;
 	}
 
-	private Double objectiveFunctionNumeratorScale = null;
-	private Double objectiveFunctionDenominatorScale = null;
+	public ProposedMethodWithLocalSearchPlanSelection<P, A, T, Q> setMinimalImprovement(double minimalImprovement) {
+		this.minimalImprovement = minimalImprovement;
+		return this;
+	}
+
+	public ProposedMethodWithLocalSearchPlanSelection<P, A, T, Q> setInitialStepSize(double initialStepSize) {
+		this.initialStepSize = initialStepSize;
+		return this;
+	}
+
+	public ProposedMethodWithLocalSearchPlanSelection<P, A, T, Q> setMaxNumberOfFailures(int maxNumberOfFailures) {
+		this.maxNumberOfFailures = maxNumberOfFailures;
+		return this;
+	}
 
 	private double computeObjectiveFunctionValue(double expectedImprovement, Q currentApproximateNetworkConditions,
-			Q candidateApproximatNetworkConditions, double absoluteAmbitionLevel) {		
+			Q candidateApproximatNetworkConditions, double absoluteAmbitionLevel) {
+
 		double distance;
 		if (this.approximateDistance) {
 			distance = currentApproximateNetworkConditions.computeDistance(candidateApproximatNetworkConditions);
@@ -79,26 +118,42 @@ public class ProposedMethodWithLocalSearchPlanSelection<P extends Plan, A extend
 			distance = currentApproximateNetworkConditions
 					.computeLeaveOneOutDistance(candidateApproximatNetworkConditions);
 		}
-		if (this.objectiveFunctionNumeratorScale == null) {
-			this.objectiveFunctionNumeratorScale = 1.0 / expectedImprovement;
-			this.objectiveFunctionDenominatorScale = 1.0 / (distance + distance * distance + 1e-8);
+		if (this.normalizeDistance) {
+			distance /= this.maxD;
 		}
-		double numerator = this.objectiveFunctionNumeratorScale * (expectedImprovement - absoluteAmbitionLevel);
-		double denominator = this.objectiveFunctionDenominatorScale * (distance + distance * distance + 1e-8);
-		return numerator / denominator;
+		double _T = distance + distance * distance;
+
+		double numerator = (expectedImprovement - absoluteAmbitionLevel) / this.maxPsi;
+		double denominator = _T / (this.maxT + this.epsT) + this.epsT;
+
+		return (numerator / denominator);
 	}
 
 	@Override
 	public void assignSelectedPlans(Set<A> agents, T networkConditions, int iteration) {
 
-		double absoluteAmbitionLevel = this.stepSize.compute(iteration)
-				* agents.stream().mapToDouble(a -> a.computeGap()).sum();
+		this.maxPsi = agents.stream().mapToDouble(a -> a.computeGap()).sum();
+		if (this.maxPsi < this.epsPsi) {
+			agents.stream().forEach(a -> a.setCandidatePlan(null));
+			return;
+		}
+		double absoluteAmbitionLevel = this.initialStepSize * this.stepSize.compute(iteration) * this.maxPsi;
 
 		Q approximateNetworkConditionsWithoutAnySwitch = this.approximateNetworkLoading.compute(agents,
 				Collections.emptySet(), networkConditions);
+		Q approximateNetworkConditionsWithAllSwitch = this.approximateNetworkLoading.compute(Collections.emptySet(),
+				agents, networkConditions);
+		this.maxD = approximateNetworkConditionsWithoutAnySwitch
+				.computeDistance(approximateNetworkConditionsWithAllSwitch);
 
-		Set<A> agentsUsingCurrentPlan = new LinkedHashSet<>();
-		Set<A> agentsUsingCandidatePlan = new LinkedHashSet<>(agents);
+		if (this.normalizeDistance) {
+			this.maxT = 2.0; // D + D^2 with D=1
+		} else {
+			this.maxT = this.maxD + this.maxD * this.maxD;
+		}
+
+		Set<A> agentsUsingCurrentPlan = new LinkedHashSet<>(agents);
+		Set<A> agentsUsingCandidatePlan = new LinkedHashSet<>();
 
 		Q approximateNetworkConditions = this.approximateNetworkLoading.compute(agentsUsingCurrentPlan,
 				agentsUsingCandidatePlan, networkConditions);
@@ -106,33 +161,33 @@ public class ProposedMethodWithLocalSearchPlanSelection<P extends Plan, A extend
 		double objectiveFunctionValue = this.computeObjectiveFunctionValue(expectedImprovement,
 				approximateNetworkConditionsWithoutAnySwitch, approximateNetworkConditions, absoluteAmbitionLevel);
 
-		List<A> allAgents = new ArrayList<>(agents);
+		long innerIteration = 0;
+
+		List<A> agentsList = new ArrayList<>(agents);
+		int failures = 0;
 		boolean switched;
 		do {
+			innerIteration++;
 			switched = false;
-			Collections.shuffle(allAgents, this.rnd);
-//			Collections.sort(allAgents, new Comparator<>() {
-//				@Override
-//				public int compare(A agent1, A agent2) { // sort in descending order
-//					return Double.compare(agent2.computeGap(), agent1.computeGap());
-//				}
-//			});
-			for (A agent : allAgents) {
+			Collections.shuffle(agentsList, this.rnd);
+
+			for (A agent : agentsList) {
 				boolean agentWasUsingCandidatePlan = agentsUsingCandidatePlan.contains(agent);
+				BasicPlanSwitch<P, A> candidateSwitch;
 				double expectedImprovementAfterSwitch;
 				if (agentWasUsingCandidatePlan) {
-					approximateNetworkConditions.switchToPlan(agent.getCurrentPlan(), agent);
+					candidateSwitch = approximateNetworkConditions.switchToPlan(agent.getCurrentPlan(), agent);
 					expectedImprovementAfterSwitch = expectedImprovement - agent.computeGap();
 				} else {
-					approximateNetworkConditions.switchToPlan(agent.getCandidatePlan(), agent);
+					candidateSwitch = approximateNetworkConditions.switchToPlan(agent.getCandidatePlan(), agent);
 					expectedImprovementAfterSwitch = expectedImprovement + agent.computeGap();
 				}
 				double objectiveFunctionValueAfterSwitch = this.computeObjectiveFunctionValue(
 						expectedImprovementAfterSwitch, approximateNetworkConditionsWithoutAnySwitch,
 						approximateNetworkConditions, absoluteAmbitionLevel);
-				
-				if (objectiveFunctionValueAfterSwitch > objectiveFunctionValue
-						* (1.0 + this.minimalRelativeImprovement)) {
+
+				if (objectiveFunctionValueAfterSwitch - objectiveFunctionValue >= this.minimalImprovement
+						* Math.max(1.0, objectiveFunctionValue)) {
 					expectedImprovement = expectedImprovementAfterSwitch;
 					objectiveFunctionValue = objectiveFunctionValueAfterSwitch;
 					if (agentWasUsingCandidatePlan) {
@@ -144,10 +199,19 @@ public class ProposedMethodWithLocalSearchPlanSelection<P extends Plan, A extend
 					}
 					switched = true;
 				} else {
-					approximateNetworkConditions.undoLastSwitch();
+					approximateNetworkConditions.undoPlanSwitch(candidateSwitch);
 				}
 			}
-		} while (switched);
+
+			if (innerIteration % 100 == 0) {
+				// TODO use logger
+				System.out.println(innerIteration + "\t" + objectiveFunctionValue);
+			}
+
+			if (!switched) {
+				failures++;
+			}
+		} while (failures <= this.maxNumberOfFailures);
 
 		agentsUsingCandidatePlan.stream().forEach(a -> a.setCurrentPlanToCandidatePlan());
 		agents.stream().forEach(a -> a.setCandidatePlan(null));

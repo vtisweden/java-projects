@@ -1,5 +1,5 @@
 /**
- * org.matsim.contrib.atap
+ * se.vti.atap
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -26,12 +26,6 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.matsim.contrib.emulation.EmulationConfigGroup;
-import org.matsim.contrib.emulation.EmulationModule;
-import org.matsim.contrib.emulation.EmulationParameters;
-import org.matsim.contrib.emulation.emulators.ActivityEmulator;
-import org.matsim.contrib.emulation.emulators.LegEmulator;
-import org.matsim.contrib.emulation.handlers.EmulationHandler;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.ReplanningConfigGroup;
@@ -40,6 +34,13 @@ import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.corelisteners.PlansReplanning;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule.DefaultSelector;
+
+import se.vti.emulation.EmulationConfigGroup;
+import se.vti.emulation.EmulationModule;
+import se.vti.emulation.EmulationParameters;
+import se.vti.emulation.emulators.ActivityEmulator;
+import se.vti.emulation.emulators.LegEmulator;
+import se.vti.emulation.handlers.EmulationHandler;
 
 /**
  *
@@ -110,10 +111,7 @@ public class ATAP {
 		final Map<String, Double> subpop2expensiveStrategyWeightSum = new LinkedHashMap<>();
 		final Map<String, Double> subpop2cheapStrategyWeightSum = new LinkedHashMap<>();
 
-		// TODO 2025-05-20 Changed access to strategy settings throughout.
 		final ReplanningConfigGroup replanningConfig = (ReplanningConfigGroup) config.getModules().get("replanning");
-
-//		for (StrategySettings strategySettings : config.strategy().getStrategySettings()) {
 		for (StrategySettings strategySettings : replanningConfig.getStrategySettings()) {
 			final String strategyName = strategySettings.getStrategyName();
 			final String subpop;
@@ -177,7 +175,6 @@ public class ATAP {
 
 			double probaSum = 0;
 
-//			for (StrategySettings strategySettings : config.strategy().getStrategySettings()) {
 			for (StrategySettings strategySettings : replanningConfig.getStrategySettings()) {
 				if (subpop.equals(strategySettings.getSubpopulation() == null ? nullSubpopulationString
 						: strategySettings.getSubpopulation())) {
@@ -201,7 +198,6 @@ public class ATAP {
 				keepSelected.setSubpopulation(subpop);
 				keepSelected.setWeight(1.0 - probaSum);
 
-//				config.strategy().addStrategySettings(keepSelected);
 				replanningConfig.addStrategySettings(keepSelected);
 				logger.info("* Padding with " + DefaultSelector.KeepLastSelected + " and weight="
 						+ keepSelected.getWeight() + ".");
@@ -209,15 +205,12 @@ public class ATAP {
 			}
 		}
 
-//		config.strategy().setMaxAgentPlanMemorySize(1);
-//		config.strategy().setPlanSelectorForRemoval("WorstPlanSelector");
 		replanningConfig.setMaxAgentPlanMemorySize(1);
 		replanningConfig.setPlanSelectorForRemoval("WorstPlanSelector");
 		logger.info("Approximating a best-response simulation through the following settings:");
 		logger.info(" * maxAgentPlanMemorySize = 1");
 		logger.info(" * planSelectorForRemoval = worstPlanSelector");
 
-//		config.strategy().setFractionOfIterationsToDisableInnovation(Double.POSITIVE_INFINITY);
 		replanningConfig.setFractionOfIterationsToDisableInnovation(Double.POSITIVE_INFINITY);
 		logger.info("Setting fractionOfIterationsToDisableInnovation to infinity.");
 	}
@@ -243,13 +236,13 @@ public class ATAP {
 
 	public AbstractModule[] getModules() {
 
-		final AbstractModule greedoModule = new AbstractModule() {
+		final AbstractModule atapModule = new AbstractModule() {
 
 			@Override
 			public void install() {
 				bind(PlansReplanning.class).to(ATAPReplanning.class);
 			}
 		};
-		return new AbstractModule[] { greedoModule, new EmulationModule(this.emulationParameters) };
+		return new AbstractModule[] { atapModule, new EmulationModule(this.emulationParameters) };
 	}
 }

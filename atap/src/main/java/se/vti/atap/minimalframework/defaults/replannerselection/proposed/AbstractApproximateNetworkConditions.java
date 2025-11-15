@@ -1,5 +1,5 @@
 /**
- * se.vti.atap.minimalframework
+ * se.vti.atap
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -20,6 +20,7 @@
 package se.vti.atap.minimalframework.defaults.replannerselection.proposed;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,10 +38,15 @@ public abstract class AbstractApproximateNetworkConditions<P extends Plan, A ext
 
 	protected final Map<A, P> agent2plan;
 
+	protected final Network network;
+
 	public AbstractApproximateNetworkConditions(Set<A> agentsUsingCurrentPlan, Set<A> agentsUsingCandidatePlan,
 			Network network) {
 		this.agent2plan = new LinkedHashMap<>(agentsUsingCurrentPlan.size() + agentsUsingCandidatePlan.size());
-		this.initializeInternalState(network);
+		this.network = network;
+	}
+	
+	protected void switchAgentsIntoEmptyState(Set<A> agentsUsingCurrentPlan, Set<A> agentsUsingCandidatePlan) {
 		for (A agent : agentsUsingCurrentPlan) {
 			this.switchToPlan(agent.getCurrentPlan(), agent);
 		}
@@ -52,24 +58,23 @@ public abstract class AbstractApproximateNetworkConditions<P extends Plan, A ext
 	@Override
 	public double computeLeaveOneOutDistance(Q other) {
 		double result = 0.0;
-		for (A agent : this.agent2plan.keySet()) {
-			this.switchToPlan(null, agent);
-			other.switchToPlan(null, agent);
+		Set<A> agents = new LinkedHashSet<>(this.agent2plan.keySet()); // map changes during iterations
+		for (A agent : agents) {
+			BasicPlanSwitch<P, A> thisSwitch = this.switchToPlan(null, agent);
+			BasicPlanSwitch<P, A> otherSwitch = other.switchToPlan(null, agent);
 			result += this.computeDistance(other);
-			this.undoLastSwitch();
-			other.undoLastSwitch();
+			this.undoPlanSwitch(thisSwitch);
+			other.undoPlanSwitch(otherSwitch);
 		}
-		return result /= this.agent2plan.size();
+		return result /= (this.agent2plan.size() - 1);
 	}
 
 	@Override
-	abstract public double computeDistance(Q other);
-
-	abstract protected void initializeInternalState(Network network);
+	public abstract double computeDistance(Q other);
 
 	@Override
-	public abstract void switchToPlan(P plan, A agent);
+	public abstract BasicPlanSwitch<P, A> switchToPlan(P plan, A agent);
 
 	@Override
-	abstract public void undoLastSwitch();
+	public abstract void undoPlanSwitch(BasicPlanSwitch<P, A> undoSwitch);
 }

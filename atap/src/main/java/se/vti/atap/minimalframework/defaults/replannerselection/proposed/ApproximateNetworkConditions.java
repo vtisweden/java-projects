@@ -1,5 +1,5 @@
 /**
- * se.vti.atap.minimalframework
+ * se.vti.atap
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -29,9 +29,9 @@ import se.vti.atap.minimalframework.Plan;
  */
 public interface ApproximateNetworkConditions<P extends Plan, A extends Agent<P>, Q extends ApproximateNetworkConditions<P, A, Q>> {
 
-	void switchToPlan(P plan, A agent);
+	BasicPlanSwitch<P, A> switchToPlan(P plan, A agent);
 
-	void undoLastSwitch();
+	void undoPlanSwitch(BasicPlanSwitch<P, A> undoSwitch);
 	
 	double computeLeaveOneOutDistance(Q other);
 

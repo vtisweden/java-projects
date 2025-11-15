@@ -1,5 +1,5 @@
 /**
- * se.vti.atap.minimalframework.common
+ * se.vti.atap
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -31,16 +31,24 @@ import se.vti.atap.minimalframework.defaults.replannerselection.proposed.Approxi
 public class ApproximateNetworkLoadingImpl implements
 		ApproximateNetworkLoading<PathFlows, AgentImpl, NetworkConditionsImpl, ApproximateNetworkConditionsImpl> {
 
+	public static enum DistanceType {
+		FLOWS, CAPACITY_SCALED_FLOWS, FLOW_SQUARED, TRAVELTIMES
+	}
+
 	private final Network network;
 
-	public ApproximateNetworkLoadingImpl(Network network) {
+	private final DistanceType distanceType;
+
+	public ApproximateNetworkLoadingImpl(Network network, DistanceType distanceType) {
 		this.network = network;
+		this.distanceType = distanceType;
 	}
 
 	@Override
 	public ApproximateNetworkConditionsImpl compute(Set<AgentImpl> agentsUsingCurrentPlan,
 			Set<AgentImpl> agentsUsingCandidatePlan, NetworkConditionsImpl networkConditions) {
-		return new ApproximateNetworkConditionsImpl(agentsUsingCurrentPlan, agentsUsingCandidatePlan, this.network);
+		return new ApproximateNetworkConditionsImpl(agentsUsingCurrentPlan, agentsUsingCandidatePlan, this.network,
+				this.distanceType);
 	}
 
 }

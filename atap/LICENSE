@@ -1,4 +1,6 @@
-org.matsim.contrib.atap java packages
+se.vti.atap java packages
+se.vti.emulation java packages
+se.vti.utils java packages
 
 Copyright (C) 2025 Gunnar Flötteröd (VTI, LiU). 
 

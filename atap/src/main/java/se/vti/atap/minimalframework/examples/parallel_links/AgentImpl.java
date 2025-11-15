@@ -1,5 +1,5 @@
 /**
- * se.vti.atap.examples.minimalframework.parallel_links
+ * se.vti.atap
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -19,6 +19,8 @@
  */
 package se.vti.atap.minimalframework.examples.parallel_links;
 
+import java.util.Random;
+
 import se.vti.atap.minimalframework.defaults.BasicAgent;
 
 /**
@@ -28,9 +30,9 @@ import se.vti.atap.minimalframework.defaults.BasicAgent;
  */
 public class AgentImpl extends BasicAgent<PathFlows> {
 
-	public final int[] availableLinks;
-
 	public final double size_veh;
+
+	public final int[] availableLinks;
 
 	public AgentImpl(String id, double size_veh, int... availableLinks) {
 		super(id);
@@ -38,12 +40,12 @@ public class AgentImpl extends BasicAgent<PathFlows> {
 		this.availableLinks = availableLinks;
 	}
 
-	public AgentImpl(String id, int... availableLinks) {
-		this(id, 1.0, availableLinks);
-	}
-
 	public int getNumberOfPaths() {
 		return this.availableLinks.length;
+	}
+
+	public AgentImpl(String id, int... availableLinks) {
+		this(id, 1.0, availableLinks);
 	}
 
 	public int computeBestPath(NetworkConditionsImpl networkConditions) {
@@ -57,5 +59,9 @@ public class AgentImpl extends BasicAgent<PathFlows> {
 			}
 		}
 		return bestPath;
+	}
+	
+	public int computeRandomPath(Random rnd) {
+		return rnd.nextInt(this.getNumberOfPaths());
 	}
 }

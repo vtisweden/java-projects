@@ -1,5 +1,5 @@
 /**
- * se.vti.atap.examples.minimalframework.parallel_links
+ * se.vti.atap
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -43,6 +43,10 @@ public class PathFlows extends BasicPlan {
 
 	public double[] computePathFlows_veh() {
 		return Arrays.copyOf(this.pathFlows_veh, this.pathFlows_veh.length);
+	}
+	
+	public PathFlows deepClone() {
+		return new PathFlows(this.computePathFlows_veh());
 	}
 
 }
