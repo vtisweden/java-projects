@@ -1,6 +1,6 @@
-name: Build tramodby
+name: Build and test tramodby
 
-on: [pull_request, workflow_dispatch]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   call-build:

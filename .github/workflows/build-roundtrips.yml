@@ -1,6 +1,6 @@
-name: Build roundtrips
+name: Build and test roundtrips
 
-on: [pull_request, workflow_dispatch, push]
+on: [push, pull_request, workflow_dispatch, push]
 
 jobs:
   call-build:
