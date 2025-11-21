@@ -127,8 +127,6 @@ public class Station extends HasId {
 					if (!canBeReachedFromAllOtherZones) {
 						this.stationsIdsThatCannotBeReachedFromAllZones.add(rawStation.id);
 					}
-					this.unloadedStationIds.add(rawStation.id);
-					this.zoneIdsWithoutInstance.add(rawStation.zoneId);
 				} else {
 					this.unloadedStationIds.add(rawStation.id);
 					this.zoneIdsWithoutInstance.add(rawStation.zoneId);
