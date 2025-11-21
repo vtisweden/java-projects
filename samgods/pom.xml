@@ -4,12 +4,12 @@
   <parent>
     <groupId>se.vti.java-projects</groupId>
   	<artifactId>java-projects</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>samgods</artifactId>
-  <version>0.1.1-SNAPHOT</version>
+  <version>0.1.1</version>
 
 	<repositories>
 		<!--Note that in general repositories are not transitive, so they need 
@@ -62,16 +62,8 @@
 		<dependency>
 			<groupId>se.vti.java-projects</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.1.6</version>
+			<version>0.1.7</version>
 		</dependency>
-
-		<!--
-		<dependency>
-			<groupId>se.vti.java-projects</groupId>
-			<artifactId>matsimutils</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
-		</dependency>
-		-->
 
 		<!-- This is the matsim "core": -->
 		<dependency>
@@ -80,17 +72,6 @@
 			<version>${matsim.version}</version>
 		</dependency>
 
-		<!--MATSim test infrastructure. Not transitive. -->
-		<!--
-		<dependency>
-			<groupId>org.matsim</groupId>
-			<artifactId>matsim</artifactId>
-			<type>test-jar</type>
-			<version>${matsim.version}</version>
-			<scope>test</scope>
-		</dependency>
-		-->
-	
 		<!--to get ExamplesUtils: -->
 		<dependency>
 			<groupId>org.matsim</groupId>
@@ -109,14 +90,6 @@
     		<artifactId>asciitable</artifactId>
     		<version>0.3.2</version>
 		</dependency>
-
-    <!-- JUnit 5 API and Engine -->
-    <!-- <dependency> -->
-        <!-- <groupId>org.junit.jupiter</groupId> -->
-        <!-- <artifactId>junit-jupiter</artifactId> -->
-        <!-- <version>5.10.0</version> -->
-        <!-- <scope>test</scope> -->
-    <!-- </dependency> -->
 
 	</dependencies>
 
