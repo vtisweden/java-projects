@@ -4,14 +4,14 @@
   <parent>
     <groupId>se.vti.java-projects</groupId>
   	<artifactId>java-projects</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>emulation</artifactId>
   
   <!-- last published version: 0.1.7 -->
-  <version>0.1.8-SNAPSHOT</version>
+  <version>0.1.7</version>
 
 	<repositories>
 	  <!--Note that in general repositories are not transitive, so they need to be repeated at every level where needed.-->
