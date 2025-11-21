@@ -4,7 +4,7 @@
   <parent>
     <groupId>se.vti.java-projects</groupId>
   	<artifactId>java-projects</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -12,7 +12,7 @@
 
 	<name>TraMod_By</name>
 	<description>MATSim simulator for TraMod_By</description>
-	<version>1.2.2</version>
+	<version>1.2.3</version>
 	<packaging>jar</packaging>
 
 
@@ -56,6 +56,20 @@
 		<dependency>
 			<groupId>se.vti.java-projects</groupId>
 			<artifactId>atap</artifactId>
+			<version>0.1.8</version>
+		</dependency>
+
+		<!-- Cannot access this through atap because atap currently is stand-alone. -->
+		<dependency>
+			<groupId>se.vti.java-projects</groupId>
+			<artifactId>emulation</artifactId>
+			<version>0.1.7</version>
+		</dependency>
+
+		<!-- Cannot access this through atap because atap currently is stand-alone. -->
+		<dependency>
+			<groupId>se.vti.java-projects</groupId>
+			<artifactId>utils</artifactId>
 			<version>0.1.7</version>
 		</dependency>
 		

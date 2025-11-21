@@ -105,7 +105,8 @@ public class TramodSim {
 		ATAP atap = new ATAP();
 		atap.configure(config);
 
-		atap.addHandler(RoadPricingEmulationHandler.class);
+		// Roadpricing emulation needs an overwork. Gunnar, 2025-11-21
+		// atap.addHandler(RoadPricingEmulationHandler.class);
 		
 		// Loading the scenario and cleaning the network from inconsistencies.
 		Scenario scenario = ScenarioUtils.loadScenario(config);
