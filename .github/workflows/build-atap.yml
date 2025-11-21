@@ -1,4 +1,4 @@
-name: Build atap
+name: Build and test atap
 
 on: [pull_request, workflow_dispatch, push]
 
