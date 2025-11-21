@@ -41,4 +41,4 @@ jobs:
           EOF
 
       - name: Build module
-        run: mvn -pl ${{ inputs.module }} -am -U clean install
+        run: mvn -pl ${{ inputs.module }} -am -U -ntp clean install

@@ -1,4 +1,4 @@
-name: Build and test dynameq
+name: Build and test certain
 
 on: [push, pull_request, workflow_dispatch]
 
@@ -6,6 +6,5 @@ jobs:
   call-build:
     uses: ./.github/workflows/build-module.yml
     with:
-      module: 'dynameq'
+      module: 'certain'
     secrets: inherit
-

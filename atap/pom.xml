@@ -5,6 +5,7 @@
     <groupId>se.vti.java-projects</groupId>
   	<artifactId>java-projects</artifactId>
     <version>0.1.2-SNAPSHOT</version>
+<!--  <relativePath/>-->
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
