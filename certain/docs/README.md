@@ -134,7 +134,7 @@ Third, a sequence of missions that may arise during this time line is simulated.
 var rnd = new Random();
 
 var incidentSimulator = new IncidentSimulator(timeLine, rnd);
-List<Mission> simulatedMissions = incidentSimulator.simulateMissions(id2Zone);
+var simulatedMissions = incidentSimulator.simulateMissions(id2Zone);
 
 var timingSimulator = new TimingSimulator(timeLine, rnd);
 timingSimulator.simulateTimings(simulatedMissions);

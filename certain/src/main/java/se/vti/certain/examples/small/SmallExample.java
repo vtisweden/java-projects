@@ -257,7 +257,7 @@ public class SmallExample {
 				numberOfSimulatedDays);
 
 		var incidentSimulator = new IncidentSimulator(timeLine, rnd);
-		List<Mission> simulatedMissions = incidentSimulator.simulateMissions(id2Zone);
+		var simulatedMissions = incidentSimulator.simulateMissions(id2Zone);
 
 		var timingSimulator = new TimingSimulator(timeLine, rnd);
 		timingSimulator.simulateTimings(simulatedMissions);
