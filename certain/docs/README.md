@@ -1,10 +1,11 @@
 # CERTAIN repository
 
-*This is ongoing work; both the code and its documentation are under development.*
-
-This java program allows to simulate emergency service activities, in particular with respect to the energy needs of a future electrified emergency vehicle fleet. 
+This java program allows to simulate emergency service activities, in particular with respect to the energy needs of a future electrified emergency vehicle fleet. It synthesizes a sequence of incidents based on historical data and land use information, triggers corresponding missions (vehicles being dispatched to handle the incidents), and tracks vehicle availability and state of charge. The program allows to study the effect of changed emergency patterns (e.g. because of land use development or increased frequency of certain incident types), vehicle technologies (overall fleet composition, charging durations, battery capacities), and of energy availability.
 
 "CERTAIN" is an acronym for "Evidence-based fossil free emergency service fleet planning", which is the name of the project in which this computer problem is developed. The project is funded by the Swedish Energy Agency.
+
+Contact: gunnar.flotterod@vti.se
+
 
 ## Data flow
 
