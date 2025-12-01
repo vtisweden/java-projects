@@ -79,25 +79,4 @@ public class RoundTripUtils {
 		}
 		return result;
 	}
-
-	static void testShortestPath() {
-
-		List<Node> nodes = new ArrayList<>();
-		for (int i = 0; i < 5; i++) {
-			nodes.add(new Node("" + i));
-		}
-
-		RoundTrip<Node> roundTrip = new RoundTrip<Node>(0,
-				Arrays.asList(nodes.get(0), nodes.get(1), nodes.get(2), nodes.get(3), nodes.get(4)), null);
-		System.out.println("Round trip: " + roundTrip.getNodesView());
-		System.out.println("From 3 to 2: " + shortestPath(nodes.get(3), nodes.get(2), roundTrip));
-
-	}
-
-	public static void main(String[] args) {
-
-		testShortestPath();
-
-	}
-
 }
