@@ -97,7 +97,7 @@ public class SystemState {
 					this.distances, initialSOC_kWh, this.relSOCWhenAvailable);
 			bestAvailability.setAnticipatedDispatchmentLog(anticipatedLog);
 			this.vehicle2Availability_h.put(bestAvailability.getVehicle(), anticipatedLog.againAvailable_h);
-			this.getMission2VehicleDispachmentLog()
+			this.getMission2VehicleMissionLogs()
 					.computeIfAbsent(vehicleRequestedEvent.getMission(), m -> new ArrayList<>()).add(anticipatedLog);
 		} else {
 			this.failedRequests.add(vehicleRequestedEvent);
@@ -106,7 +106,7 @@ public class SystemState {
 		return bestAvailability;
 	}
 
-	public Map<Mission, List<VehicleMissionLog>> getMission2VehicleDispachmentLog() {
+	public Map<Mission, List<VehicleMissionLog>> getMission2VehicleMissionLogs() {
 		return this.mission2VehicleDispatchmentLog;
 	}
 

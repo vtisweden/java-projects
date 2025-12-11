@@ -95,7 +95,7 @@ public class RTOG {
 		var timeLine = new SimulationTimeLine(Season.WINTER, TypeOfDay.WORKDAY, daylightStart_h, daylightEnd_h,
 				numberOfSimulatedDays);
 
-		var incidentSimulator = new IncidentSimulator(timeLine, rnd);
+		var incidentSimulator = new IncidentSimulator(timeLine, rnd.nextLong());
 		List<Mission> simulatedMissions = incidentSimulator.simulateMissions(id2Zone);
 		System.out.println("Simulated " + simulatedMissions.size() + " missions.");
 
@@ -130,7 +130,7 @@ public class RTOG {
 		var systemState = missionImplementationSimulator.simulateMissionImplementation(simulatedMissions);
 		System.out.println("Simulated implementation of " + simulatedMissions.size() + " missions.");
 		System.out.println("Number of served vehicle requests: "
-				+ systemState.getMission2VehicleDispachmentLog().values().stream().mapToInt(l -> l.size()).sum());
+				+ systemState.getMission2VehicleMissionLogs().values().stream().mapToInt(l -> l.size()).sum());
 		System.out.println("Number of failed vehicle requests: " + systemState.getFailedRequests().size());
 		System.out.println("Zones with failed vehicle requests: " + new LinkedHashSet<>(
 				systemState.getFailedRequests().stream().map(r -> r.getMission().getZone().getId()).toList()));

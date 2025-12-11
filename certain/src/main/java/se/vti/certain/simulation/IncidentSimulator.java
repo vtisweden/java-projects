@@ -22,9 +22,9 @@ package se.vti.certain.simulation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
-import org.apache.commons.math3.distribution.PoissonDistribution;
+import org.apache.commons.math3.random.RandomDataGenerator;
+import org.apache.commons.math3.random.Well19937c;
 
 import se.vti.certain.datastructures.IncidentType;
 import se.vti.certain.datastructures.Mission;
@@ -34,11 +34,11 @@ public class IncidentSimulator {
 
 	private final SimulationTimeLine timeLine;
 
-	private final Random rnd;
+	private final RandomDataGenerator rdg;
 
-	public IncidentSimulator(SimulationTimeLine timeLine, Random rnd) {
+	public IncidentSimulator(SimulationTimeLine timeLine, long seed) {
 		this.timeLine = timeLine;
-		this.rnd = rnd;
+		this.rdg = new RandomDataGenerator(new Well19937c(seed));
 	}
 
 	/**
@@ -51,12 +51,10 @@ public class IncidentSimulator {
 				IncidentType incidentType = entry.getKey();
 				double intensity_1_yr = incidentType.getShare(this.timeLine.season)
 						* incidentType.getShare(this.timeLine.dayType) * entry.getValue();
-				if (intensity_1_yr >= 1e-8) {
-					PoissonDistribution poisson = new PoissonDistribution(
-							intensity_1_yr * this.timeLine.numberOfDays / 365.0);
-					poisson.reseedRandomGenerator(this.rnd.nextLong());
-					int numberOfIncidents = poisson.sample();
-					for (int i = 0; i < numberOfIncidents; i++) {
+				if (intensity_1_yr >= 1e-12) {
+					double expectedNumber = intensity_1_yr * this.timeLine.numberOfDays / 365.0;
+					long numberOfIncidents = this.rdg.nextPoisson(expectedNumber);
+					for (long i = 0; i < numberOfIncidents; i++) {
 						missions.add(new Mission(incidentType, zone));
 					}
 				}

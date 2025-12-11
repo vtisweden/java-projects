@@ -26,6 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import se.vti.certain.analysis.observables.AverageMissingSOCWhenOutOfCharge;
+import se.vti.certain.analysis.observables.AverageTimeFromVehicleRequestToArrival;
+import se.vti.certain.analysis.observables.NumberOfMissions;
+import se.vti.certain.analysis.observables.ShareOfVehiclesRunningOutOfCharge;
 import se.vti.certain.datastructures.IncidentType;
 import se.vti.certain.datastructures.Mission;
 import se.vti.certain.datastructures.Station;
@@ -123,7 +127,7 @@ public class ReplicationRunner {
 
 			System.out.println((1 + replication) + " / " + this.numberOfReplications);
 
-			var incidentSimulator = new IncidentSimulator(this.timeLine, this.rnd);
+			var incidentSimulator = new IncidentSimulator(this.timeLine, this.rnd.nextLong());
 			List<Mission> simulatedMissions = incidentSimulator.simulateMissions(this.id2Zone);
 
 			var timingSimulator = new TimingSimulator(this.timeLine, this.rnd);
@@ -188,6 +192,7 @@ public class ReplicationRunner {
 		System.out.println("Loaded " + prototypeMissions.size() + " prototype missions.");
 
 		var rnd = new Random();
+		int numberOfReplications = 10;
 
 		var daylightStart_h = 9.0;
 		var daylightEnd_h = 16.0;
@@ -200,16 +205,21 @@ public class ReplicationRunner {
 				.get(0);
 		eonMission.setStartTime_h(10 * 24.0); // TODO set real time
 
-		var replicationRunner = new ReplicationRunner(rnd).setNumberOfReplications(2).setTimeLine(timeLine)
-				.setMinRelSOC(0.8).setId2Zone(id2Zone).setDistances(distances).setId2Vehicle(id2Vehicle)
-				.setPrototypeMissions(prototypeMissions).addSpecialMission(eonMission);
+		var replicationRunner = new ReplicationRunner(rnd).setNumberOfReplications(numberOfReplications)
+				.setTimeLine(timeLine).setMinRelSOC(0.8).setId2Zone(id2Zone).setDistances(distances)
+				.setId2Vehicle(id2Vehicle).setPrototypeMissions(prototypeMissions).addSpecialMission(eonMission);
 		replicationRunner.run();
 
 		var analyzer = new ReplicationAnalyzer();
-		analyzer.addObservable("number of missions", s -> (double) s.getMission2VehicleDispachmentLog().size());
+		analyzer.addObservable(NumberOfMissions.NAME, new NumberOfMissions());
+		analyzer.addObservable(AverageTimeFromVehicleRequestToArrival.NAME,
+				new AverageTimeFromVehicleRequestToArrival());
+		analyzer.addObservable(ShareOfVehiclesRunningOutOfCharge.NAME, new ShareOfVehiclesRunningOutOfCharge());
+		analyzer.addObservable(AverageMissingSOCWhenOutOfCharge.NAME, new AverageMissingSOCWhenOutOfCharge());
+
 		analyzer.add(replicationRunner.getSimulatedSystemStates());
-		System.out.println(analyzer.getStatistics("number of missions"));
-		
+		System.out.println(analyzer);
+
 	}
 
 }

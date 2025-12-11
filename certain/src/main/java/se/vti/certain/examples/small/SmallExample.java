@@ -257,7 +257,7 @@ public class SmallExample {
 		var timeLine = new SimulationTimeLine(Season.WINTER, TypeOfDay.WORKDAY, daylightStart_h, daylightEnd_h,
 				numberOfSimulatedDays);
 
-		var incidentSimulator = new IncidentSimulator(timeLine, rnd);
+		var incidentSimulator = new IncidentSimulator(timeLine, rnd.nextLong());
 		var simulatedMissions = incidentSimulator.simulateMissions(id2Zone);
 
 		var timingSimulator = new TimingSimulator(timeLine, rnd);
@@ -274,7 +274,7 @@ public class SmallExample {
 		var missionImplementationSimulator = new MissionImplementationSimulator(id2Vehicle, distances)
 				.setVerbose(verbose).setRelSOCWhenAvailable(0.8);
 		var systemState = missionImplementationSimulator.simulateMissionImplementation(simulatedMissions);
-		var mission2VehicleLogs = systemState.getMission2VehicleDispachmentLog();
+		var mission2VehicleLogs = systemState.getMission2VehicleMissionLogs();
 
 		double missionCnt = mission2VehicleLogs.size();
 		double sum_h = 0.0;
