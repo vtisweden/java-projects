@@ -46,7 +46,7 @@ public class SystemState {
 
 	private final Distances distances;
 
-	private final Map<Mission, List<VehicleDispatchmentLog>> mission2VehicleDispatchmentLog = new LinkedHashMap<>();
+	private final Map<Mission, List<VehicleMissionLog>> mission2VehicleDispatchmentLog = new LinkedHashMap<>();
 
 	private final List<VehicleRequestedEvent> failedRequests = new ArrayList<>();
 
@@ -93,7 +93,7 @@ public class SystemState {
 			// Capacity-constrained charging level when requested for mission.
 			initialSOC_kWh = Math.min(initialSOC_kWh, vehicle.getVehicleType().getBatteryCapacity_kWh());
 
-			VehicleDispatchmentLog anticipatedLog = new VehicleDispatchmentLog(vehicleRequestedEvent, bestAvailability,
+			VehicleMissionLog anticipatedLog = new VehicleMissionLog(vehicleRequestedEvent, bestAvailability,
 					this.distances, initialSOC_kWh, this.relSOCWhenAvailable);
 			bestAvailability.setAnticipatedDispatchmentLog(anticipatedLog);
 			this.vehicle2Availability_h.put(bestAvailability.getVehicle(), anticipatedLog.againAvailable_h);
@@ -106,7 +106,7 @@ public class SystemState {
 		return bestAvailability;
 	}
 
-	public Map<Mission, List<VehicleDispatchmentLog>> getMission2VehicleDispachmentLog() {
+	public Map<Mission, List<VehicleMissionLog>> getMission2VehicleDispachmentLog() {
 		return this.mission2VehicleDispatchmentLog;
 	}
 

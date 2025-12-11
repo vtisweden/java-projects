@@ -28,7 +28,7 @@ import se.vti.certain.spatial.Zone;
  * @author GunnarF
  *
  */
-public class VehicleDispatchmentLog {
+public class VehicleMissionLog {
 
 	public final VehicleRequestedEvent vehicleRequestedEvent;
 	private final VehicleAvailability vehicleAvailability;
@@ -87,7 +87,7 @@ public class VehicleDispatchmentLog {
 		return this.vehicleAvailability.getDestination();
 	}
 
-	public VehicleDispatchmentLog(VehicleRequestedEvent requestEvent, VehicleAvailability vehicleAvailability,
+	public VehicleMissionLog(VehicleRequestedEvent requestEvent, VehicleAvailability vehicleAvailability,
 			Distances distances, double initialSOC_kWh, double minRelSOC) {
 
 		this.vehicleRequestedEvent = requestEvent;

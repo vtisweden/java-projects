@@ -37,7 +37,7 @@ public class VehicleAvailability {
 
 	private final double arrivalTimeAtDestination_h;
 	
-	private VehicleDispatchmentLog anticipatedDispatchmentLog = null;
+	private VehicleMissionLog anticipatedDispatchmentLog = null;
 	
 	public VehicleAvailability(Vehicle vehicle, Zone destination, double departurTimeFromStation_h,
 			double arrivalTimeAtDestination_h) {
@@ -63,11 +63,11 @@ public class VehicleAvailability {
 		return this.arrivalTimeAtDestination_h;
 	}
 
-	public VehicleDispatchmentLog getAnticipatedDispatchmentLog() {
+	public VehicleMissionLog getAnticipatedDispatchmentLog() {
 		return anticipatedDispatchmentLog;
 	}
 
-	public void setAnticipatedDispatchmentLog(VehicleDispatchmentLog anticipatedDispatchmentLog) {
+	public void setAnticipatedDispatchmentLog(VehicleMissionLog anticipatedDispatchmentLog) {
 		this.anticipatedDispatchmentLog = anticipatedDispatchmentLog;
 	}
 
