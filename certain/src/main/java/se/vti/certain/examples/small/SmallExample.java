@@ -232,7 +232,8 @@ public class SmallExample {
 		var id2Zone = Zone.readFromJsonFile(zonesFile, id2IncidentType);
 
 		writeAnonymousMissions(id2IncidentType, id2VehicleType);
-		var prototypeMissions = Mission.readFromJson(anonymousMissionsFile, id2IncidentType, id2Zone, id2VehicleType, false);
+		var prototypeMissions = Mission.readFromJson(anonymousMissionsFile, id2IncidentType, id2Zone, id2VehicleType,
+				false);
 
 		writeDistanceTypes();
 		var id2DistanceType = DistanceType.readFromJsonFile(distanceTypesFile);
@@ -264,7 +265,7 @@ public class SmallExample {
 
 		var startTimeSimulator = new StartTimeSimulator(timeLine, rnd);
 		startTimeSimulator.simulateStarTimes(simulatedMissions);
-		simulatedMissions = startTimeSimulator.getStartTimeSortedMissions(simulatedMissions);
+		simulatedMissions = StartTimeSimulator.getStartTimeSortedMissions(simulatedMissions);
 
 		var missionFleetSimulator = new MissionVehicleDeploymentSimulator(prototypeMissions, rnd);
 		missionFleetSimulator.simulateFleets(simulatedMissions);
@@ -293,7 +294,8 @@ public class SmallExample {
 		}
 	}
 
-	static void runBaseCase(double intensityFactor, double chargingFactor) throws StreamWriteException, DatabindException, IOException {
+	static void runBaseCase(double intensityFactor, double chargingFactor)
+			throws StreamWriteException, DatabindException, IOException {
 		simulateAverageDelay_h(intensityFactor, chargingFactor, true);
 	}
 
