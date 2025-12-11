@@ -22,6 +22,7 @@ package se.vti.certain.datastructures;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -91,9 +92,16 @@ public class IncidentType extends HasId {
 		this.timeOfDay2Weight = timeOfday2Weight;
 //		this.weightSum = timingWeights.stream().mapToDouble(tw -> tw.getWeight()).sum();
 	}
-
+	
 	// -------------------- IMPLEMENTATION --------------------
 
+	public IncidentType clearTiming() {
+		this.season2Weight.clear();
+		this.typeOfDay2Weight.clear();
+		this.timeOfDay2Weight.clear();
+		return this;
+	}
+	
 //	@JsonIgnore // use constructor
 //	public IncidentType setTimings(List<TimingWeight> timingWeights) {
 //		this.timingWeights.clear();

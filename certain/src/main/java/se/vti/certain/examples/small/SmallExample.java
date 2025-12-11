@@ -232,7 +232,7 @@ public class SmallExample {
 		var id2Zone = Zone.readFromJsonFile(zonesFile, id2IncidentType);
 
 		writeAnonymousMissions(id2IncidentType, id2VehicleType);
-		var prototypeMissions = Mission.readFromJson(anonymousMissionsFile, id2IncidentType, id2Zone, id2VehicleType);
+		var prototypeMissions = Mission.readFromJson(anonymousMissionsFile, id2IncidentType, id2Zone, id2VehicleType, false);
 
 		writeDistanceTypes();
 		var id2DistanceType = DistanceType.readFromJsonFile(distanceTypesFile);

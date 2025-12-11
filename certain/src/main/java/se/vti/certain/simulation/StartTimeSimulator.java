@@ -81,13 +81,13 @@ public class StartTimeSimulator {
 		}
 	}
 
-	public List<Mission> getStartTimeSortedMissions(List<Mission> allMissions) {
+	public static List<Mission> getStartTimeSortedMissions(List<Mission> allMissions) {
 		List<Mission> result = new ArrayList<>(allMissions.stream().filter(m -> m.getStartTime_h() != null).toList());
 		Collections.sort(result, (m1, m2) -> Double.compare(m1.getStartTime_h(), m2.getStartTime_h()));
 		return result;
 	}
 
-	public List<Mission> getMissionsWithoutStartTimes(List<Mission> allMissions) {
+	public static List<Mission> getMissionsWithoutStartTimes(List<Mission> allMissions) {
 		return new ArrayList<>(allMissions.stream().filter(m -> m.getStartTime_h() == null).toList());
 	}
 }

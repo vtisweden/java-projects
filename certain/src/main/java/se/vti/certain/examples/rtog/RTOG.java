@@ -84,7 +84,7 @@ public class RTOG {
 		var id2Vehicle = Vehicle.readFromJsonFile(vehiclesFile, id2VehicleType, id2Station);
 		System.out.println("Loaded " + id2Vehicle.size() + " vehicles.");
 
-		var prototypeMissions = Mission.readFromJson(missionsFile, id2IncidentType, id2Zone, id2VehicleType);
+		var prototypeMissions = Mission.readFromJson(missionsFile, id2IncidentType, id2Zone, id2VehicleType, false);
 		System.out.println("Loaded " + prototypeMissions.size() + " prototype missions.");
 
 		var rnd = new Random();
@@ -105,7 +105,7 @@ public class RTOG {
 
 		var startTimeSimulator = new StartTimeSimulator(timeLine, rnd);
 		startTimeSimulator.simulateStarTimes(simulatedMissions);
-		simulatedMissions = startTimeSimulator.getStartTimeSortedMissions(simulatedMissions);
+		simulatedMissions = StartTimeSimulator.getStartTimeSortedMissions(simulatedMissions);
 		System.out.println("Added start times to " + simulatedMissions.size() + " missions.");
 
 		var missionFleetSimulator = new MissionVehicleDeploymentSimulator(prototypeMissions, rnd);
@@ -113,7 +113,19 @@ public class RTOG {
 		simulatedMissions = missionFleetSimulator.getMissionsWithDeployedVehicles(simulatedMissions);
 		System.out.println("Added fleets to " + simulatedMissions.size() + " missions.");
 
-		var missionImplementationSimulator = new MissionImplementationSimulator(id2Vehicle, distances).setVerbose(false);
+		// >>>>> EON SCENARIO >>>>>
+
+		simulatedMissions.clear(); // TODO just EON
+		var eonMission = Mission.readFromJson(new File(path + "eon-mission.json"), id2IncidentType, id2Zone,
+				id2VehicleType, true).get(0);
+		eonMission.setStartTime_h(10 * 24.0); // TODO set real time
+		simulatedMissions.add(eonMission);
+		simulatedMissions = StartTimeSimulator.getStartTimeSortedMissions(simulatedMissions);
+
+		// <<<<< EON SCENARIO <<<<<
+
+		var missionImplementationSimulator = new MissionImplementationSimulator(id2Vehicle, distances)
+				.setVerbose(true);
 		var systemState = missionImplementationSimulator.simulateMissionImplementation(simulatedMissions);
 		System.out.println("Simulated implementation of " + simulatedMissions.size() + " missions.");
 		System.out.println("Number of served vehicle requests: "

@@ -71,8 +71,6 @@ public class Mission {
 		@JsonProperty
 		String zoneId;
 
-//		@JsonProperty
-//		Timing timing;
 		@JsonProperty
 		Season season;
 		@JsonProperty
@@ -81,7 +79,6 @@ public class Mission {
 		TimeOfDay timeOfDay;
 
 		@JsonProperty
-//		@JsonInclude(JsonInclude.Include.NON_NULL)
 		Double startTime_h;
 
 		@JsonProperty
@@ -91,6 +88,8 @@ public class Mission {
 	public static class JsonReader {
 
 		private final File file;
+
+		private final boolean alsoLoadIncomplete;
 
 		private Map<String, IncidentType> id2IncidentType;
 
@@ -104,12 +103,15 @@ public class Mission {
 
 		private Set<String> missingVehicleTypeIds;
 
+		private int numberOfMissionsWithoutIncidentType;
+
 		private int numberOfMissionsWithIncompleteFleet;
 
 		private int numberOfUnloadedMissions;
 
-		public JsonReader(File file) {
+		public JsonReader(File file, boolean alsoLoadIncomplete) {
 			this.file = file;
+			this.alsoLoadIncomplete = alsoLoadIncomplete;
 		}
 
 		public JsonReader setId2IncidentType(Map<String, IncidentType> id2IncidentType) {
@@ -130,10 +132,11 @@ public class Mission {
 		public List<Mission> read() throws IOException {
 			Raw[] missionsRaw = new ObjectMapper().readValue(file, Raw[].class);
 			this.loadedMissions = new ArrayList<>(missionsRaw.length);
-			this.numberOfMissionsWithIncompleteFleet = 0;
-			this.numberOfUnloadedMissions = 0;
 			this.missingIncidentTypeIds = new LinkedHashSet<>();
 			this.missingVehicleTypeIds = new LinkedHashSet<>();
+			this.numberOfMissionsWithoutIncidentType = 0;
+			this.numberOfMissionsWithIncompleteFleet = 0;
+			this.numberOfUnloadedMissions = 0;
 
 			for (Raw missionRaw : missionsRaw) {
 
@@ -153,19 +156,36 @@ public class Mission {
 					this.numberOfMissionsWithIncompleteFleet++;
 				}
 
+//				if (incidentType != null) {
+//				Mission mission = new Mission(incidentType, this.id2Zone.get(missionRaw.zoneId))
+//						.setSeason(missionRaw.season).setTypeOfDay(missionRaw.typeOfDay)
+//						.setTimeOfDay(missionRaw.timeOfDay).setStartTime_h(missionRaw.startTime_h);
+//				vehicleMissions.forEach(vm -> mission.addVehicleMission(vm));
+//				this.loadedMissions.add(mission);
+//			} else {
+//				this.numberOfUnloadedMissions++;
+//				if (incidentType == null) {
+//					this.missingIncidentTypeIds.add(missionRaw.incidentTypeId);
+//				}
+//			}
+
+				if (incidentType == null) {
+					if (this.alsoLoadIncomplete) {
+						incidentType = new IncidentType(
+								missionRaw.incidentTypeId + "_missing" + this.numberOfMissionsWithoutIncidentType)
+								.clearTiming();
+					}
+					this.numberOfMissionsWithoutIncidentType++;
+					this.missingIncidentTypeIds.add(missionRaw.incidentTypeId);
+				} // Incident type may have changed!
 				if (incidentType != null) {
 					Mission mission = new Mission(incidentType, this.id2Zone.get(missionRaw.zoneId))
-//							.setTiming(missionRaw.timing)
 							.setSeason(missionRaw.season).setTypeOfDay(missionRaw.typeOfDay)
 							.setTimeOfDay(missionRaw.timeOfDay).setStartTime_h(missionRaw.startTime_h);
 					vehicleMissions.forEach(vm -> mission.addVehicleMission(vm));
 					this.loadedMissions.add(mission);
-				} else {
-					this.numberOfUnloadedMissions++;
-					if (incidentType == null) {
-						this.missingIncidentTypeIds.add(missionRaw.incidentTypeId);
-					}
 				}
+
 			}
 			return this.loadedMissions;
 		}
@@ -173,14 +193,16 @@ public class Mission {
 	}
 
 	public static List<Mission> readFromJson(File file, Map<String, IncidentType> id2IncidentType,
-			Map<String, Zone> id2Zone, Map<String, VehicleType> id2VehicleType) throws IOException {
-		JsonReader reader = new JsonReader(file).setId2IncidentType(id2IncidentType).setId2Zone(id2Zone)
-				.setId2VehicleType(id2VehicleType);
+			Map<String, Zone> id2Zone, Map<String, VehicleType> id2VehicleType, boolean alsoLoadIncomplete)
+			throws IOException {
+		JsonReader reader = new JsonReader(file, alsoLoadIncomplete).setId2IncidentType(id2IncidentType)
+				.setId2Zone(id2Zone).setId2VehicleType(id2VehicleType);
 		reader.read();
 		System.out.println("---------- LOADED MISSIONS ----------");
 		System.out.println("Incident type IDs without instances: " + reader.missingIncidentTypeIds);
 		System.out.println("Vehicle type IDs without instances: " + reader.missingVehicleTypeIds);
 		System.out.println("Number of incomplete (not loaded) missions: " + reader.numberOfUnloadedMissions);
+		System.out.println("Number of missions without incident type: " + reader.numberOfMissionsWithoutIncidentType);
 		System.out.println("Number of missions with incomplete fleet: " + reader.numberOfMissionsWithIncompleteFleet);
 		System.out.println("Number of loaded missions:" + reader.loadedMissions.size());
 		System.out.println();
