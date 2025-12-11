@@ -40,6 +40,8 @@ public class MissionImplementationSimulator {
 
 	private boolean verbose = true;
 	
+	private double relSOCWhenAvailable = 1.0;
+	
 	public MissionImplementationSimulator(Map<String, Vehicle> id2Vehicle, Distances distances) {
 		this.id2Vehicle = id2Vehicle;
 		this.distances = distances;
@@ -50,22 +52,23 @@ public class MissionImplementationSimulator {
 		return this;
 	}
 
+	public MissionImplementationSimulator setRelSOCWhenAvailable(double relSOCWhenAvailable) {
+		this.relSOCWhenAvailable = relSOCWhenAvailable;
+		return this;
+	}
+	
 	private boolean canBeSimulated(Mission mission) {
 		return true;
 	}
 
 	public SystemState simulateMissionImplementation(List<Mission> missions) {
 
-		// What happens if a mission without vehicles is feasible?
-		// List<Mission> infeasibleMissions = missions.stream().filter(m ->
-		// !this.canBeSimulated(m)).toList();
-
 		double time_h = 0.0;
 		PriorityQueue<Event> eventQueue = new PriorityQueue<>(
 				(e1, e2) -> Double.compare(e1.getStartTime_h(), e2.getStartTime_h()));
 		missions.stream().filter(m -> this.canBeSimulated(m)).forEach(m -> eventQueue.add(new IncidentHappensEvent(m)));
 
-		SystemState systemState = new SystemState(this.id2Vehicle, this.distances);
+		SystemState systemState = new SystemState(this.id2Vehicle, this.distances, this.relSOCWhenAvailable);
 
 		while (!eventQueue.isEmpty()) {
 			Event nextEvent = eventQueue.poll();

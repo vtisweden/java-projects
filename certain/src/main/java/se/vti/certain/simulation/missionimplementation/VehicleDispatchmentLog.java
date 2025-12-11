@@ -32,12 +32,12 @@ public class VehicleDispatchmentLog {
 
 	public final VehicleRequestedEvent vehicleRequestedEvent;
 	public final VehicleAvailability vehicleAvailability;
-	
+
 	public final double distanceToSite_km;
 	public final double durationAtSite_h;
 	public final double distanceBack_km;
 
-	public final double initialStateOfCharge_kWh;
+	public final double initialSOC_kWh;
 	public final double consumedOnWayToSite_kWh;
 	public final double consumedAtSite_kWh;
 	public final double comsumedOnWayBack_kWh;
@@ -48,9 +48,10 @@ public class VehicleDispatchmentLog {
 	public final double timeAtSite_h;
 	public final double departFromSiteTime_h;
 	public final double backAtStation_h;
-	public final double againFullyCharged_h;
+	public final double againAvailable_h;
 
-	public VehicleDispatchmentLog(VehicleRequestedEvent requestEvent, VehicleAvailability vehicleAvailability, Distances distances) {
+	public VehicleDispatchmentLog(VehicleRequestedEvent requestEvent, VehicleAvailability vehicleAvailability,
+			Distances distances, double initialSOC_kWh, double minRelSOC) {
 
 		this.vehicleRequestedEvent = requestEvent;
 		this.vehicleAvailability = vehicleAvailability;
@@ -62,11 +63,11 @@ public class VehicleDispatchmentLog {
 		this.durationAtSite_h = requestEvent.getVehicleMission().getDuration_h();
 		this.distanceBack_km = distances.computeDistance_km(to, from);
 
-		this.initialStateOfCharge_kWh = vehicle.getVehicleType().getBatteryCapacity_kWh();
+		this.initialSOC_kWh = initialSOC_kWh;
 		this.consumedOnWayToSite_kWh = distanceToSite_km * vehicle.getVehicleType().getEnergyNeed_kWh_per_km();
 		this.consumedAtSite_kWh = durationAtSite_h * vehicle.getVehicleType().getEnergyNeedDuringMission_kW();
 		this.comsumedOnWayBack_kWh = distanceBack_km * vehicle.getVehicleType().getEnergyNeed_kWh_per_km();
-		this.finalStateOfCharge_kWh = initialStateOfCharge_kWh - consumedOnWayToSite_kWh - consumedAtSite_kWh
+		this.finalStateOfCharge_kWh = this.initialSOC_kWh - consumedOnWayToSite_kWh - consumedAtSite_kWh
 				- comsumedOnWayBack_kWh;
 
 		this.requestTime_h = requestEvent.getRequestTime_h();
@@ -74,8 +75,9 @@ public class VehicleDispatchmentLog {
 		this.timeAtSite_h = vehicleAvailability.getArrivalTimeAtDestimation_h();
 		this.departFromSiteTime_h = timeAtSite_h + requestEvent.getVehicleMission().getDuration_h();
 		this.backAtStation_h = departFromSiteTime_h + distances.computeTravelTime_h(to, from, vehicle.getVehicleType());
-		this.againFullyCharged_h = backAtStation_h + (this.initialStateOfCharge_kWh - Math.max(0, finalStateOfCharge_kWh))
-				/ vehicle.getVehicleType().getChargingRate_kW();
+		this.againAvailable_h = backAtStation_h
+				+ (minRelSOC * vehicle.getVehicleType().getBatteryCapacity_kWh() - Math.max(0, finalStateOfCharge_kWh))
+						/ vehicle.getVehicleType().getChargingRate_kW();
 	}
 
 }

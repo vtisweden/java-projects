@@ -272,7 +272,7 @@ public class SmallExample {
 		simulatedMissions = missionFleetSimulator.getMissionsWithDeployedVehicles(simulatedMissions);
 
 		var missionImplementationSimulator = new MissionImplementationSimulator(id2Vehicle, distances)
-				.setVerbose(verbose);
+				.setVerbose(verbose).setRelSOCWhenAvailable(0.8);
 		var systemState = missionImplementationSimulator.simulateMissionImplementation(simulatedMissions);
 		var mission2VehicleLogs = systemState.getMission2VehicleDispachmentLog();
 

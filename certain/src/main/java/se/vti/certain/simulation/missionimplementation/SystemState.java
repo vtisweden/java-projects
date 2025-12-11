@@ -36,20 +36,27 @@ import se.vti.certain.spatial.Distances;
  */
 public class SystemState {
 
+	private final double relSOCWhenAvailable;
+
 	private final Map<VehicleType, List<Vehicle>> vehicleType2Vehicles = new LinkedHashMap<>();
 
-	private final Map<Vehicle, Double> vehicle2Charged_h = new LinkedHashMap<>();
+	// contains exactly those times when vehicles are a available at SOC level
+	// this.relSOCWhenAvailable
+	private final Map<Vehicle, Double> vehicle2Availability_h = new LinkedHashMap<>();
 
 	private final Distances distances;
 
 	private final Map<Mission, List<VehicleDispatchmentLog>> mission2VehicleDispatchmentLog = new LinkedHashMap<>();
-	
+
 	private final List<VehicleRequestedEvent> failedRequests = new ArrayList<>();
 
-	public SystemState(Map<String, Vehicle> id2Vehicle, Distances distances) {
+	public SystemState(Map<String, Vehicle> id2Vehicle, Distances distances, double relSOCWhenAvailable) {
+		this.relSOCWhenAvailable = relSOCWhenAvailable;
 		for (Vehicle vehicle : id2Vehicle.values()) {
-			this.vehicleType2Vehicles.computeIfAbsent(vehicle.getVehicleType(), t -> new ArrayList<>()).add(vehicle);
-			this.vehicle2Charged_h.put(vehicle, 0.0);
+			VehicleType vehicleType = vehicle.getVehicleType();
+			this.vehicleType2Vehicles.computeIfAbsent(vehicleType, t -> new ArrayList<>()).add(vehicle);
+			this.vehicle2Availability_h.put(vehicle, -(1.0 - relSOCWhenAvailable) * vehicleType.getBatteryCapacity_kWh()
+					/ vehicleType.getChargingRate_kW());
 		}
 		this.distances = distances;
 	}
@@ -57,11 +64,12 @@ public class SystemState {
 	public VehicleAvailability reserveNextAvailableVehicle(VehicleRequestedEvent vehicleRequestedEvent) {
 		VehicleAvailability bestAvailability = null;
 		for (Vehicle candidateVehicle : this.vehicleType2Vehicles
-				.get(vehicleRequestedEvent.getVehicleMission().getVehicleType())) {			
-			
-			if (this.distances.connects(candidateVehicle.getStation().getZone(), vehicleRequestedEvent.getMission().getZone())) {
+				.get(vehicleRequestedEvent.getVehicleMission().getVehicleType())) {
+
+			if (this.distances.connects(candidateVehicle.getStation().getZone(),
+					vehicleRequestedEvent.getMission().getZone())) {
 				double candidateDepartureFromStation_h = Math.max(vehicleRequestedEvent.getRequestTime_h(),
-						this.vehicle2Charged_h.get(candidateVehicle));
+						this.vehicle2Availability_h.get(candidateVehicle));
 				double candidateArrivalAtDestination_h = candidateDepartureFromStation_h + this.distances
 						.computeTravelTimeFromStation_h(candidateVehicle, vehicleRequestedEvent.getMission().getZone());
 				if ((bestAvailability == null)
@@ -72,19 +80,30 @@ public class SystemState {
 				}
 			}
 		}
-		
+
 		if (bestAvailability != null) {
+			Vehicle vehicle = bestAvailability.getVehicle();
+
+			// Possibly incomplete charging level when first ready for mission.
+			double initialSOC_kWh = this.relSOCWhenAvailable * vehicle.getVehicleType().getBatteryCapacity_kWh();
+			// Possibly larger (and capacity-unconstrained) charging level when requested.
+			initialSOC_kWh += Math.max(0.0,
+					bestAvailability.getDepartureTimeFromStation_h() - this.vehicle2Availability_h.get(vehicle))
+					* vehicle.getVehicleType().getChargingRate_kW();
+			// Capacity-constrained charging level when requested for mission.
+			initialSOC_kWh = Math.min(initialSOC_kWh, vehicle.getVehicleType().getBatteryCapacity_kWh());
+
 			VehicleDispatchmentLog anticipatedLog = new VehicleDispatchmentLog(vehicleRequestedEvent, bestAvailability,
-					this.distances);
+					this.distances, initialSOC_kWh, this.relSOCWhenAvailable);
 			bestAvailability.setAnticipatedDispatchmentLog(anticipatedLog);
-			this.vehicle2Charged_h.put(bestAvailability.getVehicle(), anticipatedLog.againFullyCharged_h);
+			this.vehicle2Availability_h.put(bestAvailability.getVehicle(), anticipatedLog.againAvailable_h);
 			this.getMission2VehicleDispachmentLog()
 					.computeIfAbsent(vehicleRequestedEvent.getMission(), m -> new ArrayList<>()).add(anticipatedLog);
 		} else {
 			this.failedRequests.add(vehicleRequestedEvent);
 		}
-		
-		return bestAvailability;			
+
+		return bestAvailability;
 	}
 
 	public Map<Mission, List<VehicleDispatchmentLog>> getMission2VehicleDispachmentLog() {
