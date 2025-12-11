@@ -280,7 +280,7 @@ public class SmallExample {
 		double sum_h = 0.0;
 		for (var entry : mission2VehicleLogs.entrySet()) {
 			for (var log : entry.getValue()) {
-				sum_h += log.timeAtSite_h - log.requestTime_h;
+				sum_h += log.arrivalAtSite_h() - log.vehicleRequestedEvent.getRequestTime_h();
 			}
 		}
 		return sum_h / missionCnt;

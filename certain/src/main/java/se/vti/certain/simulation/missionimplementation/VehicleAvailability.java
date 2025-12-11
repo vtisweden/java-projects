@@ -59,7 +59,7 @@ public class VehicleAvailability {
 		return this.departureTimeFromStation_h;
 	}
 	
-	public double getArrivalTimeAtDestimation_h() {
+	public double getArrivalTimeAtDestination_h() {
 		return this.arrivalTimeAtDestination_h;
 	}
 

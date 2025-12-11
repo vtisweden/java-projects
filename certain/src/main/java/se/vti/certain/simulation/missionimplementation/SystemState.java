@@ -73,7 +73,7 @@ public class SystemState {
 				double candidateArrivalAtDestination_h = candidateDepartureFromStation_h + this.distances
 						.computeTravelTimeFromStation_h(candidateVehicle, vehicleRequestedEvent.getMission().getZone());
 				if ((bestAvailability == null)
-						|| (candidateArrivalAtDestination_h < bestAvailability.getArrivalTimeAtDestimation_h())) {
+						|| (candidateArrivalAtDestination_h < bestAvailability.getArrivalTimeAtDestination_h())) {
 					bestAvailability = new VehicleAvailability(candidateVehicle,
 							vehicleRequestedEvent.getMission().getZone(), candidateDepartureFromStation_h,
 							candidateArrivalAtDestination_h);

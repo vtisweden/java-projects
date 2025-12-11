@@ -31,53 +31,78 @@ import se.vti.certain.spatial.Zone;
 public class VehicleDispatchmentLog {
 
 	public final VehicleRequestedEvent vehicleRequestedEvent;
-	public final VehicleAvailability vehicleAvailability;
-
-	public final double distanceToSite_km;
-	public final double durationAtSite_h;
-	public final double distanceBack_km;
+	private final VehicleAvailability vehicleAvailability;
 
 	public final double initialSOC_kWh;
-	public final double consumedOnWayToSite_kWh;
-	public final double consumedAtSite_kWh;
-	public final double comsumedOnWayBack_kWh;
-	public final double finalStateOfCharge_kWh;
 
-	public final double requestTime_h;
-	public final double dispatchTime_h;
-	public final double timeAtSite_h;
-	public final double departFromSiteTime_h;
-	public final double backAtStation_h;
+	public final double distanceToSite_km;
+	public final double distanceBack_km;
+
+	public final double drivingTimeToSite_h;
+	public final double drivingTimeBackToStation_h;
 	public final double againAvailable_h;
+
+	public Vehicle vehicle() {
+		return this.vehicleAvailability.getVehicle();
+	}
+
+	public double durationAtSite_h() {
+		return this.vehicleRequestedEvent.getVehicleMission().getDuration_h();
+	}
+
+	public double consumedOnWayToSite_kWh() {
+		return this.distanceToSite_km * vehicle().getVehicleType().getEnergyNeed_kWh_per_km();
+	}
+
+	public double consumedAtSite_kWh() {
+		return durationAtSite_h() * vehicle().getVehicleType().getEnergyNeedDuringMission_kW();
+	}
+
+	public double consumedOnWayBack_kWh() {
+		return this.distanceBack_km * vehicle().getVehicleType().getEnergyNeed_kWh_per_km();
+	}
+
+	public double finalStateOfCharge_kWh() {
+		return this.initialSOC_kWh - consumedOnWayToSite_kWh() - consumedAtSite_kWh() - consumedOnWayBack_kWh();
+	}
+
+	public double arrivalAtSite_h() {
+		return this.vehicleAvailability.getArrivalTimeAtDestination_h();
+	}
+
+	public double departureFromSiteTime_h() {
+		return this.vehicleAvailability.getArrivalTimeAtDestination_h()
+				+ vehicleRequestedEvent.getVehicleMission().getDuration_h();
+	}
+
+	public double backAtStation_h() {
+		return departureFromSiteTime_h() + this.drivingTimeBackToStation_h;
+	}
+
+	public Zone stationZone() {
+		return vehicle().getStation().getZone();
+	}
+
+	public Zone siteZone() {
+		return this.vehicleAvailability.getDestination();
+	}
 
 	public VehicleDispatchmentLog(VehicleRequestedEvent requestEvent, VehicleAvailability vehicleAvailability,
 			Distances distances, double initialSOC_kWh, double minRelSOC) {
 
 		this.vehicleRequestedEvent = requestEvent;
 		this.vehicleAvailability = vehicleAvailability;
-		Vehicle vehicle = vehicleAvailability.getVehicle();
-		Zone from = vehicle.getStation().getZone();
-		Zone to = vehicleAvailability.getDestination();
-
-		this.distanceToSite_km = distances.computeDistance_km(from, to);
-		this.durationAtSite_h = requestEvent.getVehicleMission().getDuration_h();
-		this.distanceBack_km = distances.computeDistance_km(to, from);
 
 		this.initialSOC_kWh = initialSOC_kWh;
-		this.consumedOnWayToSite_kWh = distanceToSite_km * vehicle.getVehicleType().getEnergyNeed_kWh_per_km();
-		this.consumedAtSite_kWh = durationAtSite_h * vehicle.getVehicleType().getEnergyNeedDuringMission_kW();
-		this.comsumedOnWayBack_kWh = distanceBack_km * vehicle.getVehicleType().getEnergyNeed_kWh_per_km();
-		this.finalStateOfCharge_kWh = this.initialSOC_kWh - consumedOnWayToSite_kWh - consumedAtSite_kWh
-				- comsumedOnWayBack_kWh;
 
-		this.requestTime_h = requestEvent.getRequestTime_h();
-		this.dispatchTime_h = vehicleAvailability.getDepartureTimeFromStation_h();
-		this.timeAtSite_h = vehicleAvailability.getArrivalTimeAtDestimation_h();
-		this.departFromSiteTime_h = timeAtSite_h + requestEvent.getVehicleMission().getDuration_h();
-		this.backAtStation_h = departFromSiteTime_h + distances.computeTravelTime_h(to, from, vehicle.getVehicleType());
-		this.againAvailable_h = backAtStation_h
-				+ (minRelSOC * vehicle.getVehicleType().getBatteryCapacity_kWh() - Math.max(0, finalStateOfCharge_kWh))
-						/ vehicle.getVehicleType().getChargingRate_kW();
+		this.distanceToSite_km = distances.computeDistance_km(stationZone(), siteZone());
+		this.distanceBack_km = distances.computeDistance_km(siteZone(), stationZone());
+
+		this.drivingTimeToSite_h = distances.computeTravelTime_h(stationZone(), siteZone(), vehicle().getVehicleType());
+		this.drivingTimeBackToStation_h = distances.computeTravelTime_h(siteZone(), stationZone(),
+				vehicle().getVehicleType());
+		this.againAvailable_h = backAtStation_h() + (minRelSOC * vehicle().getVehicleType().getBatteryCapacity_kWh()
+				- Math.max(0, finalStateOfCharge_kWh())) / vehicle().getVehicleType().getChargingRate_kW();
 	}
 
 }
