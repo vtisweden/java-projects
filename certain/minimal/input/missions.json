@@ -1,0 +1,16 @@
+[ {
+  "incidentTypeId" : "Fire",
+  "vehicleMissions" : [ {
+    "vehicleTypeId" : "FireTruck",
+    "offset_h" : 0.0,
+    "duration_h" : 4.0
+  }, {
+    "vehicleTypeId" : "FireTruck",
+    "offset_h" : 1.0,
+    "duration_h" : 4.0
+  }, {
+	"vehicleTypeId" : "FireTruck",
+	"offset_h" : 4.0,
+	"duration_h" : 4.0
+  } ]
+} ]

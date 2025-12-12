@@ -1,0 +1,8 @@
+[ {
+  "id" : "FireTruck",
+  "batteryCapacity_kWh" : 300.0,
+  "energyNeed_kWh_per_km" : 0.8,
+  "chargingRate_kW" : 150.0,
+  "energyNeedDuringMission_kW" : 1.5,
+  "maxSpeed_km_h" : 90.0
+} ]

@@ -1,0 +1,17 @@
+[ {
+  "id" : "Fire",
+  "season2Weight" : {
+    "SUMMER" : 1.0,
+    "WINTER" : 1.0,
+    "AUTUMN" : 1.0,
+    "SPRING" : 1.0
+  },
+  "typeOfDay2Weight" : {
+    "HOLIDAY" : 1.0,
+    "WORKDAY" : 1.0
+  },
+  "timeOfDay2Weight" : {
+    "NIGHT" : 1.0,
+    "DAY" : 1.0
+  }
+} ]

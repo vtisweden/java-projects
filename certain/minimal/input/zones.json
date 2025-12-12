@@ -1,0 +1,11 @@
+[ {
+  "id" : "West",
+  "incidentTypeId2Intensity_1_yr" : {
+    "Fire" : 0.0
+  }
+}, {
+  "id" : "East",
+  "incidentTypeId2Intensity_1_yr" : {
+    "Fire" : 100.0
+  }
+} ]

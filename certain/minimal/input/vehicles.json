@@ -1,0 +1,9 @@
+[ {
+  "id" : "FireTruck1",
+  "typeId" : "FireTruck",
+  "stationId" : "FireStation"
+}, {
+  "id" : "FireTruck2",
+  "typeId" : "FireTruck",
+  "stationId" : "FireStation"
+} ]

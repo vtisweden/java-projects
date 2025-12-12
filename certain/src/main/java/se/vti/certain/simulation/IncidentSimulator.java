@@ -49,8 +49,12 @@ public class IncidentSimulator {
 		for (Zone zone : id2Zone.values()) {
 			for (Map.Entry<IncidentType, Double> entry : zone.getIncidentType2Intensity_1_yr().entrySet()) {
 				IncidentType incidentType = entry.getKey();
+				
+				// TODO Correct scaling. Gunnar, 2025-12-12 >>>>>
 				double intensity_1_yr = incidentType.getShare(this.timeLine.season)
 						* incidentType.getShare(this.timeLine.dayType) * entry.getValue();
+				// <<<<<
+				
 				if (intensity_1_yr >= 1e-12) {
 					double expectedNumber = intensity_1_yr * this.timeLine.numberOfDays / 365.0;
 					long numberOfIncidents = this.rdg.nextPoisson(expectedNumber);

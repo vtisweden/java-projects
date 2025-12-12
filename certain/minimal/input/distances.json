@@ -1,0 +1,24 @@
+{
+  "zone2Zone2Distances" : {
+    "West" : {
+      "West" : [ {
+        "distanceTypeId" : "Road",
+        "distance_km" : 0.0
+      } ],
+      "East" : [ {
+        "distanceTypeId" : "Road",
+        "distance_km" : 30.0
+      } ]
+    },
+    "East" : {
+		"West" : [ {
+		  "distanceTypeId" : "Road",
+		  "distance_km" : 30.0
+		} ],
+		"East" : [ {
+		  "distanceTypeId" : "Road",
+		  "distance_km" : 0.0
+		} ]
+    }
+  }
+}
