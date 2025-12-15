@@ -118,19 +118,6 @@ public class Zone extends HasId {
 		System.out.println("Zones with missing incidents: "
 				+ reader.zonesWithMissingIncidents.stream().map(z -> z.getId()).toList());
 		return reader.loadedId2Zone;
-//		
-//		Raw[] zonesRaw = new ObjectMapper().readValue(file, Raw[].class);
-//		Map<String, Zone> id2Zone = new LinkedHashMap<>(zonesRaw.length);
-//		for (Raw zoneRaw : zonesRaw) {
-//			Zone zone = new Zone(zoneRaw.getId());
-//			for (Map.Entry<String, Double> entry : zoneRaw.incidentTypeId2Intensity_1_yr.entrySet()) {
-//				IncidentType incidentType = id2IncidentType.get(entry.getKey());
-//				double intensity_1_yr = entry.getValue();
-//				zone.setIncidentIntensity(incidentType, intensity_1_yr);
-//			}
-//			id2Zone.put(zone.getId(), zone);
-//		}
-//		return id2Zone;
 	}
 
 	// -------------------- CONSTRUCTION --------------------
@@ -148,14 +135,14 @@ public class Zone extends HasId {
 	}
 
 	@JsonIgnore
-	public Map<IncidentType, Double> getIncidentType2Intensity_1_yr() {
-		return Collections.unmodifiableMap(this.incidentType2Intensity_1_yr);
-	}
-
-	@JsonIgnore
 	public Zone setIncidentIntensity(IncidentType incidentType, double intensity_1_yr) {
 		this.incidentType2Intensity_1_yr.put(incidentType, intensity_1_yr);
 		return this;
+	}
+
+	@JsonIgnore
+	public Map<IncidentType, Double> getIncidentType2Intensity_1_yr() {
+		return this.incidentType2Intensity_1_yr;
 	}
 
 	@Override
@@ -163,15 +150,4 @@ public class Zone extends HasId {
 		return String.format("%s[id=%s, incidentIntensities=%s]", this.getClass().getSimpleName(), this.getId(),
 				this.incidentType2Intensity_1_yr.toString());
 	}
-
-	// -------------------- MAIN-FUNCTION, ONLY FOR TESTING --------------------
-
-//	public static void main(String[] args) throws StreamWriteException, DatabindException, IOException {
-//		SmallExample.writeZones();
-//		var id2Zone = SmallExample.readZones();
-//		for (var entry : id2Zone.entrySet()) {
-//			System.out.println(entry);
-//		}
-//	}
-
 }
