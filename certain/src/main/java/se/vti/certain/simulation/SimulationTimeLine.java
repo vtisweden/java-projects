@@ -37,44 +37,40 @@ public class SimulationTimeLine {
 	public final Season season;
 	public final TypeOfDay dayType;
 	public final int numberOfDays;
-	
+
 	public final List<Tuple<Double, Double>> nightIntervals_h;
 	public final List<Tuple<Double, Double>> dayIntervals_h;
 
+	public final double daylightSingleDay_h;
 	public final double totalNight_h;
 	public final double totalDay_h;
 
-	public SimulationTimeLine(Season season, TypeOfDay dayType, double sunUpTime_h, double sunDownTime_h, int numberOfDays) {
+	public SimulationTimeLine(Season season, TypeOfDay dayType, double sunUpTime_h, double sunDownTime_h,
+			int numberOfDays) {
 		this.season = season;
 		this.dayType = dayType;
 		this.numberOfDays = numberOfDays;
-		double daylight_h = sunDownTime_h - sunUpTime_h;
+		this.daylightSingleDay_h = sunDownTime_h - sunUpTime_h;
 
 		List<Tuple<Double, Double>> tmpNightIntervals_h = new ArrayList<>(numberOfDays + 1);
 		List<Tuple<Double, Double>> tmpDayIntervals_h = new ArrayList<>(numberOfDays);
-		
+
 		tmpNightIntervals_h.add(new Tuple<>(0.0, sunUpTime_h));
 		double time_h = sunUpTime_h;
 		for (int day = 0; day < numberOfDays - 1; day++) {
-			tmpDayIntervals_h.add(new Tuple<>(time_h, time_h + daylight_h));
-			time_h += daylight_h;
-			tmpNightIntervals_h.add(new Tuple<>(time_h, time_h + (24.0 - daylight_h)));
-			time_h += 24.0 - daylight_h;
+			tmpDayIntervals_h.add(new Tuple<>(time_h, time_h + daylightSingleDay_h));
+			time_h += daylightSingleDay_h;
+			tmpNightIntervals_h.add(new Tuple<>(time_h, time_h + (24.0 - daylightSingleDay_h)));
+			time_h += 24.0 - daylightSingleDay_h;
 		}
-		tmpDayIntervals_h.add(new Tuple<>(time_h, time_h + daylight_h));
-		time_h += daylight_h;
+		tmpDayIntervals_h.add(new Tuple<>(time_h, time_h + daylightSingleDay_h));
+		time_h += daylightSingleDay_h;
 		tmpNightIntervals_h.add(new Tuple<>(time_h, time_h + 24.0 - sunDownTime_h));
-		
+
 		this.nightIntervals_h = Collections.unmodifiableList(tmpNightIntervals_h);
 		this.dayIntervals_h = Collections.unmodifiableList(tmpDayIntervals_h);
-		
+
 		this.totalNight_h = tmpNightIntervals_h.stream().mapToDouble(n -> n.getB() - n.getA()).sum();
 		this.totalDay_h = tmpDayIntervals_h.stream().mapToDouble(d -> d.getB() - d.getA()).sum();
-	}	
-
-	public static void main(String[] args) {
-		var timeLine = new SimulationTimeLine(Season.SUMMER, TypeOfDay.HOLIDAY, 4,22,3);
-		System.out.println("DONE");
 	}
-
 }

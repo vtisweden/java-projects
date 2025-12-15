@@ -1,5 +1,5 @@
 /**
- * se.vti.certain
+ * se.vti.certain.analysis.observables
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -17,42 +17,25 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.certain.simulation;
+package se.vti.certain.analysis.observables;
 
-import java.util.List;
-import java.util.Random;
+import java.util.function.Function;
 
-import se.vti.certain.datastructures.Mission;
+import se.vti.certain.simulation.missionimplementation.SystemState;
 import se.vti.certain.temporal.TimeOfDay;
 
 /**
- * 
  * @author GunnarF
- *
  */
-public class TimingSimulator {
+public class ShareOfDaytimeIncidents implements Function<SystemState, Double> {
 
-	private final SimulationTimeLine timeLine;
+	public static String NAME = "Daytime incidents [%]";
 
-	private final Random rnd;
-
-	public TimingSimulator(SimulationTimeLine timeLine, Random rnd) {
-		this.timeLine = timeLine;
-		this.rnd = rnd;
+	@Override
+	public Double apply(SystemState state) {
+		double numberOfDaytimeIncidents = state.getMission2VehicleMissionLogs().keySet().stream()
+				.filter(m -> TimeOfDay.DAY.equals(m.getTimeOfDay())).count();
+		return 100.0 * numberOfDaytimeIncidents / state.getMission2VehicleMissionLogs().size();
 	}
 
-	/**
-	 * Takes a list of missions containing only IncidentType and Location and adds
-	 * timing information, if possible.
-	 */
-	public void simulateTimings(List<Mission> missions) {
-		for (Mission mission : missions) {
-			mission.setSeason(this.timeLine.season).setTypeOfDay(this.timeLine.dayType);
-			if (this.rnd.nextDouble() < mission.getIncidentType().getDayProba(this.timeLine.daylightSingleDay_h)) {
-				mission.setTimeOfDay(TimeOfDay.DAY);
-			} else {
-				mission.setTimeOfDay(TimeOfDay.NIGHT);
-			}
-		}
-	}
 }
