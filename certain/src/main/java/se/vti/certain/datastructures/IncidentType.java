@@ -58,19 +58,37 @@ public class IncidentType extends HasId {
 
 	// -------------------- CACHING --------------------
 
-	@JsonIgnore
-	private Double seasonWeightSum = null;
+//	@JsonIgnore
+//	private Double seasonWeightSum = null;
+//
+//	@JsonIgnore
+//	private Double typeOfDayWeightSum = null;
+//
+//	@JsonIgnore
+//	private Double timeOfDayWeightSum = null;
 
 	@JsonIgnore
-	private Double typeOfDayWeightSum = null;
+	private Double averageSeasonWeight = null;
 
 	@JsonIgnore
-	private Double timeOfDayWeightSum = null;
+	private Double averageTypeOfDayWeight = null;
 
-	private void recalculateWeightSums() {
-		this.seasonWeightSum = this.season2Weight.values().stream().mapToDouble(w -> w).sum();
-		this.typeOfDayWeightSum = this.typeOfDay2Weight.values().stream().mapToDouble(w -> w).sum();
-		this.timeOfDayWeightSum = this.timeOfDay2Weight.values().stream().mapToDouble(w -> w).sum();
+	@JsonIgnore
+	private Double averageTimeOfDayWeight = null;
+
+//	private void recalculateWeightSums() {
+//		this.seasonWeightSum = this.season2Weight.values().stream().mapToDouble(w -> w).sum();
+//		this.typeOfDayWeightSum = this.typeOfDay2Weight.values().stream().mapToDouble(w -> w).sum();
+//		this.timeOfDayWeightSum = this.timeOfDay2Weight.values().stream().mapToDouble(w -> w).sum();
+//	}
+
+	private void recalculateAverageWeights() {
+		this.averageSeasonWeight = this.season2Weight.values().stream().mapToDouble(w -> w).average().stream().boxed()
+				.findFirst().orElse(null);
+		this.averageTypeOfDayWeight = this.typeOfDay2Weight.values().stream().mapToDouble(w -> w).average().stream()
+				.boxed().findFirst().orElse(null);
+		this.averageTimeOfDayWeight = this.timeOfDay2Weight.values().stream().mapToDouble(w -> w).average().stream()
+				.boxed().findFirst().orElse(null);
 	}
 
 	// -------------------- JSON --------------------
@@ -91,7 +109,8 @@ public class IncidentType extends HasId {
 				Arrays.stream(TypeOfDay.values()).collect(Collectors.toMap(t -> t, t -> 1.0)));
 		this.timeOfDay2Weight = new LinkedHashMap<>(
 				Arrays.stream(TimeOfDay.values()).collect(Collectors.toMap(t -> t, t -> 1.0)));
-		this.recalculateWeightSums();
+//		this.recalculateWeightSums();
+		this.recalculateAverageWeights();
 	}
 
 	@JsonCreator
@@ -103,7 +122,8 @@ public class IncidentType extends HasId {
 		this.season2Weight = season2Weight;
 		this.typeOfDay2Weight = typeOfDay2Weight;
 		this.timeOfDay2Weight = timeOfday2Weight;
-		this.recalculateWeightSums();
+//		this.recalculateWeightSums();
+		this.recalculateAverageWeights();
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
@@ -112,7 +132,8 @@ public class IncidentType extends HasId {
 		this.season2Weight.clear();
 		this.typeOfDay2Weight.clear();
 		this.timeOfDay2Weight.clear();
-		this.recalculateWeightSums();
+//		this.recalculateWeightSums();
+		this.recalculateAverageWeights();
 		return this;
 	}
 
@@ -136,37 +157,46 @@ public class IncidentType extends HasId {
 	@JsonIgnore // use constructor
 	public IncidentType setWeight(Season season, double weight) {
 		this.season2Weight.put(season, weight);
-		this.recalculateWeightSums();
+		this.averageSeasonWeight = this.season2Weight.values().stream().mapToDouble(w -> w).average().stream().boxed()
+				.findFirst().orElse(null);
 		return this;
 	}
 
 	@JsonIgnore // use constructor
 	public IncidentType setWeight(TypeOfDay typeOfDay, double weight) {
 		this.typeOfDay2Weight.put(typeOfDay, weight);
-		this.recalculateWeightSums();
+		this.averageTypeOfDayWeight = this.typeOfDay2Weight.values().stream().mapToDouble(w -> w).average().stream()
+				.boxed().findFirst().orElse(null);
 		return this;
 	}
 
 	@JsonIgnore // use constructor
 	public IncidentType setWeight(TimeOfDay timeOfDay, double weight) {
 		this.timeOfDay2Weight.put(timeOfDay, weight);
-		this.recalculateWeightSums();
+		this.averageTimeOfDayWeight = this.timeOfDay2Weight.values().stream().mapToDouble(w -> w).average().stream()
+				.boxed().findFirst().orElse(null);
 		return this;
 	}
 
 	@JsonIgnore
-	public double getShare(Season season) {
-		return this.season2Weight.getOrDefault(season, 0.0) / this.seasonWeightSum;
+	public double getRelativeWeight(Season season) {
+		return this.season2Weight.get(season) / this.averageSeasonWeight;
 	}
 
 	@JsonIgnore
-	public double getShare(TypeOfDay typeOfDay) {
-		return this.typeOfDay2Weight.getOrDefault(typeOfDay, 0.0) / this.typeOfDayWeightSum;
+	public double getRelativeWeight(TypeOfDay typeOfDay) {
+		return this.typeOfDay2Weight.get(typeOfDay) / this.averageTypeOfDayWeight;
 	}
 
 	@JsonIgnore
-	public double getShare(TimeOfDay timeOfDay) {
-		return this.timeOfDay2Weight.getOrDefault(timeOfDay, 0.0) / this.timeOfDayWeightSum;
+	public double getRelativeWeight(TimeOfDay timeOfDay) {
+		return this.timeOfDay2Weight.get(timeOfDay) / this.averageTimeOfDayWeight;
+	}
+
+	@JsonIgnore
+	public double getDayProba() {
+		return this.timeOfDay2Weight.get(TimeOfDay.DAY)
+				/ this.timeOfDay2Weight.values().stream().mapToDouble(w -> w).sum();
 	}
 
 	@Override

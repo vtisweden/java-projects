@@ -48,7 +48,7 @@ public class TimingSimulator {
 	public void simulateTimings(List<Mission> missions) {
 		for (Mission mission : missions) {
 			mission.setSeason(this.timeLine.season).setTypeOfDay(this.timeLine.dayType);
-			if (this.rnd.nextDouble() < mission.getIncidentType().getShare(TimeOfDay.DAY)) {
+			if (this.rnd.nextDouble() < mission.getIncidentType().getDayProba()) {
 				mission.setTimeOfDay(TimeOfDay.DAY);
 			} else {
 				mission.setTimeOfDay(TimeOfDay.NIGHT);
