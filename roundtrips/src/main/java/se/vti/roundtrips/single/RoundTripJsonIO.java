@@ -41,6 +41,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.common.NodeWithCoords;
 import se.vti.roundtrips.common.Scenario;
 
 /**
@@ -50,9 +51,9 @@ import se.vti.roundtrips.common.Scenario;
  */
 public class RoundTripJsonIO {
 
-	public static class Serializer extends JsonSerializer<RoundTrip<Node>> {
+	public static class Serializer extends JsonSerializer<RoundTrip<? extends Node>> {
 		@Override
-		public void serialize(RoundTrip<Node> value, JsonGenerator gen, SerializerProvider serializers)
+		public void serialize(RoundTrip<? extends Node> value, JsonGenerator gen, SerializerProvider serializers)
 				throws IOException {
 			gen.writeStartObject();
 			gen.writeFieldName("index");
@@ -73,22 +74,22 @@ public class RoundTripJsonIO {
 		}
 	}
 
-	public static class Deserializer extends JsonDeserializer<RoundTrip<Node>> {
+	public static class Deserializer<N extends Node> extends JsonDeserializer<RoundTrip<N>> {
 
-		private final Scenario<Node> scenario;
+		private final Scenario<N> scenario;
 
-		public Deserializer(Scenario<Node> scenario) {
+		public Deserializer(Scenario<N> scenario) {
 			this.scenario = scenario;
 		}
 
 		@Override
-		public RoundTrip<Node> deserialize(JsonParser p, DeserializationContext ctxt)
+		public RoundTrip<N> deserialize(JsonParser p, DeserializationContext ctxt)
 				throws IOException, JsonProcessingException {
 
 			JsonNode node = p.getCodec().readTree(p);
 			int index = node.get("index").asInt();
 
-			List<Node> scenarioNodes = new ArrayList<>();
+			List<N> scenarioNodes = new ArrayList<>();
 			JsonNode jsonNodes = node.get("nodes");
 			for (JsonNode n : jsonNodes) {
 				scenarioNodes.add(this.scenario.getNode(n.asText()));
@@ -105,7 +106,7 @@ public class RoundTripJsonIO {
 
 	}
 
-	public static void writeToFile(RoundTrip<Node> roundTrip, String fileName)
+	public static void writeToFile(RoundTrip<? extends Node> roundTrip, String fileName)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -115,7 +116,7 @@ public class RoundTripJsonIO {
 		mapper.writeValue(new File(fileName), roundTrip);
 	}
 
-	public static RoundTrip<Node> readFromFile(Scenario<Node> scenario, String fileName)
+	public static <N extends Node> RoundTrip<N> readFromFile(Scenario<N> scenario, String fileName)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
@@ -123,12 +124,12 @@ public class RoundTripJsonIO {
 		mapper.registerModule(module);
 		ObjectReader reader = mapper.readerFor(RoundTrip.class);
 		JsonParser parser = mapper.getFactory().createParser(new File(fileName));
-		RoundTrip<Node> result = reader.readValue(parser);
+		RoundTrip<N> result = reader.readValue(parser);
 		parser.close();
 		return result;
 	}
 
-	public static void main(String[] args) throws JsonGenerationException, JsonMappingException, IOException {
+	static void testNode() throws JsonGenerationException, JsonMappingException, IOException {
 		Scenario<Node> scenario = new Scenario<>();
 		Node home = scenario.addNode(new Node("home"));
 		Node work = scenario.addNode(new Node("work"));
@@ -137,6 +138,28 @@ public class RoundTripJsonIO {
 		roundTrip = null;
 		roundTrip = readFromFile(scenario, "test.json");
 		System.out.println(roundTrip);
+	}
+
+	static void testNodeWithCoords() throws JsonGenerationException, JsonMappingException, IOException {
+		Scenario<NodeWithCoords> scenario = new Scenario<>();
+		NodeWithCoords home = scenario.addNode(new NodeWithCoords("home", 1, 2, 0));
+		NodeWithCoords work = scenario.addNode(new NodeWithCoords("work", 3, 4, 0));
+		RoundTrip<NodeWithCoords> roundTrip = new RoundTrip<>(0, Arrays.asList(home, work), Arrays.asList(7, 18));
+		writeToFile(roundTrip, "test.json");
+		roundTrip = null;
+		roundTrip = readFromFile(scenario, "test.json");
+		System.out.println(roundTrip);
+		for (NodeWithCoords node : roundTrip.getNodesView()) {
+			if (node != scenario.getNode(node.getName())) {
+				System.out.println("Roundtrip node instance if " + node.getName() + " is not referenced in scenario.");
+			}
+		}
+
+	}
+
+	public static void main(String[] args) throws JsonGenerationException, JsonMappingException, IOException {
+//		testNode();
+		testNodeWithCoords();
 	}
 
 }

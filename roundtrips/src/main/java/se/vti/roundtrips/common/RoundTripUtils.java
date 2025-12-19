@@ -22,6 +22,7 @@ package se.vti.roundtrips.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -36,47 +37,59 @@ public class RoundTripUtils {
 	}
 
 	public static <N extends Node> int[] findIndices(N node, RoundTrip<N> roundTrip) {
-		return IntStream.range(0, roundTrip.size()).filter(i -> roundTrip.getNode(i).equals(node)).toArray();
+		return IntStream.range(0, roundTrip.size()).filter(i -> roundTrip.getNode(i) == node).toArray();
 	}
 
-	public static <N extends Node> List<N> shortestPath(N from, N to, RoundTrip<N> roundTrip) {
+	public static <N extends Node> List<int[]> shortestPaths(N from, N to, RoundTrip<N> roundTrip) {
+
+		int size = roundTrip.size();
+		if (size == 0) {
+			return Collections.emptyList();
+		}
 
 		var fromIndices = findIndices(from, roundTrip);
 		var toIndices = findIndices(to, roundTrip);
 		if ((fromIndices.length == 0) || (toIndices.length == 0)) {
-			return null;
+			return Collections.emptyList();
 		}
 
 		if (from.equals(to)) {
-			return Arrays.asList(from);
+			return Arrays.stream(fromIndices).boxed().map(i -> new int[] { i }).toList();
 		}
 
 		int shortestDist = Integer.MAX_VALUE;
-		int bestFromIndex = -1;
-		int bestToIndex = -1;
+		List<Integer> bestFromIndices = new ArrayList<>();
+		List<Integer> bestToIndices = new ArrayList<>();
 		for (int fromIndex : fromIndices) {
 			for (int toIndex : toIndices) {
-				int dist;
+
+				int effectiveToIndex;
 				if (fromIndex <= toIndex) {
-					dist = toIndex - fromIndex;
+					effectiveToIndex = toIndex;
 				} else {
-					dist = (toIndex + roundTrip.size()) - fromIndex;
+					effectiveToIndex = toIndex + size;
 				}
-				if (dist < shortestDist) {
-					shortestDist = dist;
-					bestFromIndex = fromIndex;
-					bestToIndex = toIndex;
+
+				int dist = effectiveToIndex - fromIndex;
+				if (dist <= shortestDist) {
+					if (dist < shortestDist) {
+						shortestDist = dist;
+						bestFromIndices = new ArrayList<>();
+						bestToIndices = new ArrayList<>();
+					}
+					bestFromIndices.add(fromIndex);
+					bestToIndices.add(effectiveToIndex);
 				}
 			}
 		}
 
-		if (bestToIndex < bestFromIndex) {
-			bestToIndex += roundTrip.size();
+		List<int[]> result = new ArrayList<>(bestFromIndices.size());
+		for (int pathIndex = 0; pathIndex < bestFromIndices.size(); pathIndex++) {
+			int fromIndex = bestFromIndices.get(pathIndex);
+			int toIndex = bestToIndices.get(pathIndex);
+			result.add(IntStream.rangeClosed(fromIndex, toIndex).map(i -> i % size).toArray());
 		}
-		ArrayList<N> result = new ArrayList<>(shortestDist + 1);
-		for (int index = bestFromIndex; index <= bestToIndex; index++) {
-			result.add(roundTrip.getNode(index % roundTrip.size()));
-		}
+
 		return result;
 	}
 }

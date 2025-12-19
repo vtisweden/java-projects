@@ -1,108 +1,94 @@
-/**
- * se.vti.samgods.transportation.loops
- * 
- * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
- * 
- * VTI = Swedish National Road and Transport Institute
- * LiU = Linköping University, Sweden
- * 
- * This program is free software: you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation, either 
- * version 3 of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License along with this program.
- * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
- */
 package se.vti.roundtrips.common;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import se.vti.roundtrips.single.RoundTrip;
 
-/**
- * @author GunnarF
- */
 class RoundTripUtilsTest {
 
-	@Test
-	void testShortestPath_SameNode() {
-		List<Node> nodes = Arrays.asList(new Node("A"), new Node("B"), new Node("C"));
-		RoundTrip<Node> roundTrip = new RoundTrip<>(0, nodes, null);
+    private RoundTrip<Node> createRoundTrip(Node... nodes) {
+        List<Node> nodeList = Arrays.asList(nodes);
+        List<Integer> departures = Arrays.asList(new Integer[nodeList.size()]);
+        return new RoundTrip<>(0, nodeList, departures);
+    }
 
-		List<Node> path = RoundTripUtils.shortestPath(nodes.get(1), nodes.get(1), roundTrip);
-		assertEquals(Collections.singletonList(nodes.get(1)), path);
-	}
+    @Test
+    void testFindIndices_singleOccurrence() {
+        Node a = new Node("A");
+        RoundTrip<Node> rt = createRoundTrip(a, new Node("B"), new Node("C"));
+        int[] indices = RoundTripUtils.findIndices(a, rt);
+        assertArrayEquals(new int[]{0}, indices);
+    }
 
-	@Test
-	void testShortestPath_NodeNotFound() {
-		List<Node> nodes = Arrays.asList(new Node("X"), new Node("Y"));
-		RoundTrip<Node> roundTrip = new RoundTrip<>(0, nodes, null);
+    @Test
+    void testFindIndices_multipleOccurrences() {
+        Node a = new Node("A");
+        RoundTrip<Node> rt = createRoundTrip(a, new Node("B"), a, new Node("C"));
+        int[] indices = RoundTripUtils.findIndices(a, rt);
+        assertArrayEquals(new int[]{0, 2}, indices);
+    }
 
-		Node missing = new Node("Z");
-		assertNull(RoundTripUtils.shortestPath(nodes.get(0), missing, roundTrip));
-	}
+    @Test
+    void testShortestPaths_emptyRoundTrip() {
+        RoundTrip<Node> rt = createRoundTrip();
+        List<int[]> paths = RoundTripUtils.shortestPaths(new Node("A"), new Node("B"), rt);
+        assertTrue(paths.isEmpty());
+    }
 
-	@Test
-	void testShortestPath_EmptyRoundTrip() {
-		RoundTrip<Node> roundTrip = new RoundTrip<>(0, Collections.emptyList(), null);
-		Node a = new Node("A");
-		Node b = new Node("B");
-		assertNull(RoundTripUtils.shortestPath(a, b, roundTrip));
-	}
+    @Test
+    void testShortestPaths_nodesNotFound() {
+        RoundTrip<Node> rt = createRoundTrip(new Node("X"), new Node("Y"));
+        List<int[]> paths = RoundTripUtils.shortestPaths(new Node("A"), new Node("B"), rt);
+        assertTrue(paths.isEmpty());
+    }
 
-	@Test
-	void testShortestPath_MultipleOccurrences1() {
-		Node a = new Node("A");
-		Node b = new Node("B");
-		List<Node> nodes = Arrays.asList(a, b, a, b, a);
-		RoundTrip<Node> roundTrip = new RoundTrip<>(0, nodes, null);
+    @Test
+    void testShortestPaths_sameNode() {
+        Node a = new Node("A");
+        RoundTrip<Node> rt = createRoundTrip(a, new Node("B"), a);
+        List<int[]> paths = RoundTripUtils.shortestPaths(a, a, rt);
+        assertEquals(2, paths.size());
+        assertArrayEquals(new int[]{0}, paths.get(0));
+        assertArrayEquals(new int[]{2}, paths.get(1));
+    }
 
-		List<Node> path = RoundTripUtils.shortestPath(a, b, roundTrip);
-		// Shortest forward path should be [A, B]
-		assertEquals(Arrays.asList(a, b), path);
-	}
+    @Test
+    void testShortestPaths_simpleCase() {
+        Node a = new Node("A");
+        Node b = new Node("B");
+        Node c = new Node("C");
+        RoundTrip<Node> rt = createRoundTrip(a, b, c);
+        List<int[]> paths = RoundTripUtils.shortestPaths(a, c, rt);
+        assertEquals(1, paths.size());
+        assertArrayEquals(new int[]{0, 1, 2}, paths.get(0));
+    }
 
-	@Test
-	void testShortestPath_MultipleOccurrences2() {
-		Node a = new Node("A");
-		Node b = new Node("B");
-		Node c = new Node("C");
-		List<Node> nodes = Arrays.asList(a, c, c, b, a, c, b);
-		RoundTrip<Node> roundTrip = new RoundTrip<>(0, nodes, null);
+    @Test
+    void testShortestPaths_wrapAround() {
+        Node a = new Node("A");
+        Node b = new Node("B");
+        Node c = new Node("C");
+        RoundTrip<Node> rt = createRoundTrip(b, c, a);
+        List<int[]> paths = RoundTripUtils.shortestPaths(a, b, rt);
+        assertEquals(1, paths.size());
+        assertArrayEquals(new int[]{2, 0}, paths.get(0));
+    }
 
-		List<Node> path = RoundTripUtils.shortestPath(a, b, roundTrip);
-		assertEquals(Arrays.asList(a, c, b), path);
-	}
-
-	@Test
-	void testShortestPath_MultipleOccurrences3() {
-		Node a = new Node("A");
-		Node b = new Node("B");
-		Node c = new Node("C");
-		List<Node> nodes = Arrays.asList(b, a, c, c, b, a, c, b, a);
-		RoundTrip<Node> roundTrip = new RoundTrip<>(0, nodes, null);
-
-		List<Node> path = RoundTripUtils.shortestPath(a, b, roundTrip);
-		assertEquals(Arrays.asList(a, b), path);
-	}
-
-	@Test
-	void testShortestPath_WrapAround() {
-		List<Node> nodes = Arrays.asList(new Node("0"), new Node("1"), new Node("2"), new Node("3"));
-		RoundTrip<Node> roundTrip = new RoundTrip<>(0, nodes, null);
-
-		List<Node> path = RoundTripUtils.shortestPath(nodes.get(3), nodes.get(1), roundTrip);
-		assertEquals(Arrays.asList(nodes.get(3), nodes.get(0), nodes.get(1)), path);
-	}
+    @Test
+    void testShortestPaths_multipleShortestPaths() {
+        Node a = new Node("A");
+        Node b = new Node("B");
+        RoundTrip<Node> rt = createRoundTrip(a, b, a, b);
+        List<int[]> paths = RoundTripUtils.shortestPaths(a, b, rt);
+        assertEquals(2, paths.size());
+        assertArrayEquals(new int[]{0, 1}, paths.get(0));
+        assertArrayEquals(new int[]{2, 3}, paths.get(1));
+    }
 }
