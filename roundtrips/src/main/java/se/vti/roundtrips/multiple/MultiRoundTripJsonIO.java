@@ -40,8 +40,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import se.vti.roundtrips.common.Scenario;
 import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.common.Scenario;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.roundtrips.single.RoundTripJsonIO;
 
@@ -58,8 +58,8 @@ public class MultiRoundTripJsonIO {
 
 	public static class Serializer extends JsonSerializer<MultiRoundTrip<? extends Node>> {
 		@Override
-		public void serialize(MultiRoundTrip<? extends Node> value, JsonGenerator gen,
-				SerializerProvider serializers) throws IOException {
+		public void serialize(MultiRoundTrip<? extends Node> value, JsonGenerator gen, SerializerProvider serializers)
+				throws IOException {
 			gen.writeStartArray();
 			for (RoundTrip<? extends Node> roundTrip : value) {
 				gen.writeObject(roundTrip);
@@ -97,7 +97,7 @@ public class MultiRoundTripJsonIO {
 		}
 	}
 
-	public static MultiRoundTrip<Node> readFromFile(Scenario<Node> scenario, String fileName)
+	public static <N extends Node> MultiRoundTrip<N> readFromFile(Scenario<N> scenario, String fileName)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
@@ -106,7 +106,7 @@ public class MultiRoundTripJsonIO {
 		mapper.registerModule(module);
 		ObjectReader reader = mapper.readerFor(MultiRoundTrip.class);
 		JsonParser parser = mapper.getFactory().createParser(new File(fileName));
-		MultiRoundTrip<Node> result = reader.readValue(parser);
+		MultiRoundTrip<N> result = reader.readValue(parser);
 		parser.close();
 		return result;
 	}
