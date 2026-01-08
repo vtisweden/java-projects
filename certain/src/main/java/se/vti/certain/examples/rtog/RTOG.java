@@ -115,6 +115,9 @@ public class RTOG {
 
 		// >>>>> EON SCENARIO >>>>>
 
+		// zon: 5710006498000
+		// start: 2020-09-20 15:30:00
+
 //		simulatedMissions.clear(); // TODO just EON
 		var eonMission = Mission
 				.readFromJson(new File(path + "eon-mission.json"), id2IncidentType, id2Zone, id2VehicleType, true)
