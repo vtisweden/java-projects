@@ -28,24 +28,28 @@ import se.vti.certain.simulation.missionimplementation.VehicleMissionLog;
 /**
  * @author GunnarF
  */
-public class ShareOfVehiclesRunningOutOfCharge implements Function<SystemState, Double> {
+public class ShareOfIncompleteMissions implements Function<SystemState, Double> {
 
-	public static String NAME = "Vehs. out of charge [%]";
-	
+	public static String NAME = "Incomplete missions [%]";
+
 	@Override
 	public Double apply(SystemState state) {
-		double numberOutOfCharge = 0.0;
-		double totalNumber = 0.0;		
+		double failedNumber = 0.0;
+		double totalNumber = 0.0;
 		for (List<VehicleMissionLog> listOfLogs : state.getMission2VehicleMissionLogs().values()) {
+			boolean failed = false;
 			for (VehicleMissionLog log : listOfLogs) {
 				if (log.finalStateOfCharge_kWh() < 0.0) {
-//					System.out.println("FINAL SOC: " + log.finalStateOfCharge_kWh());
-					numberOutOfCharge++;
+					failed = true;
+					break;
 				}
-				totalNumber++;
 			}
+			if (failed) {
+				failedNumber++;
+			}
+			totalNumber++;
 		}
-		return (100.0 * numberOutOfCharge / totalNumber);
+		return (100.0 * failedNumber / totalNumber);
 	}
 
 }

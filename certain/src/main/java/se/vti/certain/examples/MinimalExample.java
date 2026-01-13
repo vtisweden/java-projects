@@ -21,8 +21,6 @@ package se.vti.certain.examples;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Random;
 
 import se.vti.certain.analysis.ReplicationAnalyzer;
@@ -31,19 +29,13 @@ import se.vti.certain.analysis.observables.AverageMissingSOCWhenOutOfCharge;
 import se.vti.certain.analysis.observables.AverageTimeFromVehicleRequestToArrival;
 import se.vti.certain.analysis.observables.NumberOfMissions;
 import se.vti.certain.analysis.observables.ShareOfDaytimeIncidents;
-import se.vti.certain.analysis.observables.ShareOfNighttimeIncidents;
 import se.vti.certain.analysis.observables.ShareOfVehiclesRunningOutOfCharge;
 import se.vti.certain.datastructures.IncidentType;
 import se.vti.certain.datastructures.Mission;
 import se.vti.certain.datastructures.Station;
 import se.vti.certain.datastructures.Vehicle;
 import se.vti.certain.datastructures.VehicleType;
-import se.vti.certain.simulation.IncidentSimulator;
-import se.vti.certain.simulation.MissionVehicleDeploymentSimulator;
 import se.vti.certain.simulation.SimulationTimeLine;
-import se.vti.certain.simulation.StartTimeSimulator;
-import se.vti.certain.simulation.TimingSimulator;
-import se.vti.certain.simulation.missionimplementation.MissionImplementationSimulator;
 import se.vti.certain.spatial.DistanceType;
 import se.vti.certain.spatial.Distances;
 import se.vti.certain.spatial.Zone;
@@ -120,36 +112,6 @@ public class MinimalExample {
 		analyzer.add(replicationRunner.getSimulatedSystemStates());
 		System.out.println(analyzer);
 
-		
-//		var incidentSimulator = new IncidentSimulator(timeLine, rnd.nextLong());
-//		List<Mission> simulatedMissions = incidentSimulator.simulateMissions(id2Zone);
-//		System.out.println("Simulated " + simulatedMissions.size() + " missions.");
-//
-//		var timingSimulator = new TimingSimulator(timeLine, rnd);
-//		timingSimulator.simulateTimings(simulatedMissions);
-//		System.out.println("Added timings to " + simulatedMissions.size() + " missions.");
-//
-//		var startTimeSimulator = new StartTimeSimulator(timeLine, rnd);
-//		startTimeSimulator.simulateStarTimes(simulatedMissions);
-//		simulatedMissions = StartTimeSimulator.getStartTimeSortedMissions(simulatedMissions);
-//		System.out.println("Added start times to " + simulatedMissions.size() + " missions.");
-//
-//		var missionFleetSimulator = new MissionVehicleDeploymentSimulator(prototypeMissions, rnd);
-//		missionFleetSimulator.simulateFleets(simulatedMissions);
-//		simulatedMissions = missionFleetSimulator.getMissionsWithDeployedVehicles(simulatedMissions);
-//		System.out.println("Added fleets to " + simulatedMissions.size() + " missions.");
-//
-//		var missionImplementationSimulator = new MissionImplementationSimulator(id2Vehicle, distances).setVerbose(true)
-//				.setRelSOCWhenAvailable(0.8);
-//		var systemState = missionImplementationSimulator.simulateMissionImplementation(simulatedMissions);
-//		System.out.println("Simulated implementation of " + simulatedMissions.size() + " missions.");
-//		System.out.println("Number of served vehicle requests: "
-//				+ systemState.getMission2VehicleMissionLogs().values().stream().mapToInt(l -> l.size()).sum());
-//		System.out.println("Number of failed vehicle requests: " + systemState.getFailedRequests().size());
-//		System.out.println("Zones with failed vehicle requests: " + new LinkedHashSet<>(
-//				systemState.getFailedRequests().stream().map(r -> r.getMission().getZone().getId()).toList()));
-//
-//		System.out.println("... DONE");
 	}
 
 }

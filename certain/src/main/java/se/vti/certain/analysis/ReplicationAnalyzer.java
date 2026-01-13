@@ -42,6 +42,8 @@ public class ReplicationAnalyzer {
 	private List<DescriptiveStatistics> statisticsList = new ArrayList<>();
 	private Map<String, DescriptiveStatistics> name2Statistics = new LinkedHashMap<>();
 
+	private boolean skipNaNsInAveraging = true;
+
 	public ReplicationAnalyzer() {
 	}
 
@@ -56,7 +58,10 @@ public class ReplicationAnalyzer {
 	public void add(List<SystemState> systemStates) {
 		for (var systemState : systemStates) {
 			for (int i = 0; i < this.observablesList.size(); i++) {
-				this.statisticsList.get(i).addValue(this.observablesList.get(i).apply(systemState));
+				double stat = this.observablesList.get(i).apply(systemState);
+				if (!this.skipNaNsInAveraging || !Double.isNaN(stat)) {
+					this.statisticsList.get(i).addValue(this.observablesList.get(i).apply(systemState));
+				}
 			}
 		}
 	}
@@ -70,7 +75,7 @@ public class ReplicationAnalyzer {
 	}
 
 	public String toString() {
-		
+
 		final AsciiTable table = new AsciiTable();
 		table.getRenderer().setCWC(new CWC_FixedWidth().add(30).add(10).add(10).add(10).add(10));
 		table.addRule();

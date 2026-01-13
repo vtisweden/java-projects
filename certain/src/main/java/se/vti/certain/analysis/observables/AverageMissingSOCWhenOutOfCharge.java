@@ -39,11 +39,14 @@ public class AverageMissingSOCWhenOutOfCharge implements Function<SystemState, D
 		for (List<VehicleMissionLog> listOfLogs : state.getMission2VehicleMissionLogs().values()) {
 			for (VehicleMissionLog log : listOfLogs) {
 				if (log.finalStateOfCharge_kWh() < 0.0) {
+//					System.out.println("FINAL SOC: " + log.finalStateOfCharge_kWh());
 					sumOfMissingSOC_kWh += (0.0 - log.finalStateOfCharge_kWh());
 					numberOutOfCharge++;
 				}
 			}
 		}
+//		System.out.println("sumOfMissingSOC_kWh = " + sumOfMissingSOC_kWh);
+//		System.out.println("number out of charge = " + numberOutOfCharge);
 		return (sumOfMissingSOC_kWh / numberOutOfCharge);
 	}
 

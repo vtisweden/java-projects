@@ -145,23 +145,35 @@ public class IncidentType extends HasId {
 
 	@JsonIgnore
 	public double getRelativeWeight(Season season) {
-		return this.season2Weight.get(season) / this.averageSeasonWeight;
+		if (this.averageSeasonWeight < 1e-8) {
+			return 0.0;
+		}
+		return this.season2Weight.getOrDefault(season, 0.0) / this.averageSeasonWeight;
 	}
 
 	@JsonIgnore
 	public double getRelativeWeight(TypeOfDay typeOfDay) {
-		return this.typeOfDay2Weight.get(typeOfDay) / this.averageTypeOfDayWeight;
+		if (this.averageTypeOfDayWeight < 1e-8) {
+			return 0.0;
+		}
+		return this.typeOfDay2Weight.getOrDefault(typeOfDay, 0.0) / this.averageTypeOfDayWeight;
 	}
 
 	@JsonIgnore
 	public double getRelativeWeight(TimeOfDay timeOfDay) {
-		return this.timeOfDay2Weight.get(timeOfDay) / this.averageTimeOfDayWeight;
+		if (this.averageTimeOfDayWeight < 1e-8) {
+			return 0.0;
+		}
+		return this.timeOfDay2Weight.getOrDefault(timeOfDay, 0.0) / this.averageTimeOfDayWeight;
 	}
 
 	@JsonIgnore
 	public double getDayProba(double daytime_h) {
-		double dayWeight = daytime_h * this.timeOfDay2Weight.get(TimeOfDay.DAY);
-		double nightWeight = (24.0 - daytime_h) * this.timeOfDay2Weight.get(TimeOfDay.NIGHT);
+		double dayWeight = daytime_h * this.timeOfDay2Weight.getOrDefault(TimeOfDay.DAY, 0.0);
+		double nightWeight = (24.0 - daytime_h) * this.timeOfDay2Weight.getOrDefault(TimeOfDay.NIGHT, 0.0);
+//		if (dayWeight < 1e-8 && nightWeight < 1e-8) {
+//			return 0.0;
+//		} 
 		return dayWeight / (dayWeight + nightWeight);
 	}
 

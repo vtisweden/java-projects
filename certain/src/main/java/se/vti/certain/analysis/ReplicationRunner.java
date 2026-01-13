@@ -54,6 +54,7 @@ import se.vti.certain.temporal.TypeOfDay;
 public class ReplicationRunner {
 
 	private final Random rnd;
+	private boolean verbose = true;
 	private Integer numberOfReplications = null;
 
 	private SimulationTimeLine timeLine = null;
@@ -74,6 +75,11 @@ public class ReplicationRunner {
 
 	public ReplicationRunner() {
 		this(new Random());
+	}
+
+	public ReplicationRunner setVerbose(boolean verbose) {
+		this.verbose = verbose;
+		return this;
 	}
 
 	public ReplicationRunner setNumberOfReplications(int numberOfReplications) {
@@ -125,7 +131,9 @@ public class ReplicationRunner {
 
 		for (int replication = 0; replication < this.numberOfReplications; replication++) {
 
-			System.out.println((1 + replication) + " / " + this.numberOfReplications);
+			if (this.verbose) {
+				System.out.println((1 + replication) + " / " + this.numberOfReplications);
+			}
 
 			var incidentSimulator = new IncidentSimulator(this.timeLine, this.rnd.nextLong());
 			List<Mission> simulatedMissions = incidentSimulator.simulateMissions(this.id2Zone);
