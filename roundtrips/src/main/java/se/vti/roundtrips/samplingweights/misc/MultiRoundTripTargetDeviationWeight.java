@@ -45,6 +45,16 @@ public abstract class MultiRoundTripTargetDeviationWeight<N extends Node> implem
 	private Function<Double, Double> singleAbsoluteResidualToLogWeight = null;
 
 	private Function<Double, Double> totalDiscretizationErrorToLogWeight = null;
+	
+	// >>>>> experimental >>>>>
+
+	private boolean useNewDiscretizationCorrection = false;
+
+	public void setUseNewDiscretizationCorrection(boolean useNewDiscretizationCorrection) {
+		this.useNewDiscretizationCorrection = useNewDiscretizationCorrection;
+	}
+	
+	// <<<<< experimental <<<<<
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -90,8 +100,7 @@ public abstract class MultiRoundTripTargetDeviationWeight<N extends Node> implem
 
 	// --------------- IMPLEMENTATION OF MHPreferenceComponent ---------------
 
-	@Override
-	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
+	private double computeLegacyLogWeight(MultiRoundTrip<N> multiRoundTrip) {
 
 		final double[] sample = this.computeSample(multiRoundTrip, this.filter);
 		final double sampleSize = Math.max(Arrays.stream(sample).sum(), 1e-8);
@@ -112,6 +121,37 @@ public abstract class MultiRoundTripTargetDeviationWeight<N extends Node> implem
 		logWeight += this.totalDiscretizationErrorToLogWeight.apply(totalDiscretizationError);
 
 		return logWeight;
+	}
+
+	private double computeLogWeight(MultiRoundTrip<N> multiRoundTrip) {
+
+		final double[] sample = this.computeSample(multiRoundTrip, this.filter);
+		final double sampleSize = Math.max(Arrays.stream(sample).sum(), 1e-8);
+
+		this.computeTargetIfAbsent();
+		final double slack = 0.5 * this.targetSize / sampleSize;
+
+		double logWeightSum = 0.0;
+		for (int i = 0; i < this.target.length; i++) {
+			double e = sample[i] * this.targetSize / sampleSize - this.target[i];
+			double logWeight1 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e - slack));
+			double logWeight2 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e + slack));
+			double maxLogWeight = Math.max(logWeight1, logWeight2);
+			logWeightSum += Math.log(Math.exp(logWeight1 - maxLogWeight) + Math.exp(logWeight2 - maxLogWeight))
+					+ maxLogWeight;
+		}
+		return logWeightSum;
+	}
+
+	// --------------- IMPLEMENTATION OF MHPreferenceComponent ---------------
+
+	@Override
+	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
+		if (this.useNewDiscretizationCorrection) {
+			return this.computeLogWeight(multiRoundTrip);
+		} else {
+			return this.computeLegacyLogWeight(multiRoundTrip);
+		}
 	}
 
 	// --------------- ABSTRACT FUNCTIONS ---------------
