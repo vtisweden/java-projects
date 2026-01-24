@@ -36,6 +36,8 @@ public abstract class MultiRoundTripTargetDeviationWeight<N extends Node> implem
 
 	// -------------------- MEMBERS --------------------
 
+	private final double realPopulationSize;
+
 	private PopulationGroupFilter<N> filter = null;
 
 	private double[] target;
@@ -45,7 +47,7 @@ public abstract class MultiRoundTripTargetDeviationWeight<N extends Node> implem
 	private Function<Double, Double> singleAbsoluteResidualToLogWeight = null;
 
 	private Function<Double, Double> totalDiscretizationErrorToLogWeight = null;
-	
+
 	// >>>>> experimental >>>>>
 
 	private boolean useNewDiscretizationCorrection = false;
@@ -53,12 +55,13 @@ public abstract class MultiRoundTripTargetDeviationWeight<N extends Node> implem
 	public void setUseNewDiscretizationCorrection(boolean useNewDiscretizationCorrection) {
 		this.useNewDiscretizationCorrection = useNewDiscretizationCorrection;
 	}
-	
+
 	// <<<<< experimental <<<<<
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public MultiRoundTripTargetDeviationWeight() {
+	public MultiRoundTripTargetDeviationWeight(double realPopulationSize) {
+		this.realPopulationSize = realPopulationSize;
 		this.setToTwoSidedExponential();
 	}
 
@@ -125,17 +128,16 @@ public abstract class MultiRoundTripTargetDeviationWeight<N extends Node> implem
 
 	private double computeLogWeight(MultiRoundTrip<N> multiRoundTrip) {
 
+		final double expansionFactor = this.realPopulationSize / multiRoundTrip.size();
 		final double[] sample = this.computeSample(multiRoundTrip, this.filter);
-		final double sampleSize = Math.max(Arrays.stream(sample).sum(), 1e-8);
 
 		this.computeTargetIfAbsent();
-		final double slack = 0.5 * this.targetSize / sampleSize;
 
 		double logWeightSum = 0.0;
 		for (int i = 0; i < this.target.length; i++) {
-			double e = sample[i] * this.targetSize / sampleSize - this.target[i];
-			double logWeight1 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e - slack));
-			double logWeight2 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e + slack));
+			double e = sample[i] * expansionFactor - this.target[i];
+			double logWeight1 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e - 0.5 * expansionFactor));
+			double logWeight2 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e + 0.5 * expansionFactor));
 			double maxLogWeight = Math.max(logWeight1, logWeight2);
 			logWeightSum += Math.log(Math.exp(logWeight1 - maxLogWeight) + Math.exp(logWeight2 - maxLogWeight))
 					+ maxLogWeight;
