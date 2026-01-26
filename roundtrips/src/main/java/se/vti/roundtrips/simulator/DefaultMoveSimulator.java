@@ -29,31 +29,31 @@ import se.vti.roundtrips.single.RoundTrip;
  * @author GunnarF
  *
  */
-public class DefaultMoveSimulator<L extends Node> implements MoveSimulator<L> {
+public class DefaultMoveSimulator<N extends Node> implements MoveSimulator<N> {
 
-	protected final Scenario<L> scenario;
+	protected final Scenario<N> scenario;
 
-	public DefaultMoveSimulator(Scenario<L> scenario) {
+	public DefaultMoveSimulator(Scenario<N> scenario) {
 		this.scenario = scenario;
 	}
 
-	public SimulatorState computeFinalState(RoundTrip<L> roundTrip, int roundTripIndex, MoveEpisode<L> driving) {
+	public SimulatorState computeFinalState(RoundTrip<N> roundTrip, MoveEpisode<N> driving) {
 		return null;
 	}
 
 	@Override
-	public MoveEpisode<L> newMoveEpisode(RoundTrip<L> roundTrip, int roundTripIndex, double time_h,
+	public MoveEpisode<N> newMoveEpisode(RoundTrip<N> roundTrip, int indexWithingRoundTrip, double time_h,
 			SimulatorState initialState) {
-		L origin = roundTrip.getNode(roundTripIndex);
-		L destination = roundTrip.getSuccessorNode(roundTripIndex);
+		N origin = roundTrip.getNode(indexWithingRoundTrip);
+		N destination = roundTrip.getSuccessorNode(indexWithingRoundTrip);
 
-		final MoveEpisode<L> move = new MoveEpisode<>(origin, destination);
+		final MoveEpisode<N> move = new MoveEpisode<>(origin, destination);
 		move.setInitialState(initialState);
 
 		move.setDuration_h(this.scenario.getTime_h(origin, destination));
 		move.setEndTime_h(time_h + move.getDuration_h());
 
-		move.setFinalState(this.computeFinalState(roundTrip, roundTripIndex, move));
+		move.setFinalState(this.computeFinalState(roundTrip, move));
 
 		return move;
 	}

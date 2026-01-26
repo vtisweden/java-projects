@@ -29,8 +29,8 @@ import se.vti.roundtrips.single.RoundTrip;
  * @author GunnarF
  *
  */
-public interface Simulator<L extends Node> {
+public interface Simulator<N extends Node> {
 
-	List<Episode> simulate(RoundTrip<L> roundTrip);
+	List<Episode> simulate(RoundTrip<N> roundTrip);
 
 }

@@ -32,81 +32,98 @@ import se.vti.roundtrips.single.RoundTrip;
  * @author GunnarF
  *
  */
-public class DefaultSimulator<L extends Node> implements Simulator<L> {
+public class DefaultSimulator<N extends Node> implements Simulator<N> {
 
 	// -------------------- INTERFACES --------------------
 
-	public interface StaySimulator<L extends Node> {
+	public interface StaySimulator<N extends Node> {
 
-		StayEpisode<L> newStayEpisode(RoundTrip<L> roundTrip, int roundTripIndex, double initialTime_h,
+		StayEpisode<N> newStayEpisode(RoundTrip<N> roundTrip, int indexWithingRoundTrip, double initialTime_h,
 				SimulatorState initialState);
 	}
 
-	public interface MoveSimulator<L extends Node> {
+	public interface MoveSimulator<N extends Node> {
 
-		MoveEpisode<L> newMoveEpisode(RoundTrip<L> roundTrip, int roundTripStartIndex, double initialTime_h,
+		MoveEpisode<N> newMoveEpisode(RoundTrip<N> roundTrip, int indexWithingRoundTrip, double initialTime_h,
 				SimulatorState initialState);
+	}
+
+	public interface WrapAroundSimulator {
+
+		SimulatorState createInitializeState(RoundTrip<?> roundTrip);
+
+		SimulatorState keepOrChangeInitialState(RoundTrip<?> roundTrip, SimulatorState oldInitialState,
+				SimulatorState newInitialState);
 	}
 
 	// -------------------- MEMBERS --------------------
 
-	protected final Scenario<L> scenario;
+	protected final Scenario<N> scenario;
 
-	private MoveSimulator<L> moveSimulator = null;
-	private StaySimulator<L> staySimulator = null;
+	private MoveSimulator<N> moveSimulator = null;
+	private StaySimulator<N> staySimulator = null;
+	private WrapAroundSimulator wrapAroundSimulator = null;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public DefaultSimulator(Scenario<L> scenario) {
+	public DefaultSimulator(Scenario<N> scenario) {
 		this.scenario = scenario;
 		this.setMoveSimulator(new DefaultMoveSimulator<>(scenario));
 		this.setStaySimulator(new DefaultStaySimulator<>(scenario));
+		this.setWrapAroundSimulator(new WrapAroundSimulator() {
+			@Override
+			public SimulatorState createInitializeState(RoundTrip<?> roundTrip) {
+				return null;
+			}
+
+			@Override
+			public SimulatorState keepOrChangeInitialState(RoundTrip<?> roundTrip, SimulatorState oldInitialState,
+					SimulatorState newInitialState) {
+				return oldInitialState;
+			}
+		});
 	}
 
 	// -------------------- SETTERS AND GETTERS --------------------
 
-	public Scenario<L> getScenario() {
+	public Scenario<N> getScenario() {
 		return this.scenario;
 	}
 
-	public void setMoveSimulator(MoveSimulator<L> drivingSimulator) {
+	public void setMoveSimulator(MoveSimulator<N> drivingSimulator) {
 		this.moveSimulator = drivingSimulator;
 	}
 
-	public void setStaySimulator(StaySimulator<L> parkingSimulator) {
+	public void setStaySimulator(StaySimulator<N> parkingSimulator) {
 		this.staySimulator = parkingSimulator;
+	}
+
+	public void setWrapAroundSimulator(WrapAroundSimulator wrapAroundSimulator) {
+		this.wrapAroundSimulator = wrapAroundSimulator;
 	}
 
 	// -------------------- HOOKS FOR SUBCLASSING --------------------
 
-	public SimulatorState createAndInitializeState() {
-		return null;
-	}
-
-	public StayEpisode<L> createHomeOnlyEpisode(RoundTrip<L> roundTrip) {
-		StayEpisode<L> home = new StayEpisode<>(roundTrip.getNode(0));
+	public StayEpisode<N> createHomeOnlyEpisode(RoundTrip<N> roundTrip) {
+		StayEpisode<N> home = new StayEpisode<>(roundTrip.getNode(0));
 		home.setDuration_h(this.scenario.getPeriodLength_h());
 		home.setEndTime_h(this.scenario.getPeriodLength_h() - 1e-8); // wraparound
-		home.setInitialState(this.createAndInitializeState());
-		home.setFinalState(this.createAndInitializeState());
+		home.setInitialState(this.wrapAroundSimulator.createInitializeState(roundTrip));
+		home.setFinalState(this.wrapAroundSimulator.createInitializeState(roundTrip));
 		return home;
-	}
-
-	public SimulatorState keepOrChangeInitialState(SimulatorState oldInitialState, SimulatorState newInitialState) {
-		return oldInitialState;
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
 
 	@Override
-	public List<Episode> simulate(RoundTrip<L> roundTrip) {
+	public List<Episode> simulate(RoundTrip<N> roundTrip) {
 
 		if (roundTrip.size() == 1) {
 			return Collections.singletonList(this.createHomeOnlyEpisode(roundTrip));
 		}
 
 		final double initialTime_h = this.scenario.getBinSize_h() * roundTrip.getDeparture(0);
-		SimulatorState initialState = this.createAndInitializeState();
+		SimulatorState initialState = this.wrapAroundSimulator.createInitializeState(roundTrip);
 
 		List<Episode> episodes = null;
 		do {
@@ -119,29 +136,30 @@ public class DefaultSimulator<L extends Node> implements Simulator<L> {
 
 			for (int index = 0; index < roundTrip.size() - 1; index++) {
 
-				final MoveEpisode<L> moving = this.moveSimulator.newMoveEpisode(roundTrip, index, time_h, currentState);
+				final MoveEpisode<N> moving = this.moveSimulator.newMoveEpisode(roundTrip, index, time_h, currentState);
 				episodes.add(moving);
 				time_h = moving.getEndTime_h();
 				currentState = moving.getFinalState();
 
-				final StayEpisode<L> staying = this.staySimulator.newStayEpisode(roundTrip, index + 1, time_h,
+				final StayEpisode<N> staying = this.staySimulator.newStayEpisode(roundTrip, index + 1, time_h,
 						currentState);
 				episodes.add(staying);
 				time_h = staying.getEndTime_h();
 				currentState = staying.getFinalState();
 			}
 
-			final MoveEpisode<L> moving = this.moveSimulator.newMoveEpisode(roundTrip, roundTrip.size() - 1,
-					time_h, currentState);
+			final MoveEpisode<N> moving = this.moveSimulator.newMoveEpisode(roundTrip, roundTrip.size() - 1, time_h,
+					currentState);
 			episodes.add(moving);
 			time_h = moving.getEndTime_h();
 			currentState = moving.getFinalState();
 
-			final StayEpisode<L> home = this.staySimulator.newStayEpisode(roundTrip, 0,
+			final StayEpisode<N> home = this.staySimulator.newStayEpisode(roundTrip, 0,
 					time_h - this.scenario.getPeriodLength_h(), currentState);
 			episodes.set(0, home);
 
-			final SimulatorState newInitialState = this.keepOrChangeInitialState(initialState, home.getFinalState());
+			final SimulatorState newInitialState = this.wrapAroundSimulator.keepOrChangeInitialState(roundTrip,
+					initialState, home.getFinalState());
 			if (newInitialState == initialState) {
 				// accept wrap-around
 				home.setFinalState(initialState);

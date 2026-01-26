@@ -29,28 +29,28 @@ import se.vti.roundtrips.single.RoundTrip;
  * @author GunnarF
  *
  */
-public class DefaultStaySimulator<L extends Node> implements StaySimulator<L> {
+public class DefaultStaySimulator<N extends Node> implements StaySimulator<N> {
 
-	protected final Scenario<L> scenario;
+	protected final Scenario<N> scenario;
 
-	public DefaultStaySimulator(Scenario<L> scenario) {
+	public DefaultStaySimulator(Scenario<N> scenario) {
 		this.scenario = scenario;
 	}
 
-	public SimulatorState computeFinalState(RoundTrip<L> roundTrip, int roundTripIndex, StayEpisode<L> parking) {
+	public SimulatorState computeFinalState(RoundTrip<N> roundTrip, StayEpisode<N> parking) {
 		return null;
 	}
 
 	@Override
-	public StayEpisode<L> newStayEpisode(RoundTrip<L> roundTrip, int roundTripIndex, double time_h,
+	public StayEpisode<N> newStayEpisode(RoundTrip<N> roundTrip, int indexWithinRoundTrip, double time_h,
 			SimulatorState initialState) {
-		final StayEpisode<L> stay = new StayEpisode<>(roundTrip.getNode(roundTripIndex));
+		final StayEpisode<N> stay = new StayEpisode<>(roundTrip.getNode(indexWithinRoundTrip));
 		stay.setInitialState(initialState);
 
-		stay.setEndTime_h(Math.max(time_h, this.scenario.getBinSize_h() * roundTrip.getDeparture(roundTripIndex)));
+		stay.setEndTime_h(Math.max(time_h, this.scenario.getBinSize_h() * roundTrip.getDeparture(indexWithinRoundTrip)));
 		stay.setDuration_h(stay.getEndTime_h() - time_h);
 
-		stay.setFinalState(this.computeFinalState(roundTrip, roundTripIndex, stay));
+		stay.setFinalState(this.computeFinalState(roundTrip, stay));
 
 		return stay;
 	}
