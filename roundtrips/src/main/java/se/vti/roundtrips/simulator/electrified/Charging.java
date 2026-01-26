@@ -26,15 +26,15 @@ import se.vti.roundtrips.simulator.StayEpisode;
 /**
  * @author GunnarF
  */
-public enum ChargingYesNo {
+public enum Charging {
 	
-	CHARGING, NO_CHARGING;
+	YES, NO;
 
-	public static ChargingYesNo extractChargingYesNo(StayEpisode<?> parking) {
-		ChargingYesNo chargingYesNo = null;
+	public static Charging extractChargingYesNo(StayEpisode<?> parking) {
+		Charging chargingYesNo = null;
 		List<? extends Enum<?>> labels = parking.getLocation().getLabels();
 		for (int i = 0; (i < labels.size()) && (chargingYesNo == null); i++) {
-			if (labels.get(i) instanceof ChargingYesNo chargingLabel) {
+			if (labels.get(i) instanceof Charging chargingLabel) {
 				chargingYesNo = chargingLabel;
 			}
 		}
