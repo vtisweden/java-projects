@@ -21,24 +21,28 @@ package se.vti.roundtrips.simulator.electrified;
 
 import java.util.List;
 
+import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.simulator.StayEpisode;
 
 /**
  * @author GunnarF
  */
 public enum Charging {
-	
+
 	YES, NO;
 
-	public static Charging extractChargingYesNo(StayEpisode<?> parking) {
-		Charging chargingYesNo = null;
-		List<? extends Enum<?>> labels = parking.getLocation().getLabels();
-		for (int i = 0; (i < labels.size()) && (chargingYesNo == null); i++) {
+	public static Charging extractCharging(Node node) {
+		List<? extends Enum<?>> labels = node.getLabels();
+		for (int i = 0; i < labels.size(); i++) {
 			if (labels.get(i) instanceof Charging chargingLabel) {
-				chargingYesNo = chargingLabel;
+				return chargingLabel;
 			}
 		}
-		return chargingYesNo;		
+		return null;
 	}
-	
+
+	public static Charging extractCharging(StayEpisode<?> parking) {
+		return extractCharging(parking.getLocation());
+	}
+
 }

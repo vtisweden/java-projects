@@ -39,10 +39,10 @@ public class ElectrifiedStaySimulator<N extends Node> extends DefaultStaySimulat
 		BatteryState initialState = (BatteryState) parking.getInitialState();		
 		BatteryState finalState = initialState.clone();
 		
-		ChargingYesNo chargingYesNo = ChargingYesNo.extractChargingYesNo(parking);
+		Charging chargingYesNo = Charging.extractCharging(parking);
 		assert(chargingYesNo != null);
 		
-		if (chargingYesNo == ChargingYesNo.CHARGING) {
+		if (chargingYesNo == Charging.YES) {
 			finalState.charge(parking.getDuration_h());
 		}		
 		return finalState;
