@@ -44,11 +44,12 @@ public class Node {
 
 	public Node(String basicName, List<? extends Enum<?>> labels) {
 		this.basicName = basicName;
+		this.name = createName(basicName, labels);
 		if (labels == null || labels.size() == 0) {
-			this.name = basicName;
+//			this.name = basicName;
 			this.labels = null;
 		} else {
-			this.name = basicName + "[" + labels.stream().map(l -> l.toString()).collect(Collectors.joining(",")) + "]";
+//			this.name = basicName + "[" + labels.stream().map(l -> l.toString()).collect(Collectors.joining(",")) + "]";
 			this.labels = Collections.unmodifiableList(new ArrayList<>(labels));
 		}
 	}
@@ -58,6 +59,18 @@ public class Node {
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
+
+	public static String createName(String basicName, List<? extends Enum<?>> labels) {
+		if (labels == null || labels.size() == 0) {
+			return basicName;
+		} else {
+			return basicName + "[" + labels.stream().map(l -> l.toString()).collect(Collectors.joining(",")) + "]";
+		}
+	}
+
+	public static String createName(String basicName, Enum<?>... labels) {
+		return createName(basicName, Arrays.asList(labels));
+	}
 
 	public String getName() {
 		return this.name;

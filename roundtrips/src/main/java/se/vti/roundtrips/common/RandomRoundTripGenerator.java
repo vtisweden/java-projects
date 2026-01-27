@@ -20,7 +20,9 @@
 package se.vti.roundtrips.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
@@ -40,9 +42,12 @@ import se.vti.roundtrips.single.RoundTrip;
 public class RandomRoundTripGenerator<N extends Node> {
 
 	private final Logger log = LogManager.getLogger(RandomRoundTripGenerator.class);
-	
+
 	private final Scenario<N> scenario;
+
 	private final Random rnd;
+
+	private List<N> feasibleNodes = null;
 
 	private int minSize;
 
@@ -64,8 +69,14 @@ public class RandomRoundTripGenerator<N extends Node> {
 	public RandomRoundTripGenerator(Scenario<N> scenario) {
 		this.scenario = scenario;
 		this.rnd = scenario.getRandom();
+		this.feasibleNodes = scenario.getNodesView();
 		this.minSize = 1;
 		this.maxSize = scenario.getMaxPossibleStayEpisodes();
+	}
+
+	public RandomRoundTripGenerator<N> setFeasibleNodes(Collection<N> nodes) {
+		this.feasibleNodes = Collections.unmodifiableList(new ArrayList<>(new LinkedHashSet<>(nodes)));
+		return this;
 	}
 
 	public RandomRoundTripGenerator<N> setNumberOfStayEpisodesInterval(int minSize, int maxSize) {
@@ -98,10 +109,9 @@ public class RandomRoundTripGenerator<N extends Node> {
 		long trial = 0;
 
 		do {
-			List<N> allNodes = this.scenario.getNodesView();
 			List<N> nodes = new ArrayList<>(size);
 			for (int i = 0; i < size; i++) {
-				nodes.add(allNodes.get(this.rnd.nextInt(allNodes.size())));
+				nodes.add(this.feasibleNodes.get(this.rnd.nextInt(this.feasibleNodes.size())));
 			}
 
 			List<Integer> allDepartures = new ArrayList<>(
@@ -109,7 +119,7 @@ public class RandomRoundTripGenerator<N extends Node> {
 			Collections.shuffle(allDepartures, this.rnd);
 			List<Integer> departures = allDepartures.subList(0, size);
 			Collections.sort(departures);
-			
+
 			RoundTrip<N> candidate = new RoundTrip<>(index, nodes, departures);
 			candidate.setEpisodes(this.scenario.getOrCreateSimulator().simulate(candidate));
 			if (this.feasibilityCheck.apply(candidate)) {
