@@ -152,16 +152,7 @@ var systemState = missionImplementationSimulator.simulateMissionImplementation(s
 var mission2VehicleLogs = systemState.getMission2VehicleDispachmentLog();
 ```
 
-The `mission2VehicleLogs` object maps each simulated mission to a list of vehicle logs that contain detailed information about the time and energy profiles of all vehicles used in all missions.
-
-
-
-
-
-
-
-
-
+The `mission2VehicleLogs` object maps each simulated mission to a list of vehicle logs that contain detailed information about the time and energy profiles of all vehicles used in all missi
 
 
 
