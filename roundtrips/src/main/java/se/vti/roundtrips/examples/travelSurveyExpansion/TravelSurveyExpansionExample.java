@@ -136,7 +136,8 @@ public class TravelSurveyExpansionExample {
 
 		// Prefer round trips that are compatible with the survey
 //		weights.add(new ExplainResponsesByRoundTrips(responses, syntheticPopulation));
-		weights.add(new ExplainRoundTripsByResponses(responses, syntheticPopulation));
+//		weights.add(new ExplainRoundTripsByResponses(responses, syntheticPopulation));
+		weights.add(new ExplainRoundTripsByResponses2(responses, syntheticPopulation));
 
 		/*
 		 * Ready to set up the sampling machinery.

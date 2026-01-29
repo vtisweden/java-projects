@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.samplingweights.misc;
+package se.vti.roundtrips.samplingweights.misc.calibration;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -32,7 +32,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public abstract class MultiRoundTripTargetDeviationWeight<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
+public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -60,7 +60,7 @@ public abstract class MultiRoundTripTargetDeviationWeight<N extends Node> implem
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public MultiRoundTripTargetDeviationWeight(double realPopulationSize) {
+	public TargetDeviationWeight(double realPopulationSize) {
 		this.realPopulationSize = realPopulationSize;
 		this.setToTwoSidedExponential();
 	}
