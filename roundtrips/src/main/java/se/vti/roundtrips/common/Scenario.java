@@ -42,7 +42,7 @@ public class Scenario<N extends Node> {
 
 	// -------------------- CONSTANTS --------------------
 
-	private final Random rnd = new Random();
+	private final Random rnd;
 
 	// -------------------- PARAMETER MEMBERS --------------------
 
@@ -67,6 +67,11 @@ public class Scenario<N extends Node> {
 	// -------------------- CONSTRUCTION --------------------
 
 	public Scenario() {
+		this(new Random());
+	}
+
+	public Scenario(Random rnd) {
+		this.rnd = rnd;
 	}
 
 	// -------------------- PARAMETER SETTER/GETTER --------------------

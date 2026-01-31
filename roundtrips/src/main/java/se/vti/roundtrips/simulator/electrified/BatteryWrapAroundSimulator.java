@@ -31,14 +31,14 @@ public class BatteryWrapAroundSimulator implements WrapAroundSimulator {
 	private final double defaultCapacity_kWh;
 	private final double defaultChargingRate_kW;
 	private final double defaultConsumptionRate_kWh_km;
-//	private final double chargeWraparoundTolerance_kWh;
+	private final double chargeWrapAroundTolerance_kWh;
 
 	public BatteryWrapAroundSimulator(double defaultCapacity_kWh, double defaultChargingRate_kW,
-			double defaultConsumptionRate_kWh_km) { // , double chargeWraparoundTolerance_kWh) {
+			double defaultConsumptionRate_kWh_km, double chargeWraparoundTolerance_kWh) {
 		this.defaultCapacity_kWh = defaultCapacity_kWh;
 		this.defaultChargingRate_kW = defaultChargingRate_kW;
 		this.defaultConsumptionRate_kWh_km = defaultConsumptionRate_kWh_km;
-//		this.chargeWraparoundTolerance_kWh = chargeWraparoundTolerance_kWh;
+		this.chargeWrapAroundTolerance_kWh = chargeWraparoundTolerance_kWh;
 	}
 
 	@Override
@@ -50,10 +50,16 @@ public class BatteryWrapAroundSimulator implements WrapAroundSimulator {
 	@Override
 	public SimulatorState keepOrChangeInitialState(RoundTrip<?> roundTrip, SimulatorState oldInitialState,
 			SimulatorState newInitialState) {
-		// BatteryState oldInitialBatteryState = (BatteryState) oldInitialState;
-		// BatteryState newInitialBatteryState = (BatteryState) newInitialState;
-		// TODO This is not exact, requires treatment through sampling weights.
-		return oldInitialState;
+		BatteryState oldInitialBatteryState = (BatteryState) oldInitialState;
+		BatteryState newInitialBatteryState = (BatteryState) newInitialState;
+		if ((newInitialBatteryState.getCharge_kWh() < oldInitialBatteryState.getCharge_kWh()
+				- this.chargeWrapAroundTolerance_kWh)
+				&& (newInitialBatteryState.getCharge_kWh() >= -this.chargeWrapAroundTolerance_kWh)) {
+			// If charge is too negative, this cannot be aligned and needs to be handled elsewhere.
+			return newInitialBatteryState;
+		} else {
+			return oldInitialBatteryState;
+		}
 	}
 
 }
