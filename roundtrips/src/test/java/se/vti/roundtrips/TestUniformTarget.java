@@ -40,7 +40,7 @@ import se.vti.utils.misc.metropolishastings.MHWeightContainer;
 /**
  * @author GunnarF
  */
-class SmallWithUniformTarget {
+class TestUniformTarget {
 
 	@Test
 	void test() {

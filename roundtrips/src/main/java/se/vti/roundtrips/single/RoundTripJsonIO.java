@@ -129,37 +129,4 @@ public class RoundTripJsonIO {
 		return result;
 	}
 
-	static void testNode() throws JsonGenerationException, JsonMappingException, IOException {
-		Scenario<Node> scenario = new Scenario<>();
-		Node home = scenario.addNode(new Node("home"));
-		Node work = scenario.addNode(new Node("work"));
-		RoundTrip<Node> roundTrip = new RoundTrip<>(0, Arrays.asList(home, work), Arrays.asList(7, 18));
-		writeToFile(roundTrip, "test.json");
-		roundTrip = null;
-		roundTrip = readFromFile(scenario, "test.json");
-		System.out.println(roundTrip);
-	}
-
-	static void testNodeWithCoords() throws JsonGenerationException, JsonMappingException, IOException {
-		Scenario<NodeWithCoords> scenario = new Scenario<>();
-		NodeWithCoords home = scenario.addNode(new NodeWithCoords("home", 1, 2, 0));
-		NodeWithCoords work = scenario.addNode(new NodeWithCoords("work", 3, 4, 0));
-		RoundTrip<NodeWithCoords> roundTrip = new RoundTrip<>(0, Arrays.asList(home, work), Arrays.asList(7, 18));
-		writeToFile(roundTrip, "test.json");
-		roundTrip = null;
-		roundTrip = readFromFile(scenario, "test.json");
-		System.out.println(roundTrip);
-		for (NodeWithCoords node : roundTrip.getNodesView()) {
-			if (node != scenario.getNode(node.getName())) {
-				System.out.println("Roundtrip node instance if " + node.getName() + " is not referenced in scenario.");
-			}
-		}
-
-	}
-
-	public static void main(String[] args) throws JsonGenerationException, JsonMappingException, IOException {
-//		testNode();
-		testNodeWithCoords();
-	}
-
 }

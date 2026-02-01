@@ -43,8 +43,8 @@ public class RoundTripUtils {
 		return duration_h;
 	}
 	
-	public int countInterzonalTrips(RoundTrip<?> roundTrip) {
-		if (roundTrip.size() <= 1) {
+	public static int countInterzonalTrips(RoundTrip<?> roundTrip) {
+		if (roundTrip.size() < 1) {
 			return 0;
 		}
 		int cnt = 0;

@@ -19,7 +19,6 @@
  */
 package se.vti.roundtrips.single;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,31 +29,26 @@ import se.vti.roundtrips.common.Scenario;
  * 
  * @author GunnarF
  *
- * @param <L>
+ * @param <N>
  */
-class RoundTripTransitionKernel<L extends Node> {
+class RoundTripTransitionKernel<N extends Node> {
 
 	// -------------------- CONSTANTS --------------------
 
-	// for testing
-	enum Action {
-		INS, REM, FLIP_LOC, FLIP_DEP
-	};
-
-	private final RoundTrip<?> from;
-	private final Scenario<?> scenario;
+	/* package for testing */ final RoundTrip<?> from;
+	/* package for testing */ final Scenario<?> scenario;
 
 	public final double insertProba;
 	public final double removeProba;
 	public final double flipLocationProba;
 	public final double flipDepTimeProba;
 
-	private final double transitionProbaGivenFlipLocation;
-	private final double transitionProbaGivenFlipDepTime;
+	/* package for testing */ final double transitionProbaGivenFlipLocation;
+	/* package for testing */ final double transitionProbaGivenFlipDepTime;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	RoundTripTransitionKernel(RoundTrip<L> from, Scenario<L> scenario, RoundTripProposalParameters params) {
+	RoundTripTransitionKernel(RoundTrip<N> from, Scenario<N> scenario, RoundTripProposalParameters params) {
 		this.from = from;
 		this.scenario = scenario;
 
@@ -62,8 +56,7 @@ class RoundTripTransitionKernel<L extends Node> {
 				scenario.getTimeBinCnt()) ? params.insertWeight : 0.0);
 		double effectiveRemoveWeight = (from.size() > 1 ? params.removeWeight : 0.0);
 		double effectiveFlipLocationWeight = params.flipLocationWeight;
-		double effectiveFlipDepTimeWeight = (from.size() < scenario.getTimeBinCnt() ? params.flipDepTimeWeight
-				: 0.0);
+		double effectiveFlipDepTimeWeight = (from.size() < scenario.getTimeBinCnt() ? params.flipDepTimeWeight : 0.0);
 		final double effectiveWeightSum = effectiveInsertWeight + effectiveRemoveWeight + effectiveFlipLocationWeight
 				+ effectiveFlipDepTimeWeight;
 
@@ -79,7 +72,7 @@ class RoundTripTransitionKernel<L extends Node> {
 		this.transitionProbaGivenFlipDepTime = 1.0 / from.size() / (scenario.getTimeBinCnt() - from.size());
 	}
 
-	RoundTripTransitionKernel(RoundTrip<L> from, Scenario<L> scenario) {
+	RoundTripTransitionKernel(RoundTrip<N> from, Scenario<N> scenario) {
 		this(from, scenario, new RoundTripProposalParameters());
 	}
 
@@ -100,10 +93,9 @@ class RoundTripTransitionKernel<L extends Node> {
 		return result;
 	}
 
-	private double transitionProbaGivenInsert(RoundTrip<?> to) {
-		return this.numberOfInsertionPoints(this.from.getNodesView(), to.getNodesView())
-				/ (this.from.size() + 1.0) / this.scenario.getNodesCnt()
-				/ (this.scenario.getTimeBinCnt() - this.from.size());
+	/* package for testing */ double transitionProbaGivenInsert(RoundTrip<?> to) {
+		return this.numberOfInsertionPoints(this.from.getNodesView(), to.getNodesView()) / (this.from.size() + 1.0)
+				/ this.scenario.getNodesCnt() / (this.scenario.getTimeBinCnt() - this.from.size());
 	}
 
 	private double numberOfRemovalPoints(List<?> longer, List<?> shorter) {
@@ -123,118 +115,11 @@ class RoundTripTransitionKernel<L extends Node> {
 		return result;
 	}
 
-	private double transitionProbaGivenRemove(RoundTrip<?> to) {
-		double result = this.numberOfRemovalPoints(this.from.getNodesView(), to.getNodesView())
-				/ this.from.size() / this.from.size();
+	/* package for testing */ double transitionProbaGivenRemove(RoundTrip<?> to) {
+		double result = this.numberOfRemovalPoints(this.from.getNodesView(), to.getNodesView()) / this.from.size()
+				/ this.from.size();
 		assert (result > 0);
 		return result;
-	}
-
-	// for testing
-	Action identifyAction(RoundTrip<?> to) {
-		if (this.from.size() + 1 == to.size()) {
-			return Action.INS;
-		} else if (this.from.size() - 1 == to.size()) {
-			return Action.REM;
-		} else if (!this.from.getNodesView().equals(to.getNodesView())) {
-			return Action.FLIP_LOC;
-		} else if (!this.from.getDeparturesView().equals(to.getDeparturesView())) {
-			return Action.FLIP_DEP;
-		} else {
-			return null;
-		}
-	}
-
-	// TODO NEW
-	private boolean locationInsertWasPossible(List<?> shorter, List<?> longer) {
-		assert (shorter.size() + 1 == longer.size());
-		boolean usedInsert = false;
-		for (int indexInShorter = 0; indexInShorter < shorter.size(); indexInShorter++) {
-			int indexInLonger = (usedInsert ? indexInShorter + 1 : indexInShorter);
-			if (!shorter.get(indexInShorter).equals(longer.get(indexInLonger))) {
-				if (usedInsert) {
-					return false;
-				} else {
-					usedInsert = true;
-					if (!shorter.get(indexInShorter).equals(longer.get(indexInShorter + 1))) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
-	}
-
-	// TODO NEW
-	private boolean locationFlipWasPossible(List<?> a, List<?> b) {
-		assert (a.size() == b.size());
-		int differenceCnt = 0;
-		for (int i = 0; i < a.size(); i++) {
-			if (!a.get(i).equals(b.get(i))) {
-				differenceCnt++;
-				if (differenceCnt > 1) {
-					return false;
-				}
-			}
-		}
-		return (differenceCnt == 1);
-	}
-
-	// TODO NEW
-	private boolean departuresInsertWasPossible(List<?> shorter, List<?> longer) {
-		assert (shorter.size() + 1 == longer.size());
-		return longer.containsAll(shorter);
-	}
-
-	// TODO NEW
-	private boolean departureFlipWasPossible(List<?> a, List<?> b) {
-		assert (a.size() == b.size());
-
-		List<?> diff = new ArrayList<>(a);
-		diff.removeAll(b);
-		if (diff.size() != 1) {
-			return false;
-		}
-
-		diff = new ArrayList<>(b);
-		diff.removeAll(a);
-		return (diff.size() == 1);
-	}
-
-	double transitionProbaChecked(RoundTrip<?> to) {
-
-		if (this.from.size() + 1 == to.size()) {
-
-			if (this.locationInsertWasPossible(this.from.getNodesView(), to.getNodesView())
-					&& this.departuresInsertWasPossible(this.from.getDeparturesView(), to.getDeparturesView())) {
-				return this.insertProba * this.transitionProbaGivenInsert(to);
-			}
-
-		} else if (this.from.size() - 1 == to.size()) {
-
-			if (this.locationInsertWasPossible(to.getNodesView(), this.from.getNodesView())
-					&& this.departuresInsertWasPossible(to.getDeparturesView(), this.from.getDeparturesView())) {
-				return this.removeProba * this.transitionProbaGivenRemove(to);
-			}
-
-		} else if (this.from.size() == to.size()) {
-
-			if (this.from.getDeparturesView().equals(to.getDeparturesView())) {
-
-				if (this.locationFlipWasPossible(this.from.getNodesView(), to.getNodesView())) {
-					return this.flipLocationProba * this.transitionProbaGivenFlipLocation;
-				}
-
-			} else if (this.from.getNodesView().equals(to.getNodesView())) {
-
-				if (this.departureFlipWasPossible(this.from.getDeparturesView(), to.getDeparturesView())) {
-					return this.flipDepTimeProba * this.transitionProbaGivenFlipDepTime;
-				}
-
-			}
-		}
-
-		return 0.0;
 	}
 
 	// This assumes that the transition from -> to followed the same kernel.
@@ -259,7 +144,7 @@ class RoundTripTransitionKernel<L extends Node> {
 		return result;
 	}
 
-	public double transitionProba(RoundTrip<L> to) {
+	public double transitionProba(RoundTrip<N> to) {
 		return this.transitionProbaUnchecked(to);
 //		return this.transitionProbaChecked(to);
 	}
