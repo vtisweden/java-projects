@@ -19,7 +19,6 @@
  */
 package se.vti.roundtrips.samplingweights.misc.calibration;
 
-import java.util.Arrays;
 import java.util.function.Function;
 
 import se.vti.roundtrips.common.Node;
@@ -42,21 +41,7 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 
 	private double[] target;
 
-	private double targetSize;
-
 	private Function<Double, Double> singleAbsoluteResidualToLogWeight = null;
-
-	private Function<Double, Double> totalDiscretizationErrorToLogWeight = null;
-
-	// >>>>> experimental >>>>>
-
-	private boolean useNewDiscretizationCorrection = false;
-
-	public void setUseNewDiscretizationCorrection(boolean useNewDiscretizationCorrection) {
-		this.useNewDiscretizationCorrection = useNewDiscretizationCorrection;
-	}
-
-	// <<<<< experimental <<<<<
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -69,20 +54,14 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 
 	public void setToTwoSidedExponential() {
 		this.setSingleAbsoluteResidualToLogWeight(a -> (-1.0) * a);
-		this.setTotalDiscretizationErrorToLogWeight(e -> (-1.0) * e);
 	}
 
 	public void setToGaussian() {
 		this.setSingleAbsoluteResidualToLogWeight(r -> (-0.5) * r * r);
-		this.setTotalDiscretizationErrorToLogWeight(e -> (-0.5) * e * e);
 	}
 
 	public void setSingleAbsoluteResidualToLogWeight(Function<Double, Double> singleAbsoluteResidualToLogWeight) {
 		this.singleAbsoluteResidualToLogWeight = singleAbsoluteResidualToLogWeight;
-	}
-
-	public void setTotalDiscretizationErrorToLogWeight(Function<Double, Double> totalDiscretizationErrorToLogWeight) {
-		this.totalDiscretizationErrorToLogWeight = totalDiscretizationErrorToLogWeight;
 	}
 
 	public void setFilter(PopulationGroupFilter<N> filter) {
@@ -96,41 +75,17 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 	public double[] computeTargetIfAbsent() {
 		if (this.target == null) {
 			this.target = this.computeTarget();
-			this.targetSize = Arrays.stream(this.target).sum();
 		}
 		return this.target;
 	}
 
-	// --------------- IMPLEMENTATION OF MHPreferenceComponent ---------------
+	// -------------------- IMPLEMENTATION OF MHWeight --------------------
 
-	private double computeLegacyLogWeight(MultiRoundTrip<N> multiRoundTrip) {
-
-		final double[] sample = this.computeSample(multiRoundTrip, this.filter);
-		final double sampleSize = Math.max(Arrays.stream(sample).sum(), 1e-8);
-
-		this.computeTargetIfAbsent();
-		final double slack = 0.5 * this.targetSize / sampleSize;
-
-		double logWeight = 0.0;
-
-		for (int i = 0; i < this.target.length; i++) {
-			final double absoluteResidual = Math.max(0.0,
-					Math.abs(sample[i] * this.targetSize / sampleSize - this.target[i]) - slack);
-			logWeight += this.singleAbsoluteResidualToLogWeight.apply(absoluteResidual);
-			// Each addend contributes on average 0.5 * slack to the discretization error.
-		}
-
-		final double totalDiscretizationError = 0.5 * slack * this.target.length;
-		logWeight += this.totalDiscretizationErrorToLogWeight.apply(totalDiscretizationError);
-
-		return logWeight;
-	}
-
-	private double computeLogWeight(MultiRoundTrip<N> multiRoundTrip) {
-
+	@Override
+	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
+		
 		final double expansionFactor = this.realPopulationSize / multiRoundTrip.size();
 		final double[] sample = this.computeSample(multiRoundTrip, this.filter);
-
 		this.computeTargetIfAbsent();
 
 		double logWeightSum = 0.0;
@@ -143,17 +98,6 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 					+ maxLogWeight;
 		}
 		return logWeightSum;
-	}
-
-	// --------------- IMPLEMENTATION OF MHPreferenceComponent ---------------
-
-	@Override
-	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
-		if (this.useNewDiscretizationCorrection) {
-			return this.computeLogWeight(multiRoundTrip);
-		} else {
-			return this.computeLegacyLogWeight(multiRoundTrip);
-		}
 	}
 
 	// --------------- ABSTRACT FUNCTIONS ---------------
