@@ -94,7 +94,7 @@ class TestUniformTarget {
 			@Override
 			public void end() {
 				System.out.println(Arrays.toString(this.sizeCounts));
-				assertArrayEquals(new long[]{75230, 75459, 74147, 75167}, this.sizeCounts);
+				assertArrayEquals(new long[]{75259, 75270, 74418, 75056}, this.sizeCounts);
 			}
 
 		});

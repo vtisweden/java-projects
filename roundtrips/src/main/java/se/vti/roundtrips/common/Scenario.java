@@ -104,10 +104,6 @@ public class Scenario<N extends Node> {
 		this.upperBoundOnStayEpisodes = upperBoundOnStayEpisodes;
 	}
 
-	public int getUpperBoundOnStayEpisodes() {
-		return this.upperBoundOnStayEpisodes;
-	}
-
 	public int getMaxPossibleStayEpisodes() {
 		return Math.min(this.timeBinCnt, this.upperBoundOnStayEpisodes);
 	}

@@ -46,10 +46,8 @@ public class Node {
 		this.basicName = basicName;
 		this.name = createName(basicName, labels);
 		if (labels == null || labels.size() == 0) {
-//			this.name = basicName;
 			this.labels = null;
 		} else {
-//			this.name = basicName + "[" + labels.stream().map(l -> l.toString()).collect(Collectors.joining(",")) + "]";
 			this.labels = Collections.unmodifiableList(new ArrayList<>(labels));
 		}
 	}
@@ -87,27 +85,6 @@ public class Node {
 	@Override
 	public String toString() {
 		return this.name;
-	}
-
-	// -------------------- MAIN-FUNCTION, ONLY FOR TESTING --------------------
-
-	public static void main(String[] args) {
-		System.out.println("STARTED ...");
-
-		enum Activity {
-			home, work, shop, leisure
-		}
-		enum DepartureMode {
-			car, pt, bike, walk
-		}
-		Node node = new Node("n1", Activity.work, DepartureMode.pt);
-		System.out.println(node);
-		System.out.println(node.getLabels());
-		System.out.println(node.getLabels().equals(Arrays.asList(Activity.work, DepartureMode.car)));
-		System.out.println((Activity) node.getLabels().get(0));
-		System.out.println((DepartureMode) node.getLabels().get(1));
-
-		System.out.println("... DONE");
 	}
 
 }

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import se.vti.roundtrips.single.RoundTrip;
 
-class RoundTripUtilsTest {
+class TestRoundTripUtils {
 
     private RoundTrip<Node> createRoundTrip(Node... nodes) {
         List<Node> nodeList = Arrays.asList(nodes);

@@ -70,7 +70,7 @@ public class RandomRoundTripGenerator<N extends Node> {
 		this.scenario = scenario;
 		this.rnd = scenario.getRandom();
 		this.feasibleNodes = scenario.getNodesView();
-		this.minSize = 1;
+		this.minSize = 0;
 		this.maxSize = scenario.getMaxPossibleStayEpisodes();
 	}
 
@@ -147,9 +147,6 @@ public class RandomRoundTripGenerator<N extends Node> {
 
 	public void populateRandomly(MultiRoundTrip<N> multiRoundTrip) {
 		for (int index = 0; index < multiRoundTrip.size(); index++) {
-			if (index == 999) {
-				System.out.print("");
-			}
 			multiRoundTrip.setRoundTripAndUpdateSummaries(index, this.createRandomRoundTrip(index));
 		}
 	}
