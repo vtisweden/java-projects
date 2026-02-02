@@ -35,21 +35,39 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class SingleToMultiWeight<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
 
+	public enum LogWeightAggregation {
+		SUM, AVERAGE
+	};
+
 	private final MHWeight<RoundTrip<N>> singleRoundTripLogWeight;
 
+	private final LogWeightAggregation logWeightAggregation;
+
 	private final String name;
-	
+
 	private List<RoundTrip<N>> previousRoundTrips = null;
 
 	private List<Double> previousLogWeights = null;
 
-	public SingleToMultiWeight(MHWeight<RoundTrip<N>> singleRoundTripLogWeight, String name) {
+	public SingleToMultiWeight(MHWeight<RoundTrip<N>> singleRoundTripLogWeight,
+			LogWeightAggregation logWeightAggregation, String name) {
 		this.singleRoundTripLogWeight = singleRoundTripLogWeight;
+		this.logWeightAggregation = logWeightAggregation;
 		this.name = name;
 	}
 
+	public SingleToMultiWeight(MHWeight<RoundTrip<N>> singleRoundTripLogWeight,
+			LogWeightAggregation logWeightAggregation) {
+		this(singleRoundTripLogWeight, logWeightAggregation, "SingleToMulti(" + singleRoundTripLogWeight.name() + ")");
+	}
+
+	public SingleToMultiWeight(MHWeight<RoundTrip<N>> singleRoundTripLogWeight, String name) {
+		this(singleRoundTripLogWeight, LogWeightAggregation.SUM, name);
+	}
+
 	public SingleToMultiWeight(MHWeight<RoundTrip<N>> singleRoundTripLogWeight) {
-		this(singleRoundTripLogWeight, "SingleToMulti(" + singleRoundTripLogWeight.name() + ")");
+		this(singleRoundTripLogWeight, LogWeightAggregation.SUM,
+				"SingleToMulti(" + singleRoundTripLogWeight.name() + ")");
 	}
 
 	@Override
@@ -74,7 +92,13 @@ public class SingleToMultiWeight<N extends Node> implements MHWeight<MultiRoundT
 			}
 		}
 
-		return logWeightSum;
+		if (LogWeightAggregation.SUM == this.logWeightAggregation) {
+			return logWeightSum;
+		} else if (LogWeightAggregation.AVERAGE == this.logWeightAggregation) {
+			return logWeightSum / multiRoundTrip.size();
+		} else {
+			throw new RuntimeException("Unknown log weight aggregation :" + this.logWeightAggregation);
+		}
 	}
 
 	@Override

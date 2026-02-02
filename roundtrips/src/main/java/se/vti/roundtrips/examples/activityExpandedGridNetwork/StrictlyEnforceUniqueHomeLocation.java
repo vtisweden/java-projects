@@ -31,6 +31,9 @@ public class StrictlyEnforceUniqueHomeLocation implements MHWeight<RoundTrip<Gri
 
 	@Override
 	public double logWeight(RoundTrip<GridNodeWithActivity> roundTrip) {
+		if (roundTrip.size() == 0) {
+			return 0;
+		}
 		GridNodeWithActivity firstNode = roundTrip.getNode(0);
 		if (Activity.HOME.equals(firstNode.getActivity())) {
 			for (int i = 1; i < roundTrip.size(); i++) {

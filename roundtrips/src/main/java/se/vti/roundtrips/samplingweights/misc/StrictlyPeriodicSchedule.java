@@ -38,7 +38,7 @@ public class StrictlyPeriodicSchedule<N extends Node> implements MHWeight<RoundT
 
 	@Override
 	public double logWeight(RoundTrip<N> roundTrip) {
-		if (roundTrip.size() == 1) {
+		if (roundTrip.size() <= 1) {
 			return 0.0;
 		} else {
 			double realizedDuration_h = roundTrip.getEpisodes().stream().mapToDouble(e -> e.getDuration_h()).sum();

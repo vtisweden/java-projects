@@ -210,8 +210,8 @@ class TestRoundTripTransitionKernel {
 		var params = new RoundTripProposalParameters();
 		var proposal = new RoundTripProposal<Node>(params, scenario);
 
-		for (int size = 1; size <= scenario.getMaxPossibleStayEpisodes(); size++) {
-			for (int replication = 0; replication < 100; replication++) {
+		for (int size = 0; size <= scenario.getMaxPossibleStayEpisodes(); size++) {
+			for (int replication = 0; replication < 10 + 10 * size; replication++) {
 				var from = createRoundTrip(scenario, size);
 				var transition = proposal.newTransition(from);
 				var to = transition.getNewState();
