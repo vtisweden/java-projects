@@ -52,11 +52,13 @@ class RoundTripTransitionKernel<N extends Node> {
 		this.from = from;
 		this.scenario = scenario;
 
-		double effectiveInsertWeight = (from.size() < Math.min(scenario.getUpperBoundOnStayEpisodes(),
-				scenario.getTimeBinCnt()) ? params.insertWeight : 0.0);
-		double effectiveRemoveWeight = (from.size() > 1 ? params.removeWeight : 0.0);
-		double effectiveFlipLocationWeight = params.flipLocationWeight;
-		double effectiveFlipDepTimeWeight = (from.size() < scenario.getTimeBinCnt() ? params.flipDepTimeWeight : 0.0);
+		double effectiveInsertWeight = (from.size() < scenario.getMaxPossibleStayEpisodes() ? params.insertWeight
+				: 0.0);
+		double effectiveRemoveWeight = (from.size() > 0 ? params.removeWeight : 0.0);
+		double effectiveFlipLocationWeight = (from.size() > 0 ? params.flipLocationWeight : 0.0);
+		double effectiveFlipDepTimeWeight = (from.size() > 0 && from.size() < scenario.getTimeBinCnt()
+				? params.flipDepTimeWeight
+				: 0.0);
 		final double effectiveWeightSum = effectiveInsertWeight + effectiveRemoveWeight + effectiveFlipLocationWeight
 				+ effectiveFlipDepTimeWeight;
 
@@ -146,6 +148,5 @@ class RoundTripTransitionKernel<N extends Node> {
 
 	public double transitionProba(RoundTrip<N> to) {
 		return this.transitionProbaUnchecked(to);
-//		return this.transitionProbaChecked(to);
 	}
 }

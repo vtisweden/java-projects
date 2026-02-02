@@ -102,11 +102,9 @@ public class RoundTripProposal<L extends Node> implements MHProposal<RoundTrip<L
 
 		final RoundTrip<L> to = from.clone();
 
-//		final RoundTripTransitionKernel.Action realizedFwdAction;
 		final double _U = this.rnd.nextDouble();
 		if (_U < fwdTransitionKernel.insertProba) { // INSERT
 
-//			realizedFwdAction = RoundTripTransitionKernel.Action.INS;
 			final int whereToInsert = this.rnd.nextInt(from.size() + 1);
 			final L whatLocationToInsert = this.allLocations.get(this.rnd.nextInt(this.allLocations.size()));
 			final Integer whatDepTimeToInsert = this.drawUnusedDepartureTime(from);
@@ -119,7 +117,6 @@ public class RoundTripProposal<L extends Node> implements MHProposal<RoundTrip<L
 			 * otherwise can happen that there is no one-step transition back after an
 			 * insert.
 			 */
-//			realizedFwdAction = RoundTripTransitionKernel.Action.REM;
 			final int whereToRemoveLoc = this.rnd.nextInt(from.size());
 			final int whereToRemoveDep = this.rnd.nextInt(from.size());
 			to.remove(whereToRemoveLoc, whereToRemoveDep);
@@ -127,14 +124,12 @@ public class RoundTripProposal<L extends Node> implements MHProposal<RoundTrip<L
 		} else if (_U < fwdTransitionKernel.insertProba + fwdTransitionKernel.removeProba
 				+ fwdTransitionKernel.flipLocationProba) { // FLIP LOCATION
 
-//			realizedFwdAction = RoundTripTransitionKernel.Action.FLIP_LOC;
 			final int whereToFlip = this.rnd.nextInt(from.size());
 			final L newLocation = this.drawLocationDifferentFrom(from.getNode(whereToFlip));
 			to.setNode(whereToFlip, newLocation);
 
 		} else { // FLIP DEPARTURE TIME
 
-//			realizedFwdAction = RoundTripTransitionKernel.Action.FLIP_DEP;
 			final int whereToFlip = this.rnd.nextInt(from.size());
 			final Integer newDptTime = this.drawUnusedDepartureTime(from);
 			to.setDepartureAndEnsureOrdering(whereToFlip, newDptTime);
@@ -144,7 +139,6 @@ public class RoundTripProposal<L extends Node> implements MHProposal<RoundTrip<L
 		final RoundTripTransitionKernel<L> bwdTransitionKernel = new RoundTripTransitionKernel<>(to, this.scenario,
 				this.proposalParams);
 
-//		assert (this.correctAction(fwdTransitionKernel, bwdTransitionKernel, realizedFwdAction, from, to));
 		assert (fwdTransitionKernel.transitionProba(to) > 0);
 		assert (bwdTransitionKernel.transitionProba(from) > 0);
 

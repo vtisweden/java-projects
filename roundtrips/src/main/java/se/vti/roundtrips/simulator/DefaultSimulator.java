@@ -118,7 +118,9 @@ public class DefaultSimulator<N extends Node> implements Simulator<N> {
 	@Override
 	public List<Episode> simulate(RoundTrip<N> roundTrip) {
 
-		if (roundTrip.size() == 1) {
+		if (roundTrip.size() == 0) {
+			return Collections.emptyList();
+		} else if (roundTrip.size() == 1) {
 			return Collections.singletonList(this.createHomeOnlyEpisode(roundTrip));
 		}
 
