@@ -30,7 +30,16 @@ import java.util.List;
  */
 public class ExpandedNodeUtils {
 
-	private static List<List<Enum<?>>> createWithNextDimension(List<List<Enum<?>>> labelsList,
+	private static final ExpandedNodeUtils singleton = new ExpandedNodeUtils();
+
+	public static ExpandedNodeUtils singleton() {
+		return singleton;
+	}
+
+	public ExpandedNodeUtils() {
+	}
+
+	private List<List<Enum<?>>> createWithNextDimension(List<List<Enum<?>>> labelsList,
 			List<Class<? extends Enum<?>>> dimensions) {
 		if (labelsList.get(0).size() == dimensions.size()) {
 			return labelsList;
@@ -48,8 +57,8 @@ public class ExpandedNodeUtils {
 		}
 	}
 
-	public static List<List<Enum<?>>> createAllLabels(List<Class<? extends Enum<?>>> dimensions) {
-		return createWithNextDimension(Arrays.asList(Arrays.asList()), dimensions);
+	public List<List<Enum<?>>> createAllLabels(List<Class<? extends Enum<?>>> dimensions) {
+		return this.createWithNextDimension(Arrays.asList(Arrays.asList()), dimensions);
 	}
 
 	// -------------------- MAIN FUNCTION, ONLY FOR TESTING --------------------
@@ -68,7 +77,7 @@ public class ExpandedNodeUtils {
 			unhappy, neutral, happy
 		}
 
-		for (var labels : ExpandedNodeUtils
+		for (var labels : ExpandedNodeUtils.singleton()
 				.createAllLabels(Arrays.asList(Activities.class, DepartureModes.class, Mood.class))) {
 			System.out.println(labels);
 		}

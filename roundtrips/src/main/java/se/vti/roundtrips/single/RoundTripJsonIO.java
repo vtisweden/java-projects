@@ -22,7 +22,6 @@ package se.vti.roundtrips.single;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -41,7 +40,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.common.NodeWithCoords;
 import se.vti.roundtrips.common.Scenario;
 
 /**
@@ -51,10 +49,13 @@ import se.vti.roundtrips.common.Scenario;
  */
 public class RoundTripJsonIO {
 
+	private RoundTripJsonIO() {
+	}
+
 	public static class Serializer extends JsonSerializer<RoundTrip<? extends Node>> {
 		@Override
-		public void serialize(RoundTrip<? extends Node> value, JsonGenerator gen, SerializerProvider serializers)
-				throws IOException {
+		public synchronized void serialize(RoundTrip<? extends Node> value, JsonGenerator gen,
+				SerializerProvider serializers) throws IOException {
 			gen.writeStartObject();
 			gen.writeFieldName("index");
 			gen.writeNumber(value.getIndex());
@@ -83,7 +84,7 @@ public class RoundTripJsonIO {
 		}
 
 		@Override
-		public RoundTrip<N> deserialize(JsonParser p, DeserializationContext ctxt)
+		public synchronized RoundTrip<N> deserialize(JsonParser p, DeserializationContext ctxt)
 				throws IOException, JsonProcessingException {
 
 			JsonNode node = p.getCodec().readTree(p);
@@ -103,10 +104,9 @@ public class RoundTripJsonIO {
 
 			return new RoundTrip<>(index, scenarioNodes, departures);
 		}
-
 	}
 
-	public static void writeToFile(RoundTrip<? extends Node> roundTrip, String fileName)
+	public static synchronized void writeToFile(RoundTrip<? extends Node> roundTrip, String fileName)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -116,7 +116,7 @@ public class RoundTripJsonIO {
 		mapper.writeValue(new File(fileName), roundTrip);
 	}
 
-	public static <N extends Node> RoundTrip<N> readFromFile(Scenario<N> scenario, String fileName)
+	public static synchronized <N extends Node> RoundTrip<N> readFromFile(Scenario<N> scenario, String fileName)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();

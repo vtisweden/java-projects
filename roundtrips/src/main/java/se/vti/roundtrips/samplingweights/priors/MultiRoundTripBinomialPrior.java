@@ -47,7 +47,8 @@ public class MultiRoundTripBinomialPrior<N extends Node> implements MHWeight<Mul
 			// Upon the first call to this function, we know the number of round trips.
 			double expectation = this.expectedRoundTripSize * roundTrips.size();
 			int numberOfTrials = this.maximumRoundTripSize * roundTrips.size();
-			this.binomialLogWeightsOverTotalSize = PriorUtils.computeBinomialLogWeights(expectation, numberOfTrials);
+			this.binomialLogWeightsOverTotalSize = new PriorUtils().computeBinomialLogWeights(expectation,
+					numberOfTrials);
 		}
 		return (this.uniformPrior.logWeight(roundTrips)
 				+ this.binomialLogWeightsOverTotalSize[roundTrips.computeSumOfRoundTripSizes()]);

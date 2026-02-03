@@ -1,5 +1,5 @@
 /**
- * se.vti.roundtrips.simulator.electrified
+ * se.vti.roundtrips.multiple.grouping
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -17,14 +17,31 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.simulator.electrified;
+package se.vti.roundtrips.multiple.grouping;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * @author GunnarF
  */
-public enum Charging {
+class TestPopulationGrouping {
 
-	// To be extended by technology details etc.
-	YES, NO;
+	@Test
+	void test() {
+		int size = 14;
+
+		PopulationGrouping g = new PopulationGrouping(size);
+		g.addGroup("a", 1.0);
+		g.addGroup("b", 2.0);
+		g.addGroup("c", 4.0);
+
+		g.ensureIndexing();
+
+		assertArrayEquals(new int[] { 8, 11 }, g.getGroup2Indices().get("a"));
+		assertArrayEquals(new int[] { 4, 6, 9, 12 }, g.getGroup2Indices().get("b"));
+		assertArrayEquals(new int[] { 0, 1, 2, 3, 5, 7, 10, 13 }, g.getGroup2Indices().get("c"));
+	}
 
 }

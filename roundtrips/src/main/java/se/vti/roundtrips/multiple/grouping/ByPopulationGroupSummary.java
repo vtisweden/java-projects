@@ -48,7 +48,7 @@ public abstract class ByPopulationGroupSummary<L extends Node, S extends MultiRo
 	public ByPopulationGroupSummary(final PopulationGrouping grouping, final Supplier<S> summaryFactory,
 			Set<String> consideredGroups) {
 		for (String group : consideredGroups) {
-			final int[] indices = grouping.getGroup2indices().get(group);
+			final int[] indices = grouping.getGroup2Indices().get(group);
 			final S summary = summaryFactory.get();
 			this.group2summary.put(group, summary);
 			for (int index : indices) {

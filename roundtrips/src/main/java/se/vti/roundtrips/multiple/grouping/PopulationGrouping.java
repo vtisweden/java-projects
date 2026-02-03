@@ -55,7 +55,7 @@ public class PopulationGrouping {
 
 	// -------------------- INTERNALS --------------------
 
-	private void ensureIndexing() {
+	/* package for testing */ void ensureIndexing() {
 		if (this.group2indices != null) {
 			return;
 		}
@@ -76,34 +76,13 @@ public class PopulationGrouping {
 
 	// -------------------- IMPLEMENTATION --------------------
 
-	public Map<String, int[]> getGroup2indices() {
+	public Map<String, int[]> getGroup2Indices() {
 		return this.group2indices;
 	}
 
 	public <L extends Node> PopulationGroupFilter<L> createFilter(String group) {
 		this.ensureIndexing();
 		return new PopulationGroupFilter<>(group, this.group2indices.get(group));
-	}
-
-	// -------------------- MAIN FUNCTION, ONLY FOR TESTING --------------------
-
-	public static void main(String[] args) {
-		for (int size = 14; size <= 14; size++) {
-
-			PopulationGrouping g = new PopulationGrouping(size);
-			g.addGroup("a", 1.0);
-			g.addGroup("b", 2.0);
-			g.addGroup("c", 4.0);
-
-			g.ensureIndexing();
-
-			System.out.println("population size");
-			for (Map.Entry<String, int[]> e : g.group2indices.entrySet()) {
-				System.out.println(e.getKey() + "\t" + Arrays.toString(e.getValue()));
-			}
-			System.out.println();
-
-		}
 	}
 
 }

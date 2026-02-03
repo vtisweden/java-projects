@@ -19,9 +19,6 @@
  */
 package se.vti.roundtrips.samplingweights.priors;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.util.CombinatoricsUtils;
 
@@ -32,10 +29,16 @@ import org.apache.commons.math3.util.CombinatoricsUtils;
  */
 class PriorUtils {
 
-	private PriorUtils() {
+	private static final PriorUtils singleton = new PriorUtils();
+
+	public static PriorUtils singleton() {
+		return singleton;
 	}
 
-	static double[] computeUniformLogWeights(int nodeCnt, int timeBinCnt, int maxRoundTripSize) {
+	PriorUtils() {
+	}
+
+	double[] computeUniformLogWeights(int nodeCnt, int timeBinCnt, int maxRoundTripSize) {
 		double[] logWeights = new double[Math.min(maxRoundTripSize, timeBinCnt) + 1];
 		for (int j = 0; j < logWeights.length; j++) {
 			logWeights[j] = -CombinatoricsUtils.binomialCoefficientLog(timeBinCnt, j) - j * Math.log(nodeCnt);
@@ -43,7 +46,7 @@ class PriorUtils {
 		return logWeights;
 	}
 
-	static double[] computeBinomialLogWeights(double numberOfSuccesses, int numberOfTrials) {
+	double[] computeBinomialLogWeights(double numberOfSuccesses, int numberOfTrials) {
 		assert (numberOfSuccesses >= 0);
 		assert (numberOfSuccesses <= numberOfTrials);
 		assert (numberOfTrials > 0);
@@ -53,19 +56,5 @@ class PriorUtils {
 			logWeights[j] = binDistr.logProbability(j);
 		}
 		return logWeights;
-	}
-
-	public static void main(String[] args) {
-		int nodeCnt = 100;
-		int timeBinCnt = 24;
-		int maxRoundTripSize = timeBinCnt;
-
-		double[] uniform = computeUniformLogWeights(nodeCnt, timeBinCnt, maxRoundTripSize);
-		double[] binomial = computeBinomialLogWeights(12, 24);
-
-		System.out.println(
-				"uniform\t" + Arrays.stream(uniform).boxed().map(p -> "" + p).collect(Collectors.joining("\t")));
-		System.out.println(
-				"binomial\t" + Arrays.stream(binomial).boxed().map(p -> "" + p).collect(Collectors.joining("\t")));
 	}
 }

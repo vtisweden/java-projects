@@ -31,10 +31,16 @@ import se.vti.roundtrips.simulator.MoveEpisode;
  */
 public class RoundTripUtils {
 
-	private RoundTripUtils() {		
+	private static final RoundTripUtils singleton = new RoundTripUtils();
+
+	public static RoundTripUtils singleton() {
+		return singleton;
 	}
-	
-	public static double computeTotalTravelDuration_h(RoundTrip<?> roundTrip) {
+
+	RoundTripUtils() {
+	}
+
+	public double computeTotalTravelDuration_h(RoundTrip<?> roundTrip) {
 		double duration_h = 0;
 		List<Episode> episodes = roundTrip.getEpisodes();
 		for (int i = 1; i < episodes.size(); i += 2) {
@@ -42,8 +48,8 @@ public class RoundTripUtils {
 		}
 		return duration_h;
 	}
-	
-	public static int countInterzonalTrips(RoundTrip<?> roundTrip) {
+
+	public int countInterzonalTrips(RoundTrip<?> roundTrip) {
 		if (roundTrip.size() < 1) {
 			return 0;
 		}
@@ -57,5 +63,5 @@ public class RoundTripUtils {
 		}
 		return cnt;
 	}
-	
+
 }

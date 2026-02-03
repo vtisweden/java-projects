@@ -31,6 +31,8 @@ import se.vti.roundtrips.single.RoundTrip;
  */
 public class ElectrifiedStaySimulator<N extends Node> extends DefaultStaySimulator<N> {
 
+	private final ChargingUtils utils = new ChargingUtils();
+	
 	public ElectrifiedStaySimulator(Scenario<N> scenario) {
 		super(scenario);
 	}
@@ -39,7 +41,7 @@ public class ElectrifiedStaySimulator<N extends Node> extends DefaultStaySimulat
 		BatteryState initialState = (BatteryState) parking.getInitialState();		
 		BatteryState finalState = initialState.clone();
 		
-		Charging chargingYesNo = Charging.extractCharging(parking);
+		Charging chargingYesNo = this.utils.extractCharging(parking);
 		assert(chargingYesNo != null);
 		
 		if (chargingYesNo == Charging.YES) {

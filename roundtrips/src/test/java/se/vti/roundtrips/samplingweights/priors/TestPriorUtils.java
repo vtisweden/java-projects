@@ -1,5 +1,5 @@
 /**
- * se.vti.roundtrips
+ * se.vti.roundtrips.samplingweights.priors
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -19,32 +19,30 @@
  */
 package se.vti.roundtrips.samplingweights.priors;
 
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.common.Scenario;
-import se.vti.roundtrips.single.RoundTrip;
-import se.vti.utils.misc.metropolishastings.MHWeight;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
- * 
  * @author GunnarF
- *
  */
-public class SingleRoundTripUniformPrior<N extends Node> implements MHWeight<RoundTrip<N>> {
+class TestPriorUtils {
 
-	private final double[] uniformLogWeightsOverSize;
-
-	public SingleRoundTripUniformPrior(int nodeCnt, int timeBinCnt, int maximumRoundTripSize) {
-		this.uniformLogWeightsOverSize = new PriorUtils().computeUniformLogWeights(nodeCnt, timeBinCnt,
-				maximumRoundTripSize);
+	@Test
+	void testUniform() {
+		int nodeCnt = 2;
+		int timeBinCnt = 3;
+		int maxSize = 2;
+		double[] uniform = PriorUtils.singleton().computeUniformLogWeights(nodeCnt, timeBinCnt, maxSize);
+		Assertions.assertArrayEquals(new double[] { -0.0, -1.791759469228055, -2.4849066497880004 }, uniform);
 	}
 
-	public SingleRoundTripUniformPrior(Scenario<N> scenario) {
-		this(scenario.getNodesCnt(), scenario.getTimeBinCnt(), scenario.getMaxPossibleStayEpisodes());
+	@Test
+	void testBinomial() {
+		int timeBinCnt = 3;
+		double successProbability = 0.5;
+		double[] binomial = PriorUtils.singleton().computeBinomialLogWeights(successProbability, timeBinCnt);
+		Assertions.assertArrayEquals(
+				new double[] { -0.5469646703818638, -1.0577902941478547, -2.667228206581955, -5.375278407684165 },
+				binomial);
 	}
-
-	@Override
-	public double logWeight(RoundTrip<N> roundTrip) {
-		return this.uniformLogWeightsOverSize[roundTrip.size()];
-	}
-
 }

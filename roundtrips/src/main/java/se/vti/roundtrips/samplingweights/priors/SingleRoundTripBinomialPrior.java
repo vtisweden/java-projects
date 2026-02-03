@@ -19,7 +19,7 @@ public class SingleRoundTripBinomialPrior<N extends Node> implements MHWeight<Ro
 	public SingleRoundTripBinomialPrior(int nodeCnt, int timeBinCnt, double expectedRoundTripSize,
 			int maximumRoundTripSize) {
 		this.uniformPrior = new SingleRoundTripUniformPrior<>(nodeCnt, timeBinCnt, maximumRoundTripSize);
-		this.binomialLogWeightsOverSize = PriorUtils.computeBinomialLogWeights(expectedRoundTripSize,
+		this.binomialLogWeightsOverSize = new PriorUtils().computeBinomialLogWeights(expectedRoundTripSize,
 				maximumRoundTripSize);
 	}
 

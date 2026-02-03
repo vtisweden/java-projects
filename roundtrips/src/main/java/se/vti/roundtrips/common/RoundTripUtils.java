@@ -33,22 +33,28 @@ import se.vti.roundtrips.single.RoundTrip;
  */
 public class RoundTripUtils {
 
-	private RoundTripUtils() {
+	private static final RoundTripUtils singleton = new RoundTripUtils();
+	
+	public static RoundTripUtils singleton() {
+		return singleton;
+	}
+	
+	public RoundTripUtils() {
 	}
 
-	public static <N extends Node> int[] findIndices(N node, RoundTrip<N> roundTrip) {
+	public <N extends Node> int[] findIndices(N node, RoundTrip<N> roundTrip) {
 		return IntStream.range(0, roundTrip.size()).filter(i -> roundTrip.getNode(i) == node).toArray();
 	}
 
-	public static <N extends Node> List<int[]> shortestPaths(N from, N to, RoundTrip<N> roundTrip) {
+	public <N extends Node> List<int[]> shortestPaths(N from, N to, RoundTrip<N> roundTrip) {
 
 		int size = roundTrip.size();
 		if (size == 0) {
 			return Collections.emptyList();
 		}
 
-		var fromIndices = findIndices(from, roundTrip);
-		var toIndices = findIndices(to, roundTrip);
+		var fromIndices = this.findIndices(from, roundTrip);
+		var toIndices = this.findIndices(to, roundTrip);
 		if ((fromIndices.length == 0) || (toIndices.length == 0)) {
 			return Collections.emptyList();
 		}

@@ -1,5 +1,5 @@
 /**
- * se.vti.roundtrips
+ * se.vti.roundtrips.simulator.electrified
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -17,34 +17,39 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.samplingweights.priors;
+package se.vti.roundtrips.simulator.electrified;
+
+import java.util.List;
 
 import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.common.Scenario;
-import se.vti.roundtrips.single.RoundTrip;
-import se.vti.utils.misc.metropolishastings.MHWeight;
+import se.vti.roundtrips.simulator.StayEpisode;
 
 /**
- * 
  * @author GunnarF
- *
  */
-public class SingleRoundTripUniformPrior<N extends Node> implements MHWeight<RoundTrip<N>> {
+public class ChargingUtils {
 
-	private final double[] uniformLogWeightsOverSize;
+	private static final ChargingUtils singleton = new ChargingUtils();
 
-	public SingleRoundTripUniformPrior(int nodeCnt, int timeBinCnt, int maximumRoundTripSize) {
-		this.uniformLogWeightsOverSize = new PriorUtils().computeUniformLogWeights(nodeCnt, timeBinCnt,
-				maximumRoundTripSize);
+	public static ChargingUtils singleton() {
+		return singleton;
 	}
 
-	public SingleRoundTripUniformPrior(Scenario<N> scenario) {
-		this(scenario.getNodesCnt(), scenario.getTimeBinCnt(), scenario.getMaxPossibleStayEpisodes());
+	public ChargingUtils() {
 	}
 
-	@Override
-	public double logWeight(RoundTrip<N> roundTrip) {
-		return this.uniformLogWeightsOverSize[roundTrip.size()];
+	public Charging extractCharging(Node node) {
+		List<? extends Enum<?>> labels = node.getLabels();
+		for (int i = 0; i < labels.size(); i++) {
+			if (labels.get(i) instanceof Charging chargingLabel) {
+				return chargingLabel;
+			}
+		}
+		return null;
+	}
+
+	public Charging extractCharging(StayEpisode<?> parking) {
+		return this.extractCharging(parking.getLocation());
 	}
 
 }

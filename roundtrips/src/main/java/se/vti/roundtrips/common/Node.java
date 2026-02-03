@@ -58,7 +58,7 @@ public class Node {
 
 	// -------------------- IMPLEMENTATION --------------------
 
-	public static String createName(String basicName, List<? extends Enum<?>> labels) {
+	public synchronized static String createName(String basicName, List<? extends Enum<?>> labels) {
 		if (labels == null || labels.size() == 0) {
 			return basicName;
 		} else {
@@ -66,7 +66,7 @@ public class Node {
 		}
 	}
 
-	public static String createName(String basicName, Enum<?>... labels) {
+	public synchronized static String createName(String basicName, Enum<?>... labels) {
 		return createName(basicName, Arrays.asList(labels));
 	}
 
