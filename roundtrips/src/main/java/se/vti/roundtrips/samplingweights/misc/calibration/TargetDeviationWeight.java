@@ -41,6 +41,7 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 
 	private double[] target;
 
+	private double expansionFactor = Double.NaN;
 	private double standardDeviation = Double.NaN;
 	private double variance = Double.NaN;
 
@@ -84,26 +85,44 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 		return this.target;
 	}
 
+	// -------------------- INTERNALS --------------------
+
+	/* package for testing */ void computeExpansionFactor(int syntheticPopulationSize) {
+		this.expansionFactor = this.realPopulationSize / syntheticPopulationSize;
+		this.variance = expansionFactor * expansionFactor / 12.0;
+		this.standardDeviation = Math.sqrt(this.variance);
+	}
+
+	/* package for testing */ double computeLogWeight(double sampleValue, double targetValue) {
+		double e = sampleValue * this.expansionFactor - targetValue;
+		double logWeight1 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e - 0.5 * this.expansionFactor));
+		double logWeight2 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e + 0.5 * this.expansionFactor));
+		double maxLogWeight = Math.max(logWeight1, logWeight2);
+		return Math.log(Math.exp(logWeight1 - maxLogWeight) + Math.exp(logWeight2 - maxLogWeight)) + maxLogWeight;
+	}
+
 	// -------------------- IMPLEMENTATION OF MHWeight --------------------
 
 	@Override
 	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
 
-		final double expansionFactor = this.realPopulationSize / multiRoundTrip.size();
-		this.variance = expansionFactor * expansionFactor / 12.0;
-		this.standardDeviation = Math.sqrt(this.variance);
+//		final double expansionFactor = this.realPopulationSize / multiRoundTrip.size();
+//		this.variance = expansionFactor * expansionFactor / 12.0;
+//		this.standardDeviation = Math.sqrt(this.variance);
+		this.computeExpansionFactor(multiRoundTrip.size());
 
 		final double[] sample = this.computeSample(multiRoundTrip, this.filter);
 		this.computeTargetIfAbsent();
 
 		double logWeightSum = 0.0;
 		for (int i = 0; i < this.target.length; i++) {
-			double e = sample[i] * expansionFactor - this.target[i];
-			double logWeight1 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e - 0.5 * expansionFactor));
-			double logWeight2 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e + 0.5 * expansionFactor));
-			double maxLogWeight = Math.max(logWeight1, logWeight2);
-			logWeightSum += Math.log(Math.exp(logWeight1 - maxLogWeight) + Math.exp(logWeight2 - maxLogWeight))
-					+ maxLogWeight;
+//			double e = sample[i] * expansionFactor - this.target[i];
+//			double logWeight1 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e - 0.5 * expansionFactor));
+//			double logWeight2 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e + 0.5 * expansionFactor));
+//			double maxLogWeight = Math.max(logWeight1, logWeight2);
+//			logWeightSum += Math.log(Math.exp(logWeight1 - maxLogWeight) + Math.exp(logWeight2 - maxLogWeight))
+//					+ maxLogWeight;
+			logWeightSum += this.computeLogWeight(sample[i], this.target[i]);
 		}
 		return logWeightSum;
 	}
