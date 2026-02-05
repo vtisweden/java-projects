@@ -41,6 +41,9 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 
 	private double[] target;
 
+	private double standardDeviation = Double.NaN;
+	private double variance = Double.NaN;
+
 	private Function<Double, Double> singleAbsoluteResidualToLogWeight = null;
 
 	// -------------------- CONSTRUCTION --------------------
@@ -53,16 +56,18 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 	// -------------------- SETTERS & GETTERS --------------------
 
 	public void setToTwoSidedExponential() {
-		this.setSingleAbsoluteResidualToLogWeight(a -> (-1.0) * a);
+		this.singleAbsoluteResidualToLogWeight = (r -> (-1.0) * r * Math.sqrt(2.0) / this.standardDeviation);
+//		this.setSingleAbsoluteResidualToLogWeight(a -> (-1.0) * a);
 	}
 
 	public void setToGaussian() {
-		this.setSingleAbsoluteResidualToLogWeight(r -> (-0.5) * r * r);
+		this.singleAbsoluteResidualToLogWeight = (r -> (-0.5) * r * r / this.variance);
+//		this.setSingleAbsoluteResidualToLogWeight(r -> (-0.5) * r * r);
 	}
 
-	public void setSingleAbsoluteResidualToLogWeight(Function<Double, Double> singleAbsoluteResidualToLogWeight) {
-		this.singleAbsoluteResidualToLogWeight = singleAbsoluteResidualToLogWeight;
-	}
+//	public void setSingleAbsoluteResidualToLogWeight(Function<Double, Double> singleAbsoluteResidualToLogWeight) {
+//		this.singleAbsoluteResidualToLogWeight = singleAbsoluteResidualToLogWeight;
+//	}
 
 	public void setFilter(PopulationGroupFilter<N> filter) {
 		this.filter = filter;
@@ -83,8 +88,11 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 
 	@Override
 	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
-		
+
 		final double expansionFactor = this.realPopulationSize / multiRoundTrip.size();
+		this.variance = expansionFactor * expansionFactor / 12.0;
+		this.standardDeviation = Math.sqrt(this.variance);
+
 		final double[] sample = this.computeSample(multiRoundTrip, this.filter);
 		this.computeTargetIfAbsent();
 
