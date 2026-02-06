@@ -40,8 +40,13 @@ public class MHWeightContainer<X> implements MHWeight<X> {
 	public List<MHWeight<X>> getComponentsView() {
 		return Collections.unmodifiableList(this.components);
 	}
-	
+
 	public void add(MHWeight<X> component, double weight) {
+		if (!component.allowsForWeightsOtherThanOneInMHWeightContainer() && (weight != 1.0)) {
+			throw new RuntimeException(MHWeight.class.getSimpleName() + " " + component.name()
+					+ " does not allow to set weights other than 1.0 in " + MHWeightContainer.class.getSimpleName()
+					+ ".");
+		}
 		this.components.add(component);
 		this.weights.add(weight);
 	}

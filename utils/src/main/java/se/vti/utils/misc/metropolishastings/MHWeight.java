@@ -34,4 +34,8 @@ public interface MHWeight<S extends Object> {
 		return this.getClass().getSimpleName();
 	}
 	
+	default boolean allowsForWeightsOtherThanOneInMHWeightContainer() {
+		return true;
+	}
+	
 }
