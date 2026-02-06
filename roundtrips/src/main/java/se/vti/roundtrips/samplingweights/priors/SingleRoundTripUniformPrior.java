@@ -33,6 +33,8 @@ public class SingleRoundTripUniformPrior<N extends Node> implements MHWeight<Rou
 
 	private final double[] uniformLogWeightsOverSize;
 
+	// -------------------- CONSTRUCTION --------------------
+	
 	public SingleRoundTripUniformPrior(int nodeCnt, int timeBinCnt, int maximumRoundTripSize) {
 		this.uniformLogWeightsOverSize = new PriorUtils().computeUniformLogWeights(nodeCnt, timeBinCnt,
 				maximumRoundTripSize);
@@ -40,6 +42,13 @@ public class SingleRoundTripUniformPrior<N extends Node> implements MHWeight<Rou
 
 	public SingleRoundTripUniformPrior(Scenario<N> scenario) {
 		this(scenario.getNodesCnt(), scenario.getTimeBinCnt(), scenario.getMaxPossibleStayEpisodes());
+	}
+
+	// -------------------- IMPLEMENTATION OF MHWeight --------------------
+	
+	@Override
+	public boolean allowsForWeightsOtherThanOneInMHWeightContainer() {
+		return false;
 	}
 
 	@Override

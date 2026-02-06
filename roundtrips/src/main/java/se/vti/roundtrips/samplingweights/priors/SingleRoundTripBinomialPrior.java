@@ -16,6 +16,8 @@ public class SingleRoundTripBinomialPrior<N extends Node> implements MHWeight<Ro
 
 	private final double[] binomialLogWeightsOverSize;
 
+	// -------------------- CONSTRUCTION --------------------
+
 	public SingleRoundTripBinomialPrior(int nodeCnt, int timeBinCnt, double expectedRoundTripSize,
 			int maximumRoundTripSize) {
 		this.uniformPrior = new SingleRoundTripUniformPrior<>(nodeCnt, timeBinCnt, maximumRoundTripSize);
@@ -26,6 +28,13 @@ public class SingleRoundTripBinomialPrior<N extends Node> implements MHWeight<Ro
 	public SingleRoundTripBinomialPrior(Scenario<N> scenario, double expectedRoundTripSize) {
 		this(scenario.getNodesCnt(), scenario.getTimeBinCnt(), expectedRoundTripSize,
 				scenario.getMaxPossibleStayEpisodes());
+	}
+	
+	// -------------------- IMPLEMENTATION OF MHWeight --------------------
+
+	@Override
+	public boolean allowsForWeightsOtherThanOneInMHWeightContainer() {
+		return false;
 	}
 
 	@Override

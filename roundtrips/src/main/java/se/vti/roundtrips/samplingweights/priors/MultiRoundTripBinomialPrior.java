@@ -39,7 +39,12 @@ public class MultiRoundTripBinomialPrior<N extends Node> implements MHWeight<Mul
 				scenario.getMaxPossibleStayEpisodes());
 	}
 
-	// -------------------- SINGLE(S) IMPLEMENTATION --------------------
+	// -------------------- IMPLEMENTATION OF MHWeight --------------------
+
+	@Override
+	public boolean allowsForWeightsOtherThanOneInMHWeightContainer() {
+		return false;
+	}
 
 	@Override
 	public double logWeight(MultiRoundTrip<N> roundTrips) {

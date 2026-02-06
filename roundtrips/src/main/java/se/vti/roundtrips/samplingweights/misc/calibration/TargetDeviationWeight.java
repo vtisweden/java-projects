@@ -47,7 +47,7 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 	private double discretizationStandardDeviation = Double.NaN;
 	private double discretizationVariance = Double.NaN;
 
-	private Function<Double, Double> singleAbsoluteResidualToLogWeight = null;
+	private Function<Double, Double> absoluteResidualToLogWeight = null;
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -57,15 +57,27 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 
 	// -------------------- SETTERS & GETTERS --------------------
 
-	public TargetDeviationWeight<N> setToTwoSidedExponential(double standardDeviationWithoutDiscretization) {
-		this.singleAbsoluteResidualToLogWeight = (r -> (-1.0) * r * Math.sqrt(2.0)
+	/*
+	 * f(r) ~ exp(-|r| / b)
+	 * 
+	 * sigma^2 = 2 * b^2
+	 * 
+	 * b = sigma / sqrt(2)
+	 * 
+	 */
+	public TargetDeviationWeight<N> setToTwoSidedExponential(double standardDeviationWithoutDiscretization) { 
+		this.absoluteResidualToLogWeight = (r -> (-1.0) * r * Math.sqrt(2.0)
 				/ (standardDeviationWithoutDiscretization + this.discretizationStandardDeviation));
 		return this;
 	}
 
+	/*
+	 * f(r) ~exp(-1/2 * r^2 / sigma^2)
+	 */
 	public TargetDeviationWeight<N> setToGaussian(double standardDeviationWithoutDiscretization) {
-		this.singleAbsoluteResidualToLogWeight = (r -> (-0.5) * r * r
-				/ (standardDeviationWithoutDiscretization + this.discretizationVariance));
+		this.absoluteResidualToLogWeight = (r -> (-0.5) * r * r
+				/ (standardDeviationWithoutDiscretization * standardDeviationWithoutDiscretization
+						+ this.discretizationVariance));
 		return this;
 	}
 
@@ -94,6 +106,7 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 
 	/* package for testing */ void computeExpansionFactor(int syntheticPopulationSize) {
 		if (!this.expansionFactorIsComputed) {
+			// ExpansionFactor equals width of uniform discretization noise distribution.
 			this.expansionFactor = this.realPopulationSize / syntheticPopulationSize;
 			if (this.accountForDiscretizationNoise) {
 				this.discretizationVariance = this.expansionFactor * this.expansionFactor / 12.0;
@@ -105,14 +118,14 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 			this.expansionFactorIsComputed = true;
 		}
 	}
-	
+
 	/* package for testing */ double computeLogWeight(double sampleValue, double targetValue) {
 //		double e = sampleValue * this.expansionFactor - targetValue;
 //		double logWeight1 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e - 0.5 * this.expansionFactor));
 //		double logWeight2 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e + 0.5 * this.expansionFactor));
 //		double maxLogWeight = Math.max(logWeight1, logWeight2);
 //		return Math.log(Math.exp(logWeight1 - maxLogWeight) + Math.exp(logWeight2 - maxLogWeight)) + maxLogWeight;
-		return this.singleAbsoluteResidualToLogWeight.apply(Math.abs(sampleValue * this.expansionFactor - targetValue));
+		return this.absoluteResidualToLogWeight.apply(Math.abs(sampleValue * this.expansionFactor - targetValue));
 	}
 
 	// -------------------- IMPLEMENTATION OF MHWeight --------------------
