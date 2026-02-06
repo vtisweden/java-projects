@@ -54,7 +54,7 @@
 		<dependency>
 			<groupId>se.vti.java-projects</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.1.7</version>
+			<version>0.1.8-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>

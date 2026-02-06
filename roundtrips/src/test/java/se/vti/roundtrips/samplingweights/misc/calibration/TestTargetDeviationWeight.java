@@ -19,8 +19,7 @@
  */
 package se.vti.roundtrips.samplingweights.misc.calibration;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import se.vti.roundtrips.common.Node;
@@ -55,37 +54,45 @@ class TestTargetDeviationWeight {
 
 	}
 	
-	double realPopulationSize = 25_000;
-	int syntheticPopulationSize = 100;
-	double targetValue = 0.5 * realPopulationSize;
+	final static double realPopulationSize = 10_000;
+	final static int syntheticPopulationSize = 100;
+	final static double targetValue = 0.5 * realPopulationSize;
 
 
-//	@Test
-	void testTwoSidedExponential() {
-		
-		var testInstance = new TestInstance(realPopulationSize);
-		testInstance.setToTwoSidedExponential();
+	@Test
+	void testTwoSidedExponentialWithoutDiscretization() {		
+		var testInstance = new TestInstance(realPopulationSize).setToTwoSidedExponential(1.0).setAccountForDiscretizationNoise(false);
 		testInstance.computeExpansionFactor(syntheticPopulationSize);
-
-		for (int sampleValue = 0; sampleValue <= syntheticPopulationSize; sampleValue++) {
-			System.out.println(sampleValue + "\t" + testInstance.computeLogWeight(sampleValue, targetValue));
-		}
-
-//		fail("Not yet implemented");
+		Assertions.assertEquals(0, Math.abs(testInstance.computeLogWeight(syntheticPopulationSize / 2.0, realPopulationSize / 2.0)));		
+		Assertions.assertEquals(-141.4213562373095, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 - 1, realPopulationSize / 2.0));		
+		Assertions.assertEquals(-141.4213562373095, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 + 1, realPopulationSize / 2.0));		
 	}
 
 	@Test
-	void testGaussian() {
-
-		var testInstance = new TestInstance(realPopulationSize);
-		testInstance.setToGaussian();
+	void testTwoSidedExponentialWithDiscretization() {		
+		var testInstance = new TestInstance(realPopulationSize).setToTwoSidedExponential(1.0).setAccountForDiscretizationNoise(true);
 		testInstance.computeExpansionFactor(syntheticPopulationSize);
+		Assertions.assertEquals(0, Math.abs(testInstance.computeLogWeight(syntheticPopulationSize / 2.0, realPopulationSize / 2.0)));		
+		Assertions.assertEquals(-4.734955805047642, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 - 1, realPopulationSize / 2.0));		
+		Assertions.assertEquals(-4.734955805047642, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 + 1, realPopulationSize / 2.0));		
+	}
 
-		for (int sampleValue = 0; sampleValue <= syntheticPopulationSize; sampleValue++) {
-			System.out.println(sampleValue + "\t" + testInstance.computeLogWeight(sampleValue, targetValue));
-		}
+	@Test
+	void testGaussianWithoutDiscretization() {
+		var testInstance = new TestInstance(realPopulationSize).setToGaussian(1.0).setAccountForDiscretizationNoise(false);
+		testInstance.computeExpansionFactor(syntheticPopulationSize);
+		Assertions.assertEquals(0, Math.abs(testInstance.computeLogWeight(syntheticPopulationSize / 2.0, realPopulationSize / 2.0)));		
+		Assertions.assertEquals(-5000.0, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 - 1, realPopulationSize / 2.0));		
+		Assertions.assertEquals(-5000.0, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 + 1, realPopulationSize / 2.0));		
+	}
 
-//		fail("Not yet implemented");
+	@Test
+	void testGaussianWithDiscretization() {
+		var testInstance = new TestInstance(realPopulationSize).setToGaussian(1.0).setAccountForDiscretizationNoise(true);
+		testInstance.computeExpansionFactor(syntheticPopulationSize);
+		Assertions.assertEquals(0, Math.abs(testInstance.computeLogWeight(syntheticPopulationSize / 2.0, realPopulationSize / 2.0)));		
+		Assertions.assertEquals(-5.9928086296444265, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 - 1, realPopulationSize / 2.0));		
+		Assertions.assertEquals(-5.9928086296444265, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 + 1, realPopulationSize / 2.0));		
 	}
 
 }

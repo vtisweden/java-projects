@@ -41,9 +41,11 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 
 	private double[] target;
 
+	private boolean accountForDiscretizationNoise = true;
+	private boolean expansionFactorIsComputed = false;
 	private double expansionFactor = Double.NaN;
-	private double standardDeviation = Double.NaN;
-	private double variance = Double.NaN;
+	private double discretizationStandardDeviation = Double.NaN;
+	private double discretizationVariance = Double.NaN;
 
 	private Function<Double, Double> singleAbsoluteResidualToLogWeight = null;
 
@@ -51,27 +53,30 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 
 	public TargetDeviationWeight(double realPopulationSize) {
 		this.realPopulationSize = realPopulationSize;
-		this.setToTwoSidedExponential();
 	}
 
 	// -------------------- SETTERS & GETTERS --------------------
 
-	public void setToTwoSidedExponential() {
-		this.singleAbsoluteResidualToLogWeight = (r -> (-1.0) * r * Math.sqrt(2.0) / this.standardDeviation);
-//		this.setSingleAbsoluteResidualToLogWeight(a -> (-1.0) * a);
+	public TargetDeviationWeight<N> setToTwoSidedExponential(double standardDeviationWithoutDiscretization) {
+		this.singleAbsoluteResidualToLogWeight = (r -> (-1.0) * r * Math.sqrt(2.0)
+				/ (standardDeviationWithoutDiscretization + this.discretizationStandardDeviation));
+		return this;
 	}
 
-	public void setToGaussian() {
-		this.singleAbsoluteResidualToLogWeight = (r -> (-0.5) * r * r / this.variance);
-//		this.setSingleAbsoluteResidualToLogWeight(r -> (-0.5) * r * r);
+	public TargetDeviationWeight<N> setToGaussian(double standardDeviationWithoutDiscretization) {
+		this.singleAbsoluteResidualToLogWeight = (r -> (-0.5) * r * r
+				/ (standardDeviationWithoutDiscretization + this.discretizationVariance));
+		return this;
 	}
 
-//	public void setSingleAbsoluteResidualToLogWeight(Function<Double, Double> singleAbsoluteResidualToLogWeight) {
-//		this.singleAbsoluteResidualToLogWeight = singleAbsoluteResidualToLogWeight;
-//	}
+	public TargetDeviationWeight<N> setAccountForDiscretizationNoise(boolean accountForDiscretizationNoise) {
+		this.accountForDiscretizationNoise = accountForDiscretizationNoise;
+		return this;
+	}
 
-	public void setFilter(PopulationGroupFilter<N> filter) {
+	public TargetDeviationWeight<N> setFilter(PopulationGroupFilter<N> filter) {
 		this.filter = filter;
+		return this;
 	}
 
 	public PopulationGroupFilter<N> getFilter() {
@@ -88,27 +93,38 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 	// -------------------- INTERNALS --------------------
 
 	/* package for testing */ void computeExpansionFactor(int syntheticPopulationSize) {
-		this.expansionFactor = this.realPopulationSize / syntheticPopulationSize;
-		this.variance = expansionFactor * expansionFactor / 12.0;
-		this.standardDeviation = Math.sqrt(this.variance);
+		if (!this.expansionFactorIsComputed) {
+			this.expansionFactor = this.realPopulationSize / syntheticPopulationSize;
+			if (this.accountForDiscretizationNoise) {
+				this.discretizationVariance = this.expansionFactor * this.expansionFactor / 12.0;
+				this.discretizationStandardDeviation = Math.sqrt(this.discretizationVariance);
+			} else {
+				this.discretizationVariance = 0.0;
+				this.discretizationStandardDeviation = 0.0;
+			}
+			this.expansionFactorIsComputed = true;
+		}
 	}
-
+	
 	/* package for testing */ double computeLogWeight(double sampleValue, double targetValue) {
-		double e = sampleValue * this.expansionFactor - targetValue;
-		double logWeight1 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e - 0.5 * this.expansionFactor));
-		double logWeight2 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e + 0.5 * this.expansionFactor));
-		double maxLogWeight = Math.max(logWeight1, logWeight2);
-		return Math.log(Math.exp(logWeight1 - maxLogWeight) + Math.exp(logWeight2 - maxLogWeight)) + maxLogWeight;
+//		double e = sampleValue * this.expansionFactor - targetValue;
+//		double logWeight1 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e - 0.5 * this.expansionFactor));
+//		double logWeight2 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e + 0.5 * this.expansionFactor));
+//		double maxLogWeight = Math.max(logWeight1, logWeight2);
+//		return Math.log(Math.exp(logWeight1 - maxLogWeight) + Math.exp(logWeight2 - maxLogWeight)) + maxLogWeight;
+		return this.singleAbsoluteResidualToLogWeight.apply(Math.abs(sampleValue * this.expansionFactor - targetValue));
 	}
 
 	// -------------------- IMPLEMENTATION OF MHWeight --------------------
 
 	@Override
+	public boolean allowsForWeightsOtherThanOneInMHWeightContainer() {
+		return false;
+	}
+
+	@Override
 	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
 
-//		final double expansionFactor = this.realPopulationSize / multiRoundTrip.size();
-//		this.variance = expansionFactor * expansionFactor / 12.0;
-//		this.standardDeviation = Math.sqrt(this.variance);
 		this.computeExpansionFactor(multiRoundTrip.size());
 
 		final double[] sample = this.computeSample(multiRoundTrip, this.filter);
@@ -116,12 +132,6 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 
 		double logWeightSum = 0.0;
 		for (int i = 0; i < this.target.length; i++) {
-//			double e = sample[i] * expansionFactor - this.target[i];
-//			double logWeight1 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e - 0.5 * expansionFactor));
-//			double logWeight2 = this.singleAbsoluteResidualToLogWeight.apply(Math.abs(e + 0.5 * expansionFactor));
-//			double maxLogWeight = Math.max(logWeight1, logWeight2);
-//			logWeightSum += Math.log(Math.exp(logWeight1 - maxLogWeight) + Math.exp(logWeight2 - maxLogWeight))
-//					+ maxLogWeight;
 			logWeightSum += this.computeLogWeight(sample[i], this.target[i]);
 		}
 		return logWeightSum;
