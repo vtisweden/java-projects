@@ -27,9 +27,11 @@ import java.util.function.Function;
 /**
  * @author GunnarF
  */
-public class MHBatchBasedVarianceEstimator<X> implements MHStateProcessor<X> {
+public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 
-	private final Function<X, Double> stateToStatistic;
+	private final String name;
+
+	private Function<X, Double> stateToStatistic = null;
 
 	private double shareOfDiscardedTransients = 0.1;
 
@@ -42,18 +44,32 @@ public class MHBatchBasedVarianceEstimator<X> implements MHStateProcessor<X> {
 	private Double effectiveVariance = null;
 	private Double varianceOfMean = null;
 
-	public MHBatchBasedVarianceEstimator(Function<X, Double> stateToStatistic) {
+	public MHBatchBasedStatisticEstimator(String name, Function<X, Double> stateToStatistic) {
+		this.name = name;
 		this.stateToStatistic = stateToStatistic;
 	}
+	
+	public MHBatchBasedStatisticEstimator(String name) {
+		this(name, null); // Lazy initialization.
+	}
 
-	public MHBatchBasedVarianceEstimator<X> setShareOfDiscartedTransients(double share) {
+	public MHBatchBasedStatisticEstimator<X> setStateToStatistic(Function<X, Double> stateToStatistic) {
+		this.stateToStatistic = stateToStatistic;
+		return this;
+	}
+
+	public MHBatchBasedStatisticEstimator<X> setShareOfDiscartedTransients(double share) {
 		this.shareOfDiscardedTransients = share;
 		return this;
 	}
 
-	public MHBatchBasedVarianceEstimator<X> setMinBatchSize(int minBatchSize) {
+	public MHBatchBasedStatisticEstimator<X> setMinBatchSize(int minBatchSize) {
 		this.minBatchSize = minBatchSize;
 		return this;
+	}
+
+	public String getName() {
+		return this.name;
 	}
 
 	public Double getMeanValue() {
@@ -66,9 +82,17 @@ public class MHBatchBasedVarianceEstimator<X> implements MHStateProcessor<X> {
 		return this.effectiveVariance;
 	}
 
+	public Double getEffectiveStandardDeviation() {
+		return Math.sqrt(this.getEffectiveVariance());
+	}
+
 	public Double getVarianceOfMean() {
 		this.ensureStatisticsUpToDate();
 		return this.varianceOfMean;
+	}
+
+	public Double getStandardDeviationOfMean() {
+		return Math.sqrt(this.getVarianceOfMean());
 	}
 
 	private void ensureStatisticsUpToDate() {
@@ -77,7 +101,7 @@ public class MHBatchBasedVarianceEstimator<X> implements MHStateProcessor<X> {
 			int batchSize = (int) Math.sqrt((1.0 - this.shareOfDiscardedTransients) * this.allDataPoints.size());
 			if (batchSize >= this.minBatchSize) {
 
-				int numberOfBatches = batchSize; // both are ~sqrt(allDataPoints.size())
+				int numberOfBatches = batchSize; // both are <= sqrt(allDataPoints.size())
 				double[] batchMeans = new double[numberOfBatches];
 				for (int batchIndex = 0; batchIndex < numberOfBatches; batchIndex++) {
 					int startDataIndex = this.allDataPoints.size() - (1 + batchIndex) * batchSize;

@@ -32,7 +32,7 @@ class TestMHBatchBasedVarianceEstimator {
 	@Test
 	void test() {
 		Random rnd = new Random(4711);
-		var estimator = new MHBatchBasedVarianceEstimator<Double>(x -> x).setMinBatchSize(10)
+		var estimator = new MHBatchBasedStatisticEstimator<Double>("test", x -> x).setMinBatchSize(10)
 				.setShareOfDiscartedTransients(0.0);
 		for (int i = 0; i < 3_000; i++) {
 			estimator.processState(rnd.nextGaussian());
@@ -40,7 +40,6 @@ class TestMHBatchBasedVarianceEstimator {
 		Assertions.assertEquals(0.0279648119240542, estimator.getMeanValue());
 		Assertions.assertEquals(1.0718082295108025, estimator.getEffectiveVariance());
 		Assertions.assertEquals(3.675611212314137E-4, estimator.getVarianceOfMean());
-
 	}
 
 }
