@@ -21,6 +21,7 @@ package se.vti.roundtrips.single;
 
 import java.util.List;
 
+import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.simulator.Episode;
 import se.vti.roundtrips.simulator.MoveEpisode;
 
@@ -29,11 +30,11 @@ import se.vti.roundtrips.simulator.MoveEpisode;
  * @author GunnarF
  *
  */
-public class RoundTripUtils {
+public class RoundTripUtils<N extends Node> {
 
-	private static final RoundTripUtils singleton = new RoundTripUtils();
+	private static final RoundTripUtils<?> singleton = new RoundTripUtils<>();
 
-	public static RoundTripUtils singleton() {
+	public static RoundTripUtils<?> singleton() {
 		return singleton;
 	}
 
@@ -42,7 +43,7 @@ public class RoundTripUtils {
 
 	// -------------------- TOTAL TRAVEL TIME --------------------
 
-	public double computeTotalMoveDuration_h(Iterable<RoundTrip<?>> roundTrips) {
+	public double computeTotalMoveDuration_h(Iterable<RoundTrip<N>> roundTrips) {
 		double totalDuration_h = 0;
 		for (var roundTrip : roundTrips) {
 			List<Episode> episodes = roundTrip.getEpisodes();

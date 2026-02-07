@@ -31,7 +31,9 @@ import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
+import se.vti.roundtrips.statistics.TotalTravelTime;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
+import se.vti.utils.misc.metropolishastings.MHStatisticsToFileLogger;
 import se.vti.utils.misc.metropolishastings.MHWeightContainer;
 import se.vti.utils.misc.metropolishastings.MHWeightsToFileLogger;
 
@@ -140,6 +142,14 @@ public class TravelSurveyExpansionExample {
 		weights.add(new ExplainRoundTripsByResponses2(responses, syntheticPopulation));
 
 		/*
+		 * Define a summary statistic of possible interest.
+		 */
+
+		var totalTravelTime = new TotalTravelTime<GridNodeWithActivity>();
+		var statisticsLogger = new MHStatisticsToFileLogger<MultiRoundTrip<GridNodeWithActivity>>(1000, "./output/travelSurveyExpansion/statisticsLogs.log");
+		statisticsLogger.add(totalTravelTime);		
+
+		/*
 		 * Ready to set up the sampling machinery.
 		 */
 
@@ -154,6 +164,9 @@ public class TravelSurveyExpansionExample {
 		algo.addStateProcessor(
 				new PlotAgeByActivityHistogram(totalIterations / 2, totalIterations / 100, syntheticPopulation));
 
+		algo.addStateProcessor(totalTravelTime);
+		algo.addStateProcessor(statisticsLogger);
+		
 		algo.setMsgInterval(totalIterations / 100);
 		algo.run(totalIterations);
 	}
