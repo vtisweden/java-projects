@@ -9,7 +9,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>roundtrips</artifactId>
-  <version>0.1.15-SNAPSHOT</version>
+  <version>0.1.14</version>
   
 	<repositories>
 	  <!--Note that in general repositories are not transitive, so they need to be repeated at every level where needed.-->
