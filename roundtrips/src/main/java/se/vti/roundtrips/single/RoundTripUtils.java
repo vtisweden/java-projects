@@ -37,17 +37,23 @@ public class RoundTripUtils {
 		return singleton;
 	}
 
-	RoundTripUtils() {
+	public RoundTripUtils() {
 	}
 
-	public double computeTotalTravelDuration_h(RoundTrip<?> roundTrip) {
-		double duration_h = 0;
-		List<Episode> episodes = roundTrip.getEpisodes();
-		for (int i = 1; i < episodes.size(); i += 2) {
-			duration_h += ((MoveEpisode<?>) episodes.get(i)).getDuration_h();
+	// -------------------- TOTAL TRAVEL TIME --------------------
+
+	public double computeTotalMoveDuration_h(Iterable<RoundTrip<?>> roundTrips) {
+		double totalDuration_h = 0;
+		for (var roundTrip : roundTrips) {
+			List<Episode> episodes = roundTrip.getEpisodes();
+			for (int i = 1; i < episodes.size(); i += 2) {
+				totalDuration_h += ((MoveEpisode<?>) episodes.get(i)).getDuration_h();
+			}
 		}
-		return duration_h;
+		return totalDuration_h;
 	}
+
+	// -------------------- ... --------------------
 
 	public int countInterzonalTrips(RoundTrip<?> roundTrip) {
 		if (roundTrip.size() < 1) {

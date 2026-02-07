@@ -41,7 +41,7 @@ public class RoundTripUtils {
 	
 	public RoundTripUtils() {
 	}
-
+	
 	public <N extends Node> int[] findIndices(N node, RoundTrip<N> roundTrip) {
 		return IntStream.range(0, roundTrip.size()).filter(i -> roundTrip.getNode(i) == node).toArray();
 	}

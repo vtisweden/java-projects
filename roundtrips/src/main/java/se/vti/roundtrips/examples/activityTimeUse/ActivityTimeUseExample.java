@@ -132,6 +132,10 @@ class ActivityTimeUseExample {
 		weights.add(timeUse);
 
 		/*
+		 * Define a summary statistic of possible interest.
+		 */
+		
+		/*
 		 * Ready to set up the sampling machinery.
 		 */
 
