@@ -48,7 +48,7 @@ public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 		this.name = name;
 		this.stateToStatistic = stateToStatistic;
 	}
-	
+
 	public MHBatchBasedStatisticEstimator(String name) {
 		this(name, null); // Lazy initialization.
 	}
@@ -83,7 +83,12 @@ public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 	}
 
 	public Double getEffectiveStandardDeviation() {
-		return Math.sqrt(this.getEffectiveVariance());
+		Double effectiveVariance = this.getEffectiveVariance();
+		if (effectiveVariance != null) {
+			return Math.sqrt(effectiveVariance);
+		} else {
+			return null;
+		}
 	}
 
 	public Double getVarianceOfMean() {
@@ -92,7 +97,12 @@ public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 	}
 
 	public Double getStandardDeviationOfMean() {
-		return Math.sqrt(this.getVarianceOfMean());
+		Double varianceOfMean = this.getVarianceOfMean();
+		if (varianceOfMean != null) {
+			return Math.sqrt(varianceOfMean);
+		} else {
+			return null;
+		}
 	}
 
 	private void ensureStatisticsUpToDate() {

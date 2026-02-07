@@ -28,7 +28,7 @@ import java.io.PrintWriter;
  * @author GunnarF
  *
  */
-public abstract class MHToFileLogger<R> extends MHAbstractStateProcessor<R> implements MHStateProcessor<R> {
+public abstract class MHToFileLogger<X> extends MHAbstractStateProcessor<X> implements MHStateProcessor<X> {
 
 	private final File logFile;
 
@@ -40,7 +40,7 @@ public abstract class MHToFileLogger<R> extends MHAbstractStateProcessor<R> impl
 		super(0, samplingInterval);
 		this.logFile = new File(logFileName);
 	}
-	
+
 	public void setFlushEachLine(boolean flushEachLine) {
 		this.flushEachLine = flushEachLine;
 	}
@@ -71,14 +71,17 @@ public abstract class MHToFileLogger<R> extends MHAbstractStateProcessor<R> impl
 	}
 
 	@Override
-	public final void processStateHook(R state) {
-		this.writer.println(createDataLine(state));
-		if (this.flushEachLine) {
-			this.writer.flush();
+	public final void processStateHook(X state) {
+		String dataLine = createDataLine(state);
+		if (dataLine != null) {
+			this.writer.println(dataLine);
+			if (this.flushEachLine) {
+				this.writer.flush();
+			}
 		}
 	}
 
 	public abstract String createHeaderLine();
 
-	public abstract String createDataLine(R state);
+	public abstract String createDataLine(X state);
 }
