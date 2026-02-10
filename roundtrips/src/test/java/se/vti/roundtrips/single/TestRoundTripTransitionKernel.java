@@ -21,11 +21,13 @@ package se.vti.roundtrips.single;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.common.Scenario;
@@ -204,7 +206,7 @@ class TestRoundTripTransitionKernel {
 		return new RoundTrip<Node>(0, nodes, departures);
 	}
 
-	@org.junit.jupiter.api.Test
+	@Test
 	void testTransition() {
 		var scenario = createScenario();
 		var params = new RoundTripProposalParameters();
@@ -223,6 +225,56 @@ class TestRoundTripTransitionKernel {
 				var bwdKernel = new RoundTripTransitionKernel<>(to, scenario, params);
 				Assertions.assertEquals(transition.getBwdLogProb(),
 						Math.log(this.transitionProbaChecked(bwdKernel, from)), 1e-8);
+			}
+		}
+	}
+
+	double explicitNumberOfRemovalPoints(List<?> longer, List<?> shorter) {
+		assert (shorter.size() + 1 == longer.size());
+		int result = 0;
+		LinkedList<Object> tmp = new LinkedList<>(longer);
+		for (int i = 0; i < longer.size(); i++) {
+			Object removed = tmp.remove(i);
+			assert (tmp.size() == shorter.size());
+			if (tmp.equals(shorter)) {
+				result++;
+			}
+			tmp.add(i, removed);
+			assert (tmp.equals(longer));
+		}
+		assert (result > 0);
+		return result;
+	}
+
+	@Test
+	void testNumberOfInsertionRemovalPoints() {
+		var scenario = createScenario();
+		var params = new RoundTripProposalParameters(0.5, 0.5, 0.0, 0.0); // only insert
+		var proposal = new RoundTripProposal<Node>(params, scenario);
+
+		for (int size = 0; size <= scenario.getMaxPossibleStayEpisodes() - 1; size++) {
+			for (int replication = 0; replication < 10 + 10 * size; replication++) {
+				var from = createRoundTrip(scenario, size);
+				var transition = proposal.newTransition(from);
+				var to = transition.getNewState();
+
+				if (from.size() - 1 == to.size()) {
+
+					var bwdKernel = new RoundTripTransitionKernel<>(to, scenario, params);
+					int numberOfFwdRemovalPoints = (int) this.explicitNumberOfRemovalPoints(from.getNodesView(), to.getNodesView());
+					int numberOfBwdInsertionPoints = (int) bwdKernel.numberOfInsertionPoints(to.getNodesView(), from.getNodesView());
+					Assertions.assertEquals(numberOfFwdRemovalPoints, numberOfBwdInsertionPoints, "from=" + from.getNodesView() + ", to=" + to.getNodesView());
+					
+				} else if (from.size() + 1 == to.size()) {
+
+					var fwdKernel = new RoundTripTransitionKernel<>(from, scenario, params);
+					int numberOfFwdInsertionPoints = (int) fwdKernel.numberOfInsertionPoints(from.getNodesView(), to.getNodesView());
+					int numberOfBwdRemovalPoints = (int) this.explicitNumberOfRemovalPoints(to.getNodesView(), from.getNodesView());
+					Assertions.assertEquals(numberOfFwdInsertionPoints, numberOfBwdRemovalPoints, "from=" + from.getNodesView() + ", to=" + to.getNodesView());
+					
+				} else {
+					Assertions.fail("Round trip size did not change by +/- one.");
+				}
 			}
 		}
 	}

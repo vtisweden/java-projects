@@ -80,7 +80,7 @@ class RoundTripTransitionKernel<N extends Node> {
 
 	// -------------------- INTERNALS --------------------
 
-	private double numberOfInsertionPoints(List<?> shorter, List<?> longer) {
+	/* package for testing */ double numberOfInsertionPoints(List<?> shorter, List<?> longer) {
 		assert (shorter.size() + 1 == longer.size());
 		int result = 0;
 		LinkedList<Object> tmp = new LinkedList<>(shorter);
@@ -101,20 +101,8 @@ class RoundTripTransitionKernel<N extends Node> {
 	}
 
 	private double numberOfRemovalPoints(List<?> longer, List<?> shorter) {
-		assert (shorter.size() + 1 == longer.size());
-		int result = 0;
-		LinkedList<Object> tmp = new LinkedList<>(longer);
-		for (int i = 0; i < longer.size(); i++) {
-			Object removed = tmp.remove(i);
-			assert (tmp.size() == shorter.size());
-			if (tmp.equals(shorter)) {
-				result++;
-			}
-			tmp.add(i, removed);
-			assert (tmp.equals(longer));
-		}
-		assert (result > 0);
-		return result;
+		// see unit test for an explicit computation
+		return this.numberOfInsertionPoints(shorter, longer);
 	}
 
 	/* package for testing */ double transitionProbaGivenRemove(RoundTrip<?> to) {
