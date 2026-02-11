@@ -7,7 +7,6 @@ import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
- * Experimental!
  * 
  * @author GunnarF
  *
