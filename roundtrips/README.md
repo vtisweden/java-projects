@@ -11,5 +11,9 @@ Published under GPL, see [LICENSE](LICENSE), [COPYING](COPYING), [WARRANTY](WARR
 		<artifactId>roundtrips</artifactId>
 		<version>0.1.14</version>
 	</dependency>
+	
+This project is under intensive (further) development; we are currently relying on small example applications for documentation: `se.vti.roundtrips.examples`.
+
+The flexibility of the framework is exemplified by the little `se.vti.roundtrips.simulator.electrified` package, which is sufficent to enable basic fleet electrification analyses.
 
 	
