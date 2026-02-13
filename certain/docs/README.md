@@ -4,6 +4,8 @@ This java program allows to simulate emergency service activities, in particular
 
 "CERTAIN" is an acronym for "Evidence-based fossil free emergency service fleet planning", which is the name of the project in which this computer problem is developed. The project is funded by the Swedish Energy Agency.
 
+*The project and recent results have been presented at Transportforum 2026. The presentation can be downloaded [here](2026-01-14_CERTAIN.pdf).*
+
 Contact: gunnar.flotterod@vti.se
 
 
