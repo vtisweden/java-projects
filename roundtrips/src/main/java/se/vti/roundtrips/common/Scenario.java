@@ -46,9 +46,9 @@ public class Scenario<N extends Node> {
 
 	// -------------------- PARAMETER MEMBERS --------------------
 
-	private Integer timeBinCnt = null;
+	private Integer numberOfTimeBins = null;
 
-	private Double binSize_h = null;
+	private Double timeBinSize_h = null;
 
 	private int upperBoundOnStayEpisodes = Integer.MAX_VALUE;
 
@@ -76,25 +76,41 @@ public class Scenario<N extends Node> {
 
 	// -------------------- PARAMETER SETTER/GETTER --------------------
 
+	@Deprecated
 	public Double getBinSize_h() {
-		return this.binSize_h;
+		return this.timeBinSize_h;
+	}
+
+	@Deprecated
+	public Integer getTimeBinCnt() {
+		return this.numberOfTimeBins;
+	}
+
+	@Deprecated
+	public void setTimeBinCnt(int timeBinCnt) {
+		this.numberOfTimeBins = timeBinCnt;
+	}
+
+	
+	public Double getTimeBinSize_h() {
+		return this.timeBinSize_h;
 	}
 
 	public void setTimeBinSize_h(double binSize_h) {
-		this.binSize_h = binSize_h;
+		this.timeBinSize_h = binSize_h;
 	}
 
-	public Integer getTimeBinCnt() {
-		return this.timeBinCnt;
+	public Integer getNumberOfTimeBins() {
+		return this.numberOfTimeBins;
 	}
 
-	public void setTimeBinCnt(int timeBinCnt) {
-		this.timeBinCnt = timeBinCnt;
+	public void setNumberOfTimeBins(int numberOfTimeBins) {
+		this.numberOfTimeBins = numberOfTimeBins;
 	}
 
 	public Double getPeriodLength_h() {
-		if (this.binSize_h != null && this.timeBinCnt != null) {
-			return this.binSize_h * this.timeBinCnt;
+		if (this.timeBinSize_h != null && this.numberOfTimeBins != null) {
+			return this.timeBinSize_h * this.numberOfTimeBins;
 		} else {
 			return null;
 		}
@@ -105,7 +121,7 @@ public class Scenario<N extends Node> {
 	}
 
 	public int getMaxPossibleStayEpisodes() {
-		return Math.min(this.timeBinCnt, this.upperBoundOnStayEpisodes);
+		return Math.min(this.numberOfTimeBins, this.upperBoundOnStayEpisodes);
 	}
 
 	// -------------------- NETWORK SETTER/GETTER --------------------
@@ -188,7 +204,7 @@ public class Scenario<N extends Node> {
 			node = this.locationsView.get(this.getRandom().nextInt(this.locationsView.size()));
 		}
 		if (departure == null) {
-			departure = this.getRandom().nextInt(this.timeBinCnt);
+			departure = this.getRandom().nextInt(this.numberOfTimeBins);
 		}
 		var result = new RoundTrip<N>(index, new ArrayList<>(Arrays.asList(node)),
 				new ArrayList<>(Arrays.asList(departure)));
