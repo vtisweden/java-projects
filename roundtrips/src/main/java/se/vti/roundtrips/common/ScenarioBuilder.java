@@ -31,6 +31,8 @@ import se.vti.roundtrips.simulator.Simulator;
  */
 public class ScenarioBuilder<N extends Node> {
 
+	// -------------------- MEMBERS --------------------
+
 	private Random random = new Random();
 	private Integer numberOfTimeBins = null;
 	private Double timeBinSize_h = null;
@@ -40,7 +42,9 @@ public class ScenarioBuilder<N extends Node> {
 	private BiFunction<N, N, Double> nodesToDistance_km = null;
 	private BiFunction<N, N, Double> nodesToTime_h = null;
 
-	private Simulator<N> simulator;
+	private Simulator<N> simulator = null;
+
+	// -------------------- CONSTRUCTION --------------------
 
 	public ScenarioBuilder() {
 	}
@@ -85,11 +89,16 @@ public class ScenarioBuilder<N extends Node> {
 		return this;
 	}
 
+	// -------------------- BUILDING --------------------
+
 	public Scenario<N> build() {
-		// TODO add value range checks
 		var checker = new SpecificationChecker().defineError(() -> (this.random == null), "No Random instance defined")
 				.defineError(() -> (this.numberOfTimeBins == null), "Undefined scenario variable: numberOfTimeBins")
+				.defineError(() -> ((this.numberOfTimeBins != null) && (this.numberOfTimeBins < 1)),
+						"numberOfTimeBins must be at least one")
 				.defineError(() -> (this.timeBinSize_h == null), "Undefined scenario variable: timeBinSize_h")
+				.defineError(() -> ((this.timeBinSize_h != null) && (this.timeBinSize_h < 1e-8)),
+						"timeBinSize_h smaller than 1e-8")
 				.defineError(() -> (this.nodes.size() == 0), "Scenario contains no nodes")
 				.defineError(() -> (nodesToDistance_km == null), "No move distance function defined")
 				.defineError(() -> (nodesToTime_h == null), "No move time function defined");

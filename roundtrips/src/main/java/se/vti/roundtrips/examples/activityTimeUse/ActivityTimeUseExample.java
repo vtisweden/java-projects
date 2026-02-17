@@ -19,18 +19,17 @@
  */
 package se.vti.roundtrips.examples.activityTimeUse;
 
-import se.vti.roundtrips.common.Scenario;
+import java.util.Random;
+
+import se.vti.roundtrips.common.Runner;
+import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
+import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.samplingweights.misc.timeUse.LogarithmicTimeUseSinglePersonSingleDay;
-import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
-import se.vti.roundtrips.single.RoundTrip;
-import se.vti.roundtrips.single.RoundTripProposal;
-import se.vti.utils.misc.metropolishastings.MHAlgorithm;
-import se.vti.utils.misc.metropolishastings.MHWeightContainer;
-import se.vti.utils.misc.metropolishastings.MHWeightsToFileLogger;
+import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 
 /**
  * 
@@ -46,6 +45,8 @@ class ActivityTimeUseExample {
 	}
 
 	void run(long totalIterations) {
+
+		var builder = new ScenarioBuilder<GridNodeWithActivity>();
 
 		/*
 		 * Sample round trips including activities according to time use assumptions.
@@ -64,53 +65,47 @@ class ActivityTimeUseExample {
 		double edgeLength_km = 1;
 		double edgeTime_h = 0.1;
 
-		var scenario = new Scenario<GridNodeWithActivity>();
-		scenario.getRandom().setSeed(this.seed);
-		scenario.setTimeBinSize_h(1.0 / 4);
-		scenario.setTimeBinCnt(4 * 24);
+		double timeBinSize_h = 0.25;
+		int numberOfTimeBins = 4 * 25;
+		builder.setRandom(new Random(this.seed)).setTimeBinSize_h(timeBinSize_h).setNumberOfTimeBins(numberOfTimeBins);
 
 		// A single corner node allows for "home" activities (could be a suburb).
 		GridNodeWithActivity home = new GridNodeWithActivity(0, 0, Activity.HOME);
-		scenario.addNode(home);
+		builder.addNode(home);
 
 		// Only the center nodes allow for "work" activities (could be CBD).
 		for (int row = 1; row < gridSize - 1; row++) {
 			for (int col = 1; col < gridSize - 1; col++) {
-				scenario.addNode(new GridNodeWithActivity(row, col, Activity.WORK));
+				builder.addNode(new GridNodeWithActivity(row, col, Activity.WORK));
 			}
 		}
 
 		// All nodes allow for "other" activities:
 		for (int row = 0; row < gridSize; row++) {
 			for (int col = 0; col < gridSize; col++) {
-				scenario.addNode(new GridNodeWithActivity(row, col, Activity.OTHER));
+				builder.addNode(new GridNodeWithActivity(row, col, Activity.OTHER));
 			}
 		}
 
 		// Compute all node distances and travel times.
-		for (var node1 : scenario.getNodesView()) {
-			for (var node2 : scenario.getNodesView()) {
-				int gridDistance = node1.computeGridDistance(node2);
-				scenario.setDistance_km(node1, node2, edgeLength_km * gridDistance);
-				scenario.setTime_h(node1, node2, edgeTime_h * gridDistance);
-			}
-		}
+		builder.setMoveDistanceFunction((a, b) -> edgeLength_km * a.computeGridDistance(b));
+		builder.setMoveTimeFunction((a, b) -> edgeTime_h * a.computeGridDistance(b));
+
+		var scenario = builder.build();
 
 		/*
 		 * Define the sampling weights. For this, create a SamplingWeights container and
 		 * populate it with SamplingWeight instances.
 		 */
+		var runner = new Runner<GridNodeWithActivity>(scenario);
 
-		var weights = new MHWeightContainer<RoundTrip<GridNodeWithActivity>>();
-
-		// An uniformed prior spreading out sampling where information is missing.
-		weights.add(new SingleRoundTripUniformPrior<>(scenario));
+		runner.setUniformPrior();
 
 		// Enforce that every single round trip is completed within the day.
-		weights.add(new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()));
+		runner.addSingleWeight(new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()));
 
 		// Enforce that all round trips start and end their unique home location.
-		weights.add(new StrictlyEnforceUniqueHomeLocation());
+		runner.addSingleWeight(new StrictlyEnforceUniqueHomeLocation());
 
 		// Sample round trips according to time use assumptions. See LogarithmicTimeUse
 		// implementation for details.
@@ -129,30 +124,39 @@ class ActivityTimeUseExample {
 		otherComponent.addObservedNodes(scenario, node -> Activity.OTHER.equals(node.getActivity()));
 		timeUse.addConfiguredComponent(otherComponent);
 
-		weights.add(timeUse);
+		runner.addSingleWeight(timeUse);
 
-		/*
-		 * Define a summary statistic of possible interest.
-		 */
-		
 		/*
 		 * Ready to set up the sampling machinery.
 		 */
-
-		var algo = new MHAlgorithm<>(new RoundTripProposal<>(scenario), weights, scenario.getRandom());
-
-//		var initialRoundTrip = new RoundTrip<>(new ArrayList<>(Arrays.asList(home)), new ArrayList<>(Arrays.asList(0)));
-//		initialRoundTrip.setEpisodes(scenario.getOrCreateSimulator().simulate(initialRoundTrip));
-		var initialRoundTrip = scenario.createInitialRoundTrip(home, 0);
-		algo.setInitialState(initialRoundTrip);
+		var initialState = new MultiRoundTrip<GridNodeWithActivity>(1);
+		initialState.setRoundTripAndUpdateSummaries(0, scenario.createInitialRoundTrip(home, 0));
+		runner.setInitialState(initialState).setNumberOfIterations(totalIterations)
+				.setMessageInterval(totalIterations / 100);
 
 		// Log summary statistics over sampling iterations. See code for interpretation
-		algo.addStateProcessor(new MHWeightsToFileLogger<>(totalIterations / 100, weights,
-				"./output/activityExpansion/logWeights.log"));
-		algo.addStateProcessor(new PlotTimeUseHistogram(totalIterations / 2, totalIterations / 100));
+		runner.configureWeightLogging("./output/activityExpansion/logWeights.log", totalIterations / 100);
+		runner.addStateProcessor(new MHStateProcessor<MultiRoundTrip<GridNodeWithActivity>>() {
+			private PlotTimeUseHistogram plotHistogram = new PlotTimeUseHistogram(totalIterations / 2,
+					totalIterations / 100);
 
-		algo.setMsgInterval(totalIterations / 100);
-		algo.run(totalIterations);
+			@Override
+			public void start() {
+				this.plotHistogram.start();
+			}
+
+			@Override
+			public void processState(MultiRoundTrip<GridNodeWithActivity> state) {
+				this.plotHistogram.processState(state.getRoundTrip(0));
+			}
+
+			@Override
+			public void end() {
+				this.plotHistogram.end();
+			}
+		});
+
+		runner.run();
 	}
 
 	public static void main(String[] args) {

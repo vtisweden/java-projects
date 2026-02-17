@@ -30,7 +30,9 @@ import se.vti.roundtrips.samplingweights.priors.SingleRoundTripBinomialPrior;
 import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
+import se.vti.utils.misc.metropolishastings.MHBatchBasedStatisticEstimator;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
+import se.vti.utils.misc.metropolishastings.MHStatisticsToFileLogger;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 import se.vti.utils.misc.metropolishastings.MHWeightContainer;
 import se.vti.utils.misc.metropolishastings.MHWeightsToFileLogger;
@@ -40,25 +42,29 @@ import se.vti.utils.misc.metropolishastings.MHWeightsToFileLogger;
  */
 public class Runner<N extends Node> {
 
+	// -------------------- MEMBERS --------------------
+
 	private final Scenario<N> scenario;
 
 	private final MHWeightContainer<MultiRoundTrip<N>> weights = new MHWeightContainer<>();
+	private MHWeight<MultiRoundTrip<N>> prior = null;
 
-	private MHWeight<MultiRoundTrip<N>> prior;
-
+	private List<MHBatchBasedStatisticEstimator<MultiRoundTrip<N>>> statisticEstimators = new ArrayList<>();
 	private List<MHStateProcessor<MultiRoundTrip<N>>> stateProcessors = new ArrayList<>();
 
-	private String weightsLogFile = "./samplingLogWeights.log";
+	private long weightsLogInterval = 1000l;
+	private String weightsLogFile = "./logWeights.log";
+
+	private long statisticsLogInterval = 1000l;
+	private String statisticsLogFile = "./statistics.log";
 
 	private MultiRoundTrip<N> initialState = null;
-
 	private Long numberOfIterations = null;
-
-	private long weightsLogInterval = 1000l;
-
 	private long messageInterval = 1000l;
 
 	private boolean runWasAlreadyCalled = false;
+
+	// -------------------- CONSTRUCTION --------------------
 
 	public Runner(Scenario<N> scenario) {
 		this.scenario = scenario;
@@ -98,6 +104,11 @@ public class Runner<N extends Node> {
 		return this.addSingleWeight(weight, 1.0);
 	}
 
+	public Runner<N> addStatisticEstimator(MHBatchBasedStatisticEstimator<MultiRoundTrip<N>> statisticEstimator) {
+		this.statisticEstimators.add(statisticEstimator);
+		return this;
+	}
+
 	public Runner<N> addStateProcessor(MHStateProcessor<MultiRoundTrip<N>> processor) {
 		this.stateProcessors.add(processor);
 		return this;
@@ -118,11 +129,19 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
-	public Runner<N> configureWeightLogging(String fileName, Long logInterval) {
+	public Runner<N> configureWeightLogging(String fileName, long logInterval) {
 		this.weightsLogFile = fileName;
 		this.weightsLogInterval = logInterval;
 		return this;
 	}
+
+	public Runner<N> configureStatisticsLogging(String fileName, long logInterval) {
+		this.statisticsLogFile = fileName;
+		this.statisticsLogInterval = logInterval;
+		return this;
+	}
+
+	// -------------------- RUNNING --------------------
 
 	public void run() {
 
@@ -133,8 +152,9 @@ public class Runner<N extends Node> {
 
 		var checker = new SpecificationChecker().defineError(() -> (this.prior == null), "No prior defined")
 				.defineError(() -> (this.initialState == null), "No initial state defined")
-				.defineError(() -> (this.numberOfIterations == null), "Undefined parameter: numberOfIterations");
-
+				.defineError(() -> (this.numberOfIterations == null), "Undefined parameter: numberOfIterations")
+				.defineError(() -> (this.numberOfIterations != null && this.numberOfIterations < 1),
+						"numberOfIterations smaller than one");
 		if (checker.check()) {
 			this.weights.add(this.prior);
 			var algo = new MHAlgorithm<MultiRoundTrip<N>>(new MultiRoundTripProposal<N>(this.scenario), this.weights,
@@ -143,6 +163,15 @@ public class Runner<N extends Node> {
 				this.stateProcessors
 						.add(new MHWeightsToFileLogger<>(this.weightsLogInterval, this.weights, this.weightsLogFile));
 			}
+			if ((this.statisticsLogFile != null) && (this.statisticEstimators.size() > 0)) {
+				var statisticsLogger = new MHStatisticsToFileLogger<MultiRoundTrip<N>>(this.statisticsLogInterval,
+						this.statisticsLogFile);
+				algo.addStateProcessor(statisticsLogger);
+				for (var statisticEstimator : this.statisticEstimators) {
+					statisticsLogger.add(statisticEstimator);
+					algo.addStateProcessor(statisticEstimator);
+				}
+			}
 			this.stateProcessors.stream().forEach(sp -> algo.addStateProcessor(sp));
 			algo.setInitialState(this.initialState);
 			algo.setMsgInterval(this.messageInterval);
@@ -150,7 +179,5 @@ public class Runner<N extends Node> {
 		} else {
 			throw new RuntimeException(checker.getRecentErrors());
 		}
-
 	}
-
 }

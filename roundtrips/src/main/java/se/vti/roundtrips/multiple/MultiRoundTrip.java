@@ -64,7 +64,6 @@ public class MultiRoundTrip<L extends Node> implements Iterable<RoundTrip<L>> {
 					"Trying to add RoundTrip #" + i + ", but added RoundTrip has index " + roundTrip.getIndex());
 		}
 		for (MultiRoundTripSummary<L> summaryStats : this.class2summary.values()) {
-//			summaryStats.update(i, this.getRoundTrip(i), roundTrip);
 			summaryStats.update(roundTrip, this);
 		}
 		this.roundTrips.set(i, roundTrip);
@@ -141,7 +140,20 @@ public class MultiRoundTrip<L extends Node> implements Iterable<RoundTrip<L>> {
 
 	@Override
 	public String toString() {
-		return "{" + this.roundTrips.stream().map(r -> "(" + r.toString() + ")").collect(Collectors.joining(",")) + "}";
+		StringBuffer result = new StringBuffer("{");
+		int i = 0;
+		while (result.length() < 80 && i < this.size()) {
+			if (i > 0) {
+				result.append(",");
+			}
+			result.append(this.roundTrips.get(i));
+			i++;
+		}
+		if (i < this.size()) {
+			result.append(",...");
+		}
+		result.append("}");
+		return result.toString();
 	}
 
 }

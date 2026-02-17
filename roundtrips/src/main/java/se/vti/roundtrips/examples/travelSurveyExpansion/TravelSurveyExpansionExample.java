@@ -21,21 +21,15 @@ package se.vti.roundtrips.examples.travelSurveyExpansion;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
-import se.vti.roundtrips.common.Scenario;
+import se.vti.roundtrips.common.Runner;
+import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.multiple.MultiRoundTripProposal;
-import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
-import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
 import se.vti.roundtrips.statistics.TotalTravelTime;
-import se.vti.utils.misc.metropolishastings.MHAlgorithm;
-import se.vti.utils.misc.metropolishastings.MHStatisticsToFileLogger;
-import se.vti.utils.misc.metropolishastings.MHWeightContainer;
-import se.vti.utils.misc.metropolishastings.MHWeightsToFileLogger;
 
 /**
  * 
@@ -58,11 +52,9 @@ public class TravelSurveyExpansionExample {
 		double edgeLength_km = 1;
 		double edgeTime_h = 0.1;
 
-		var scenario = new Scenario<GridNodeWithActivity>();
-		scenario.getRandom().setSeed(this.seed);
-		scenario.setTimeBinSize_h(1.0);
-		scenario.setTimeBinCnt(24);
-		scenario.setUpperBoundOnStayEpisodes(6);
+		var rnd = new Random(this.seed);
+		var scenarioBuilder = new ScenarioBuilder<GridNodeWithActivity>().setRandom(rnd).setTimeBinSize_h(1.0)
+				.setNumberOfTimeBins(24).setUpperBoundOnStayEpisodes(6);
 
 		// Only the corner nodes allows for "home" activities (could be suburbs).
 		var homes = Arrays.asList(new GridNodeWithActivity(0, 0, Activity.HOME),
@@ -70,105 +62,69 @@ public class TravelSurveyExpansionExample {
 				new GridNodeWithActivity(gridSize, 0, Activity.HOME),
 				new GridNodeWithActivity(gridSize, gridSize, Activity.HOME));
 		for (var home : homes) {
-			scenario.addNode(home);
+			scenarioBuilder.addNode(home);
 		}
 
 		// Only the center nodes allow for "work" activities (could be CBD).
 		for (int row = 1; row < gridSize - 1; row++) {
 			for (int col = 1; col < gridSize - 1; col++) {
-				scenario.addNode(new GridNodeWithActivity(row, col, Activity.WORK));
+				scenarioBuilder.addNode(new GridNodeWithActivity(row, col, Activity.WORK));
 			}
 		}
 
 		// Education is possible at the corner nodes of the CBD.
-		scenario.addNode(new GridNodeWithActivity(1, 1, Activity.EDUCATION));
-		scenario.addNode(new GridNodeWithActivity(1, 3, Activity.EDUCATION));
-		scenario.addNode(new GridNodeWithActivity(3, 1, Activity.EDUCATION));
-		scenario.addNode(new GridNodeWithActivity(3, 3, Activity.EDUCATION));
+		scenarioBuilder.addNode(new GridNodeWithActivity(1, 1, Activity.EDUCATION))
+				.addNode(new GridNodeWithActivity(1, 3, Activity.EDUCATION))
+				.addNode(new GridNodeWithActivity(3, 1, Activity.EDUCATION))
+				.addNode(new GridNodeWithActivity(3, 3, Activity.EDUCATION));
 
 		// All nodes allow for "other" activities.
 		for (int row = 0; row < gridSize; row++) {
 			for (int col = 0; col < gridSize; col++) {
-				scenario.addNode(new GridNodeWithActivity(row, col, Activity.OTHER));
+				scenarioBuilder.addNode(new GridNodeWithActivity(row, col, Activity.OTHER));
 			}
 		}
 
-		// Compute all node distances and travel times.
-		for (var node1 : scenario.getNodesView()) {
-			for (var node2 : scenario.getNodesView()) {
-				int gridDistance = node1.computeGridDistance(node2);
-				scenario.setDistance_km(node1, node2, edgeLength_km * gridDistance);
-				scenario.setTime_h(node1, node2, edgeTime_h * gridDistance);
-			}
-		}
+		// Define distances and travel times.
+		scenarioBuilder.setMoveDistanceFunction((a, b) -> edgeLength_km * a.computeGridDistance(b));
+		scenarioBuilder.setMoveTimeFunction((a, b) -> edgeTime_h * a.computeGridDistance(b));
 
-		/*
-		 * Construct the survey
-		 */
+		// Construct the survey.
 		var teenager = new SurveyResponse(new Person(15), 0, 6, 6);
 		var worker = new SurveyResponse(new Person(35), 9, 0, 2);
 		var retiree = new SurveyResponse(new Person(72), 0, 0, 4);
 		var responses = Arrays.asList(teenager, worker, retiree);
 
-		/*
-		 * Construct the synthetic population
-		 */
-
+		// Construct the synthetic population.
 		var syntheticPopulation = new ArrayList<Person>(syntheticPopulationSize);
 		for (int i = 0; i < syntheticPopulationSize; i++) {
-			syntheticPopulation.add(new Person(scenario.getRandom().nextInt(15, 100)));
+			syntheticPopulation.add(new Person(rnd.nextInt(15, 100)));
 		}
 
-		/*
-		 * Define the sampling weights. For this, create a SamplingWeights container and
-		 * populate it with SamplingWeight instances.
-		 */
+		// Scenario is ready.
+		var scenario = scenarioBuilder.build();
 
-		var weights = new MHWeightContainer<MultiRoundTrip<GridNodeWithActivity>>();
+		var runner = new Runner<GridNodeWithActivity>(scenario);
 
-		// Uniformed prior
-		weights.add(new SingleToMultiWeight<>(new SingleRoundTripUniformPrior<>(scenario)));
+		// Definee the sampling weights.
+		runner.setUniformPrior()
+				.addSingleWeight(
+						new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()))
+				.addSingleWeight(new StrictlyEnforceUniqueHomeLocation())
+				.addWeight(new ExplainRoundTripsByResponses2(responses, syntheticPopulation));
 
-		// Enforce that all round trips are completed within the day.
-		weights.add(new SingleToMultiWeight<>(
-				new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h())));
-
-		// Enforce that all round trips start and end their unique home location.
-		weights.add(new SingleToMultiWeight<>(new StrictlyEnforceUniqueHomeLocation()));
-
-		// Prefer round trips that are compatible with the survey
-//		weights.add(new ExplainResponsesByRoundTrips(responses, syntheticPopulation));
-//		weights.add(new ExplainRoundTripsByResponses(responses, syntheticPopulation));
-		weights.add(new ExplainRoundTripsByResponses2(responses, syntheticPopulation));
-
-		/*
-		 * Define a summary statistic of possible interest.
-		 */
-
-		var totalTravelTime = new TotalTravelTime<GridNodeWithActivity>();
-		var statisticsLogger = new MHStatisticsToFileLogger<MultiRoundTrip<GridNodeWithActivity>>(1000, "./output/travelSurveyExpansion/statisticsLogs.log");
-		statisticsLogger.add(totalTravelTime);		
-
-		/*
-		 * Ready to set up the sampling machinery.
-		 */
-
-		var algo = new MHAlgorithm<>(new MultiRoundTripProposal<>(scenario), weights, scenario.getRandom());
-
-		var initialRoundTrip = scenario.createInitialMultiRoundTrip(homes, Arrays.asList(0), syntheticPopulationSize);
-		algo.setInitialState(initialRoundTrip);
-
-		// Log summary statistics over sampling iterations. See code for interpretation.
-		algo.addStateProcessor(new MHWeightsToFileLogger<>(totalIterations / 100, weights,
-				"./output/travelSurveyExpansion/logWeights.log"));
-		algo.addStateProcessor(
+		// Define the logging.
+		runner.configureWeightLogging("./output/travelSurveyExpansion/logWeights.log", totalIterations / 100);
+		runner.addStateProcessor(
 				new PlotAgeByActivityHistogram(totalIterations / 2, totalIterations / 100, syntheticPopulation));
+		runner.configureStatisticsLogging("./output/travelSurveyExpansion/statisticsLogs.log", 1000)
+				.addStatisticEstimator(new TotalTravelTime<GridNodeWithActivity>());
 
-		algo.addStateProcessor(totalTravelTime);
-		algo.addStateProcessor(statisticsLogger);
-		
-		algo.setMsgInterval(totalIterations / 100);
-		algo.run(totalIterations);
+		// Configure sampling and run.
+		var initialRoundTrip = scenario.createInitialMultiRoundTrip(homes, Arrays.asList(0), syntheticPopulationSize);
+		runner.setInitialState(initialRoundTrip).setMessageInterval(totalIterations / 100)
+				.setNumberOfIterations(totalIterations);
+		runner.run();
 	}
 
 	public static void main(String[] args) {
