@@ -9,7 +9,7 @@ Published under GPL, see [LICENSE](LICENSE), [COPYING](COPYING), [WARRANTY](WARR
 	<dependency>
 		<groupId>se.vti.java-projects</groupId>
 		<artifactId>utils</artifactId>
-		<version>0.1.4</version>
+		<version>0.1.9</version>
 	</dependency>
 
 	
