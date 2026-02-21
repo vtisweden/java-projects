@@ -24,11 +24,8 @@ import java.util.Random;
 import se.vti.roundtrips.common.Runner;
 import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.logging.multiple.SizeDistributionLogger;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.samplingweights.misc.StrictlyForbidShortStays;
-import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
-import se.vti.utils.misc.metropolishastings.MHWeightContainer;
-import se.vti.utils.misc.metropolishastings.MHWeightsToFileLogger;
+import se.vti.roundtrips.samplingweights.StrictlyForbidShortStays;
+import se.vti.roundtrips.samplingweights.StrictlyPeriodicSchedule;
 
 /**
  * 
@@ -119,7 +116,7 @@ class TruckServiceCoverageExample {
 		runner.configureWeightLogging("./output/truckServiceCoverage/logWeights.log", totalIterations / 100);
 
 		var sizeLogger = new SizeDistributionLogger<GridNode>(totalIterations / 10,
-				scenario.getMaxPossibleStayEpisodes(), false, "./output/truckServiceCoverage/sizes.log");
+				scenario.getNumberOfTimeBins(), false, "./output/truckServiceCoverage/sizes.log");
 		runner.addStateProcessor(sizeLogger).addStateProcessor(new MissionLogger(depot, totalIterations / 100))
 				.addStateProcessor(new EarliestArrivalLogger(depot, gridSize, totalIterations / 100,
 						"./output/truckServiceCoverage/earliestArrivals.log"));

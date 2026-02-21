@@ -71,7 +71,7 @@ public class RandomRoundTripGenerator<N extends Node> {
 		this.rnd = scenario.getRandom();
 		this.feasibleNodes = scenario.getNodesView();
 		this.minSize = 0;
-		this.maxSize = scenario.getMaxPossibleStayEpisodes();
+		this.maxSize = scenario.getNumberOfTimeBins();
 	}
 
 	public RandomRoundTripGenerator<N> setFeasibleNodes(Collection<N> nodes) {
@@ -115,7 +115,7 @@ public class RandomRoundTripGenerator<N extends Node> {
 			}
 
 			List<Integer> allDepartures = new ArrayList<>(
-					IntStream.range(0, this.scenario.getTimeBinCnt()).boxed().toList());
+					IntStream.range(0, this.scenario.getNumberOfTimeBins()).boxed().toList());
 			Collections.shuffle(allDepartures, this.rnd);
 			List<Integer> departures = allDepartures.subList(0, size);
 			Collections.sort(departures);

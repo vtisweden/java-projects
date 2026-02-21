@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.samplingweights.misc.timeUse;
+package se.vti.roundtrips.samplingweights.timeUse;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
@@ -28,19 +28,19 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class LogarithmicTimeMultiplePersonsSingleDay<N extends Node> extends LogarithmicTimeUse<N>
+public class LogarithmicTimeUseSinglePersonMultipleDays<N extends Node> extends LogarithmicTimeUse<N>
 		implements MHWeight<MultiRoundTrip<N>> {
 
-	public LogarithmicTimeMultiplePersonsSingleDay(double period_h, int numberOfPersons) {
-		super(period_h, numberOfPersons);
+	public LogarithmicTimeUseSinglePersonMultipleDays(double period_h, int numberOfDays) {
+		super(period_h, numberOfDays);
 	}
 
-	public LogarithmicTimeUseComponent<N> createComponent(double targetDuration_h, int personIndex) {
-		return super.createComponent(targetDuration_h, personIndex);
+	public LogarithmicTimeUseComponent<N> createComponent(double targetDuration_h, int... dayIndices) {
+		return super.createComponent(targetDuration_h, dayIndices);
 	}
 
 	@Override
-	public double logWeight(MultiRoundTrip<N> roundTrips) {
-		return super.computeLogWeight(roundTrips);
+	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
+		return super.computeLogWeight(multiRoundTrip);
 	}
 }

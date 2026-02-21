@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.samplingweights.misc.calibration;
+package se.vti.roundtrips.samplingweights.calibration;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.grouping.PopulationGroupFilter;
+import se.vti.roundtrips.samplingweights.calibration.TargetDeviationWeight;
 
 /**
  * @author GunnarF

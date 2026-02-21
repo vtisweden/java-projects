@@ -168,9 +168,8 @@ class TestRoundTripTransitionKernel {
 
 	Scenario<Node> createScenario() {
 		var scenario = new Scenario<Node>();
-		scenario.setTimeBinCnt(24);
+		scenario.setNumberOfTimeBins(24);
 		scenario.setTimeBinSize_h(1.0);
-		scenario.setUpperBoundOnStayEpisodes(scenario.getTimeBinCnt());
 		for (int i = 0; i < 9; i++) {
 			scenario.addNode(new Node(Integer.toString(i)));
 		}
@@ -193,7 +192,7 @@ class TestRoundTripTransitionKernel {
 
 	RoundTrip<Node> createRoundTrip(Scenario<Node> scenario, int size) {
 		var allNodes = scenario.getNodesView();
-		var allDepartures = new ArrayList<>(IntStream.range(0, scenario.getTimeBinCnt()).boxed().toList());
+		var allDepartures = new ArrayList<>(IntStream.range(0, scenario.getNumberOfTimeBins()).boxed().toList());
 
 		var nodes = new ArrayList<Node>(size);
 		var departures = new ArrayList<Integer>(size);
@@ -212,7 +211,7 @@ class TestRoundTripTransitionKernel {
 		var params = new RoundTripProposalParameters();
 		var proposal = new RoundTripProposal<Node>(params, scenario);
 
-		for (int size = 0; size <= scenario.getMaxPossibleStayEpisodes(); size++) {
+		for (int size = 0; size <= scenario.getNumberOfTimeBins(); size++) {
 			for (int replication = 0; replication < 10 + 10 * size; replication++) {
 				var from = createRoundTrip(scenario, size);
 				var transition = proposal.newTransition(from);
@@ -252,7 +251,7 @@ class TestRoundTripTransitionKernel {
 		var params = new RoundTripProposalParameters(0.5, 0.5, 0.0, 0.0); // only insert
 		var proposal = new RoundTripProposal<Node>(params, scenario);
 
-		for (int size = 0; size <= scenario.getMaxPossibleStayEpisodes() - 1; size++) {
+		for (int size = 0; size <= scenario.getNumberOfTimeBins() - 1; size++) {
 			for (int replication = 0; replication < 10 + 10 * size; replication++) {
 				var from = createRoundTrip(scenario, size);
 				var transition = proposal.newTransition(from);
@@ -261,17 +260,23 @@ class TestRoundTripTransitionKernel {
 				if (from.size() - 1 == to.size()) {
 
 					var bwdKernel = new RoundTripTransitionKernel<>(to, scenario, params);
-					int numberOfFwdRemovalPoints = (int) this.explicitNumberOfRemovalPoints(from.getNodesView(), to.getNodesView());
-					int numberOfBwdInsertionPoints = (int) bwdKernel.numberOfInsertionPoints(to.getNodesView(), from.getNodesView());
-					Assertions.assertEquals(numberOfFwdRemovalPoints, numberOfBwdInsertionPoints, "from=" + from.getNodesView() + ", to=" + to.getNodesView());
-					
+					int numberOfFwdRemovalPoints = (int) this.explicitNumberOfRemovalPoints(from.getNodesView(),
+							to.getNodesView());
+					int numberOfBwdInsertionPoints = (int) bwdKernel.numberOfInsertionPoints(to.getNodesView(),
+							from.getNodesView());
+					Assertions.assertEquals(numberOfFwdRemovalPoints, numberOfBwdInsertionPoints,
+							"from=" + from.getNodesView() + ", to=" + to.getNodesView());
+
 				} else if (from.size() + 1 == to.size()) {
 
 					var fwdKernel = new RoundTripTransitionKernel<>(from, scenario, params);
-					int numberOfFwdInsertionPoints = (int) fwdKernel.numberOfInsertionPoints(from.getNodesView(), to.getNodesView());
-					int numberOfBwdRemovalPoints = (int) this.explicitNumberOfRemovalPoints(to.getNodesView(), from.getNodesView());
-					Assertions.assertEquals(numberOfFwdInsertionPoints, numberOfBwdRemovalPoints, "from=" + from.getNodesView() + ", to=" + to.getNodesView());
-					
+					int numberOfFwdInsertionPoints = (int) fwdKernel.numberOfInsertionPoints(from.getNodesView(),
+							to.getNodesView());
+					int numberOfBwdRemovalPoints = (int) this.explicitNumberOfRemovalPoints(to.getNodesView(),
+							from.getNodesView());
+					Assertions.assertEquals(numberOfFwdInsertionPoints, numberOfBwdRemovalPoints,
+							"from=" + from.getNodesView() + ", to=" + to.getNodesView());
+
 				} else {
 					Assertions.fail("Round trip size did not change by +/- one.");
 				}

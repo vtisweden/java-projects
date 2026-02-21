@@ -36,7 +36,7 @@ public class ScenarioBuilder<N extends Node> {
 	private Random random = new Random();
 	private Integer numberOfTimeBins = null;
 	private Double timeBinSize_h = null;
-	private Integer upperBoundOnStayEpisodes = Integer.MAX_VALUE;
+//	private Integer upperBoundOnStayEpisodes = Integer.MAX_VALUE;
 
 	private final Set<N> nodes = new LinkedHashSet<>();
 	private BiFunction<N, N, Double> nodesToDistance_km = null;
@@ -64,10 +64,10 @@ public class ScenarioBuilder<N extends Node> {
 		return this;
 	}
 
-	public ScenarioBuilder<N> setUpperBoundOnStayEpisodes(int upperBoundOnStayEpisodes) {
-		this.upperBoundOnStayEpisodes = upperBoundOnStayEpisodes;
-		return this;
-	}
+//	public ScenarioBuilder<N> setUpperBoundOnStayEpisodes(int upperBoundOnStayEpisodes) {
+//		this.upperBoundOnStayEpisodes = upperBoundOnStayEpisodes;
+//		return this;
+//	}
 
 	public ScenarioBuilder<N> setSimulator(Simulator<N> simulator) {
 		this.simulator = simulator;
@@ -111,7 +111,7 @@ public class ScenarioBuilder<N extends Node> {
 			}
 			scenario.setTimeBinSize_h(this.timeBinSize_h);
 			scenario.setNumberOfTimeBins(this.numberOfTimeBins);
-			scenario.setUpperBoundOnStayEpisodes(this.upperBoundOnStayEpisodes);
+//			scenario.setUpperBoundOnStayEpisodes(this.upperBoundOnStayEpisodes);
 			if (this.simulator != null) {
 				scenario.setSimulator(this.simulator);
 			}

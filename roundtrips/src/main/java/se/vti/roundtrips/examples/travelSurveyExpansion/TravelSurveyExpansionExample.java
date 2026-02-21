@@ -28,7 +28,8 @@ import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
-import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
+import se.vti.roundtrips.samplingweights.StrictlyPeriodicSchedule;
+import se.vti.roundtrips.samplingweights.StrictlyRequireMaxNumberOfStops;
 import se.vti.roundtrips.statistics.TotalTravelTime;
 
 /**
@@ -54,7 +55,7 @@ public class TravelSurveyExpansionExample {
 
 		var rnd = new Random(this.seed);
 		var scenarioBuilder = new ScenarioBuilder<GridNodeWithActivity>().setRandom(rnd).setTimeBinSize_h(1.0)
-				.setNumberOfTimeBins(24).setUpperBoundOnStayEpisodes(6);
+				.setNumberOfTimeBins(24);
 
 		// Only the corner nodes allows for "home" activities (could be suburbs).
 		var homes = Arrays.asList(new GridNodeWithActivity(0, 0, Activity.HOME),
@@ -107,9 +108,8 @@ public class TravelSurveyExpansionExample {
 		var runner = new Runner<GridNodeWithActivity>(scenario);
 
 		// Definee the sampling weights.
-		runner.setUniformPrior()
-				.addIndividualWeight(
-						new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()))
+		runner.setUniformPrior().addIndividualWeight(new StrictlyRequireMaxNumberOfStops<GridNodeWithActivity>(6))
+				.addIndividualWeight(new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()))
 				.addIndividualWeight(new StrictlyEnforceUniqueHomeLocation())
 				.addPopulationWeight(new ExplainRoundTripsByResponses2(responses, syntheticPopulation));
 

@@ -38,10 +38,10 @@ class PriorUtils {
 	PriorUtils() {
 	}
 
-	double[] computeUniformLogWeights(int nodeCnt, int timeBinCnt, int maxRoundTripSize) {
-		double[] logWeights = new double[Math.min(maxRoundTripSize, timeBinCnt) + 1];
+	double[] computeUniformLogWeights(int numberOfNodes, int numberOfTimeBins) {
+		double[] logWeights = new double[numberOfTimeBins + 1];
 		for (int j = 0; j < logWeights.length; j++) {
-			logWeights[j] = -CombinatoricsUtils.binomialCoefficientLog(timeBinCnt, j) - j * Math.log(nodeCnt);
+			logWeights[j] = -CombinatoricsUtils.binomialCoefficientLog(numberOfTimeBins, j) - j * Math.log(numberOfNodes);
 		}
 		return logWeights;
 	}

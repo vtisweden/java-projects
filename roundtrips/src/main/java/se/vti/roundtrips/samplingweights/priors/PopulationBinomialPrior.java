@@ -17,7 +17,7 @@ public class PopulationBinomialPrior<N extends Node> implements MHWeight<MultiRo
 
 	private final double expectedRoundTripSize;
 
-	private final int maximumRoundTripSize;
+	private final int numberOfTimeBins;
 
 	private final MHWeight<MultiRoundTrip<N>> uniformPrior;
 
@@ -25,17 +25,15 @@ public class PopulationBinomialPrior<N extends Node> implements MHWeight<MultiRo
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public PopulationBinomialPrior(int numberOfNodes, int numberOfTimeBins, double expectedRoundTripSize,
-			int maximumRoundTripSize) {
+	public PopulationBinomialPrior(int numberOfNodes, int numberOfTimeBins, double expectedRoundTripSize) {
+		this.numberOfTimeBins = numberOfTimeBins;
 		this.expectedRoundTripSize = expectedRoundTripSize;
-		this.maximumRoundTripSize = maximumRoundTripSize;
 		this.uniformPrior = new SingleToMultiWeight<>(
-				new SingleRoundTripUniformPrior<>(numberOfNodes, numberOfTimeBins, maximumRoundTripSize));
+				new SingleRoundTripUniformPrior<>(numberOfNodes, numberOfTimeBins));
 	}
 
 	public PopulationBinomialPrior(Scenario<N> scenario, double expectedRoundTripSize) {
-		this(scenario.getNumberOfNodes(), scenario.getNumberOfTimeBins(), expectedRoundTripSize,
-				scenario.getMaxPossibleStayEpisodes());
+		this(scenario.getNumberOfNodes(), scenario.getNumberOfTimeBins(), expectedRoundTripSize);
 	}
 
 	// -------------------- IMPLEMENTATION OF MHWeight --------------------
@@ -50,7 +48,7 @@ public class PopulationBinomialPrior<N extends Node> implements MHWeight<MultiRo
 		if (this.binomialLogWeightsOverTotalSize == null) {
 			// Upon the first call to this function, we know the number of round trips.
 			double expectation = this.expectedRoundTripSize * roundTrips.size();
-			int numberOfTrials = this.maximumRoundTripSize * roundTrips.size();
+			int numberOfTrials = this.numberOfTimeBins * roundTrips.size();
 			this.binomialLogWeightsOverTotalSize = new PriorUtils().computeBinomialLogWeights(expectation,
 					numberOfTrials);
 		}

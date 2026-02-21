@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.samplingweights.misc;
+package se.vti.roundtrips.samplingweights;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.single.RoundTrip;
@@ -28,21 +28,20 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class StrictlyPeriodicSchedule<N extends Node> implements MHWeight<RoundTrip<N>> {
+public class StrictlyRequireMaxNumberOfStops<N extends Node> implements MHWeight<RoundTrip<N>> {
 
-	private final double periodLength_h;
+	private final int maxNumberOfStops;
 
-	public StrictlyPeriodicSchedule(double periodLength_h) {
-		this.periodLength_h = periodLength_h;
+	public StrictlyRequireMaxNumberOfStops(int maxNumberOfStops) {
+		this.maxNumberOfStops = maxNumberOfStops;
 	}
 
 	@Override
 	public double logWeight(RoundTrip<N> roundTrip) {
-		if (roundTrip.size() <= 1) {
+		if (roundTrip.size() <= this.maxNumberOfStops) {
 			return 0.0;
 		} else {
-			double realizedDuration_h = roundTrip.getEpisodes().stream().mapToDouble(e -> e.getDuration_h()).sum();
-			return realizedDuration_h > this.periodLength_h ? Double.NEGATIVE_INFINITY : 0.0;
+			return Double.NEGATIVE_INFINITY;
 		}
 	}
 }

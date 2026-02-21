@@ -17,10 +17,9 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.samplingweights.misc;
+package se.vti.roundtrips.samplingweights;
 
 import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.simulator.Episode;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
@@ -29,22 +28,21 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class StrictlyForbidShortStays<N extends Node> implements MHWeight<RoundTrip<N>> {
+public class StrictlyPeriodicSchedule<N extends Node> implements MHWeight<RoundTrip<N>> {
 
-	private final double minStayDuration_h;
+	private final double periodLength_h;
 
-	public StrictlyForbidShortStays(double minStayDuration_h) {
-		this.minStayDuration_h = minStayDuration_h;
+	public StrictlyPeriodicSchedule(double periodLength_h) {
+		this.periodLength_h = periodLength_h;
 	}
 
 	@Override
 	public double logWeight(RoundTrip<N> roundTrip) {
-		for (int i = 0; i < roundTrip.getEpisodes().size(); i += 2) {
-			Episode stay = roundTrip.getEpisodes().get(i);
-			if (stay.getDuration_h() < this.minStayDuration_h) {
-				return Double.NEGATIVE_INFINITY;
-			}
+		if (roundTrip.size() <= 1) {
+			return 0.0;
+		} else {
+			double realizedDuration_h = roundTrip.getEpisodes().stream().mapToDouble(e -> e.getDuration_h()).sum();
+			return realizedDuration_h > this.periodLength_h ? Double.NEGATIVE_INFINITY : 0.0;
 		}
-		return 0.0;
 	}
 }

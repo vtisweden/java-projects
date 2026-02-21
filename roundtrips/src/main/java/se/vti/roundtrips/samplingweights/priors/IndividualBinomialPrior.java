@@ -18,16 +18,14 @@ public class IndividualBinomialPrior<N extends Node> implements MHWeight<RoundTr
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public IndividualBinomialPrior(int numberOfNodes, int numberOfTimeBins, double expectedRoundTripSize,
-			int maximumRoundTripSize) {
-		this.uniformPrior = new SingleRoundTripUniformPrior<>(numberOfNodes, numberOfTimeBins, maximumRoundTripSize);
+	public IndividualBinomialPrior(int numberOfNodes, int numberOfTimeBins, double expectedRoundTripSize) {
+		this.uniformPrior = new SingleRoundTripUniformPrior<>(numberOfNodes, numberOfTimeBins);
 		this.binomialLogWeightsOverSize = new PriorUtils().computeBinomialLogWeights(expectedRoundTripSize,
-				maximumRoundTripSize);
+				numberOfTimeBins);
 	}
 
 	public IndividualBinomialPrior(Scenario<N> scenario, double expectedRoundTripSize) {
-		this(scenario.getNumberOfNodes(), scenario.getNumberOfTimeBins(), expectedRoundTripSize,
-				scenario.getMaxPossibleStayEpisodes());
+		this(scenario.getNumberOfNodes(), scenario.getNumberOfTimeBins(), expectedRoundTripSize);
 	}
 
 	// -------------------- IMPLEMENTATION OF MHWeight --------------------

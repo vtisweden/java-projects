@@ -52,11 +52,10 @@ class RoundTripTransitionKernel<N extends Node> {
 		this.from = from;
 		this.scenario = scenario;
 
-		double effectiveInsertWeight = (from.size() < scenario.getMaxPossibleStayEpisodes() ? params.insertWeight
-				: 0.0);
+		double effectiveInsertWeight = (from.size() < scenario.getNumberOfTimeBins() ? params.insertWeight : 0.0);
 		double effectiveRemoveWeight = (from.size() > 0 ? params.removeWeight : 0.0);
 		double effectiveFlipLocationWeight = (from.size() > 0 ? params.flipLocationWeight : 0.0);
-		double effectiveFlipDepTimeWeight = (from.size() > 0 && from.size() < scenario.getTimeBinCnt()
+		double effectiveFlipDepTimeWeight = (from.size() > 0 && from.size() < scenario.getNumberOfTimeBins()
 				? params.flipDepTimeWeight
 				: 0.0);
 		final double effectiveWeightSum = effectiveInsertWeight + effectiveRemoveWeight + effectiveFlipLocationWeight
@@ -70,8 +69,8 @@ class RoundTripTransitionKernel<N extends Node> {
 		assert (Math.abs(
 				1.0 - this.insertProba - this.removeProba - this.flipLocationProba - this.flipDepTimeProba) < 1e-8);
 
-		this.transitionProbaGivenFlipLocation = 1.0 / from.size() / (scenario.getNodesCnt() - 1);
-		this.transitionProbaGivenFlipDepTime = 1.0 / from.size() / (scenario.getTimeBinCnt() - from.size());
+		this.transitionProbaGivenFlipLocation = 1.0 / from.size() / (scenario.getNumberOfNodes() - 1);
+		this.transitionProbaGivenFlipDepTime = 1.0 / from.size() / (scenario.getNumberOfTimeBins() - from.size());
 	}
 
 	RoundTripTransitionKernel(RoundTrip<N> from, Scenario<N> scenario) {
@@ -97,7 +96,7 @@ class RoundTripTransitionKernel<N extends Node> {
 
 	/* package for testing */ double transitionProbaGivenInsert(RoundTrip<?> to) {
 		return this.numberOfInsertionPoints(this.from.getNodesView(), to.getNodesView()) / (this.from.size() + 1.0)
-				/ this.scenario.getNodesCnt() / (this.scenario.getTimeBinCnt() - this.from.size());
+				/ this.scenario.getNumberOfNodes() / (this.scenario.getNumberOfTimeBins() - this.from.size());
 	}
 
 	private double numberOfRemovalPoints(List<?> longer, List<?> shorter) {

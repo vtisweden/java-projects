@@ -27,8 +27,8 @@ import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.samplingweights.misc.StrictlyPeriodicSchedule;
-import se.vti.roundtrips.samplingweights.misc.timeUse.LogarithmicTimeUseSinglePersonSingleDay;
+import se.vti.roundtrips.samplingweights.StrictlyPeriodicSchedule;
+import se.vti.roundtrips.samplingweights.timeUse.LogarithmicTimeUseSinglePersonSingleDay;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 
 /**

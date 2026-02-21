@@ -9,7 +9,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>roundtrips</artifactId>
-  <version>0.1.15-SNAPSHOT</version>
+  <version>0.1.15</version>
   
 	<repositories>
 	  <!--Note that in general repositories are not transitive, so they need to be repeated at every level where needed.-->
@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>se.vti.java-projects</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.1.9-SNAPSHOT</version>
+			<version>0.1.9</version>
 		</dependency>
 
 	</dependencies>

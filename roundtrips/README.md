@@ -9,7 +9,7 @@ Published under GPL, see [LICENSE](LICENSE), [COPYING](COPYING), [WARRANTY](WARR
 	<dependency>
 		<groupId>se.vti.java-projects</groupId>
 		<artifactId>roundtrips</artifactId>
-		<version>0.1.14</version>
+		<version>0.1.15</version>
 	</dependency>
 	
 This project is under intensive (further) development; we are currently relying on small example applications for documentation: `se.vti.roundtrips.examples`.

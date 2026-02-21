@@ -50,7 +50,7 @@ public class Scenario<N extends Node> {
 
 	private Double timeBinSize_h = null;
 
-	private int upperBoundOnStayEpisodes = Integer.MAX_VALUE;
+//	private int upperBoundOnStayEpisodes = Integer.MAX_VALUE;
 
 	// -------------------- NETWORK MEMBERS --------------------
 
@@ -116,13 +116,14 @@ public class Scenario<N extends Node> {
 		}
 	}
 
-	public void setUpperBoundOnStayEpisodes(int upperBoundOnStayEpisodes) {
-		this.upperBoundOnStayEpisodes = upperBoundOnStayEpisodes;
-	}
+// TODO Use StrictRequireMaxNumberOfStops sampling weight instead
+//	public void setUpperBoundOnStayEpisodes(int upperBoundOnStayEpisodes) {
+//		this.upperBoundOnStayEpisodes = upperBoundOnStayEpisodes;
+//	}
 
-	public int getMaxPossibleStayEpisodes() {
-		return Math.min(this.numberOfTimeBins, this.upperBoundOnStayEpisodes);
-	}
+//	public int getMaxPossibleStayEpisodes() {
+//		return Math.min(this.numberOfTimeBins, this.upperBoundOnStayEpisodes);
+//	}
 
 	// -------------------- NETWORK SETTER/GETTER --------------------
 

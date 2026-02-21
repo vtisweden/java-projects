@@ -1,5 +1,5 @@
 /**
- * se.vti.roundtrips.samplingweights.priors
+ * se.vti.roundtrips.samplingweights.misc
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -17,32 +17,30 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.samplingweights.priors;
+package se.vti.roundtrips.samplingweights.timeUse;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
+ * 
  * @author GunnarF
+ *
  */
-class TestPriorUtils {
+public class LogarithmicTimeMultiplePersonsSingleDay<N extends Node> extends LogarithmicTimeUse<N>
+		implements MHWeight<MultiRoundTrip<N>> {
 
-	@Test
-	void testUniform() {
-		int nodeCnt = 2;
-		int timeBinCnt = 3;
-		double[] uniform = PriorUtils.singleton().computeUniformLogWeights(nodeCnt, timeBinCnt);
-		Assertions.assertArrayEquals(
-				new double[] { -0.0, -1.791759469228055, -2.4849066497880004, -2.0794415416798357 }, uniform);
+	public LogarithmicTimeMultiplePersonsSingleDay(double period_h, int numberOfPersons) {
+		super(period_h, numberOfPersons);
 	}
 
-	@Test
-	void testBinomial() {
-		int timeBinCnt = 3;
-		double successProbability = 0.5;
-		double[] binomial = PriorUtils.singleton().computeBinomialLogWeights(successProbability, timeBinCnt);
-		Assertions.assertArrayEquals(
-				new double[] { -0.5469646703818638, -1.0577902941478547, -2.667228206581955, -5.375278407684165 },
-				binomial);
+	public LogarithmicTimeUseComponent<N> createComponent(double targetDuration_h, int personIndex) {
+		return super.createComponent(targetDuration_h, personIndex);
+	}
+
+	@Override
+	public double logWeight(MultiRoundTrip<N> roundTrips) {
+		return super.computeLogWeight(roundTrips);
 	}
 }
