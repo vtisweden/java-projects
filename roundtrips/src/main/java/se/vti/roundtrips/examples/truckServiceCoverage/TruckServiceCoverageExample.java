@@ -100,13 +100,13 @@ class TruckServiceCoverageExample {
 		runner.setUniformPrior();
 
 		// Ensure that every single round trip is completed within the day.
-		runner.addSingleWeight(new StrictlyPeriodicSchedule<GridNode>(scenario.getPeriodLength_h()));
+		runner.addIndividualWeight(new StrictlyPeriodicSchedule<GridNode>(scenario.getPeriodLength_h()));
 
 		// Ensure that a vehicle stays a minimum duration at every visited location.
-		runner.addSingleWeight(new StrictlyForbidShortStays<>(minStayDuration_h));
+		runner.addIndividualWeight(new StrictlyForbidShortStays<>(minStayDuration_h));
 
 		// Penalize not reaching all nodes. See comments in CoverageWeight class.
-		runner.addWeight(new CoverageWeight(gridSize, depotOpening_h, depotClosing_h), 8.0);
+		runner.addPopulationWeight(new CoverageWeight(gridSize, depotOpening_h, depotClosing_h), 8.0);
 
 		/*
 		 * Ready to set up the sampling machinery.

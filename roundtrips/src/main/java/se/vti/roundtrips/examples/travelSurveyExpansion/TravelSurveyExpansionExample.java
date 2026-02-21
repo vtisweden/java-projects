@@ -108,10 +108,10 @@ public class TravelSurveyExpansionExample {
 
 		// Definee the sampling weights.
 		runner.setUniformPrior()
-				.addSingleWeight(
+				.addIndividualWeight(
 						new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()))
-				.addSingleWeight(new StrictlyEnforceUniqueHomeLocation())
-				.addWeight(new ExplainRoundTripsByResponses2(responses, syntheticPopulation));
+				.addIndividualWeight(new StrictlyEnforceUniqueHomeLocation())
+				.addPopulationWeight(new ExplainRoundTripsByResponses2(responses, syntheticPopulation));
 
 		// Define the logging.
 		runner.configureWeightLogging("./output/travelSurveyExpansion/logWeights.log", totalIterations / 100);

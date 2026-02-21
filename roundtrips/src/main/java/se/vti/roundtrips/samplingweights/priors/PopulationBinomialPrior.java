@@ -11,7 +11,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class MultiRoundTripBinomialPrior<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
+public class PopulationBinomialPrior<N extends Node> implements MHWeight<MultiRoundTrip<N>>, Prior {
 
 	// -------------------- CONSTANTS --------------------
 
@@ -25,16 +25,16 @@ public class MultiRoundTripBinomialPrior<N extends Node> implements MHWeight<Mul
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public MultiRoundTripBinomialPrior(int nodeCnt, int timeBinCnt, double expectedRoundTripSize,
+	public PopulationBinomialPrior(int numberOfNodes, int numberOfTimeBins, double expectedRoundTripSize,
 			int maximumRoundTripSize) {
 		this.expectedRoundTripSize = expectedRoundTripSize;
 		this.maximumRoundTripSize = maximumRoundTripSize;
 		this.uniformPrior = new SingleToMultiWeight<>(
-				new SingleRoundTripUniformPrior<>(nodeCnt, timeBinCnt, maximumRoundTripSize));
+				new SingleRoundTripUniformPrior<>(numberOfNodes, numberOfTimeBins, maximumRoundTripSize));
 	}
 
-	public MultiRoundTripBinomialPrior(Scenario<N> scenario, double expectedRoundTripSize) {
-		this(scenario.getNodesCnt(), scenario.getTimeBinCnt(), expectedRoundTripSize,
+	public PopulationBinomialPrior(Scenario<N> scenario, double expectedRoundTripSize) {
+		this(scenario.getNumberOfNodes(), scenario.getNumberOfTimeBins(), expectedRoundTripSize,
 				scenario.getMaxPossibleStayEpisodes());
 	}
 

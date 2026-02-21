@@ -25,8 +25,9 @@ import java.util.List;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
-import se.vti.roundtrips.samplingweights.priors.MultiRoundTripBinomialPrior;
-import se.vti.roundtrips.samplingweights.priors.SingleRoundTripBinomialPrior;
+import se.vti.roundtrips.samplingweights.priors.PopulationBinomialPrior;
+import se.vti.roundtrips.samplingweights.priors.Prior;
+import se.vti.roundtrips.samplingweights.priors.IndividualBinomialPrior;
 import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
@@ -71,43 +72,68 @@ public class Runner<N extends Node> {
 		this.setUniformPrior();
 	}
 
-	public Runner<N> setUniformPrior() {
-		this.prior = new SingleToMultiWeight<>(new SingleRoundTripUniformPrior<>(this.scenario));
+	// PRIORS
+
+	public <P extends Prior & MHWeight<MultiRoundTrip<N>>> Runner<N> setPopulationPrior(P prior) {
+		this.prior = prior;
 		return this;
+	}
+
+	public <P extends Prior & MHWeight<RoundTrip<N>>> Runner<N> setIndividualPrior(P prior) {
+		this.prior = new SingleToMultiWeight<>(prior);
+		return this;
+	}
+
+	public Runner<N> setUniformPrior() {
+		return this.setIndividualPrior(new SingleRoundTripUniformPrior<>(this.scenario));
 	}
 
 	public Runner<N> setIndividualBinomialPrior(double meanRoundTripSize) {
-		this.prior = new SingleToMultiWeight<>(new SingleRoundTripBinomialPrior<>(this.scenario, meanRoundTripSize));
-		return this;
+		return this.setIndividualPrior(new IndividualBinomialPrior<>(this.scenario, meanRoundTripSize));
 	}
 
 	public Runner<N> setPopulationBinomialPrior(double meanRoundTripSize) {
-		this.prior = new MultiRoundTripBinomialPrior<>(this.scenario, meanRoundTripSize);
-		return this;
+		return this.setPopulationPrior(new PopulationBinomialPrior<>(this.scenario, meanRoundTripSize));
 	}
 
-	public Runner<N> addWeight(MHWeight<MultiRoundTrip<N>> weight, double factor) {
+	// SAMPLING WEIGHTS
+
+	private void checkForNotPrior(MHWeight<?> weight) {
+		if (weight instanceof Prior) {
+			throw new RuntimeException(
+					weight.getClass().getSimpleName() + " implements " + Prior.class.getSimpleName()
+							+ ". Cannot be added as a sampling weight, must be set as a prior.");
+		}
+	}
+
+	public Runner<N> addPopulationWeight(MHWeight<MultiRoundTrip<N>> weight, double factor) {
+		this.checkForNotPrior(weight);
 		this.weights.add(weight, factor);
 		return this;
 	}
 
-	public Runner<N> addWeight(MHWeight<MultiRoundTrip<N>> weight) {
-		return this.addWeight(weight, 1.0);
+	public Runner<N> addPopulationWeight(MHWeight<MultiRoundTrip<N>> weight) {
+		return this.addPopulationWeight(weight, 1.0);
 	}
 
-	public Runner<N> addSingleWeight(MHWeight<RoundTrip<N>> weight, double factor) {
+	public Runner<N> addIndividualWeight(MHWeight<RoundTrip<N>> weight, double factor) {
+		this.checkForNotPrior(weight);
 		this.weights.add(new SingleToMultiWeight<>(weight), factor);
 		return this;
 	}
 
-	public Runner<N> addSingleWeight(MHWeight<RoundTrip<N>> weight) {
-		return this.addSingleWeight(weight, 1.0);
+	public Runner<N> addIndividualWeight(MHWeight<RoundTrip<N>> weight) {
+		return this.addIndividualWeight(weight, 1.0);
 	}
+
+	// STATISTICS
 
 	public Runner<N> addStatisticEstimator(MHBatchBasedStatisticEstimator<MultiRoundTrip<N>> statisticEstimator) {
 		this.statisticEstimators.add(statisticEstimator);
 		return this;
 	}
+
+	// OTHER
 
 	public Runner<N> addStateProcessor(MHStateProcessor<MultiRoundTrip<N>> processor) {
 		this.stateProcessors.add(processor);
@@ -155,6 +181,7 @@ public class Runner<N extends Node> {
 				.defineError(() -> (this.numberOfIterations == null), "Undefined parameter: numberOfIterations")
 				.defineError(() -> (this.numberOfIterations != null && this.numberOfIterations < 1),
 						"numberOfIterations smaller than one");
+		
 		if (checker.check()) {
 			this.weights.add(this.prior);
 			var algo = new MHAlgorithm<MultiRoundTrip<N>>(new MultiRoundTripProposal<N>(this.scenario), this.weights,

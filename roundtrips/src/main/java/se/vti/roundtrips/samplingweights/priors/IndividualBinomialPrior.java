@@ -10,7 +10,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class SingleRoundTripBinomialPrior<N extends Node> implements MHWeight<RoundTrip<N>> {
+public class IndividualBinomialPrior<N extends Node> implements MHWeight<RoundTrip<N>>, Prior {
 
 	private final SingleRoundTripUniformPrior<N> uniformPrior;
 
@@ -18,18 +18,18 @@ public class SingleRoundTripBinomialPrior<N extends Node> implements MHWeight<Ro
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public SingleRoundTripBinomialPrior(int nodeCnt, int timeBinCnt, double expectedRoundTripSize,
+	public IndividualBinomialPrior(int numberOfNodes, int numberOfTimeBins, double expectedRoundTripSize,
 			int maximumRoundTripSize) {
-		this.uniformPrior = new SingleRoundTripUniformPrior<>(nodeCnt, timeBinCnt, maximumRoundTripSize);
+		this.uniformPrior = new SingleRoundTripUniformPrior<>(numberOfNodes, numberOfTimeBins, maximumRoundTripSize);
 		this.binomialLogWeightsOverSize = new PriorUtils().computeBinomialLogWeights(expectedRoundTripSize,
 				maximumRoundTripSize);
 	}
 
-	public SingleRoundTripBinomialPrior(Scenario<N> scenario, double expectedRoundTripSize) {
-		this(scenario.getNodesCnt(), scenario.getTimeBinCnt(), expectedRoundTripSize,
+	public IndividualBinomialPrior(Scenario<N> scenario, double expectedRoundTripSize) {
+		this(scenario.getNumberOfNodes(), scenario.getNumberOfTimeBins(), expectedRoundTripSize,
 				scenario.getMaxPossibleStayEpisodes());
 	}
-	
+
 	// -------------------- IMPLEMENTATION OF MHWeight --------------------
 
 	@Override

@@ -102,10 +102,10 @@ class ActivityTimeUseExample {
 		runner.setUniformPrior();
 
 		// Enforce that every single round trip is completed within the day.
-		runner.addSingleWeight(new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()));
+		runner.addIndividualWeight(new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()));
 
 		// Enforce that all round trips start and end their unique home location.
-		runner.addSingleWeight(new StrictlyEnforceUniqueHomeLocation());
+		runner.addIndividualWeight(new StrictlyEnforceUniqueHomeLocation());
 
 		// Sample round trips according to time use assumptions. See LogarithmicTimeUse
 		// implementation for details.
@@ -124,7 +124,7 @@ class ActivityTimeUseExample {
 		otherComponent.addObservedNodes(scenario, node -> Activity.OTHER.equals(node.getActivity()));
 		timeUse.addConfiguredComponent(otherComponent);
 
-		runner.addSingleWeight(timeUse);
+		runner.addIndividualWeight(timeUse);
 
 		/*
 		 * Ready to set up the sampling machinery.

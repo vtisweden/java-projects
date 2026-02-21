@@ -155,7 +155,12 @@ public class Scenario<N extends Node> {
 		return this.locationsView;
 	}
 
+	@Deprecated
 	public int getNodesCnt() {
+		return this.name2node.size();
+	}
+
+	public int getNumberOfNodes() {
 		return this.name2node.size();
 	}
 

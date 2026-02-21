@@ -29,19 +29,19 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class SingleRoundTripUniformPrior<N extends Node> implements MHWeight<RoundTrip<N>> {
+public class SingleRoundTripUniformPrior<N extends Node> implements MHWeight<RoundTrip<N>>, Prior {
 
 	private final double[] uniformLogWeightsOverSize;
 
 	// -------------------- CONSTRUCTION --------------------
 	
-	public SingleRoundTripUniformPrior(int nodeCnt, int timeBinCnt, int maximumRoundTripSize) {
-		this.uniformLogWeightsOverSize = new PriorUtils().computeUniformLogWeights(nodeCnt, timeBinCnt,
+	public SingleRoundTripUniformPrior(int numberOfNodes, int numberOfTimeBins, int maximumRoundTripSize) {
+		this.uniformLogWeightsOverSize = new PriorUtils().computeUniformLogWeights(numberOfNodes, numberOfTimeBins,
 				maximumRoundTripSize);
 	}
 
 	public SingleRoundTripUniformPrior(Scenario<N> scenario) {
-		this(scenario.getNodesCnt(), scenario.getTimeBinCnt(), scenario.getMaxPossibleStayEpisodes());
+		this(scenario.getNumberOfNodes(), scenario.getNumberOfTimeBins(), scenario.getMaxPossibleStayEpisodes());
 	}
 
 	// -------------------- IMPLEMENTATION OF MHWeight --------------------

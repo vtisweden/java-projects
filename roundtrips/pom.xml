@@ -45,16 +45,11 @@
 	</repositories>
 
 	<dependencies>
-		<dependency>
-		    <groupId>org.apache.commons</groupId>
-		    <artifactId>commons-math3</artifactId>
-	    	<version>3.6.1</version>
-		</dependency>		
 		
 		<dependency>
 			<groupId>se.vti.java-projects</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.1.8</version>
+			<version>0.1.9-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>
