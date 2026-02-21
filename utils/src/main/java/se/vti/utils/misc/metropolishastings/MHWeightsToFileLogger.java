@@ -24,19 +24,19 @@ package se.vti.utils.misc.metropolishastings;
  * @author GunnarF
  *
  */
-public class MHWeightsToFileLogger<R> extends MHToFileLogger<R> {
+public class MHWeightsToFileLogger<X> extends MHToFileLogger<X> {
 
-	final MHWeightContainer<R> samplingWeights;
+	final MHWeightContainer<X> samplingWeights;
 
-	public MHWeightsToFileLogger(long samplingInterval, MHWeightContainer<R> samplingWeights, String logFileName) {
+	public MHWeightsToFileLogger(long samplingInterval, MHWeightContainer<X> samplingWeights, String logFileName) {
 		super(samplingInterval, logFileName);
 		this.samplingWeights = samplingWeights;
 	}
 
 	@Override
 	public String createHeaderLine() {
-		StringBuffer result = new StringBuffer("Iteration");
-		for (MHWeight<R> samplingWeight : this.samplingWeights.getComponentsView()) {
+		StringBuffer result = new StringBuffer(super.createHeaderLine());
+		for (MHWeight<X> samplingWeight : this.samplingWeights.getComponentsView()) {
 			result.append("\t");
 			result.append(samplingWeight.name());
 		}
@@ -44,9 +44,9 @@ public class MHWeightsToFileLogger<R> extends MHToFileLogger<R> {
 	}
 
 	@Override
-	public String createDataLine(R state) {
-		StringBuffer result = new StringBuffer(Long.toString(this.iteration()));
-		for (MHWeight<R> samplingWeight : this.samplingWeights.getComponentsView()) {
+	public String createDataLine(X state) {
+		StringBuffer result = new StringBuffer(super.createDataLine(state));
+		for (MHWeight<X> samplingWeight : this.samplingWeights.getComponentsView()) {
 			result.append("\t");
 			result.append(samplingWeight.logWeight(state));
 		}

@@ -33,7 +33,7 @@ class TestMHBatchBasedVarianceEstimator {
 	void test() {
 		Random rnd = new Random(4711);
 		var estimator = new MHBatchBasedStatisticEstimator<Double>("test", x -> x).setMinBatchSize(10)
-				.setShareOfDiscartedTransients(0.0);
+				.setShareOfDiscardedTransients(0.0);
 		for (int i = 0; i < 3_000; i++) {
 			estimator.processState(rnd.nextGaussian());
 		}

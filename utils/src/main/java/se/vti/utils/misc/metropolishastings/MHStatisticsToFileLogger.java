@@ -42,25 +42,29 @@ public class MHStatisticsToFileLogger<X> extends MHToFileLogger<X> {
 
 	@Override
 	public String createHeaderLine() {
-		StringBuffer result = new StringBuffer("Iteration");
+		StringBuffer result = new StringBuffer(super.createHeaderLine());
 		for (var statisticEstimator : this.statisticsEstimators) {
 			String name = statisticEstimator.getName();
-			result.append(String.format("\tAVG(%s)\tSTD(%s)\tSTD(AVG(%s))", name, name, name));
+			result.append(String.format("\tAVG(%s)\tSTD(%1$s)\tSTD(AVG(%1$s))\tAUTOCORR(%1$s)", name));
 		}
 		return result.toString();
 	}
 
 	@Override
 	public String createDataLine(X state) {
-		StringBuffer result = new StringBuffer(Long.toString(this.iteration()));
+		StringBuffer result = new StringBuffer(super.createDataLine(state));
 		boolean foundData = false;
 		for (var statisticEstimator : this.statisticsEstimators) {
 			Double mean = statisticEstimator.getMeanValue();
 			Double stddev = statisticEstimator.getEffectiveStandardDeviation();
 			Double stddevOfMean = statisticEstimator.getStandardDeviationOfMean();
-			if (mean != null && stddev != null && stddevOfMean != null) {
-				result.append(String.format(Locale.US, "\t%f\t%f\t%f", mean, stddev, stddevOfMean));
+			Double batchMeanAutoCorr = statisticEstimator.getBatchMeanAutoCorrelation();
+			if ((mean != null) && (stddev != null) && (stddevOfMean != null) && (batchMeanAutoCorr != null)) {
+				result.append(
+						String.format(Locale.US, "\t%f\t%f\t%f\t%f", mean, stddev, stddevOfMean, batchMeanAutoCorr));
 				foundData = true;
+			} else {
+				result.append("\t\t\t\t");
 			}
 		}
 		if (foundData) {

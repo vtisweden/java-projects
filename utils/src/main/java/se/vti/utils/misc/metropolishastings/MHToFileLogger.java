@@ -22,13 +22,15 @@ package se.vti.utils.misc.metropolishastings;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * 
  * @author GunnarF
  *
  */
-public abstract class MHToFileLogger<X> extends MHAbstractStateProcessor<X> implements MHStateProcessor<X> {
+public class MHToFileLogger<X> extends MHAbstractStateProcessor<X> implements MHStateProcessor<X> {
 
 	private final File logFile;
 
@@ -81,7 +83,12 @@ public abstract class MHToFileLogger<X> extends MHAbstractStateProcessor<X> impl
 		}
 	}
 
-	public abstract String createHeaderLine();
+	public String createHeaderLine() {
+		return "Iteration\tTimestamp";
+	}
 
-	public abstract String createDataLine(X state);
+	public String createDataLine(X state) {
+		return String.format("%d\t%2$tY-%2$tm-%2$td_%2$tH:%2$tM:%2$tS", this.iteration(),
+				new Date(System.currentTimeMillis()));
+	}
 }

@@ -43,6 +43,7 @@ public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 	private Double meanValue = null;
 	private Double effectiveVariance = null;
 	private Double varianceOfMean = null;
+	private Double batchMeanAutoCorrelation = null;
 
 	public MHBatchBasedStatisticEstimator(String name, Function<X, Double> stateToStatistic) {
 		this.name = name;
@@ -58,7 +59,7 @@ public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 		return this;
 	}
 
-	public MHBatchBasedStatisticEstimator<X> setShareOfDiscartedTransients(double share) {
+	public MHBatchBasedStatisticEstimator<X> setShareOfDiscardedTransients(double share) {
 		this.shareOfDiscardedTransients = share;
 		return this;
 	}
@@ -80,6 +81,10 @@ public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 	public Double getEffectiveVariance() {
 		this.ensureStatisticsUpToDate();
 		return this.effectiveVariance;
+	}
+	
+	public Double getBatchMeanAutoCorrelation() {
+		return this.batchMeanAutoCorrelation;
 	}
 
 	public Double getEffectiveStandardDeviation() {
@@ -131,6 +136,13 @@ public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 				this.meanValue = overallMean;
 				this.effectiveVariance = batchSize / (numberOfBatches - 1.0) * sumOfSquares;
 				this.varianceOfMean = this.effectiveVariance / batchSize / numberOfBatches;
+
+				double num = 0.0;
+				for (int batchIndex = 0; batchIndex < numberOfBatches - 1; batchIndex++) {
+					num += (batchMeans[batchIndex] - overallMean) * (batchMeans[batchIndex + 1] - overallMean);
+				}
+				double den = sumOfSquares;
+				this.batchMeanAutoCorrelation = (den >= 1e-8) ? num / den : 0.0;
 			}
 
 			this.statisticsUpToDate = true;
