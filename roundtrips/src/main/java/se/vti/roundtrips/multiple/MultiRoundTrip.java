@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.simulator.Simulator;
