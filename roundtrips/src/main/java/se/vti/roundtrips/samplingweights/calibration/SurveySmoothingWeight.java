@@ -19,7 +19,6 @@
  */
 package se.vti.roundtrips.samplingweights.calibration;
 
-import java.util.Arrays;
 import java.util.function.BiFunction;
 
 import se.vti.roundtrips.common.Node;
@@ -32,21 +31,16 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class SurveySmoothingWeight<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
 
-	private final double[][] agentRespondentWeights;
-
-	private boolean weightsAreNormalized = false;
+	private final double[][] agentRespondentSimilarities;
 
 	private BiFunction<RoundTrip<N>, Integer, Double> movementSimilarityFunction;
 
 	public SurveySmoothingWeight(int numberOfAgents, int numberOfRespondents) {
-		this.agentRespondentWeights = new double[numberOfAgents][numberOfRespondents];
+		this.agentRespondentSimilarities = new double[numberOfAgents][numberOfRespondents];
 	}
 
-	public SurveySmoothingWeight<N> setAgentSimilarity(int agentIndex, int respondentIndex, double similarity) {
-		if (this.weightsAreNormalized) {
-			throw new RuntimeException("Too late to set agent similarities.");
-		}
-		this.agentRespondentWeights[agentIndex][respondentIndex] = similarity;
+	public SurveySmoothingWeight<N> setAgentRespondentSimilarity(int agentIndex, int respondentIndex, double similarity) {
+		this.agentRespondentSimilarities[agentIndex][respondentIndex] = similarity;
 		return this;
 	}
 
@@ -56,27 +50,12 @@ public class SurveySmoothingWeight<N extends Node> implements MHWeight<MultiRoun
 		return this;
 	}
 
-	private void normalizeWeights() {
-		for (double[] weights : this.agentRespondentWeights) {
-			double sum = Arrays.stream(weights).sum();
-			if (sum < 1e-8) {
-				throw new RuntimeException("Agent does not match any response.");
-			}
-			for (int respondentIndex = 0; respondentIndex < weights.length; respondentIndex++) {
-				weights[respondentIndex] /= sum;
-			}
-		}
-	}
-
 	@Override
 	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
-		if (!this.weightsAreNormalized) {
-			this.normalizeWeights();
-		}
 		double logWeight = 0.0;
 		// This double loop is slow. The inner loop could be parallelized.
 		for (int agentIndex = 0; agentIndex < multiRoundTrip.size(); agentIndex++) {
-			double[] weights = this.agentRespondentWeights[agentIndex];
+			double[] weights = this.agentRespondentSimilarities[agentIndex];
 			double agentWeight = 0.0;
 			for (int respondentIndex = 0; respondentIndex < weights.length; respondentIndex++) {
 				agentWeight += weights[respondentIndex] * this.movementSimilarityFunction

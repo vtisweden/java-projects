@@ -19,7 +19,6 @@
  */
 package se.vti.roundtrips.examples.travelSurveyExpansion;
 
-import java.util.Arrays;
 import java.util.List;
 
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
@@ -46,7 +45,7 @@ class ExplainRoundTripsByResponses2 implements MHWeight<MultiRoundTrip<GridNodeW
 				responses.size());
 		for (int agentIndex = 0; agentIndex < syntheticPopulation.size(); agentIndex++) {
 			for (int respondentIndex = 0; respondentIndex < responses.size(); respondentIndex++) {
-				this.surveySmoothingWeight.setAgentSimilarity(agentIndex, respondentIndex,
+				this.surveySmoothingWeight.setAgentRespondentSimilarity(agentIndex, respondentIndex,
 						responses.get(respondentIndex).matchesRespondentWeight(syntheticPopulation.get(agentIndex)));
 			}
 		}
