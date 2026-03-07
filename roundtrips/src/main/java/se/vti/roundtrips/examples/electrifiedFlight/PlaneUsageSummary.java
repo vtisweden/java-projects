@@ -19,13 +19,9 @@
  */
 package se.vti.roundtrips.examples.electrifiedFlight;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.IntStream;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.common.NodeWithCoords;
@@ -40,16 +36,19 @@ import se.vti.utils.misc.Tuple;
  */
 class PlaneUsageSummary implements MultiRoundTripSummary<NodeWithCoords> {
 
-	private final int fleetSize;
-	private final double rangeFactor;
+	private final int numberOfPlanes;
+	private final int planeCapacity_pax;
 
 	private Map<Tuple<Node, Node>, Double> od2demand = new LinkedHashMap<>();
+	private Map<Tuple<Node, Node>, Map<Integer, Integer>> od2plane2coverage = new LinkedHashMap<>();
 	private Map<Tuple<Node, Node>, Integer> od2coverage = new LinkedHashMap<>();
-	private Map<Tuple<Node, Node>, Set<Integer>> od2coveringPlaneIndices = new LinkedHashMap<>();
 
-	PlaneUsageSummary(int fleetSize, double rangeFactor) {
-		this.fleetSize = fleetSize;
-		this.rangeFactor = rangeFactor;
+	private Integer numberOfMissingPlaneTrips = null;
+	private Double numberOfUnservedPassengers = null;
+
+	PlaneUsageSummary(int numberOfPlanes, int planeCapacity_pax) {
+		this.numberOfPlanes = numberOfPlanes;
+		this.planeCapacity_pax = planeCapacity_pax;
 		this.clear();
 	}
 
@@ -61,7 +60,7 @@ class PlaneUsageSummary implements MultiRoundTripSummary<NodeWithCoords> {
 		return this.od2demand.getOrDefault(new Tuple<>(from, to), 0.0);
 	}
 
-	private int getCoverage(Node from, Node to) {
+	int getCoverage(Node from, Node to) {
 		return this.od2coverage.getOrDefault(new Tuple<>(from, to), 0);
 	}
 
@@ -69,56 +68,31 @@ class PlaneUsageSummary implements MultiRoundTripSummary<NodeWithCoords> {
 		this.od2coverage.put(new Tuple<>(from, to), coverage);
 	}
 
-	int computeNumberOfMissingPlaneTrips(int planeCapacity_pax) {
-		int missingPlaneTrips = 0;
-		for (Map.Entry<Tuple<Node, Node>, Double> fromDemand : this.od2demand.entrySet()) {
-			var od = fromDemand.getKey();
-			double minDemand_pax = fromDemand.getValue() * (1.0 - this.rangeFactor);
-			int coverage = this.od2coverage.getOrDefault(od, 0);
-			double unservedDemand_pax = Math.max(0, minDemand_pax - coverage * planeCapacity_pax);
-			missingPlaneTrips += (int) Math.ceil(unservedDemand_pax / planeCapacity_pax);
+	private int getIndividualCoverage(int planeIndex, Node from, Node to) {
+		var od = new Tuple<>(from, to);
+		if (this.od2plane2coverage.containsKey(od)) {
+			return this.od2plane2coverage.get(od).getOrDefault(planeIndex, 0);
+		} else {
+			return 0;
 		}
-		return missingPlaneTrips;
 	}
 
-	int computeNumberOfUnnecessaryPlanes(int planeCapacity_pax) {
-		Set<Integer> unnecessaryPlanes = new LinkedHashSet<>(IntStream.range(0, this.fleetSize).boxed().toList());
-		for (Map.Entry<Tuple<Node, Node>, Integer> coverageEntry : this.od2coverage.entrySet()) {
-			var od = coverageEntry.getKey();
-			int coverage = coverageEntry.getValue();
-			double maxDemand_pax = this.od2demand.getOrDefault(od, 0.0) * (1.0 + this.rangeFactor);
-			int neededCoverage = (int) Math.ceil(maxDemand_pax / planeCapacity_pax);
-			if (coverage <= neededCoverage) {
-				unnecessaryPlanes.removeAll(this.od2coveringPlaneIndices.getOrDefault(od, Collections.emptySet()));
-			}
-		}
-		return unnecessaryPlanes.size();
+	Integer getNumberOfMissingPlaneTrips() {
+		return this.numberOfMissingPlaneTrips;
 	}
 
-//	int computeNumberOfUnncessearyPlaneTrips(int planeCapacity) {
-//		int unncessaryPlaneTrips = 0;
-//		for (Map.Entry<Node, Map<Node, Integer>> fromCoverage : this.coverage.entrySet()) {
-//			Node from = fromCoverage.getKey();
-//			Map<Node, Double> fromDemand = this.demand.get(from);
-//			for (Map.Entry<Node, Integer> toCoverage : fromCoverage.getValue().entrySet()) {
-//				Node to = toCoverage.getKey();
-//				int coverage = toCoverage.getValue();
-//				if (fromDemand == null) {
-//					unncessaryPlaneTrips += coverage;
-//				} else {
-//					double demand_pax = fromDemand.getOrDefault(to, 0.0);
-//					int neededCoverage = (int) Math.ceil(demand_pax / planeCapacity);
-//					unncessaryPlaneTrips += Math.max(0, coverage - neededCoverage);
-//				}
-//			}
-//		}
-//		return unncessaryPlaneTrips;
-//	}
+	Double getNumberOfServedPassengers() {
+		return this.od2demand.values().stream().mapToDouble(d -> d).sum() - this.numberOfUnservedPassengers;
+	}
+
+	Double getNumberOfUnservedPassengers() {
+		return this.numberOfUnservedPassengers;
+	}
 
 	@Override
 	public void clear() {
 		this.od2coverage = new LinkedHashMap<>();
-		this.od2coveringPlaneIndices = new LinkedHashMap<>();
+		this.od2plane2coverage = new LinkedHashMap<>();
 	}
 
 	@Override
@@ -127,7 +101,7 @@ class PlaneUsageSummary implements MultiRoundTripSummary<NodeWithCoords> {
 		/*
 		 * Compute effect of round trip change on coverage.
 		 */
-		{
+		if (oldRoundTrip != null) {
 			List<Episode> oldEpisodes = oldRoundTrip.getEpisodes();
 			for (int i = 1; i < oldEpisodes.size(); i += 2) {
 				MoveEpisode<Node> stay = (MoveEpisode<Node>) oldEpisodes.get(i);
@@ -135,10 +109,11 @@ class PlaneUsageSummary implements MultiRoundTripSummary<NodeWithCoords> {
 				Node to = stay.getDestination();
 				this.setCoverage(from, to, this.getCoverage(from, to) - 1);
 				var od = new Tuple<>(from, to);
-				this.od2coveringPlaneIndices.computeIfAbsent(od, od2 -> new LinkedHashSet<>()).remove(roundTripIndex);
+				this.od2coverage.compute(od, (od2, c) -> c - this.getIndividualCoverage(roundTripIndex, from, to));
+				this.od2plane2coverage.computeIfAbsent(od, od2 -> new LinkedHashMap<>()).remove(roundTripIndex);
 			}
 		}
-		{
+		if (newRoundTrip != null) {
 			List<Episode> newEpisodes = newRoundTrip.getEpisodes();
 			for (int i = 1; i < newEpisodes.size(); i += 2) {
 				MoveEpisode<Node> stay = (MoveEpisode<Node>) newEpisodes.get(i);
@@ -146,33 +121,38 @@ class PlaneUsageSummary implements MultiRoundTripSummary<NodeWithCoords> {
 				Node to = stay.getDestination();
 				this.setCoverage(from, to, this.getCoverage(from, to) + 1);
 				var od = new Tuple<>(from, to);
-				this.od2coveringPlaneIndices.computeIfAbsent(od, od2 -> new LinkedHashSet<>()).add(roundTripIndex);
+				this.od2plane2coverage.computeIfAbsent(od, od2 -> new LinkedHashMap<>()).compute(roundTripIndex,
+						(r, c) -> (c == null) ? 1 : (c + 1));
+				this.od2coverage.compute(od,
+						(od2, c) -> (c == null ? 0 : c) - this.getIndividualCoverage(roundTripIndex, from, to));
 			}
 		}
 
-		if (Math.random() < 0.01) {
-			System.out.println("Missing plane trips          = " + this.computeNumberOfMissingPlaneTrips(18));
-			System.out.println("Number of unnecessary planes = " + this.computeNumberOfUnnecessaryPlanes(18));
-//			System.out.println("Unncessary plane trips = " + this.computeNumberOfUnncessearyPlaneTrips(18));
-			System.out.println();
+		/*
+		 * Compute summary statistics.
+		 */
+		this.numberOfMissingPlaneTrips = 0;
+		this.numberOfUnservedPassengers = 0.0;
+		for (Map.Entry<Tuple<Node, Node>, Double> fromDemand : this.od2demand.entrySet()) {
+			var od = fromDemand.getKey();
+			double minDemand_pax = fromDemand.getValue();
+			int coverage = this.od2coverage.getOrDefault(od, 0);
+			double unservedDemand_pax = Math.max(0, minDemand_pax - coverage * planeCapacity_pax);
+			this.numberOfUnservedPassengers += unservedDemand_pax;
+			this.numberOfMissingPlaneTrips += (int) Math.ceil(unservedDemand_pax / planeCapacity_pax);
 		}
 	}
 
 	@Override
 	public PlaneUsageSummary clone() {
-		PlaneUsageSummary child = new PlaneUsageSummary(this.fleetSize, this.rangeFactor);
+		PlaneUsageSummary child = new PlaneUsageSummary(this.numberOfPlanes, this.planeCapacity_pax);
 		child.od2demand = this.od2demand;
 		child.od2coverage = new LinkedHashMap<>(this.od2coverage);
-		for (var entry : this.od2coveringPlaneIndices.entrySet()) {
-			child.od2coveringPlaneIndices.put(entry.getKey(), new LinkedHashSet<>(entry.getValue()));
+		for (var entry : this.od2plane2coverage.entrySet()) {
+			child.od2plane2coverage.put(entry.getKey(), new LinkedHashMap<>(entry.getValue()));
 		}
-
-//		for (Map.Entry<Node, Map<Node, Double>> fromDemand : this.demand.entrySet()) {
-//			child.demand.put(fromDemand.getKey(), new LinkedHashMap<>(fromDemand.getValue()));
-//		}
-//		for (Map.Entry<Node, Map<Node, Integer>> fromCoverage : this.coverage.entrySet()) {
-//			child.coverage.put(fromCoverage.getKey(), new LinkedHashMap<>(fromCoverage.getValue()));
-//		}
+		child.numberOfMissingPlaneTrips = this.numberOfMissingPlaneTrips;
+		child.numberOfUnservedPassengers = this.numberOfUnservedPassengers;
 		return child;
 	}
 }

@@ -21,6 +21,7 @@ package se.vti.roundtrips.examples.electrifiedFlight;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -35,10 +36,13 @@ import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.samplingweights.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.simulator.DefaultSimulator;
+import se.vti.roundtrips.simulator.Episode;
+import se.vti.roundtrips.simulator.MoveEpisode;
 import se.vti.roundtrips.simulator.electrified.BatteryWrapAroundSimulator;
 import se.vti.roundtrips.simulator.electrified.ElectrifiedMoveSimulator;
 import se.vti.roundtrips.simulator.electrified.ElectrifiedStaySimulator;
 import se.vti.roundtrips.simulator.electrified.StrictlyNonNegativeBatteryCharge;
+import se.vti.utils.misc.metropolishastings.MHBatchBasedStatisticEstimator;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
@@ -92,7 +96,7 @@ public class ElectrifiedFlightExample {
 		 * Scenario is complete. Now create runner for computing the Monte Carlo
 		 * analysis.
 		 */
-		int numberOfIterations = 100_000;
+		int numberOfIterations = 1_000_000;
 		var scenario = scenarioBuilder.build();
 		var runner = new Runner<>(scenario).setUniformPrior()
 				.addIndividualWeight(new StrictlyPeriodicSchedule<NodeWithCoords>(timeBinSize_h * numberOfTimeBins))
@@ -125,21 +129,21 @@ public class ElectrifiedFlightExample {
 			throw new RuntimeException(e);
 		}
 		int planeSize_pax = 18;
-		double electricFlightMarketShare = 1.0;
-		double demandRangeFactor = 0.5;
 		int fleetSize = 100;
-		PlaneUsageSummary planeUsage = new PlaneUsageSummary(fleetSize, demandRangeFactor);
+		double demandSum = 0;
+		PlaneUsageSummary planeUsage = new PlaneUsageSummary(fleetSize, planeSize_pax);
 		for (CSVRecord r : demandParser) {
 			var from = scenario.getNode(r.get("from_iata"));
 			var to = scenario.getNode(r.get("to_iata"));
-			int demand_pax_day = (int) Math
-					.round(electricFlightMarketShare * Double.parseDouble(r.get("flow")) / 365.0);
+			int demand_pax_day = (int) Math.round(Double.parseDouble(r.get("flow")) / 365.0);
 			if (from.computeEuclideanDistance(to) * cruiseConsumption_kWh_km <= (1.0 - 1e-8) * batteryCapacity_kWh
 					&& demand_pax_day >= 0.5 * planeSize_pax) {
 				log.info(from + " -> " + to + ": " + demand_pax_day + " passengers / day");
 				planeUsage.setDemand(from, to, demand_pax_day);
+				demandSum += demand_pax_day;
 			}
 		}
+		log.info("total demand = " + demandSum + " pax per day");
 
 		/*
 		 * Create a random initial state.
@@ -147,32 +151,77 @@ public class ElectrifiedFlightExample {
 		var initialFlightPattern = new MultiRoundTrip<NodeWithCoords>(fleetSize);
 		new RandomRoundTripGenerator<>(scenario).setNumberOfStayEpisodesInterval(0, 0)
 				.populateRandomly(initialFlightPattern);
+		initialFlightPattern.simulateAll(scenario.getOrCreateSimulator());
 		initialFlightPattern.addSummary(planeUsage);
+		initialFlightPattern.recomputeSummaries();
 		runner.setInitialState(initialFlightPattern);
 
 		/*
-		 * Define sampling weights.
+		 * Ground inefficient planes.
 		 */
+		double distanceCoveredWhenFlyingNonStop_km = timeBinSize_h * numberOfTimeBins * speed_km_h;
+		double minIndividual_paxKm = 0.1 * planeSize_pax * distanceCoveredWhenFlyingNonStop_km;
+		double minAverage_paxKm = 0.2 * planeSize_pax * distanceCoveredWhenFlyingNonStop_km;
 
-		// don't run unncessary planes.
 		runner.addPopulationWeight(new MHWeight<MultiRoundTrip<NodeWithCoords>>() {
 			@Override
-			public double logWeight(MultiRoundTrip<NodeWithCoords> state) {
-				return 1.0 * state.getSummary(PlaneUsageSummary.class).computeNumberOfUnnecessaryPlanes(planeSize_pax);
+			public String name() {
+				return "StrictForbidInefficientPlanes";
+			}
+
+			@Override
+			public double logWeight(MultiRoundTrip<NodeWithCoords> fleet) {
+				var summary = fleet.getSummary(PlaneUsageSummary.class);
+				double total_paxKm = 0.0;
+				int numberOfActivePlanes = 0;
+				for (var plane : fleet) {
+					if (plane.size() > 1) {
+						numberOfActivePlanes++;
+						double individual_paxKm = 0.0;
+						List<Episode> episodes = plane.getEpisodes();
+						for (int i = 1; i < episodes.size(); i += 2) {
+							var move = (MoveEpisode<NodeWithCoords>) episodes.get(i);
+							var from = move.getOrigin();
+							var to = move.getDestination();
+							double demand_pax = summary.getDemand(from, to);
+							int coverage = summary.getCoverage(from, to);
+							double paxKm = scenario.getDistance_km(from, to) * demand_pax / coverage;
+							individual_paxKm += paxKm;
+							total_paxKm += paxKm;
+						}
+						if (individual_paxKm < minIndividual_paxKm) {
+							return Double.NEGATIVE_INFINITY;
+						}
+					}
+				}
+				if (total_paxKm < minAverage_paxKm * numberOfActivePlanes) {
+					return Double.NEGATIVE_INFINITY;
+				}
+				return 0.0;
 			}
 		});
 
-		// serve all demand
-		runner.addPopulationWeight(new MHWeight<MultiRoundTrip<NodeWithCoords>>() {
-			@Override
-			public double logWeight(MultiRoundTrip<NodeWithCoords> state) {
-				return -16.0 * state.getSummary(PlaneUsageSummary.class).computeNumberOfMissingPlaneTrips(planeSize_pax);
-			}
-		});
+		// Define logging.
+		runner.configureStatisticsLogging("./statistics.log", 1000);
+		runner.addStatisticEstimator(
+				new MHBatchBasedStatisticEstimator<MultiRoundTrip<NodeWithCoords>>("NumberOfActivePlanes", fleet -> {
+					double active = 0;
+					for (var plane : fleet) {
+						if (plane.size() > 1) {
+							active++;
+						}
+					}
+					return active;
+				}));
+		runner.addStatisticEstimator(
+				new MHBatchBasedStatisticEstimator<MultiRoundTrip<NodeWithCoords>>("NumberOfServedPassengers",
+						fleet -> fleet.getSummary(PlaneUsageSummary.class).getNumberOfServedPassengers()));
+		runner.addStatisticEstimator(
+				new MHBatchBasedStatisticEstimator<MultiRoundTrip<NodeWithCoords>>("NumberOfMissedPassengers",
+						fleet -> fleet.getSummary(PlaneUsageSummary.class).getNumberOfUnservedPassengers()));
 
-		// // Define the logging.
 //		runner.configureWeightLogging("./output/travelSurveyExpansion/logWeights.log", totalIterations / 100);
-//		runner.addStateProcessor(
+		// runner.addStateProcessor(
 //				new PlotAgeByActivityHistogram(totalIterations / 2, totalIterations / 100, syntheticPopulation));
 //		runner.configureStatisticsLogging("./output/travelSurveyExpansion/statisticsLogs.log", 1000)
 //				.addStatisticEstimator(new TotalTravelTime<GridNodeWithActivity>());
