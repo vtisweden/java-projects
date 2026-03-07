@@ -1,0 +1,1123 @@
+from_iata,to_iata,from_name,to_name,distance_km,flow,year,units
+ARN,JKG,Arlanda,Jönköping,308.97011808520705,21351.84818302581,2024,passengers_per_year
+ARN,VXO,Arlanda,Växjö-Kronoberg,355.4554118699656,39648.07863620397,2024,passengers_per_year
+ARN,KLR,Arlanda,Kalmar,343.2234912124664,33318.561597462496,2024,passengers_per_year
+ARN,VBY,Arlanda,Visby,221.60191972764972,23501.19131164203,2024,passengers_per_year
+ARN,RNB,Arlanda,Ronneby,406.6117467693591,39650.7460603582,2024,passengers_per_year
+ARN,KID,Arlanda,Kristianstad,471.5528621985996,13942.698580414766,2024,passengers_per_year
+ARN,AGH,Arlanda,Ängelholm,476.550482247644,52964.612747443956,2024,passengers_per_year
+ARN,MMX,Arlanda,Malmö,532.357301800144,263202.8603815125,2024,passengers_per_year
+ARN,HAD,Arlanda,Hamstad,444.8429123086301,22880.059070837022,2024,passengers_per_year
+ARN,GOT,Arlanda,Göteborg,395.10366976604104,313505.87812182895,2024,passengers_per_year
+ARN,THN,Arlanda,Trollhättan–Vänersborg,353.53936695265935,29328.677214191157,2024,passengers_per_year
+ARN,TYF,Arlanda,Torsby,281.9518735075313,2515.9987766228614,2024,passengers_per_year
+ARN,KSD,Arlanda,Karlstad,255.20836751401774,24164.583286709847,2024,passengers_per_year
+ARN,HFS,Arlanda,Hägfors,247.5256041719628,2226.213979269514,2024,passengers_per_year
+ARN,ORB,Arlanda,Örebro,170.00758632764956,16454.21171187772,2024,passengers_per_year
+ARN,BLE,Arlanda,Borlänge,156.89298437966818,11999.196755982688,2024,passengers_per_year
+ARN,MXX,Arlanda,Mora-Siljan,237.55329075336957,5409.572313554068,2024,passengers_per_year
+ARN,SDL,Arlanda,Sundsvall,320.9772275611669,82877.01272856296,2024,passengers_per_year
+ARN,KRF,Arlanda,Höga Kusten,379.1262980962911,10732.419814961993,2024,passengers_per_year
+ARN,OER,Arlanda,Örnsköldsvik,422.761366713261,26921.99935396618,2024,passengers_per_year
+ARN,OSD,Arlanda,Åre Östersund,434.98866647755875,86022.95089792086,2024,passengers_per_year
+ARN,EVG,Arlanda,Härjedalen,327.39584854979904,1422.8129547693934,2024,passengers_per_year
+ARN,UME,Arlanda,Umeå,479.521974066774,159049.16502410735,2024,passengers_per_year
+ARN,SFT,Arlanda,Skellefteå,577.7736122636692,40334.884118210095,2024,passengers_per_year
+ARN,LYC,Arlanda,Lycksele,545.1962029580391,5087.3454388012215,2024,passengers_per_year
+ARN,VHM,Arlanda,Vilhelmina,553.0130552698241,2483.910707109137,2024,passengers_per_year
+ARN,AJR,Arlanda,Arvidsjaur,667.2803124839197,3228.236556192895,2024,passengers_per_year
+ARN,LLA,Arlanda,Luleå,691.1933600776188,116036.5428540312,2024,passengers_per_year
+ARN,GEV,Arlanda,Gällivare,848.2538546708719,8310.655890691241,2024,passengers_per_year
+ARN,KRN,Arlanda,Kiruna,919.7210794533556,10522.055817160572,2024,passengers_per_year
+ARN,PJA,Arlanda,Pajala,884.0534025125588,1409.7959348623208,2024,passengers_per_year
+ARN,HMV,Arlanda,Hemavan,703.5071544253594,578.8943982228524,2024,passengers_per_year
+ARN,CPH,Arlanda,Köpenhamn,553.9842135324657,52.86967634186953,2024,passengers_per_year
+JKG,ARN,Jönköping,Arlanda,308.97011808520705,21351.848183025795,2024,passengers_per_year
+JKG,VXO,Jönköping,Växjö-Kronoberg,95.04535365002396,580.967509136827,2024,passengers_per_year
+JKG,KLR,Jönköping,Kalmar,174.92577098173865,387.79860524658216,2024,passengers_per_year
+JKG,VBY,Jönköping,Visby,255.9755082380638,164.8019321016944,2024,passengers_per_year
+JKG,RNB,Jönköping,Ronneby,174.32627544048106,541.5582547566562,2024,passengers_per_year
+JKG,KID,Jönköping,Kristianstad,198.96476004628184,210.6195501254648,2024,passengers_per_year
+JKG,AGH,Jönköping,Ängelholm,173.0450575358466,864.381970801858,2024,passengers_per_year
+JKG,MMX,Jönköping,Malmö,246.65799565676286,4108.4476322149585,2024,passengers_per_year
+JKG,HAD,Jönköping,Hamstad,136.9456193883273,377.52476878020923,2024,passengers_per_year
+JKG,GOT,Jönköping,Göteborg,107.0284763096071,4922.802652666662,2024,passengers_per_year
+JKG,THN,Jönköping,Trollhättan–Vänersborg,123.40555970532262,398.42827660978566,2024,passengers_per_year
+JKG,TYF,Jönköping,Torsby,278.1775713000775,19.40892101954961,2024,passengers_per_year
+JKG,KSD,Jönköping,Karlstad,183.56384377292164,220.88154638727866,2024,passengers_per_year
+JKG,HFS,Jönköping,Hägfors,257.8407905801597,16.579079145576987,2024,passengers_per_year
+JKG,ORB,Jönköping,Örebro,177.10621531575424,123.52728980158062,2024,passengers_per_year
+JKG,BLE,Jönköping,Borlänge,307.4622282612052,62.93130907885579,2024,passengers_per_year
+JKG,MXX,Jönköping,Mora-Siljan,360.3864243816471,30.40826357169374,2024,passengers_per_year
+JKG,SDL,Jönköping,Sundsvall,565.3142711078998,343.8282722957813,2024,passengers_per_year
+JKG,KRF,Jönköping,Höga Kusten,626.4858266378476,44.189951743637984,2024,passengers_per_year
+JKG,OER,Jönköping,Örnsköldsvik,687.275046068941,106.19603495380386,2024,passengers_per_year
+JKG,OSD,Jönköping,Åre Östersund,609.4743196367618,424.97366286761064,2024,passengers_per_year
+JKG,EVG,Jönköping,Härjedalen,481.8278988990682,7.390407968553092,2024,passengers_per_year
+JKG,UME,Jönköping,Umeå,755.8581936293161,609.1106960640154,2024,passengers_per_year
+JKG,SFT,Jönköping,Skellefteå,853.7667781227696,154.6030693387937,2024,passengers_per_year
+JKG,LYC,Jönköping,Lycksele,796.4999189647136,20.741241855724798,2024,passengers_per_year
+JKG,VHM,Jönköping,Vilhelmina,776.8055087186664,10.8479951185044,2024,passengers_per_year
+JKG,AJR,Jönköping,Arvidsjaur,918.523432236107,13.163599800366438,2024,passengers_per_year
+JKG,LLA,Jönköping,Luleå,967.7675958915823,444.1208789153972,2024,passengers_per_year
+JKG,GEV,Jönköping,Gällivare,1104.237869306371,33.48862053719829,2024,passengers_per_year
+JKG,KRN,Jönköping,Kiruna,1169.2953734786222,43.08457617355947,2024,passengers_per_year
+JKG,PJA,Jönköping,Pajala,1154.8563804174585,5.474301681057453,2024,passengers_per_year
+JKG,HMV,Jönköping,Hemavan,904.4655498899299,2.6767302814533243,2024,passengers_per_year
+JKG,CPH,Jönköping,Köpenhamn,255.7058795693968,0.8516306998538148,2024,passengers_per_year
+VXO,ARN,Växjö-Kronoberg,Arlanda,355.4554118699656,39648.07863620404,2024,passengers_per_year
+VXO,JKG,Växjö-Kronoberg,Jönköping,95.04535365002396,580.9675091368254,2024,passengers_per_year
+VXO,KLR,Växjö-Kronoberg,Kalmar,99.01366186884543,977.8769463520869,2024,passengers_per_year
+VXO,VBY,Växjö-Kronoberg,Visby,235.44470032783175,361.8351721162623,2024,passengers_per_year
+VXO,RNB,Växjö-Kronoberg,Ronneby,79.28466756766073,1432.4937449739934,2024,passengers_per_year
+VXO,KID,Växjö-Kronoberg,Kristianstad,117.94512416631427,537.9254259531969,2024,passengers_per_year
+VXO,AGH,Växjö-Kronoberg,Ängelholm,133.78965418372857,1988.7681316354865,2024,passengers_per_year
+VXO,MMX,Växjö-Kronoberg,Malmö,176.93429403017143,10200.858950280663,2024,passengers_per_year
+VXO,HAD,Växjö-Kronoberg,Hamstad,120.79049362610942,819.8664121648601,2024,passengers_per_year
+VXO,GOT,Växjö-Kronoberg,Göteborg,165.77781333095194,8865.098867261713,2024,passengers_per_year
+VXO,THN,Växjö-Kronoberg,Trollhättan–Vänersborg,209.79486727027577,669.594061958582,2024,passengers_per_year
+VXO,TYF,Växjö-Kronoberg,Torsby,371.9076601196998,32.025261270515536,2024,passengers_per_year
+VXO,KSD,Växjö-Kronoberg,Karlstad,277.1157905989815,364.62306558233763,2024,passengers_per_year
+VXO,HFS,Växjö-Kronoberg,Hägfors,349.7140274952256,27.48322826072255,2024,passengers_per_year
+VXO,ORB,Växjö-Kronoberg,Örebro,256.0486923870583,211.49964720434576,2024,passengers_per_year
+VXO,BLE,Växjö-Kronoberg,Borlänge,386.263889776057,107.78700102990926,2024,passengers_per_year
+VXO,MXX,Växjö-Kronoberg,Mora-Siljan,446.86147231787487,51.09283136845052,2024,passengers_per_year
+VXO,SDL,Växjö-Kronoberg,Sundsvall,639.6722983561265,595.4781388558174,2024,passengers_per_year
+VXO,KRF,Växjö-Kronoberg,Höga Kusten,701.0729217801409,76.48901308038883,2024,passengers_per_year
+VXO,OER,Växjö-Kronoberg,Örnsköldsvik,757.9721311751545,185.6125582561962,2024,passengers_per_year
+VXO,OSD,Växjö-Kronoberg,Åre Östersund,696.360795425456,713.3187885072632,2024,passengers_per_year
+VXO,EVG,Växjö-Kronoberg,Härjedalen,568.8325728148749,12.401143368806675,2024,passengers_per_year
+VXO,UME,Växjö-Kronoberg,Umeå,823.1379624227884,1073.7559531374816,2024,passengers_per_year
+VXO,SFT,Växjö-Kronoberg,Skellefteå,921.7005675625702,272.0930047732072,2024,passengers_per_year
+VXO,LYC,Växjö-Kronoberg,Lycksele,871.7646774431531,35.8405381566499,2024,passengers_per_year
+VXO,VHM,Växjö-Kronoberg,Vilhelmina,857.975976417877,18.470438467046282,2024,passengers_per_year
+VXO,AJR,Växjö-Kronoberg,Arvidsjaur,994.5422470869416,22.703652481516865,2024,passengers_per_year
+VXO,LLA,Växjö-Kronoberg,Luleå,1035.9287568117186,781.1844505821526,2024,passengers_per_year
+VXO,GEV,Växjö-Kronoberg,Gällivare,1179.7239730734957,57.83579401583336,2024,passengers_per_year
+VXO,KRN,Växjö-Kronoberg,Kiruna,1246.7293216774146,74.04682197819223,2024,passengers_per_year
+VXO,PJA,Växjö-Kronoberg,Pajala,1225.7451501411358,9.5635616748175,2024,passengers_per_year
+VXO,HMV,Växjö-Kronoberg,Hemavan,990.3267034318764,4.5044263333447345,2024,passengers_per_year
+VXO,CPH,Växjö-Kronoberg,Köpenhamn,201.20545717610722,2.0355502599943525,2024,passengers_per_year
+KLR,ARN,Kalmar,Arlanda,343.2234912124664,33318.561597462554,2024,passengers_per_year
+KLR,JKG,Kalmar,Jönköping,174.92577098173865,387.79860524658375,2024,passengers_per_year
+KLR,VXO,Kalmar,Växjö-Kronoberg,99.01366186884543,977.8769463520912,2024,passengers_per_year
+KLR,VBY,Kalmar,Visby,167.81257155347384,349.24073202770194,2024,passengers_per_year
+KLR,RNB,Kalmar,Ronneby,78.21706950633518,1170.6722480806259,2024,passengers_per_year
+KLR,KID,Kalmar,Kristianstad,158.42711906484348,396.2349353456434,2024,passengers_per_year
+KLR,AGH,Kalmar,Ängelholm,215.1311621168488,1322.6720945290915,2024,passengers_per_year
+KLR,MMX,Kalmar,Malmö,222.37064501569435,7421.442213352214,2024,passengers_per_year
+KLR,HAD,Kalmar,Hamstad,214.04131597372896,529.2742432136973,2024,passengers_per_year
+KLR,GOT,Kalmar,Göteborg,262.9425290495595,5667.242451319536,2024,passengers_per_year
+KLR,THN,Kalmar,Trollhättan–Vänersborg,297.87649922542306,437.8865803107481,2024,passengers_per_year
+KLR,TYF,Kalmar,Torsby,430.61027312448016,22.539308517930085,2024,passengers_per_year
+KLR,KSD,Kalmar,Karlstad,338.2031927546034,255.09549726652574,2024,passengers_per_year
+KLR,HFS,Kalmar,Hägfors,403.03596626156,19.604584596145525,2024,passengers_per_year
+KLR,ORB,Kalmar,Örebro,292.0848186637967,157.53148945105633,2024,passengers_per_year
+KLR,BLE,Kalmar,Borlänge,413.24662877830735,82.1209020098301,2024,passengers_per_year
+KLR,MXX,Kalmar,Mora-Siljan,484.8698349180736,37.86834925232639,2024,passengers_per_year
+KLR,SDL,Kalmar,Sundsvall,652.1962581408742,470.3829427027755,2024,passengers_per_year
+KLR,KRF,Kalmar,Höga Kusten,712.8862621181032,60.528002935256254,2024,passengers_per_year
+KLR,OER,Kalmar,Örnsköldsvik,763.0295302433153,149.38253127418415,2024,passengers_per_year
+KLR,OSD,Kalmar,Åre Östersund,730.5174847120622,533.8041773139753,2024,passengers_per_year
+KLR,EVG,Kalmar,Härjedalen,605.149013400127,9.23028504636806,2024,passengers_per_year
+KLR,UME,Kalmar,Umeå,822.3998765170736,876.7795468431008,2024,passengers_per_year
+KLR,SFT,Kalmar,Skellefteå,920.8084485402908,222.2641615326808,2024,passengers_per_year
+KLR,LYC,Kalmar,Lycksele,882.4826506163739,28.439443213763294,2024,passengers_per_year
+KLR,VHM,Kalmar,Vilhelmina,878.9543104080359,14.285114555657104,2024,passengers_per_year
+KLR,AJR,Kalmar,Arvidsjaur,1005.3944004891499,18.009290918761316,2024,passengers_per_year
+KLR,LLA,Kalmar,Luleå,1034.3693282487855,639.1903020076454,2024,passengers_per_year
+KLR,GEV,Kalmar,Gällivare,1188.4794285437165,46.1183803003724,2024,passengers_per_year
+KLR,KRN,Kalmar,Kiruna,1258.4098862809242,58.614878731174414,2024,passengers_per_year
+KLR,PJA,Kalmar,Pajala,1226.993798182371,7.770472351884035,2024,passengers_per_year
+KLR,HMV,Kalmar,Hemavan,1019.6108538595962,3.41214976906516,2024,passengers_per_year
+KLR,CPH,Kalmar,Köpenhamn,261.2662462823697,1.42775968820543,2024,passengers_per_year
+VBY,ARN,Visby,Arlanda,221.60191972764972,23501.191311642047,2024,passengers_per_year
+VBY,JKG,Visby,Jönköping,255.9755082380638,164.80193210169455,2024,passengers_per_year
+VBY,VXO,Visby,Växjö-Kronoberg,235.44470032783175,361.83517211626327,2024,passengers_per_year
+VBY,KLR,Visby,Kalmar,167.81257155347384,349.24073202770285,2024,passengers_per_year
+VBY,RNB,Visby,Ronneby,245.65913216365408,400.85942926878954,2024,passengers_per_year
+VBY,KID,Visby,Kristianstad,324.9280130055909,135.99765049358913,2024,passengers_per_year
+VBY,AGH,Visby,Ängelholm,368.37138513561166,469.2760857149843,2024,passengers_per_year
+VBY,MMX,Visby,Malmö,389.3246964404726,2544.3388092559053,2024,passengers_per_year
+VBY,HAD,Visby,Hamstad,354.79371740573623,193.73829439101982,2024,passengers_per_year
+VBY,GOT,Visby,Göteborg,362.8980366300302,2297.2124935080215,2024,passengers_per_year
+VBY,THN,Visby,Trollhättan–Vänersborg,364.692001678112,192.82898536216342,2024,passengers_per_year
+VBY,TYF,Visby,Torsby,415.62250259028576,12.177777747865527,2024,passengers_per_year
+VBY,KSD,Visby,Karlstad,341.37744679673614,131.7076741881413,2024,passengers_per_year
+VBY,HFS,Visby,Hägfors,381.23097726111513,10.774243854324736,2024,passengers_per_year
+VBY,ORB,Visby,Örebro,261.0079011082749,88.606055647008,2024,passengers_per_year
+VBY,BLE,Visby,Borlänge,343.39614978340086,50.891774629629516,2024,passengers_per_year
+VBY,MXX,Visby,Mora-Siljan,425.93864571062915,22.835724240327746,2024,passengers_per_year
+VBY,SDL,Visby,Sundsvall,542.4670839127122,322.064748773975,2024,passengers_per_year
+VBY,KRF,Visby,Höga Kusten,600.0583291332811,41.76499243559401,2024,passengers_per_year
+VBY,OER,Visby,Örnsköldsvik,639.9823432861551,105.74291791599529,2024,passengers_per_year
+VBY,OSD,Visby,Åre Östersund,650.5740933048702,339.26112100141415,2024,passengers_per_year
+VBY,EVG,Visby,Härjedalen,534.5387952906598,5.731045725432221,2024,passengers_per_year
+VBY,UME,Visby,Umeå,691.1439314943943,633.5113967107666,2024,passengers_per_year
+VBY,SFT,Visby,Skellefteå,787.8351968705443,161.28649549413984,2024,passengers_per_year
+VBY,LYC,Visby,Lycksele,764.1108848541335,19.897398207010873,2024,passengers_per_year
+VBY,VHM,Visby,Vilhelmina,774.5904926626624,9.65050395741497,2024,passengers_per_year
+VBY,AJR,Visby,Arvidsjaur,885.2227976476374,12.65685963996186,2024,passengers_per_year
+VBY,LLA,Visby,Luleå,899.3165738084656,466.24751752572996,2024,passengers_per_year
+VBY,GEV,Visby,Gällivare,1063.6732350587092,32.78954116082828,2024,passengers_per_year
+VBY,KRN,Visby,Kiruna,1136.5375239365824,41.36983581303557,2024,passengers_per_year
+VBY,PJA,Visby,Pajala,1093.3035613256081,5.648777130566654,2024,passengers_per_year
+VBY,HMV,Visby,Hemavan,924.7624214848961,2.2509360291166782,2024,passengers_per_year
+VBY,CPH,Visby,Köpenhamn,425.6444059246529,0.4926499997713815,2024,passengers_per_year
+RNB,ARN,Ronneby,Arlanda,406.6117467693591,39650.74606035831,2024,passengers_per_year
+RNB,JKG,Ronneby,Jönköping,174.32627544048106,541.5582547566554,2024,passengers_per_year
+RNB,VXO,Ronneby,Växjö-Kronoberg,79.28466756766073,1432.4937449739928,2024,passengers_per_year
+RNB,KLR,Ronneby,Kalmar,78.21706950633518,1170.6722480806252,2024,passengers_per_year
+RNB,VBY,Ronneby,Visby,245.65913216365408,400.85942926879153,2024,passengers_per_year
+RNB,KID,Ronneby,Kristianstad,80.50255414393332,671.3458806899769,2024,passengers_per_year
+RNB,AGH,Ronneby,Ängelholm,148.15973051162922,2180.487202919576,2024,passengers_per_year
+RNB,MMX,Ronneby,Malmö,144.16928768330325,12582.947897843786,2024,passengers_per_year
+RNB,HAD,Ronneby,Hamstad,158.6971509590602,847.5356338059345,2024,passengers_per_year
+RNB,GOT,Ronneby,Göteborg,234.2679851377862,8489.709431854522,2024,passengers_per_year
+RNB,THN,Ronneby,Trollhättan–Vänersborg,286.32775606976736,628.475811740025,2024,passengers_per_year
+RNB,TYF,Ronneby,Torsby,450.3878434786137,29.912685665873223,2024,passengers_per_year
+RNB,KSD,Ronneby,Karlstad,355.6387898619709,340.53391947353384,2024,passengers_per_year
+RNB,HFS,Ronneby,Hägfors,427.22193096169,25.732744629885158,2024,passengers_per_year
+RNB,ORB,Ronneby,Örebro,328.1127704460862,200.74214981372327,2024,passengers_per_year
+RNB,BLE,Ronneby,Borlänge,456.3087194044599,102.82238739159192,2024,passengers_per_year
+RNB,MXX,Ronneby,Mora-Siljan,520.9464500611028,48.24971249806998,2024,passengers_per_year
+RNB,SDL,Ronneby,Sundsvall,704.9517307809671,574.8586640833407,2024,passengers_per_year
+RNB,KRF,Ronneby,Höga Kusten,766.1982116518773,73.86890724423472,2024,passengers_per_year
+RNB,OER,Ronneby,Örnsköldsvik,820.098311147455,180.60352221598694,2024,passengers_per_year
+RNB,OSD,Ronneby,Åre Östersund,769.9515834275519,674.4581121816759,2024,passengers_per_year
+RNB,EVG,Ronneby,Härjedalen,642.8059029209637,11.714336841947958,2024,passengers_per_year
+RNB,UME,Ronneby,Umeå,882.5111266179342,1051.994557224721,2024,passengers_per_year
+RNB,SFT,Ronneby,Skellefteå,981.1542841549041,266.5249228001252,2024,passengers_per_year
+RNB,LYC,Ronneby,Lycksele,936.730803280509,34.626607915819676,2024,passengers_per_year
+RNB,VHM,Ronneby,Vilhelmina,927.221663080763,17.654936438737927,2024,passengers_per_year
+RNB,AJR,Ronneby,Arvidsjaur,1059.736434957456,21.92217006808939,2024,passengers_per_year
+RNB,LLA,Ronneby,Luleå,1095.1853029224485,765.5756553477421,2024,passengers_per_year
+RNB,GEV,Ronneby,Gällivare,1244.1576558353033,55.95130524337825,2024,passengers_per_year
+RNB,KRN,Ronneby,Kiruna,1312.5319837672937,71.38937721851819,2024,passengers_per_year
+RNB,PJA,Ronneby,Pajala,1286.6158006355781,9.334728608206552,2024,passengers_per_year
+RNB,HMV,Ronneby,Hemavan,1062.7420605640102,4.27156496582768,2024,passengers_per_year
+RNB,CPH,Ronneby,Köpenhamn,184.16316620720497,2.414108385290947,2024,passengers_per_year
+KID,ARN,Kristianstad,Arlanda,471.5528621985996,13942.69858041474,2024,passengers_per_year
+KID,JKG,Kristianstad,Jönköping,198.96476004628184,210.61955012546696,2024,passengers_per_year
+KID,VXO,Kristianstad,Växjö-Kronoberg,117.94512416631427,537.9254259531992,2024,passengers_per_year
+KID,KLR,Kristianstad,Kalmar,158.42711906484348,396.23493534564636,2024,passengers_per_year
+KID,VBY,Kristianstad,Visby,324.9280130055909,135.99765049358973,2024,passengers_per_year
+KID,RNB,Kristianstad,Ronneby,80.50255414393332,671.345880689981,2024,passengers_per_year
+KID,AGH,Kristianstad,Ängelholm,89.65575719805386,1043.9454834765788,2024,passengers_per_year
+KID,MMX,Kristianstad,Malmö,64.51029091784626,6351.487543875152,2024,passengers_per_year
+KID,HAD,Kristianstad,Hamstad,119.70267689771761,386.4560179512308,2024,passengers_per_year
+KID,GOT,Kristianstad,Göteborg,220.4337542877676,3635.10991547142,2024,passengers_per_year
+KID,THN,Kristianstad,Trollhättan–Vänersborg,286.7699793672816,259.6646471582949,2024,passengers_per_year
+KID,TYF,Kristianstad,Torsby,474.4477278428046,11.650300175097735,2024,passengers_per_year
+KID,KSD,Kristianstad,Karlstad,380.8074731603963,132.26295515915118,2024,passengers_per_year
+KID,HFS,Kristianstad,Hägfors,456.1776165394851,9.900389240513014,2024,passengers_per_year
+KID,ORB,Kristianstad,Örebro,371.33638806859364,74.52697945972106,2024,passengers_per_year
+KID,BLE,Kristianstad,Borlänge,502.14782610404006,37.92476524582087,2024,passengers_per_year
+KID,MXX,Kristianstad,Mora-Siljan,559.025910925314,18.144912411832127,2024,passengers_per_year
+KID,SDL,Kristianstad,Sundsvall,757.0190230294959,208.75367635961257,2024,passengers_per_year
+KID,KRF,Kristianstad,Höga Kusten,818.4183638677187,26.814441771436897,2024,passengers_per_year
+KID,OER,Kristianstad,Örnsköldsvik,875.8128208509642,64.9889246841273,2024,passengers_per_year
+KID,OSD,Kristianstad,Åre Östersund,808.3224024524178,253.45379055607816,2024,passengers_per_year
+KID,EVG,Kristianstad,Härjedalen,680.6571557004664,4.407838033080043,2024,passengers_per_year
+KID,UME,Kristianstad,Umeå,941.0794995195487,375.8617102318237,2024,passengers_per_year
+KID,SFT,Kristianstad,Skellefteå,1039.645068750106,95.24378792138161,2024,passengers_per_year
+KID,LYC,Kristianstad,Lycksele,989.0649938148559,12.565889012883769,2024,passengers_per_year
+KID,VHM,Kristianstad,Vilhelmina,973.492581752946,6.5047789447048165,2024,passengers_per_year
+KID,AJR,Kristianstad,Arvidsjaur,1111.731798903735,7.962229457829503,2024,passengers_per_year
+KID,LLA,Kristianstad,Luleå,1153.8729188448438,273.44704905591135,2024,passengers_per_year
+KID,GEV,Kristianstad,Gällivare,1297.065828614563,20.27544053582228,2024,passengers_per_year
+KID,KRN,Kristianstad,Kiruna,1363.646683941211,25.986088208098916,2024,passengers_per_year
+KID,PJA,Kristianstad,Pajala,1343.6367899100203,3.3480839513786136,2024,passengers_per_year
+KID,HMV,Kristianstad,Hemavan,1103.1675391575416,1.596981943502889,2024,passengers_per_year
+KID,CPH,Kristianstad,Köpenhamn,104.11845345447433,1.2197437536474611,2024,passengers_per_year
+AGH,ARN,Ängelholm,Arlanda,476.550482247644,52964.612747443716,2024,passengers_per_year
+AGH,JKG,Ängelholm,Jönköping,173.0450575358466,864.3819708018631,2024,passengers_per_year
+AGH,VXO,Ängelholm,Växjö-Kronoberg,133.78965418372857,1988.7681316354992,2024,passengers_per_year
+AGH,KLR,Ängelholm,Kalmar,215.1311621168488,1322.6720945290972,2024,passengers_per_year
+AGH,VBY,Ängelholm,Visby,368.37138513561166,469.27608571498746,2024,passengers_per_year
+AGH,RNB,Ängelholm,Ronneby,148.15973051162922,2180.487202919584,2024,passengers_per_year
+AGH,KID,Ängelholm,Kristianstad,89.65575719805386,1043.94548347658,2024,passengers_per_year
+AGH,MMX,Ängelholm,Malmö,92.3046340247758,22790.98974548765,2024,passengers_per_year
+AGH,HAD,Ängelholm,Hamstad,44.02441782149501,1796.1051576646487,2024,passengers_per_year
+AGH,GOT,Ängelholm,Göteborg,151.17749917880144,16625.573315096564,2024,passengers_per_year
+AGH,THN,Ängelholm,Trollhättan–Vänersborg,224.78230508640183,1166.2190925377704,2024,passengers_per_year
+AGH,TYF,Ängelholm,Torsby,426.66179908967763,50.49926856609172,2024,passengers_per_year
+AGH,KSD,Ängelholm,Karlstad,337.57301531096914,566.8191281419043,2024,passengers_per_year
+AGH,HFS,Ängelholm,Hägfors,414.0435840170812,42.3120214016166,2024,passengers_per_year
+AGH,ORB,Ängelholm,Örebro,349.18613360221855,302.98973318719084,2024,passengers_per_year
+AGH,BLE,Ängelholm,Borlänge,478.286746947246,154.84414854598725,2024,passengers_per_year
+AGH,MXX,Ängelholm,Mora-Siljan,524.3273981338124,76.11905137953876,2024,passengers_per_year
+AGH,SDL,Ängelholm,Sundsvall,736.827774876115,844.5426007675139,2024,passengers_per_year
+AGH,KRF,Ängelholm,Höga Kusten,797.7742842661787,108.60450597494007,2024,passengers_per_year
+AGH,OER,Ängelholm,Örnsköldsvik,859.6546688813112,260.2842571410072,2024,passengers_per_year
+AGH,OSD,Ängelholm,Åre Östersund,770.304118118207,1072.115754930711,2024,passengers_per_year
+AGH,EVG,Ängelholm,Härjedalen,643.5585061500196,18.602445226452154,2024,passengers_per_year
+AGH,UME,Ängelholm,Umeå,928.7446437364457,1491.0271262564909,2024,passengers_per_year
+AGH,SFT,Ängelholm,Skellefteå,1026.530513478879,378.56518072979196,2024,passengers_per_year
+AGH,LYC,Ängelholm,Lycksele,967.1753179300774,51.05340266632862,2024,passengers_per_year
+AGH,VHM,Ängelholm,Vilhelmina,943.6308309641996,26.959981252545415,2024,passengers_per_year
+AGH,AJR,Ängelholm,Arvidsjaur,1088.6326903873066,32.447354008153106,2024,passengers_per_year
+AGH,LLA,Ängelholm,Luleå,1140.447811241368,1087.7132676104911,2024,passengers_per_year
+AGH,GEV,Ängelholm,Gällivare,1274.4021606908282,82.53575408259094,2024,passengers_per_year
+AGH,KRN,Ängelholm,Kiruna,1338.2437860675464,106.50912425730081,2024,passengers_per_year
+AGH,PJA,Ängelholm,Pajala,1326.8321223786038,13.430953165767317,2024,passengers_per_year
+AGH,HMV,Ängelholm,Hemavan,1065.4037698306147,6.750975889436506,2024,passengers_per_year
+AGH,CPH,Ängelholm,Köpenhamn,84.24345190230261,4.930746454498253,2024,passengers_per_year
+MMX,ARN,Malmö,Arlanda,532.357301800144,263202.8603815124,2024,passengers_per_year
+MMX,JKG,Malmö,Jönköping,246.65799565676286,4108.447632214947,2024,passengers_per_year
+MMX,VXO,Malmö,Växjö-Kronoberg,176.93429403017143,10200.858950280644,2024,passengers_per_year
+MMX,KLR,Malmö,Kalmar,222.37064501569435,7421.442213352246,2024,passengers_per_year
+MMX,VBY,Malmö,Visby,389.3246964404726,2544.338809255903,2024,passengers_per_year
+MMX,RNB,Malmö,Ronneby,144.16928768330325,12582.947897843893,2024,passengers_per_year
+MMX,KID,Malmö,Kristianstad,64.51029091784626,6351.487543875143,2024,passengers_per_year
+MMX,AGH,Malmö,Ängelholm,92.3046340247758,22790.989745487557,2024,passengers_per_year
+MMX,HAD,Malmö,Hamstad,135.30372958305833,8168.132881215331,2024,passengers_per_year
+MMX,GOT,Malmö,Göteborg,242.9589474709583,75513.13085773685,2024,passengers_per_year
+MMX,THN,Malmö,Trollhättan–Vänersborg,315.52282713090705,5310.75375664894,2024,passengers_per_year
+MMX,TYF,Malmö,Torsby,513.7763099391092,232.05877605765644,2024,passengers_per_year
+MMX,KSD,Malmö,Karlstad,422.3933389256587,2619.6802707858456,2024,passengers_per_year
+MMX,HFS,Malmö,Hägfors,498.7548962630836,195.6076893427601,2024,passengers_per_year
+MMX,ORB,Malmö,Örebro,422.9993523998654,1439.403374590469,2024,passengers_per_year
+MMX,BLE,Malmö,Borlänge,553.7849429578989,732.5208006181387,2024,passengers_per_year
+MMX,MXX,Malmö,Mora-Siljan,605.897932658611,354.6709127886007,2024,passengers_per_year
+MMX,SDL,Malmö,Sundsvall,810.7720044201478,4010.826928068818,2024,passengers_per_year
+MMX,KRF,Malmö,Höga Kusten,872.0866375389297,515.3004478205603,2024,passengers_per_year
+MMX,OER,Malmö,Örnsköldsvik,931.2434925812717,1243.4193211635106,2024,passengers_per_year
+MMX,OSD,Malmö,Åre Östersund,853.9711309376278,4969.327974458832,2024,passengers_per_year
+MMX,EVG,Malmö,Härjedalen,726.5893494332876,86.3608145042439,2024,passengers_per_year
+MMX,UME,Malmö,Umeå,997.90438656184,7166.260578016575,2024,passengers_per_year
+MMX,SFT,Malmö,Skellefteå,1096.2987098063898,1816.7162363484024,2024,passengers_per_year
+MMX,LYC,Malmö,Lycksele,1042.4347499178666,241.66240352960045,2024,passengers_per_year
+MMX,VHM,Malmö,Vilhelmina,1023.396732510683,126.18599208947464,2024,passengers_per_year
+MMX,AJR,Malmö,Arvidsjaur,1164.713739662033,153.27510604365318,2024,passengers_per_year
+MMX,LLA,Malmö,Luleå,1210.5065005312865,5216.094590385336,2024,passengers_per_year
+MMX,GEV,Malmö,Gällivare,1350.3451005744043,390.01778553145294,2024,passengers_per_year
+MMX,KRN,Malmö,Kiruna,1415.8148390210376,501.2580971052934,2024,passengers_per_year
+MMX,PJA,Malmö,Pajala,1399.1960588116933,64.03758965196751,2024,passengers_per_year
+MMX,HMV,Malmö,Hemavan,1149.2358286336034,31.27831459784935,2024,passengers_per_year
+MMX,CPH,Malmö,Köpenhamn,49.256367216214386,30.746501284091213,2024,passengers_per_year
+HAD,ARN,Hamstad,Arlanda,444.8429123086301,22880.059070837007,2024,passengers_per_year
+HAD,JKG,Hamstad,Jönköping,136.9456193883273,377.52476878020855,2024,passengers_per_year
+HAD,VXO,Hamstad,Växjö-Kronoberg,120.79049362610942,819.8664121648704,2024,passengers_per_year
+HAD,KLR,Hamstad,Kalmar,214.04131597372896,529.274243213697,2024,passengers_per_year
+HAD,VBY,Hamstad,Visby,354.79371740573623,193.738294391023,2024,passengers_per_year
+HAD,RNB,Hamstad,Ronneby,158.6971509590602,847.5356338059438,2024,passengers_per_year
+HAD,KID,Hamstad,Kristianstad,119.70267689771761,386.4560179512312,2024,passengers_per_year
+HAD,AGH,Hamstad,Ängelholm,44.02441782149501,1796.105157664652,2024,passengers_per_year
+HAD,MMX,Hamstad,Malmö,135.30372958305833,8168.132881215326,2024,passengers_per_year
+HAD,GOT,Hamstad,Göteborg,107.65527494504393,7397.339795888048,2024,passengers_per_year
+HAD,THN,Hamstad,Trollhättan–Vänersborg,180.8102295677444,519.478412822971,2024,passengers_per_year
+HAD,TYF,Hamstad,Torsby,382.925909066008,22.481019924034445,2024,passengers_per_year
+HAD,KSD,Hamstad,Karlstad,294.4953210227143,251.9189244715704,2024,passengers_per_year
+HAD,HFS,Hamstad,Hägfors,370.8873539018742,18.808984069808627,2024,passengers_per_year
+HAD,ORB,Hamstad,Örebro,310.29099430131316,133.26099666448962,2024,passengers_per_year
+HAD,BLE,Hamstad,Borlänge,438.14763306066345,68.31570758534914,2024,passengers_per_year
+HAD,MXX,Hamstad,Mora-Siljan,481.96812099646183,33.76989043381218,2024,passengers_per_year
+HAD,SDL,Hamstad,Sundsvall,696.7802897928183,372.51850317130504,2024,passengers_per_year
+HAD,KRF,Hamstad,Höga Kusten,757.5282508172406,47.92804379894876,2024,passengers_per_year
+HAD,OER,Hamstad,Örnsköldsvik,820.3140610471007,114.60582901248027,2024,passengers_per_year
+HAD,OSD,Hamstad,Åre Östersund,727.192955418032,476.5344601487872,2024,passengers_per_year
+HAD,EVG,Hamstad,Härjedalen,600.6713731156684,8.263793018494047,2024,passengers_per_year
+HAD,UME,Hamstad,Umeå,890.2204705411765,655.1759056374696,2024,passengers_per_year
+HAD,SFT,Hamstad,Skellefteå,987.6957585015882,166.4754698579348,2024,passengers_per_year
+HAD,LYC,Hamstad,Lycksele,926.470347952912,22.556142822225798,2024,passengers_per_year
+HAD,VHM,Hamstad,Vilhelmina,901.5179361242599,11.953314986668207,2024,passengers_per_year
+HAD,AJR,Hamstad,Arvidsjaur,1047.593616549714,14.347696414673791,2024,passengers_per_year
+HAD,LLA,Hamstad,Luleå,1101.4279955620361,478.5473724455778,2024,passengers_per_year
+HAD,GEV,Hamstad,Gällivare,1233.3346005161236,36.498577951630104,2024,passengers_per_year
+HAD,KRN,Hamstad,Kiruna,1296.6540656432128,47.16149487946694,2024,passengers_per_year
+HAD,PJA,Hamstad,Pajala,1286.9183931285309,5.922265851821398,2024,passengers_per_year
+HAD,HMV,Hamstad,Hemavan,1022.1800136738384,3.0015213533953125,2024,passengers_per_year
+HAD,CPH,Hamstad,Köpenhamn,127.00659780916003,1.76818808126155,2024,passengers_per_year
+GOT,ARN,Göteborg,Arlanda,395.10366976604104,313505.8781218291,2024,passengers_per_year
+GOT,JKG,Göteborg,Jönköping,107.0284763096071,4922.802652666644,2024,passengers_per_year
+GOT,VXO,Göteborg,Växjö-Kronoberg,165.77781333095194,8865.098867261697,2024,passengers_per_year
+GOT,KLR,Göteborg,Kalmar,262.9425290495595,5667.242451319543,2024,passengers_per_year
+GOT,VBY,Göteborg,Visby,362.8980366300302,2297.212493508019,2024,passengers_per_year
+GOT,RNB,Göteborg,Ronneby,234.2679851377862,8489.709431854508,2024,passengers_per_year
+GOT,KID,Göteborg,Kristianstad,220.4337542877676,3635.109915471421,2024,passengers_per_year
+GOT,AGH,Göteborg,Ängelholm,151.17749917880144,16625.573315096444,2024,passengers_per_year
+GOT,MMX,Göteborg,Malmö,242.9589474709583,75513.13085773676,2024,passengers_per_year
+GOT,HAD,Göteborg,Hamstad,107.65527494504393,7397.3397958880505,2024,passengers_per_year
+GOT,THN,Göteborg,Trollhättan–Vänersborg,75.20232414719612,8184.924574913869,2024,passengers_per_year
+GOT,TYF,Göteborg,Torsby,281.89399376379635,350.18284690314033,2024,passengers_per_year
+GOT,KSD,Göteborg,Karlstad,199.91207312787785,3861.340501878494,2024,passengers_per_year
+GOT,HFS,Göteborg,Hägfors,274.36987296126324,289.6961425468776,2024,passengers_per_year
+GOT,ORB,Göteborg,Örebro,238.19366523401058,1930.930256819017,2024,passengers_per_year
+GOT,BLE,Göteborg,Borlänge,356.28600701804135,1014.3446721786262,2024,passengers_per_year
+GOT,MXX,Göteborg,Mora-Siljan,388.9008761233728,515.6570730055342,2024,passengers_per_year
+GOT,SDL,Göteborg,Sundsvall,612.4104114894901,5565.909377666794,2024,passengers_per_year
+GOT,KRF,Göteborg,Höga Kusten,672.0084784154568,718.1686893871871,2024,passengers_per_year
+GOT,OER,Göteborg,Örnsköldsvik,737.9865554505741,1703.6387542191355,2024,passengers_per_year
+GOT,OSD,Göteborg,Åre Östersund,628.9295078163555,7371.694770529431,2024,passengers_per_year
+GOT,EVG,Göteborg,Härjedalen,504.04259790820595,127.3144332073125,2024,passengers_per_year
+GOT,UME,Göteborg,Umeå,810.5827584492653,9674.049723587468,2024,passengers_per_year
+GOT,SFT,Göteborg,Skellefteå,906.5339672430965,2467.4899634139483,2024,passengers_per_year
+GOT,LYC,Göteborg,Lycksele,838.4432099286647,340.1135519362385,2024,passengers_per_year
+GOT,VHM,Göteborg,Vilhelmina,807.6809014504141,182.875480458859,2024,passengers_per_year
+GOT,AJR,Göteborg,Arvidsjaur,957.9214459007234,217.23377604068077,2024,passengers_per_year
+GOT,LLA,Göteborg,Luleå,1019.2408672926147,7111.207103877926,2024,passengers_per_year
+GOT,GEV,Göteborg,Gällivare,1143.2067708194754,553.2428908748047,2024,passengers_per_year
+GOT,KRN,Göteborg,Kiruna,1204.3614264197304,718.7500247299081,2024,passengers_per_year
+GOT,PJA,Göteborg,Pajala,1201.0723537519157,88.81348304852922,2024,passengers_per_year
+GOT,HMV,Göteborg,Hemavan,922.8240449440002,46.55868011637402,2024,passengers_per_year
+GOT,CPH,Göteborg,Köpenhamn,230.60095458340052,16.513425268067373,2024,passengers_per_year
+THN,ARN,Trollhättan–Vänersborg,Arlanda,353.53936695265935,29328.677214191124,2024,passengers_per_year
+THN,JKG,Trollhättan–Vänersborg,Jönköping,123.40555970532262,398.42827660979265,2024,passengers_per_year
+THN,VXO,Trollhättan–Vänersborg,Växjö-Kronoberg,209.79486727027577,669.5940619585837,2024,passengers_per_year
+THN,KLR,Trollhättan–Vänersborg,Kalmar,297.87649922542306,437.8865803107512,2024,passengers_per_year
+THN,VBY,Trollhättan–Vänersborg,Visby,364.692001678112,192.8289853621674,2024,passengers_per_year
+THN,RNB,Trollhättan–Vänersborg,Ronneby,286.32775606976736,628.4758117400252,2024,passengers_per_year
+THN,KID,Trollhättan–Vänersborg,Kristianstad,286.7699793672816,259.66464715829414,2024,passengers_per_year
+THN,AGH,Trollhättan–Vänersborg,Ängelholm,224.78230508640183,1166.2190925377647,2024,passengers_per_year
+THN,MMX,Trollhättan–Vänersborg,Malmö,315.52282713090705,5310.753756648946,2024,passengers_per_year
+THN,HAD,Trollhättan–Vänersborg,Hamstad,180.8102295677444,519.4784128229725,2024,passengers_per_year
+THN,GOT,Trollhättan–Vänersborg,Göteborg,75.20232414719612,8184.924574913871,2024,passengers_per_year
+THN,TYF,Trollhättan–Vänersborg,Torsby,207.30063899257686,35.57971740481635,2024,passengers_per_year
+THN,KSD,Trollhättan–Vänersborg,Karlstad,130.3258596847101,387.4443133623012,2024,passengers_per_year
+THN,HFS,Trollhättan–Vänersborg,Hägfors,201.9926455720841,29.27144808345033,2024,passengers_per_year
+THN,ORB,Trollhättan–Vänersborg,Örebro,186.43667757446826,185.30192989850514,2024,passengers_per_year
+THN,BLE,Trollhättan–Vänersborg,Borlänge,292.32756757484503,100.35672147807718,2024,passengers_per_year
+THN,MXX,Trollhättan–Vänersborg,Mora-Siljan,317.5179169772972,51.97361937648271,2024,passengers_per_year
+THN,SDL,Trollhättan–Vänersborg,Sundsvall,544.560138287904,556.061143485714,2024,passengers_per_year
+THN,KRF,Trollhättan–Vänersborg,Höga Kusten,603.3101351203973,71.90079042665431,2024,passengers_per_year
+THN,OER,Trollhättan–Vänersborg,Örnsköldsvik,670.7655667220199,169.93416086312493,2024,passengers_per_year
+THN,OSD,Trollhättan–Vänersborg,Åre Östersund,554.6863603824456,748.3327242470887,2024,passengers_per_year
+THN,EVG,Trollhättan–Vänersborg,Härjedalen,430.54912960068503,12.900040673373494,2024,passengers_per_year
+THN,UME,Trollhättan–Vänersborg,Umeå,744.5876227058216,962.0121183314335,2024,passengers_per_year
+THN,SFT,Trollhättan–Vänersborg,Skellefteå,839.4755332373496,246.02661072421137,2024,passengers_per_year
+THN,LYC,Trollhättan–Vänersborg,Lycksele,768.0944936778858,34.19188187169086,2024,passengers_per_year
+THN,VHM,Trollhättan–Vänersborg,Vilhelmina,734.8433889144384,18.499360850865475,2024,passengers_per_year
+THN,AJR,Trollhättan–Vänersborg,Arvidsjaur,886.6586453292707,21.888644776292754,2024,passengers_per_year
+THN,LLA,Trollhättan–Vänersborg,Luleå,951.4418908449134,710.3527232416777,2024,passengers_per_year
+THN,GEV,Trollhättan–Vänersborg,Gällivare,1071.5819383157982,55.79566204922659,2024,passengers_per_year
+THN,KRN,Trollhättan–Vänersborg,Kiruna,1131.8302056936086,72.65183104088688,2024,passengers_per_year
+THN,PJA,Trollhättan–Vänersborg,Pajala,1131.284327249672,8.91598252726293,2024,passengers_per_year
+THN,HMV,Trollhättan–Vänersborg,Hemavan,848.1407699042018,4.731577032260869,2024,passengers_per_year
+THN,CPH,Trollhättan–Vänersborg,Köpenhamn,305.50906077434814,1.154584284286123,2024,passengers_per_year
+TYF,ARN,Torsby,Arlanda,281.9518735075313,2515.998776622862,2024,passengers_per_year
+TYF,JKG,Torsby,Jönköping,278.1775713000775,19.408921019549563,2024,passengers_per_year
+TYF,VXO,Torsby,Växjö-Kronoberg,371.9076601196998,32.025261270515486,2024,passengers_per_year
+TYF,KLR,Torsby,Kalmar,430.61027312448016,22.539308517930127,2024,passengers_per_year
+TYF,VBY,Torsby,Visby,415.62250259028576,12.177777747865575,2024,passengers_per_year
+TYF,RNB,Torsby,Ronneby,450.3878434786137,29.912685665873315,2024,passengers_per_year
+TYF,KID,Torsby,Kristianstad,474.4477278428046,11.650300175097692,2024,passengers_per_year
+TYF,AGH,Torsby,Ängelholm,426.66179908967763,50.49926856609144,2024,passengers_per_year
+TYF,MMX,Torsby,Malmö,513.7763099391092,232.05877605765502,2024,passengers_per_year
+TYF,HAD,Torsby,Hamstad,382.925909066008,22.48101992403448,2024,passengers_per_year
+TYF,GOT,Torsby,Göteborg,281.89399376379635,350.1828469031408,2024,passengers_per_year
+TYF,THN,Torsby,Trollhättan–Vänersborg,207.30063899257686,35.5797174048163,2024,passengers_per_year
+TYF,KSD,Torsby,Karlstad,94.79191089391038,30.37264415899072,2024,passengers_per_year
+TYF,HFS,Torsby,Hägfors,35.762535568583615,3.1814058328320036,2024,passengers_per_year
+TYF,ORB,Torsby,Örebro,154.68732855452402,14.38944940584991,2024,passengers_per_year
+TYF,BLE,Torsby,Borlänge,142.6566356795218,10.465077067672066,2024,passengers_per_year
+TYF,MXX,Torsby,Mora-Siljan,122.28536695673704,6.073608942386475,2024,passengers_per_year
+TYF,SDL,Torsby,Sundsvall,354.46673062780224,64.15147698740508,2024,passengers_per_year
+TYF,KRF,Torsby,Höga Kusten,409.425937181221,8.37401191155421,2024,passengers_per_year
+TYF,OER,Torsby,Örnsköldsvik,480.411257656675,19.617699270627742,2024,passengers_per_year
+TYF,OSD,Torsby,Åre Östersund,347.46379532568994,90.11074801422846,2024,passengers_per_year
+TYF,EVG,Torsby,Härjedalen,224.61245843679467,1.5483773000579921,2024,passengers_per_year
+TYF,UME,Torsby,Umeå,556.9046390057208,110.31830224115967,2024,passengers_per_year
+TYF,SFT,Torsby,Skellefteå,647.8277249337801,28.494029144570995,2024,passengers_per_year
+TYF,LYC,Torsby,Lycksele,568.1925230373006,4.042561426095192,2024,passengers_per_year
+TYF,VHM,Torsby,Vilhelmina,529.4551121466696,2.2174152414814254,2024,passengers_per_year
+TYF,AJR,Torsby,Arvidsjaur,684.198375990909,2.6045346172647834,2024,passengers_per_year
+TYF,LLA,Torsby,Luleå,757.121613673939,82.82232660320493,2024,passengers_per_year
+TYF,GEV,Torsby,Gällivare,868.0476402538455,6.656988516405871,2024,passengers_per_year
+TYF,KRN,Torsby,Kiruna,926.5822684717917,8.705315128739716,2024,passengers_per_year
+TYF,PJA,Torsby,Pajala,931.5541492677949,1.0536983754666753,2024,passengers_per_year
+TYF,HMV,Torsby,Hemavan,640.9326405917358,0.5697339496895188,2024,passengers_per_year
+TYF,CPH,Torsby,Köpenhamn,509.6743575155975,0.04971057695210858,2024,passengers_per_year
+KSD,ARN,Karlstad,Arlanda,255.20836751401774,24164.583286709876,2024,passengers_per_year
+KSD,JKG,Karlstad,Jönköping,183.56384377292164,220.88154638727917,2024,passengers_per_year
+KSD,VXO,Karlstad,Växjö-Kronoberg,277.1157905989815,364.6230655823384,2024,passengers_per_year
+KSD,KLR,Karlstad,Kalmar,338.2031927546034,255.09549726652537,2024,passengers_per_year
+KSD,VBY,Karlstad,Visby,341.37744679673614,131.7076741881415,2024,passengers_per_year
+KSD,RNB,Karlstad,Ronneby,355.6387898619709,340.5339194735349,2024,passengers_per_year
+KSD,KID,Karlstad,Kristianstad,380.8074731603963,132.26295515915095,2024,passengers_per_year
+KSD,AGH,Karlstad,Ängelholm,337.57301531096914,566.8191281419034,2024,passengers_per_year
+KSD,MMX,Karlstad,Malmö,422.3933389256587,2619.680270785847,2024,passengers_per_year
+KSD,HAD,Karlstad,Hamstad,294.4953210227143,251.9189244715691,2024,passengers_per_year
+KSD,GOT,Karlstad,Göteborg,199.91207312787785,3861.3405018784724,2024,passengers_per_year
+KSD,THN,Karlstad,Trollhättan–Vänersborg,130.3258596847101,387.44431336229553,2024,passengers_per_year
+KSD,TYF,Karlstad,Torsby,94.79191089391038,30.372644158990713,2024,passengers_per_year
+KSD,HFS,Karlstad,Hägfors,76.50045863228047,25.81195664186307,2024,passengers_per_year
+KSD,ORB,Karlstad,Örebro,90.87569640932774,151.62096896008796,2024,passengers_per_year
+KSD,BLE,Karlstad,Borlänge,164.01796170866146,89.12143234927882,2024,passengers_per_year
+KSD,MXX,Karlstad,Mora-Siljan,189.08647445985144,46.169049836732036,2024,passengers_per_year
+KSD,SDL,Karlstad,Sundsvall,414.2466563116303,496.28816885872857,2024,passengers_per_year
+KSD,KRF,Karlstad,Höga Kusten,473.1390946974478,64.1490729273403,2024,passengers_per_year
+KSD,OER,Karlstad,Örnsköldsvik,540.4402680839509,151.67181879254463,2024,passengers_per_year
+KSD,OSD,Karlstad,Åre Östersund,432.7367032804415,654.0714658692772,2024,passengers_per_year
+KSD,EVG,Karlstad,Härjedalen,306.22695731579256,11.342204448596027,2024,passengers_per_year
+KSD,UME,Karlstad,Umeå,614.369497472561,858.3973814964468,2024,passengers_per_year
+KSD,SFT,Karlstad,Skellefteå,709.1502708892401,219.58680906151181,2024,passengers_per_year
+KSD,LYC,Karlstad,Lycksele,638.6931802569426,30.446964691045526,2024,passengers_per_year
+KSD,VHM,Karlstad,Vilhelmina,608.4249216646008,16.350804993170783,2024,passengers_per_year
+KSD,AJR,Karlstad,Arvidsjaur,758.0101203330275,19.45461061633132,2024,passengers_per_year
+KSD,LLA,Karlstad,Luleå,821.154397871784,633.9532113508388,2024,passengers_per_year
+KSD,GEV,Karlstad,Gällivare,943.3077947654635,49.5447481561881,2024,passengers_per_year
+KSD,KRN,Karlstad,Kiruna,1004.7603728107126,64.31854193381477,2024,passengers_per_year
+KSD,PJA,Karlstad,Pajala,1001.5923141357812,7.945218242528542,2024,passengers_per_year
+KSD,HMV,Karlstad,Hemavan,727.8421940232927,4.118544307231571,2024,passengers_per_year
+KSD,CPH,Karlstad,Köpenhamn,421.4668250678205,0.5567386949986111,2024,passengers_per_year
+HFS,ARN,Hägfors,Arlanda,247.5256041719628,2226.213979269515,2024,passengers_per_year
+HFS,JKG,Hägfors,Jönköping,257.8407905801597,16.57907914557692,2024,passengers_per_year
+HFS,VXO,Hägfors,Växjö-Kronoberg,349.7140274952256,27.48322826072268,2024,passengers_per_year
+HFS,KLR,Hägfors,Kalmar,403.03596626156,19.60458459614549,2024,passengers_per_year
+HFS,VBY,Hägfors,Visby,381.23097726111513,10.774243854324709,2024,passengers_per_year
+HFS,RNB,Hägfors,Ronneby,427.22193096169,25.732744629885286,2024,passengers_per_year
+HFS,KID,Hägfors,Kristianstad,456.1776165394851,9.900389240512965,2024,passengers_per_year
+HFS,AGH,Hägfors,Ängelholm,414.0435840170812,42.31202140161643,2024,passengers_per_year
+HFS,MMX,Hägfors,Malmö,498.7548962630836,195.6076893427593,2024,passengers_per_year
+HFS,HAD,Hägfors,Hamstad,370.8873539018742,18.808984069808655,2024,passengers_per_year
+HFS,GOT,Hägfors,Göteborg,274.36987296126324,289.69614254687775,2024,passengers_per_year
+HFS,THN,Hägfors,Trollhättan–Vänersborg,201.9926455720841,29.2714480834502,2024,passengers_per_year
+HFS,TYF,Hägfors,Torsby,35.762535568583615,3.181405832832013,2024,passengers_per_year
+HFS,KSD,Hägfors,Karlstad,76.50045863228047,25.81195664186313,2024,passengers_per_year
+HFS,ORB,Hägfors,Örebro,120.85203687067651,12.713320939709867,2024,passengers_per_year
+HFS,BLE,Hägfors,Borlänge,115.39600093435688,9.095339655843112,2024,passengers_per_year
+HFS,MXX,Hägfors,Mora-Siljan,115.84169228691205,5.01096754173687,2024,passengers_per_year
+HFS,SDL,Hägfors,Sundsvall,346.3034082080009,53.15553668863216,2024,passengers_per_year
+HFS,KRF,Hägfors,Höga Kusten,403.5669097566856,6.898800170520784,2024,passengers_per_year
+HFS,OER,Hägfors,Örnsköldsvik,472.81330375731375,16.232151194356224,2024,passengers_per_year
+HFS,OSD,Hägfors,Åre Östersund,356.305624328755,71.55752877088253,2024,passengers_per_year
+HFS,EVG,Hägfors,Härjedalen,230.10135467601893,1.2399264809577957,2024,passengers_per_year
+HFS,UME,Hägfors,Umeå,548.2055763721729,91.53160752823041,2024,passengers_per_year
+HFS,SFT,Hägfors,Skellefteå,641.2129963845965,23.518756048788617,2024,passengers_per_year
+HFS,LYC,Hägfors,Lycksele,566.538965995175,3.295570353331404,2024,passengers_per_year
+HFS,VHM,Hägfors,Vilhelmina,533.3155859913419,1.782929640593123,2024,passengers_per_year
+HFS,AJR,Hägfors,Arvidsjaur,684.7026148118407,2.1118413865134413,2024,passengers_per_year
+HFS,LLA,Hägfors,Luleå,752.0471222371283,68.09819775711988,2024,passengers_per_year
+HFS,GEV,Hägfors,Gällivare,869.5895566731348,5.383718282766911,2024,passengers_per_year
+HFS,KRN,Hägfors,Kiruna,930.0942584388658,7.005675793021061,2024,passengers_per_year
+HFS,PJA,Hägfors,Pajala,929.9340538828749,0.8589224211066532,2024,passengers_per_year
+HFS,HMV,Hägfors,Hemavan,651.3605844065268,0.45063896008667625,2024,passengers_per_year
+HFS,CPH,Hägfors,Köpenhamn,497.88213585037556,0.041565276953862355,2024,passengers_per_year
+ORB,ARN,Örebro,Arlanda,170.00758632764956,16454.21171187772,2024,passengers_per_year
+ORB,JKG,Örebro,Jönköping,177.10621531575424,123.52728980158143,2024,passengers_per_year
+ORB,VXO,Örebro,Växjö-Kronoberg,256.0486923870583,211.49964720434798,2024,passengers_per_year
+ORB,KLR,Örebro,Kalmar,292.0848186637967,157.53148945105605,2024,passengers_per_year
+ORB,VBY,Örebro,Visby,261.0079011082749,88.60605564700779,2024,passengers_per_year
+ORB,RNB,Örebro,Ronneby,328.1127704460862,200.74214981372523,2024,passengers_per_year
+ORB,KID,Örebro,Kristianstad,371.33638806859364,74.52697945972075,2024,passengers_per_year
+ORB,AGH,Örebro,Ängelholm,349.18613360221855,302.98973318718873,2024,passengers_per_year
+ORB,MMX,Örebro,Malmö,422.9993523998654,1439.4033745904699,2024,passengers_per_year
+ORB,HAD,Örebro,Hamstad,310.29099430131316,133.2609966644897,2024,passengers_per_year
+ORB,GOT,Örebro,Göteborg,238.19366523401058,1930.930256819013,2024,passengers_per_year
+ORB,THN,Örebro,Trollhättan–Vänersborg,186.43667757446826,185.30192989850522,2024,passengers_per_year
+ORB,TYF,Örebro,Torsby,154.68732855452402,14.389449405849973,2024,passengers_per_year
+ORB,KSD,Örebro,Karlstad,90.87569640932774,151.6209689600873,2024,passengers_per_year
+ORB,HFS,Örebro,Hägfors,120.85203687067651,12.713320939709938,2024,passengers_per_year
+ORB,BLE,Örebro,Borlänge,130.91588855217577,53.2738980201497,2024,passengers_per_year
+ORB,MXX,Örebro,Mora-Siljan,193.56051700129166,25.123810255104317,2024,passengers_per_year
+ORB,SDL,Örebro,Sundsvall,388.2097084175106,291.4710174521613,2024,passengers_per_year
+ORB,KRF,Örebro,Höga Kusten,449.3989378523241,37.45916826075038,2024,passengers_per_year
+ORB,OER,Örebro,Örnsköldsvik,510.4717025385929,89.95701773875126,2024,passengers_per_year
+ORB,OSD,Örebro,Åre Östersund,441.9024100692113,351.775720721614,2024,passengers_per_year
+ORB,EVG,Örebro,Härjedalen,315.02185818439926,6.105774025301194,2024,passengers_per_year
+ORB,UME,Örebro,Umeå,579.9312403488713,514.8390078192269,2024,passengers_per_year
+ORB,SFT,Örebro,Skellefteå,677.4859054416142,130.79091970086563,2024,passengers_per_year
+ORB,LYC,Örebro,Lycksele,619.5267901964165,17.5770442116698,2024,passengers_per_year
+ORB,VHM,Örebro,Vilhelmina,602.2203670862176,9.13835123888585,2024,passengers_per_year
+ORB,AJR,Örebro,Arvidsjaur,741.7191298926564,11.1507084019837,2024,passengers_per_year
+ORB,LLA,Örebro,Luleå,791.3206641992196,375.8728602990257,2024,passengers_per_year
+ORB,GEV,Örebro,Gällivare,927.3736885906545,28.372007047723006,2024,passengers_per_year
+ORB,KRN,Örebro,Kiruna,992.941602935017,36.45528139894124,2024,passengers_per_year
+ORB,PJA,Örebro,Pajala,977.8398492898217,4.639668375258964,2024,passengers_per_year
+ORB,HMV,Örebro,Hemavan,734.8063255091294,2.2272795559128302,2024,passengers_per_year
+ORB,CPH,Örebro,Köpenhamn,432.5464840742201,0.2979984588986711,2024,passengers_per_year
+BLE,ARN,Borlänge,Arlanda,156.89298437966818,11999.196755982704,2024,passengers_per_year
+BLE,JKG,Borlänge,Jönköping,307.4622282612052,62.931309078855705,2024,passengers_per_year
+BLE,VXO,Borlänge,Växjö-Kronoberg,386.263889776057,107.78700102990905,2024,passengers_per_year
+BLE,KLR,Borlänge,Kalmar,413.24662877830735,82.12090200983037,2024,passengers_per_year
+BLE,VBY,Borlänge,Visby,343.39614978340086,50.89177462962955,2024,passengers_per_year
+BLE,RNB,Borlänge,Ronneby,456.3087194044599,102.82238739159166,2024,passengers_per_year
+BLE,KID,Borlänge,Kristianstad,502.14782610404006,37.924765245820765,2024,passengers_per_year
+BLE,AGH,Borlänge,Ängelholm,478.286746947246,154.84414854598654,2024,passengers_per_year
+BLE,MMX,Borlänge,Malmö,553.7849429578989,732.5208006181397,2024,passengers_per_year
+BLE,HAD,Borlänge,Hamstad,438.14763306066345,68.31570758534934,2024,passengers_per_year
+BLE,GOT,Borlänge,Göteborg,356.28600701804135,1014.3446721786175,2024,passengers_per_year
+BLE,THN,Borlänge,Trollhättan–Vänersborg,292.32756757484503,100.35672147807524,2024,passengers_per_year
+BLE,TYF,Borlänge,Torsby,142.6566356795218,10.465077067672073,2024,passengers_per_year
+BLE,KSD,Borlänge,Karlstad,164.01796170866146,89.12143234927878,2024,passengers_per_year
+BLE,HFS,Borlänge,Hägfors,115.39600093435688,9.095339655843125,2024,passengers_per_year
+BLE,ORB,Borlänge,Örebro,130.91588855217577,53.27389802014897,2024,passengers_per_year
+BLE,MXX,Borlänge,Mora-Siljan,83.71251109687078,23.33391209409882,2024,passengers_per_year
+BLE,SDL,Borlänge,Sundsvall,258.63553398128096,284.39034295725065,2024,passengers_per_year
+BLE,KRF,Borlänge,Höga Kusten,319.49001994045415,36.57977595943374,2024,passengers_per_year
+BLE,OER,Borlänge,Örnsköldsvik,382.70680240665627,87.37559026080453,2024,passengers_per_year
+BLE,OSD,Borlänge,Åre Östersund,317.5252240358615,338.79950803223886,2024,passengers_per_year
+BLE,EVG,Borlänge,Härjedalen,194.1884161514491,5.828678021544002,2024,passengers_per_year
+BLE,UME,Borlänge,Umeå,454.4029792933061,497.27670833241916,2024,passengers_per_year
+BLE,SFT,Borlänge,Skellefteå,550.8429160693826,126.68189986515374,2024,passengers_per_year
+BLE,LYC,Borlänge,Lycksele,489.1156426536949,17.185969832154317,2024,passengers_per_year
+BLE,VHM,Borlänge,Vilhelmina,471.715106025003,8.93713316181919,2024,passengers_per_year
+BLE,AJR,Borlänge,Arvidsjaur,611.0612972724286,10.909340417941243,2024,passengers_per_year
+BLE,LLA,Borlänge,Luleå,664.0889471189163,364.60040444376835,2024,passengers_per_year
+BLE,GEV,Borlänge,Gällivare,796.7789205490661,27.753491218811366,2024,passengers_per_year
+BLE,KRN,Borlänge,Kiruna,862.0618645232834,35.685963009461524,2024,passengers_per_year
+BLE,PJA,Borlänge,Pajala,848.7709355733032,4.521242779387746,2024,passengers_per_year
+BLE,HMV,Borlänge,Hemavan,607.1151133432428,2.1629665261673847,2024,passengers_per_year
+BLE,CPH,Borlänge,Köpenhamn,562.1108392721793,0.15211687762820253,2024,passengers_per_year
+MXX,ARN,Mora-Siljan,Arlanda,237.55329075336957,5409.572313554071,2024,passengers_per_year
+MXX,JKG,Mora-Siljan,Jönköping,360.3864243816471,30.408263571693816,2024,passengers_per_year
+MXX,VXO,Mora-Siljan,Växjö-Kronoberg,446.86147231787487,51.09283136845066,2024,passengers_per_year
+MXX,KLR,Mora-Siljan,Kalmar,484.8698349180736,37.86834925232643,2024,passengers_per_year
+MXX,VBY,Mora-Siljan,Visby,425.93864571062915,22.83572424032774,2024,passengers_per_year
+MXX,RNB,Mora-Siljan,Ronneby,520.9464500611028,48.24971249807008,2024,passengers_per_year
+MXX,KID,Mora-Siljan,Kristianstad,559.025910925314,18.144912411832067,2024,passengers_per_year
+MXX,AGH,Mora-Siljan,Ängelholm,524.3273981338124,76.11905137953846,2024,passengers_per_year
+MXX,MMX,Mora-Siljan,Malmö,605.897932658611,354.67091278860164,2024,passengers_per_year
+MXX,HAD,Mora-Siljan,Hamstad,481.96812099646183,33.769890433812286,2024,passengers_per_year
+MXX,GOT,Mora-Siljan,Göteborg,388.9008761233728,515.6570730055354,2024,passengers_per_year
+MXX,THN,Mora-Siljan,Trollhättan–Vänersborg,317.5179169772972,51.973619376482034,2024,passengers_per_year
+MXX,TYF,Mora-Siljan,Torsby,122.28536695673704,6.073608942386489,2024,passengers_per_year
+MXX,KSD,Mora-Siljan,Karlstad,189.08647445985144,46.16904983673205,2024,passengers_per_year
+MXX,HFS,Mora-Siljan,Hägfors,115.84169228691205,5.0109675417368775,2024,passengers_per_year
+MXX,ORB,Mora-Siljan,Örebro,193.56051700129166,25.12381025510412,2024,passengers_per_year
+MXX,BLE,Mora-Siljan,Borlänge,83.71251109687078,23.333912094098796,2024,passengers_per_year
+MXX,SDL,Mora-Siljan,Sundsvall,232.3941931714129,167.4914296782809,2024,passengers_per_year
+MXX,KRF,Mora-Siljan,Höga Kusten,288.3845751988438,21.807200653217976,2024,passengers_per_year
+MXX,OER,Mora-Siljan,Örnsköldsvik,358.6099654864304,51.18462216774933,2024,passengers_per_year
+MXX,OSD,Mora-Siljan,Åre Östersund,249.53327564982473,221.48823478473284,2024,passengers_per_year
+MXX,EVG,Mora-Siljan,Härjedalen,121.97588696075454,3.850883619405592,2024,passengers_per_year
+MXX,UME,Mora-Siljan,Umeå,434.8189723732692,288.03665202047773,2024,passengers_per_year
+MXX,SFT,Mora-Siljan,Skellefteå,526.5241369074432,74.25144636416488,2024,passengers_per_year
+MXX,LYC,Mora-Siljan,Lycksele,450.7161295906698,10.434036643219528,2024,passengers_per_year
+MXX,VHM,Mora-Siljan,Vilhelmina,419.66175451203486,5.614369713804455,2024,passengers_per_year
+MXX,AJR,Mora-Siljan,Arvidsjaur,569.2126645492857,6.680694929501367,2024,passengers_per_year
+MXX,LLA,Mora-Siljan,Luleå,636.7355550243509,215.32888178735791,2024,passengers_per_year
+MXX,GEV,Mora-Siljan,Gällivare,754.3441684856634,17.020689141918954,2024,passengers_per_year
+MXX,KRN,Mora-Siljan,Kiruna,815.7046425597749,22.101192441277465,2024,passengers_per_year
+MXX,PJA,Mora-Siljan,Pajala,814.0938360279791,2.7195345556875674,2024,passengers_per_year
+MXX,HMV,Mora-Siljan,Hemavan,544.1418546019347,1.396396386303681,2024,passengers_per_year
+MXX,CPH,Mora-Siljan,Köpenhamn,608.534882635902,0.07470672680716106,2024,passengers_per_year
+SDL,ARN,Sundsvall,Arlanda,320.9772275611669,82877.01272856304,2024,passengers_per_year
+SDL,JKG,Sundsvall,Jönköping,565.3142711078998,343.82827229578123,2024,passengers_per_year
+SDL,VXO,Sundsvall,Växjö-Kronoberg,639.6722983561265,595.4781388558164,2024,passengers_per_year
+SDL,KLR,Sundsvall,Kalmar,652.1962581408742,470.38294270277527,2024,passengers_per_year
+SDL,VBY,Sundsvall,Visby,542.4670839127122,322.06474877397426,2024,passengers_per_year
+SDL,RNB,Sundsvall,Ronneby,704.9517307809671,574.85866408334,2024,passengers_per_year
+SDL,KID,Sundsvall,Kristianstad,757.0190230294959,208.75367635961084,2024,passengers_per_year
+SDL,AGH,Sundsvall,Ängelholm,736.827774876115,844.5426007675102,2024,passengers_per_year
+SDL,MMX,Sundsvall,Malmö,810.7720044201478,4010.8269280688,2024,passengers_per_year
+SDL,HAD,Sundsvall,Hamstad,696.7802897928183,372.5185031713054,2024,passengers_per_year
+SDL,GOT,Sundsvall,Göteborg,612.4104114894901,5565.9093776668005,2024,passengers_per_year
+SDL,THN,Sundsvall,Trollhättan–Vänersborg,544.560138287904,556.0611434857127,2024,passengers_per_year
+SDL,TYF,Sundsvall,Torsby,354.46673062780224,64.15147698740496,2024,passengers_per_year
+SDL,KSD,Sundsvall,Karlstad,414.2466563116303,496.2881688587287,2024,passengers_per_year
+SDL,HFS,Sundsvall,Hägfors,346.3034082080009,53.15553668863203,2024,passengers_per_year
+SDL,ORB,Sundsvall,Örebro,388.2097084175106,291.47101745216133,2024,passengers_per_year
+SDL,BLE,Sundsvall,Borlänge,258.63553398128096,284.39034295724986,2024,passengers_per_year
+SDL,MXX,Sundsvall,Mora-Siljan,232.3941931714129,167.49142967828084,2024,passengers_per_year
+SDL,KRF,Sundsvall,Höga Kusten,61.40208459667375,725.9230290165441,2024,passengers_per_year
+SDL,OER,Sundsvall,Örnsköldsvik,126.51581599727321,1725.75869158174,2024,passengers_per_year
+SDL,OSD,Sundsvall,Åre Östersund,166.97959836767953,5138.421482929086,2024,passengers_per_year
+SDL,EVG,Sundsvall,Härjedalen,163.7701421408369,65.46820056261598,2024,passengers_per_year
+SDL,UME,Sundsvall,Umeå,202.44155089283944,9718.424844721463,2024,passengers_per_year
+SDL,SFT,Sundsvall,Skellefteå,295.08518530676963,2499.3904915651,2024,passengers_per_year
+SDL,LYC,Sundsvall,Lycksele,232.09624817063641,340.1444776650021,2024,passengers_per_year
+SDL,VHM,Sundsvall,Vilhelmina,232.25157912029437,169.2881532077134,2024,passengers_per_year
+SDL,AJR,Sundsvall,Arvidsjaur,354.9614866100782,215.42169946287825,2024,passengers_per_year
+SDL,LLA,Sundsvall,Luleå,406.9522346507075,7218.28294702198,2024,passengers_per_year
+SDL,GEV,Sundsvall,Gällivare,540.0604569925944,548.883619552079,2024,passengers_per_year
+SDL,KRN,Sundsvall,Kiruna,607.5918436321506,701.8088704344045,2024,passengers_per_year
+SDL,PJA,Sundsvall,Pajala,590.1397698333443,89.84567295519409,2024,passengers_per_year
+SDL,HMV,Sundsvall,Hemavan,385.7977458206821,39.1540052305301,2024,passengers_per_year
+SDL,CPH,Sundsvall,Köpenhamn,820.5272010042482,0.8299262859516903,2024,passengers_per_year
+KRF,ARN,Höga Kusten,Arlanda,379.1262980962911,10732.419814961993,2024,passengers_per_year
+KRF,JKG,Höga Kusten,Jönköping,626.4858266378476,44.18995174363791,2024,passengers_per_year
+KRF,VXO,Höga Kusten,Växjö-Kronoberg,701.0729217801409,76.48901308038882,2024,passengers_per_year
+KRF,KLR,Höga Kusten,Kalmar,712.8862621181032,60.52800293525595,2024,passengers_per_year
+KRF,VBY,Höga Kusten,Visby,600.0583291332811,41.76499243559393,2024,passengers_per_year
+KRF,RNB,Höga Kusten,Ronneby,766.1982116518773,73.8689072442347,2024,passengers_per_year
+KRF,KID,Höga Kusten,Kristianstad,818.4183638677187,26.81444177143667,2024,passengers_per_year
+KRF,AGH,Höga Kusten,Ängelholm,797.7742842661787,108.6045059749392,2024,passengers_per_year
+KRF,MMX,Höga Kusten,Malmö,872.0866375389297,515.3004478205617,2024,passengers_per_year
+KRF,HAD,Höga Kusten,Hamstad,757.5282508172406,47.92804379894881,2024,passengers_per_year
+KRF,GOT,Höga Kusten,Göteborg,672.0084784154568,718.1686893871871,2024,passengers_per_year
+KRF,THN,Höga Kusten,Trollhättan–Vänersborg,603.3101351203973,71.90079042665423,2024,passengers_per_year
+KRF,TYF,Höga Kusten,Torsby,409.425937181221,8.374011911554225,2024,passengers_per_year
+KRF,KSD,Höga Kusten,Karlstad,473.1390946974478,64.14907292734009,2024,passengers_per_year
+KRF,HFS,Höga Kusten,Hägfors,403.5669097566856,6.898800170520745,2024,passengers_per_year
+KRF,ORB,Höga Kusten,Örebro,449.3989378523241,37.45916826075047,2024,passengers_per_year
+KRF,BLE,Höga Kusten,Borlänge,319.49001994045415,36.579775959433746,2024,passengers_per_year
+KRF,MXX,Höga Kusten,Mora-Siljan,288.3845751988438,21.807200653217958,2024,passengers_per_year
+KRF,SDL,Höga Kusten,Sundsvall,61.40208459667375,725.9230290165441,2024,passengers_per_year
+KRF,OER,Höga Kusten,Örnsköldsvik,73.47738332533378,295.0964131911636,2024,passengers_per_year
+KRF,OSD,Höga Kusten,Åre Östersund,164.93395548785057,773.479607438677,2024,passengers_per_year
+KRF,EVG,Höga Kusten,Härjedalen,203.7287040976071,8.87246023702158,2024,passengers_per_year
+KRF,UME,Höga Kusten,Umeå,151.1290798432941,1654.6487019486408,2024,passengers_per_year
+KRF,SFT,Höga Kusten,Skellefteå,238.41804621291953,431.2784844893789,2024,passengers_per_year
+KRF,LYC,Höga Kusten,Lycksele,170.70230213256204,59.39079918035037,2024,passengers_per_year
+KRF,VHM,Höga Kusten,Vilhelmina,177.72910451267066,29.05505532653651,2024,passengers_per_year
+KRF,AJR,Höga Kusten,Arvidsjaur,293.60628685253414,37.60998189201158,2024,passengers_per_year
+KRF,LLA,Höga Kusten,Luleå,348.4821917655439,1251.1663603328916,2024,passengers_per_year
+KRF,GEV,Höga Kusten,Gällivare,478.6583818513571,95.8395666068808,2024,passengers_per_year
+KRF,KRN,Höga Kusten,Kiruna,546.3376121423869,122.49628132619812,2024,passengers_per_year
+KRF,PJA,Höga Kusten,Pajala,529.5650693678712,15.655373244344295,2024,passengers_per_year
+KRF,HMV,Höga Kusten,Hemavan,334.9781088279408,6.658110969371956,2024,passengers_per_year
+KRF,CPH,Höga Kusten,Köpenhamn,881.5547241772449,0.10670329816526837,2024,passengers_per_year
+OER,ARN,Örnsköldsvik,Arlanda,422.761366713261,26921.999353966214,2024,passengers_per_year
+OER,JKG,Örnsköldsvik,Jönköping,687.275046068941,106.19603495380512,2024,passengers_per_year
+OER,VXO,Örnsköldsvik,Växjö-Kronoberg,757.9721311751545,185.6125582561955,2024,passengers_per_year
+OER,KLR,Örnsköldsvik,Kalmar,763.0295302433153,149.3825312741838,2024,passengers_per_year
+OER,VBY,Örnsköldsvik,Visby,639.9823432861551,105.74291791599693,2024,passengers_per_year
+OER,RNB,Örnsköldsvik,Ronneby,820.098311147455,180.6035222159866,2024,passengers_per_year
+OER,KID,Örnsköldsvik,Kristianstad,875.8128208509642,64.98892468412689,2024,passengers_per_year
+OER,AGH,Örnsköldsvik,Ängelholm,859.6546688813112,260.284257141005,2024,passengers_per_year
+OER,MMX,Örnsköldsvik,Malmö,931.2434925812717,1243.4193211635086,2024,passengers_per_year
+OER,HAD,Örnsköldsvik,Hamstad,820.3140610471007,114.60582901248019,2024,passengers_per_year
+OER,GOT,Örnsköldsvik,Göteborg,737.9865554505741,1703.6387542191421,2024,passengers_per_year
+OER,THN,Örnsköldsvik,Trollhättan–Vänersborg,670.7655667220199,169.9341608631241,2024,passengers_per_year
+OER,TYF,Örnsköldsvik,Torsby,480.411257656675,19.6176992706277,2024,passengers_per_year
+OER,KSD,Örnsköldsvik,Karlstad,540.4402680839509,151.67181879254383,2024,passengers_per_year
+OER,HFS,Örnsköldsvik,Hägfors,472.81330375731375,16.2321511943562,2024,passengers_per_year
+OER,ORB,Örnsköldsvik,Örebro,510.4717025385929,89.9570177387509,2024,passengers_per_year
+OER,BLE,Örnsköldsvik,Borlänge,382.70680240665627,87.37559026080393,2024,passengers_per_year
+OER,MXX,Örnsköldsvik,Mora-Siljan,358.6099654864304,51.18462216774986,2024,passengers_per_year
+OER,SDL,Örnsköldsvik,Sundsvall,126.51581599727321,1725.758691581754,2024,passengers_per_year
+OER,KRF,Örnsköldsvik,Höga Kusten,73.47738332533378,295.0964131911628,2024,passengers_per_year
+OER,OSD,Örnsköldsvik,Åre Östersund,225.9137259495483,1857.918907581617,2024,passengers_per_year
+OER,EVG,Örnsköldsvik,Härjedalen,277.1814159570851,20.657588592016214,2024,passengers_per_year
+OER,UME,Örnsköldsvik,Umeå,77.69989226211028,5561.81272321655,2024,passengers_per_year
+OER,SFT,Örnsköldsvik,Skellefteå,168.71000352587436,1436.243807799179,2024,passengers_per_year
+OER,LYC,Örnsköldsvik,Lycksele,125.87590162033379,185.85516983710332,2024,passengers_per_year
+OER,VHM,Örnsköldsvik,Vilhelmina,170.51817625372635,82.76309126045433,2024,passengers_per_year
+OER,AJR,Örnsköldsvik,Arvidsjaur,245.25573710784388,118.73667894194286,2024,passengers_per_year
+OER,LLA,Örnsköldsvik,Luleå,281.39597736684397,4139.413596452701,2024,passengers_per_year
+OER,GEV,Örnsköldsvik,Gällivare,425.6609061494982,306.10607600042755,2024,passengers_per_year
+OER,KRN,Örnsköldsvik,Kiruna,497.0353262666375,387.64841488010956,2024,passengers_per_year
+OER,PJA,Örnsköldsvik,Pajala,467.95959872090714,51.090075794393535,2024,passengers_per_year
+OER,HMV,Örnsköldsvik,Hemavan,327.32482716398243,18.986560830081785,2024,passengers_per_year
+OER,CPH,Örnsköldsvik,Köpenhamn,942.9403909648838,0.2560442536641636,2024,passengers_per_year
+OSD,ARN,Åre Östersund,Arlanda,434.98866647755875,86022.95089792096,2024,passengers_per_year
+OSD,JKG,Åre Östersund,Jönköping,609.4743196367618,424.9736628676105,2024,passengers_per_year
+OSD,VXO,Åre Östersund,Växjö-Kronoberg,696.360795425456,713.3187885072655,2024,passengers_per_year
+OSD,KLR,Åre Östersund,Kalmar,730.5174847120622,533.8041773139771,2024,passengers_per_year
+OSD,VBY,Åre Östersund,Visby,650.5740933048702,339.2611210014143,2024,passengers_per_year
+OSD,RNB,Åre Östersund,Ronneby,769.9515834275519,674.4581121816784,2024,passengers_per_year
+OSD,KID,Åre Östersund,Kristianstad,808.3224024524178,253.45379055607626,2024,passengers_per_year
+OSD,AGH,Åre Östersund,Ängelholm,770.304118118207,1072.1157549307081,2024,passengers_per_year
+OSD,MMX,Åre Östersund,Malmö,853.9711309376278,4969.3279744588435,2024,passengers_per_year
+OSD,HAD,Åre Östersund,Hamstad,727.192955418032,476.5344601487841,2024,passengers_per_year
+OSD,GOT,Åre Östersund,Göteborg,628.9295078163555,7371.694770529372,2024,passengers_per_year
+OSD,THN,Åre Östersund,Trollhättan–Vänersborg,554.6863603824456,748.3327242470907,2024,passengers_per_year
+OSD,TYF,Åre Östersund,Torsby,347.46379532568994,90.11074801422848,2024,passengers_per_year
+OSD,KSD,Åre Östersund,Karlstad,432.7367032804415,654.0714658692772,2024,passengers_per_year
+OSD,HFS,Åre Östersund,Hägfors,356.305624328755,71.55752877088274,2024,passengers_per_year
+OSD,ORB,Åre Östersund,Örebro,441.9024100692113,351.7757207216148,2024,passengers_per_year
+OSD,BLE,Åre Östersund,Borlänge,317.5252240358615,338.79950803223863,2024,passengers_per_year
+OSD,MXX,Åre Östersund,Mora-Siljan,249.53327564982473,221.4882347847324,2024,passengers_per_year
+OSD,SDL,Åre Östersund,Sundsvall,166.97959836767953,5138.421482929092,2024,passengers_per_year
+OSD,KRF,Åre Östersund,Höga Kusten,164.93395548785057,773.4796074386786,2024,passengers_per_year
+OSD,OER,Åre Östersund,Örnsköldsvik,225.9137259495483,1857.918907581604,2024,passengers_per_year
+OSD,EVG,Åre Östersund,Härjedalen,127.6689637787422,98.89933131513871,2024,passengers_per_year
+OSD,UME,Åre Östersund,Umeå,295.13914044293665,10639.4051220754,2024,passengers_per_year
+OSD,SFT,Åre Östersund,Skellefteå,357.99262099609007,2947.812305468563,2024,passengers_per_year
+OSD,LYC,Åre Östersund,Lycksele,252.74164382142686,445.87648172186783,2024,passengers_per_year
+OSD,VHM,Åre Östersund,Vilhelmina,189.78947774039747,259.83389443948715,2024,passengers_per_year
+OSD,AJR,Åre Östersund,Arvidsjaur,352.22667041705887,299.3817559504244,2024,passengers_per_year
+OSD,LLA,Åre Östersund,Luleå,450.1972943310579,8942.269810632644,2024,passengers_per_year
+OSD,GEV,Åre Östersund,Gällivare,529.6288469096621,777.6297042439901,2024,passengers_per_year
+OSD,KRN,Åre Östersund,Kiruna,583.1745972160109,1029.6654400510192,2024,passengers_per_year
+OSD,PJA,Åre Östersund,Pajala,603.0907014185236,120.06114070287789,2024,passengers_per_year
+OSD,HMV,Åre Östersund,Hemavan,295.27160258583126,67.76887876820088,2024,passengers_per_year
+OSD,CPH,Åre Östersund,Köpenhamn,854.1864659173629,1.0530791934654966,2024,passengers_per_year
+EVG,ARN,Härjedalen,Arlanda,327.39584854979904,1422.8129547693945,2024,passengers_per_year
+EVG,JKG,Härjedalen,Jönköping,481.8278988990682,7.390407968553094,2024,passengers_per_year
+EVG,VXO,Härjedalen,Växjö-Kronoberg,568.8325728148749,12.401143368806684,2024,passengers_per_year
+EVG,KLR,Härjedalen,Kalmar,605.149013400127,9.230285046368076,2024,passengers_per_year
+EVG,VBY,Härjedalen,Visby,534.5387952906598,5.7310457254322245,2024,passengers_per_year
+EVG,RNB,Härjedalen,Ronneby,642.8059029209637,11.714336841947999,2024,passengers_per_year
+EVG,KID,Härjedalen,Kristianstad,680.6571557004664,4.407838033080032,2024,passengers_per_year
+EVG,AGH,Härjedalen,Ängelholm,643.5585061500196,18.602445226452097,2024,passengers_per_year
+EVG,MMX,Härjedalen,Malmö,726.5893494332876,86.36081450424416,2024,passengers_per_year
+EVG,HAD,Härjedalen,Hamstad,600.6713731156684,8.263793018494074,2024,passengers_per_year
+EVG,GOT,Härjedalen,Göteborg,504.04259790820595,127.3144332073116,2024,passengers_per_year
+EVG,THN,Härjedalen,Trollhättan–Vänersborg,430.54912960068503,12.900040673373281,2024,passengers_per_year
+EVG,TYF,Härjedalen,Torsby,224.61245843679467,1.548377300057991,2024,passengers_per_year
+EVG,KSD,Härjedalen,Karlstad,306.22695731579256,11.342204448596041,2024,passengers_per_year
+EVG,HFS,Härjedalen,Hägfors,230.10135467601893,1.2399264809577994,2024,passengers_per_year
+EVG,ORB,Härjedalen,Örebro,315.02185818439926,6.105774025301123,2024,passengers_per_year
+EVG,BLE,Härjedalen,Borlänge,194.1884161514491,5.828678021544004,2024,passengers_per_year
+EVG,MXX,Härjedalen,Mora-Siljan,121.97588696075454,3.8508836194055833,2024,passengers_per_year
+EVG,SDL,Härjedalen,Sundsvall,163.7701421408369,65.46820056261629,2024,passengers_per_year
+EVG,KRF,Härjedalen,Höga Kusten,203.7287040976071,8.872460237021595,2024,passengers_per_year
+EVG,OER,Härjedalen,Örnsköldsvik,277.1814159570851,20.65758859201635,2024,passengers_per_year
+EVG,OSD,Härjedalen,Åre Östersund,127.6689637787422,98.8993313151387,2024,passengers_per_year
+EVG,UME,Härjedalen,Umeå,354.72079312720484,115.86264675609611,2024,passengers_per_year
+EVG,SFT,Härjedalen,Skellefteå,437.2463011341278,30.560981236467672,2024,passengers_per_year
+EVG,LYC,Härjedalen,Lycksele,347.92235115817743,4.442111774723237,2024,passengers_per_year
+EVG,VHM,Härjedalen,Vilhelmina,304.8429266799758,2.4631687400569673,2024,passengers_per_year
+EVG,AJR,Härjedalen,Arvidsjaur,460.8736300083547,2.883895042067735,2024,passengers_per_year
+EVG,LLA,Härjedalen,Luleå,541.7060529026928,89.91030147967996,2024,passengers_per_year
+EVG,GEV,Härjedalen,Gällivare,643.8647811641159,7.386841978505145,2024,passengers_per_year
+EVG,KRN,Härjedalen,Kiruna,701.9714771287885,9.670081165745179,2024,passengers_per_year
+EVG,PJA,Härjedalen,Pajala,709.8448931675936,1.1620147236577663,2024,passengers_per_year
+EVG,HMV,Härjedalen,Hemavan,422.723434395756,0.622826795702245,2024,passengers_per_year
+EVG,CPH,Härjedalen,Köpenhamn,727.5881343848787,0.018265412339921305,2024,passengers_per_year
+UME,ARN,Umeå,Arlanda,479.521974066774,159049.16502410747,2024,passengers_per_year
+UME,JKG,Umeå,Jönköping,755.8581936293161,609.1106960640154,2024,passengers_per_year
+UME,VXO,Umeå,Växjö-Kronoberg,823.1379624227884,1073.7559531374823,2024,passengers_per_year
+UME,KLR,Umeå,Kalmar,822.3998765170736,876.7795468430963,2024,passengers_per_year
+UME,VBY,Umeå,Visby,691.1439314943943,633.5113967107669,2024,passengers_per_year
+UME,RNB,Umeå,Ronneby,882.5111266179342,1051.9945572247218,2024,passengers_per_year
+UME,KID,Umeå,Kristianstad,941.0794995195487,375.8617102318223,2024,passengers_per_year
+UME,AGH,Umeå,Ängelholm,928.7446437364457,1491.0271262564893,2024,passengers_per_year
+UME,MMX,Umeå,Malmö,997.90438656184,7166.260578016517,2024,passengers_per_year
+UME,HAD,Umeå,Hamstad,890.2204705411765,655.1759056374708,2024,passengers_per_year
+UME,GOT,Umeå,Göteborg,810.5827584492653,9674.049723587485,2024,passengers_per_year
+UME,THN,Umeå,Trollhättan–Vänersborg,744.5876227058216,962.0121183314249,2024,passengers_per_year
+UME,TYF,Umeå,Torsby,556.9046390057208,110.31830224115943,2024,passengers_per_year
+UME,KSD,Umeå,Karlstad,614.369497472561,858.3973814964445,2024,passengers_per_year
+UME,HFS,Umeå,Hägfors,548.2055763721729,91.53160752823061,2024,passengers_per_year
+UME,ORB,Umeå,Örebro,579.9312403488713,514.8390078192283,2024,passengers_per_year
+UME,BLE,Umeå,Borlänge,454.4029792933061,497.2767083324192,2024,passengers_per_year
+UME,MXX,Umeå,Mora-Siljan,434.8189723732692,288.0366520204781,2024,passengers_per_year
+UME,SDL,Umeå,Sundsvall,202.44155089283944,9718.424844721476,2024,passengers_per_year
+UME,KRF,Umeå,Höga Kusten,151.1290798432941,1654.64870194864,2024,passengers_per_year
+UME,OER,Umeå,Örnsköldsvik,77.69989226211028,5561.812723216581,2024,passengers_per_year
+UME,OSD,Umeå,Åre Östersund,295.13914044293665,10639.4051220754,2024,passengers_per_year
+UME,EVG,Umeå,Härjedalen,354.72079312720484,115.862646756096,2024,passengers_per_year
+UME,SFT,Umeå,Skellefteå,98.6544912477781,11650.407221892967,2024,passengers_per_year
+UME,LYC,Umeå,Lycksele,112.47211115772073,1308.5151556176634,2024,passengers_per_year
+UME,VHM,Umeå,Vilhelmina,191.92243780331287,534.1318213643506,2024,passengers_per_year
+UME,AJR,Umeå,Arvidsjaur,206.87164575862067,889.8381588789903,2024,passengers_per_year
+UME,LLA,Umeå,Luleå,212.8240840509808,33453.452074994086,2024,passengers_per_year
+UME,GEV,Umeå,Gällivare,373.979260413206,2371.5687248629097,2024,passengers_per_year
+UME,KRN,Umeå,Kiruna,448.80703556958116,2977.5039353363404,2024,passengers_per_year
+UME,PJA,Umeå,Pajala,404.59397799843225,407.55481267380117,2024,passengers_per_year
+UME,HMV,Umeå,Hemavan,333.104681941704,127.41543399873018,2024,passengers_per_year
+UME,CPH,Umeå,Köpenhamn,1011.4791447658513,1.4687610855656323,2024,passengers_per_year
+SFT,ARN,Skellefteå,Arlanda,577.7736122636692,40334.88411821015,2024,passengers_per_year
+SFT,JKG,Skellefteå,Jönköping,853.7667781227696,154.60306933879366,2024,passengers_per_year
+SFT,VXO,Skellefteå,Växjö-Kronoberg,921.7005675625702,272.09300477320755,2024,passengers_per_year
+SFT,KLR,Skellefteå,Kalmar,920.8084485402908,222.26416153268056,2024,passengers_per_year
+SFT,VBY,Skellefteå,Visby,787.8351968705443,161.28649549413998,2024,passengers_per_year
+SFT,RNB,Skellefteå,Ronneby,981.1542841549041,266.5249228001257,2024,passengers_per_year
+SFT,KID,Skellefteå,Kristianstad,1039.645068750106,95.24378792138141,2024,passengers_per_year
+SFT,AGH,Skellefteå,Ängelholm,1026.530513478879,378.5651807297916,2024,passengers_per_year
+SFT,MMX,Skellefteå,Malmö,1096.2987098063898,1816.7162363483944,2024,passengers_per_year
+SFT,HAD,Skellefteå,Hamstad,987.6957585015882,166.47546985793537,2024,passengers_per_year
+SFT,GOT,Skellefteå,Göteborg,906.5339672430965,2467.489963413954,2024,passengers_per_year
+SFT,THN,Skellefteå,Trollhättan–Vänersborg,839.4755332373496,246.02661072420997,2024,passengers_per_year
+SFT,TYF,Skellefteå,Torsby,647.8277249337801,28.494029144571037,2024,passengers_per_year
+SFT,KSD,Skellefteå,Karlstad,709.1502708892401,219.58680906151173,2024,passengers_per_year
+SFT,HFS,Skellefteå,Hägfors,641.2129963845965,23.518756048788674,2024,passengers_per_year
+SFT,ORB,Skellefteå,Örebro,677.4859054416142,130.79091970086603,2024,passengers_per_year
+SFT,BLE,Skellefteå,Borlänge,550.8429160693826,126.68189986515428,2024,passengers_per_year
+SFT,MXX,Skellefteå,Mora-Siljan,526.5241369074432,74.25144636416486,2024,passengers_per_year
+SFT,SDL,Skellefteå,Sundsvall,295.08518530676963,2499.390491565106,2024,passengers_per_year
+SFT,KRF,Skellefteå,Höga Kusten,238.41804621291953,431.2784844893807,2024,passengers_per_year
+SFT,OER,Skellefteå,Örnsköldsvik,168.71000352587436,1436.2438077991878,2024,passengers_per_year
+SFT,OSD,Skellefteå,Åre Östersund,357.99262099609007,2947.812305468562,2024,passengers_per_year
+SFT,EVG,Skellefteå,Härjedalen,437.2463011341278,30.56098123646772,2024,passengers_per_year
+SFT,UME,Skellefteå,Umeå,98.6544912477781,11650.407221892985,2024,passengers_per_year
+SFT,LYC,Skellefteå,Lycksele,114.41610679557915,422.1753494379392,2024,passengers_per_year
+SFT,VHM,Skellefteå,Vilhelmina,205.5237466572921,167.38086179598028,2024,passengers_per_year
+SFT,AJR,Skellefteå,Arvidsjaur,138.58525762373876,342.197482647638,2024,passengers_per_year
+SFT,LLA,Skellefteå,Luleå,114.23093816739615,13877.520204326958,2024,passengers_per_year
+SFT,GEV,Skellefteå,Gällivare,282.1639783538945,967.2698950266481,2024,passengers_per_year
+SFT,KRN,Skellefteå,Kiruna,358.69618565479675,1209.2434319594365,2024,passengers_per_year
+SFT,PJA,Skellefteå,Pajala,306.3097524900907,168.93574398498146,2024,passengers_per_year
+SFT,HMV,Skellefteå,Hemavan,308.0025091055902,43.98465162500593,2024,passengers_per_year
+SFT,CPH,Skellefteå,Köpenhamn,1109.4512728096036,0.372738327222391,2024,passengers_per_year
+LYC,ARN,Lycksele,Arlanda,545.1962029580391,5087.345438801232,2024,passengers_per_year
+LYC,JKG,Lycksele,Jönköping,796.4999189647136,20.741241855724763,2024,passengers_per_year
+LYC,VXO,Lycksele,Växjö-Kronoberg,871.7646774431531,35.84053815664993,2024,passengers_per_year
+LYC,KLR,Lycksele,Kalmar,882.4826506163739,28.439443213763255,2024,passengers_per_year
+LYC,VBY,Lycksele,Visby,764.1108848541335,19.8973982070109,2024,passengers_per_year
+LYC,RNB,Lycksele,Ronneby,936.730803280509,34.62660791581972,2024,passengers_per_year
+LYC,KID,Lycksele,Kristianstad,989.0649938148559,12.565889012883678,2024,passengers_per_year
+LYC,AGH,Lycksele,Ängelholm,967.1753179300774,51.05340266632849,2024,passengers_per_year
+LYC,MMX,Lycksele,Malmö,1042.4347499178666,241.66240352959912,2024,passengers_per_year
+LYC,HAD,Lycksele,Hamstad,926.470347952912,22.55614282222581,2024,passengers_per_year
+LYC,GOT,Lycksele,Göteborg,838.4432099286647,340.1135519362381,2024,passengers_per_year
+LYC,THN,Lycksele,Trollhättan–Vänersborg,768.0944936778858,34.19188187169088,2024,passengers_per_year
+LYC,TYF,Lycksele,Torsby,568.1925230373006,4.042561426095206,2024,passengers_per_year
+LYC,KSD,Lycksele,Karlstad,638.6931802569426,30.44696469104548,2024,passengers_per_year
+LYC,HFS,Lycksele,Hägfors,566.538965995175,3.2955703533314016,2024,passengers_per_year
+LYC,ORB,Lycksele,Örebro,619.5267901964165,17.577044211669847,2024,passengers_per_year
+LYC,BLE,Lycksele,Borlänge,489.1156426536949,17.18596983215433,2024,passengers_per_year
+LYC,MXX,Lycksele,Mora-Siljan,450.7161295906698,10.434036643219509,2024,passengers_per_year
+LYC,SDL,Lycksele,Sundsvall,232.09624817063641,340.1444776650017,2024,passengers_per_year
+LYC,KRF,Lycksele,Höga Kusten,170.70230213256204,59.390799180350484,2024,passengers_per_year
+LYC,OER,Lycksele,Örnsköldsvik,125.87590162033379,185.8551698371039,2024,passengers_per_year
+LYC,OSD,Lycksele,Åre Östersund,252.74164382142686,445.8764817218691,2024,passengers_per_year
+LYC,EVG,Lycksele,Härjedalen,347.92235115817743,4.442111774723238,2024,passengers_per_year
+LYC,UME,Lycksele,Umeå,112.47211115772073,1308.5151556176606,2024,passengers_per_year
+LYC,SFT,Lycksele,Skellefteå,114.41610679557915,422.1753494379388,2024,passengers_per_year
+LYC,VHM,Lycksele,Vilhelmina,92.03314126613816,25.84440870476889,2024,passengers_per_year
+LYC,AJR,Lycksele,Arvidsjaur,123.0212447204755,41.36329851599196,2024,passengers_per_year
+LYC,LLA,Lycksele,Luleå,197.55808830869694,1310.0277827515752,2024,passengers_per_year
+LYC,GEV,Lycksele,Gällivare,308.00690726401683,105.42145579477373,2024,passengers_per_year
+LYC,KRN,Lycksele,Kiruna,375.9999709398503,134.6375910636815,2024,passengers_per_year
+LYC,PJA,Lycksele,Pajala,363.4888279506849,17.024724706142006,2024,passengers_per_year
+LYC,HMV,Lycksele,Hemavan,220.69999231546018,6.361046955170484,2024,passengers_per_year
+LYC,CPH,Lycksele,Köpenhamn,1051.1301216339755,0.0501378121450582,2024,passengers_per_year
+VHM,ARN,Vilhelmina,Arlanda,553.0130552698241,2483.9107071091403,2024,passengers_per_year
+VHM,JKG,Vilhelmina,Jönköping,776.8055087186664,10.847995118504382,2024,passengers_per_year
+VHM,VXO,Vilhelmina,Växjö-Kronoberg,857.975976417877,18.470438467046286,2024,passengers_per_year
+VHM,KLR,Vilhelmina,Kalmar,878.9543104080359,14.285114555657078,2024,passengers_per_year
+VHM,VBY,Vilhelmina,Visby,774.5904926626624,9.650503957414973,2024,passengers_per_year
+VHM,RNB,Vilhelmina,Ronneby,927.221663080763,17.654936438737927,2024,passengers_per_year
+VHM,KID,Vilhelmina,Kristianstad,973.492581752946,6.504778944704774,2024,passengers_per_year
+VHM,AGH,Vilhelmina,Ängelholm,943.6308309641996,26.959981252545276,2024,passengers_per_year
+VHM,MMX,Vilhelmina,Malmö,1023.396732510683,126.18599208947394,2024,passengers_per_year
+VHM,HAD,Vilhelmina,Hamstad,901.5179361242599,11.953314986668211,2024,passengers_per_year
+VHM,GOT,Vilhelmina,Göteborg,807.6809014504141,182.87548045885887,2024,passengers_per_year
+VHM,THN,Vilhelmina,Trollhättan–Vänersborg,734.8433889144384,18.499360850865468,2024,passengers_per_year
+VHM,TYF,Vilhelmina,Torsby,529.4551121466696,2.21741524148143,2024,passengers_per_year
+VHM,KSD,Vilhelmina,Karlstad,608.4249216646008,16.350804993170744,2024,passengers_per_year
+VHM,HFS,Vilhelmina,Hägfors,533.3155859913419,1.7829296405931165,2024,passengers_per_year
+VHM,ORB,Vilhelmina,Örebro,602.2203670862176,9.138351238885871,2024,passengers_per_year
+VHM,BLE,Vilhelmina,Borlänge,471.715106025003,8.937133161819187,2024,passengers_per_year
+VHM,MXX,Vilhelmina,Mora-Siljan,419.66175451203486,5.614369713804449,2024,passengers_per_year
+VHM,SDL,Vilhelmina,Sundsvall,232.25157912029437,169.28815320771326,2024,passengers_per_year
+VHM,KRF,Vilhelmina,Höga Kusten,177.72910451267066,29.055055326536564,2024,passengers_per_year
+VHM,OER,Vilhelmina,Örnsköldsvik,170.51817625372635,82.76309126045471,2024,passengers_per_year
+VHM,OSD,Vilhelmina,Åre Östersund,189.78947774039747,259.8338944394866,2024,passengers_per_year
+VHM,EVG,Vilhelmina,Härjedalen,304.8429266799758,2.4631687400569637,2024,passengers_per_year
+VHM,UME,Vilhelmina,Umeå,191.92243780331287,534.1318213643508,2024,passengers_per_year
+VHM,SFT,Vilhelmina,Skellefteå,205.5237466572921,167.3808617959799,2024,passengers_per_year
+VHM,LYC,Vilhelmina,Lycksele,92.03314126613816,25.844408704768863,2024,passengers_per_year
+VHM,AJR,Vilhelmina,Arvidsjaur,163.2934069014089,18.62181513499273,2024,passengers_per_year
+VHM,LLA,Vilhelmina,Luleå,273.6666267875895,539.2355321001667,2024,passengers_per_year
+VHM,GEV,Vilhelmina,Gällivare,340.4280164364266,48.40163456388176,2024,passengers_per_year
+VHM,KRN,Vilhelmina,Kiruna,397.13986736160325,63.58369656981684,2024,passengers_per_year
+VHM,PJA,Vilhelmina,Pajala,413.78347219760946,7.4748963171785645,2024,passengers_per_year
+VHM,HMV,Vilhelmina,Hemavan,158.89103667788487,3.6963119258834993,2024,passengers_per_year
+VHM,CPH,Vilhelmina,Köpenhamn,1027.872477744871,0.026457501901037798,2024,passengers_per_year
+AJR,ARN,Arvidsjaur,Arlanda,667.2803124839197,3228.236556192888,2024,passengers_per_year
+AJR,JKG,Arvidsjaur,Jönköping,918.523432236107,13.163599800366551,2024,passengers_per_year
+AJR,VXO,Arvidsjaur,Växjö-Kronoberg,994.5422470869416,22.703652481516926,2024,passengers_per_year
+AJR,KLR,Arvidsjaur,Kalmar,1005.3944004891499,18.009290918761337,2024,passengers_per_year
+AJR,VBY,Arvidsjaur,Visby,885.2227976476374,12.65685963996202,2024,passengers_per_year
+AJR,RNB,Arvidsjaur,Ronneby,1059.736434957456,21.92217006808946,2024,passengers_per_year
+AJR,KID,Arvidsjaur,Kristianstad,1111.731798903735,7.962229457829497,2024,passengers_per_year
+AJR,AGH,Arvidsjaur,Ängelholm,1088.6326903873066,32.447354008152956,2024,passengers_per_year
+AJR,MMX,Arvidsjaur,Malmö,1164.713739662033,153.2751060436534,2024,passengers_per_year
+AJR,HAD,Arvidsjaur,Hamstad,1047.593616549714,14.347696414673786,2024,passengers_per_year
+AJR,GOT,Arvidsjaur,Göteborg,957.9214459007234,217.23377604068077,2024,passengers_per_year
+AJR,THN,Arvidsjaur,Trollhättan–Vänersborg,886.6586453292707,21.88864477629278,2024,passengers_per_year
+AJR,TYF,Arvidsjaur,Torsby,684.198375990909,2.60453461726478,2024,passengers_per_year
+AJR,KSD,Arvidsjaur,Karlstad,758.0101203330275,19.454610616331273,2024,passengers_per_year
+AJR,HFS,Arvidsjaur,Hägfors,684.7026148118407,2.111841386513445,2024,passengers_per_year
+AJR,ORB,Arvidsjaur,Örebro,741.7191298926564,11.150708401983726,2024,passengers_per_year
+AJR,BLE,Arvidsjaur,Borlänge,611.0612972724286,10.909340417941245,2024,passengers_per_year
+AJR,MXX,Arvidsjaur,Mora-Siljan,569.2126645492857,6.680694929501399,2024,passengers_per_year
+AJR,SDL,Arvidsjaur,Sundsvall,354.9614866100782,215.4216994628794,2024,passengers_per_year
+AJR,KRF,Arvidsjaur,Höga Kusten,293.60628685253414,37.60998189201162,2024,passengers_per_year
+AJR,OER,Arvidsjaur,Örnsköldsvik,245.25573710784388,118.73667894194286,2024,passengers_per_year
+AJR,OSD,Arvidsjaur,Åre Östersund,352.22667041705887,299.38175595042424,2024,passengers_per_year
+AJR,EVG,Arvidsjaur,Härjedalen,460.8736300083547,2.8838950420677345,2024,passengers_per_year
+AJR,UME,Arvidsjaur,Umeå,206.87164575862067,889.8381588789978,2024,passengers_per_year
+AJR,SFT,Arvidsjaur,Skellefteå,138.58525762373876,342.1974826476376,2024,passengers_per_year
+AJR,LYC,Arvidsjaur,Lycksele,123.0212447204755,41.363298515992035,2024,passengers_per_year
+AJR,VHM,Arvidsjaur,Vilhelmina,163.2934069014089,18.62181513499273,2024,passengers_per_year
+AJR,LLA,Arvidsjaur,Luleå,132.4444087699426,1327.400712429132,2024,passengers_per_year
+AJR,GEV,Arvidsjaur,Gällivare,185.77117963890288,123.2168281953358,2024,passengers_per_year
+AJR,KRN,Arvidsjaur,Kiruna,253.02117588085332,157.6573141983359,2024,passengers_per_year
+AJR,PJA,Arvidsjaur,Pajala,250.87713057644967,19.425488807276025,2024,passengers_per_year
+AJR,HMV,Arvidsjaur,Hemavan,190.66370373806043,5.904258293487228,2024,passengers_per_year
+AJR,CPH,Arvidsjaur,Köpenhamn,1172.699244323494,0.0318565427419471,2024,passengers_per_year
+LLA,ARN,Luleå,Arlanda,691.1933600776188,116036.54285403085,2024,passengers_per_year
+LLA,JKG,Luleå,Jönköping,967.7675958915823,444.1208789154002,2024,passengers_per_year
+LLA,VXO,Luleå,Växjö-Kronoberg,1035.9287568117186,781.1844505821603,2024,passengers_per_year
+LLA,KLR,Luleå,Kalmar,1034.3693282487855,639.1903020076475,2024,passengers_per_year
+LLA,VBY,Luleå,Visby,899.3165738084656,466.2475175257343,2024,passengers_per_year
+LLA,RNB,Luleå,Ronneby,1095.1853029224485,765.5756553477445,2024,passengers_per_year
+LLA,KID,Luleå,Kristianstad,1153.8729188448438,273.4470490559114,2024,passengers_per_year
+LLA,AGH,Luleå,Ängelholm,1140.447811241368,1087.713267610491,2024,passengers_per_year
+LLA,MMX,Luleå,Malmö,1210.5065005312865,5216.09459038535,2024,passengers_per_year
+LLA,HAD,Luleå,Hamstad,1101.4279955620361,478.54737244557793,2024,passengers_per_year
+LLA,GOT,Luleå,Göteborg,1019.2408672926147,7111.207103877934,2024,passengers_per_year
+LLA,THN,Luleå,Trollhättan–Vänersborg,951.4418908449134,710.3527232416791,2024,passengers_per_year
+LLA,TYF,Luleå,Torsby,757.121613673939,82.82232660320501,2024,passengers_per_year
+LLA,KSD,Luleå,Karlstad,821.154397871784,633.9532113508394,2024,passengers_per_year
+LLA,HFS,Luleå,Hägfors,752.0471222371283,68.09819775712027,2024,passengers_per_year
+LLA,ORB,Luleå,Örebro,791.3206641992196,375.87286029902634,2024,passengers_per_year
+LLA,BLE,Luleå,Borlänge,664.0889471189163,364.60040444376796,2024,passengers_per_year
+LLA,MXX,Luleå,Mora-Siljan,636.7355550243509,215.32888178735917,2024,passengers_per_year
+LLA,SDL,Luleå,Sundsvall,406.9522346507075,7218.282947022021,2024,passengers_per_year
+LLA,KRF,Luleå,Höga Kusten,348.4821917655439,1251.1663603328948,2024,passengers_per_year
+LLA,OER,Luleå,Örnsköldsvik,281.39597736684397,4139.413596452731,2024,passengers_per_year
+LLA,OSD,Luleå,Åre Östersund,450.1972943310579,8942.269810632672,2024,passengers_per_year
+LLA,EVG,Luleå,Härjedalen,541.7060529026928,89.91030147967996,2024,passengers_per_year
+LLA,UME,Luleå,Umeå,212.8240840509808,33453.4520749942,2024,passengers_per_year
+LLA,SFT,Luleå,Skellefteå,114.23093816739615,13877.520204327044,2024,passengers_per_year
+LLA,LYC,Luleå,Lycksele,197.55808830869694,1310.0277827515802,2024,passengers_per_year
+LLA,VHM,Luleå,Vilhelmina,273.6666267875895,539.2355321001683,2024,passengers_per_year
+LLA,AJR,Luleå,Arvidsjaur,132.4444087699426,1327.4007124291334,2024,passengers_per_year
+LLA,GEV,Luleå,Gällivare,188.55020709108166,4669.231706923591,2024,passengers_per_year
+LLA,KRN,Luleå,Kiruna,265.7170668741696,5828.038698394067,2024,passengers_per_year
+LLA,PJA,Luleå,Pajala,194.05420809605613,854.3962855297914,2024,passengers_per_year
+LLA,HMV,Luleå,Hemavan,322.3753611314092,162.08914254695327,2024,passengers_per_year
+LLA,CPH,Luleå,Köpenhamn,1223.468839928825,1.0707028171516997,2024,passengers_per_year
+GEV,ARN,Gällivare,Arlanda,848.2538546708719,8310.65589069126,2024,passengers_per_year
+GEV,JKG,Gällivare,Jönköping,1104.237869306371,33.488620537198294,2024,passengers_per_year
+GEV,VXO,Gällivare,Växjö-Kronoberg,1179.7239730734957,57.835794015833486,2024,passengers_per_year
+GEV,KLR,Gällivare,Kalmar,1188.4794285437165,46.118380300372436,2024,passengers_per_year
+GEV,VBY,Gällivare,Visby,1063.6732350587092,32.78954116082829,2024,passengers_per_year
+GEV,RNB,Gällivare,Ronneby,1244.1576558353033,55.9513052433783,2024,passengers_per_year
+GEV,KID,Gällivare,Kristianstad,1297.065828614563,20.275440535822195,2024,passengers_per_year
+GEV,AGH,Gällivare,Ängelholm,1274.4021606908282,82.53575408259063,2024,passengers_per_year
+GEV,MMX,Gällivare,Malmö,1350.3451005744043,390.0177855314502,2024,passengers_per_year
+GEV,HAD,Gällivare,Hamstad,1233.3346005161236,36.49857795163021,2024,passengers_per_year
+GEV,GOT,Gällivare,Göteborg,1143.2067708194754,553.2428908748055,2024,passengers_per_year
+GEV,THN,Gällivare,Trollhättan–Vänersborg,1071.5819383157982,55.79566204922613,2024,passengers_per_year
+GEV,TYF,Gällivare,Torsby,868.0476402538455,6.656988516405879,2024,passengers_per_year
+GEV,KSD,Gällivare,Karlstad,943.3077947654635,49.544748156188064,2024,passengers_per_year
+GEV,HFS,Gällivare,Hägfors,869.5895566731348,5.383718282766919,2024,passengers_per_year
+GEV,ORB,Gällivare,Örebro,927.3736885906545,28.37200704772286,2024,passengers_per_year
+GEV,BLE,Gällivare,Borlänge,796.7789205490661,27.753491218811465,2024,passengers_per_year
+GEV,MXX,Gällivare,Mora-Siljan,754.3441684856634,17.02068914191897,2024,passengers_per_year
+GEV,SDL,Gällivare,Sundsvall,540.0604569925944,548.8836195520806,2024,passengers_per_year
+GEV,KRF,Gällivare,Höga Kusten,478.6583818513571,95.83956660688081,2024,passengers_per_year
+GEV,OER,Gällivare,Örnsköldsvik,425.6609061494982,306.10607600042897,2024,passengers_per_year
+GEV,OSD,Gällivare,Åre Östersund,529.6288469096621,777.6297042439924,2024,passengers_per_year
+GEV,EVG,Gällivare,Härjedalen,643.8647811641159,7.386841978505145,2024,passengers_per_year
+GEV,UME,Gällivare,Umeå,373.979260413206,2371.5687248629065,2024,passengers_per_year
+GEV,SFT,Gällivare,Skellefteå,282.1639783538945,967.2698950266466,2024,passengers_per_year
+GEV,LYC,Gällivare,Lycksele,308.00690726401683,105.42145579477355,2024,passengers_per_year
+GEV,VHM,Gällivare,Vilhelmina,340.4280164364266,48.40163456388164,2024,passengers_per_year
+GEV,AJR,Gällivare,Arvidsjaur,185.77117963890288,123.21682819533503,2024,passengers_per_year
+GEV,LLA,Gällivare,Luleå,188.55020709108166,4669.231706923582,2024,passengers_per_year
+GEV,KRN,Gällivare,Kiruna,77.48478230641673,989.6002985941566,2024,passengers_per_year
+GEV,PJA,Gällivare,Pajala,100.78655438131209,114.41690729198216,2024,passengers_per_year
+GEV,HMV,Gällivare,Hemavan,292.03376225428036,18.546573365135696,2024,passengers_per_year
+GEV,CPH,Gällivare,Köpenhamn,1358.4704211330202,0.08103257232400064,2024,passengers_per_year
+KRN,ARN,Kiruna,Arlanda,919.7210794533556,10522.055817160575,2024,passengers_per_year
+KRN,JKG,Kiruna,Jönköping,1169.2953734786222,43.08457617355946,2024,passengers_per_year
+KRN,VXO,Kiruna,Växjö-Kronoberg,1246.7293216774146,74.0468219781922,2024,passengers_per_year
+KRN,KLR,Kiruna,Kalmar,1258.4098862809242,58.614878731174805,2024,passengers_per_year
+KRN,VBY,Kiruna,Visby,1136.5375239365824,41.36983581303553,2024,passengers_per_year
+KRN,RNB,Kiruna,Ronneby,1312.5319837672937,71.38937721851818,2024,passengers_per_year
+KRN,KID,Kiruna,Kristianstad,1363.646683941211,25.986088208098927,2024,passengers_per_year
+KRN,AGH,Kiruna,Ängelholm,1338.2437860675464,106.50912425730121,2024,passengers_per_year
+KRN,MMX,Kiruna,Malmö,1415.8148390210376,501.2580971052947,2024,passengers_per_year
+KRN,HAD,Kiruna,Hamstad,1296.6540656432128,47.16149487946705,2024,passengers_per_year
+KRN,GOT,Kiruna,Göteborg,1204.3614264197304,718.7500247299083,2024,passengers_per_year
+KRN,THN,Kiruna,Trollhättan–Vänersborg,1131.8302056936086,72.65183104088682,2024,passengers_per_year
+KRN,TYF,Kiruna,Torsby,926.5822684717917,8.70531512873972,2024,passengers_per_year
+KRN,KSD,Kiruna,Karlstad,1004.7603728107126,64.31854193381463,2024,passengers_per_year
+KRN,HFS,Kiruna,Hägfors,930.0942584388658,7.005675793021107,2024,passengers_per_year
+KRN,ORB,Kiruna,Örebro,992.941602935017,36.45528139894134,2024,passengers_per_year
+KRN,BLE,Kiruna,Borlänge,862.0618645232834,35.685963009461524,2024,passengers_per_year
+KRN,MXX,Kiruna,Mora-Siljan,815.7046425597749,22.10119244127746,2024,passengers_per_year
+KRN,SDL,Kiruna,Sundsvall,607.5918436321506,701.8088704344043,2024,passengers_per_year
+KRN,KRF,Kiruna,Höga Kusten,546.3376121423869,122.49628132619955,2024,passengers_per_year
+KRN,OER,Kiruna,Örnsköldsvik,497.0353262666375,387.6484148801093,2024,passengers_per_year
+KRN,OSD,Kiruna,Åre Östersund,583.1745972160109,1029.665440051018,2024,passengers_per_year
+KRN,EVG,Kiruna,Härjedalen,701.9714771287885,9.67008116574515,2024,passengers_per_year
+KRN,UME,Kiruna,Umeå,448.80703556958116,2977.5039353363404,2024,passengers_per_year
+KRN,SFT,Kiruna,Skellefteå,358.69618565479675,1209.243431959434,2024,passengers_per_year
+KRN,LYC,Kiruna,Lycksele,375.9999709398503,134.63759106368116,2024,passengers_per_year
+KRN,VHM,Kiruna,Vilhelmina,397.13986736160325,63.583696569817405,2024,passengers_per_year
+KRN,AJR,Kiruna,Arvidsjaur,253.02117588085332,157.65731419833585,2024,passengers_per_year
+KRN,LLA,Kiruna,Luleå,265.7170668741696,5828.0386983940625,2024,passengers_per_year
+KRN,GEV,Kiruna,Gällivare,77.48478230641673,989.6002985941657,2024,passengers_per_year
+KRN,PJA,Kiruna,Pajala,133.4618526680252,159.61485382196338,2024,passengers_per_year
+KRN,HMV,Kiruna,Hemavan,320.9357220466684,26.118223385112934,2024,passengers_per_year
+KRN,CPH,Kiruna,Köpenhamn,1422.4441557879939,0.10453479694345702,2024,passengers_per_year
+PJA,ARN,Pajala,Arlanda,884.0534025125588,1409.795934862323,2024,passengers_per_year
+PJA,JKG,Pajala,Jönköping,1154.8563804174585,5.4743016810574545,2024,passengers_per_year
+PJA,VXO,Pajala,Växjö-Kronoberg,1225.7451501411358,9.56356167481751,2024,passengers_per_year
+PJA,KLR,Pajala,Kalmar,1226.993798182371,7.770472351884033,2024,passengers_per_year
+PJA,VBY,Pajala,Visby,1093.3035613256081,5.648777130566659,2024,passengers_per_year
+PJA,RNB,Pajala,Ronneby,1286.6158006355781,9.334728608206559,2024,passengers_per_year
+PJA,KID,Pajala,Kristianstad,1343.6367899100203,3.348083951378597,2024,passengers_per_year
+PJA,AGH,Pajala,Ängelholm,1326.8321223786038,13.430953165767272,2024,passengers_per_year
+PJA,MMX,Pajala,Malmö,1399.1960588116933,64.0375896519676,2024,passengers_per_year
+PJA,HAD,Pajala,Hamstad,1286.9183931285309,5.922265851821419,2024,passengers_per_year
+PJA,GOT,Pajala,Göteborg,1201.0723537519157,88.81348304852938,2024,passengers_per_year
+PJA,THN,Pajala,Trollhättan–Vänersborg,1131.284327249672,8.915982527262932,2024,passengers_per_year
+PJA,TYF,Pajala,Torsby,931.5541492677949,1.0536983754666782,2024,passengers_per_year
+PJA,KSD,Pajala,Karlstad,1001.5923141357812,7.94521824252855,2024,passengers_per_year
+PJA,HFS,Pajala,Hägfors,929.9340538828749,0.858922421106651,2024,passengers_per_year
+PJA,ORB,Pajala,Örebro,977.8398492898217,4.6396683752589825,2024,passengers_per_year
+PJA,BLE,Pajala,Borlänge,848.7709355733032,4.5212427793877445,2024,passengers_per_year
+PJA,MXX,Pajala,Mora-Siljan,814.0938360279791,2.7195345556875687,2024,passengers_per_year
+PJA,SDL,Pajala,Sundsvall,590.1397698333443,89.84567295519423,2024,passengers_per_year
+PJA,KRF,Pajala,Höga Kusten,529.5650693678712,15.655373244344355,2024,passengers_per_year
+PJA,OER,Pajala,Örnsköldsvik,467.95959872090714,51.090075794393016,2024,passengers_per_year
+PJA,OSD,Pajala,Åre Östersund,603.0907014185236,120.06114070287826,2024,passengers_per_year
+PJA,EVG,Pajala,Härjedalen,709.8448931675936,1.1620147236577647,2024,passengers_per_year
+PJA,UME,Pajala,Umeå,404.59397799843225,407.55481267380287,2024,passengers_per_year
+PJA,SFT,Pajala,Skellefteå,306.3097524900907,168.93574398498143,2024,passengers_per_year
+PJA,LYC,Pajala,Lycksele,363.4888279506849,17.02472470614198,2024,passengers_per_year
+PJA,VHM,Pajala,Vilhelmina,413.78347219760946,7.474896317178581,2024,passengers_per_year
+PJA,AJR,Pajala,Arvidsjaur,250.87713057644967,19.425488807276036,2024,passengers_per_year
+PJA,LLA,Pajala,Luleå,194.05420809605613,854.3962855297863,2024,passengers_per_year
+PJA,GEV,Pajala,Gällivare,100.78655438131209,114.41690729198248,2024,passengers_per_year
+PJA,KRN,Pajala,Kiruna,133.4618526680252,159.61485382196346,2024,passengers_per_year
+PJA,HMV,Pajala,Hemavan,387.78147957409885,2.708299798225647,2024,passengers_per_year
+PJA,CPH,Pajala,Köpenhamn,1410.3778676552133,0.013203578453710254,2024,passengers_per_year
+HMV,ARN,Hemavan,Arlanda,703.5071544253594,578.8943982228534,2024,passengers_per_year
+HMV,JKG,Hemavan,Jönköping,904.4655498899299,2.6767302814533194,2024,passengers_per_year
+HMV,VXO,Hemavan,Växjö-Kronoberg,990.3267034318764,4.504426333344736,2024,passengers_per_year
+HMV,KLR,Hemavan,Kalmar,1019.6108538595962,3.4121497690651514,2024,passengers_per_year
+HMV,VBY,Hemavan,Visby,924.7624214848961,2.25093602911668,2024,passengers_per_year
+HMV,RNB,Hemavan,Ronneby,1062.7420605640102,4.271564965827685,2024,passengers_per_year
+HMV,KID,Hemavan,Kristianstad,1103.1675391575416,1.5969819435028751,2024,passengers_per_year
+HMV,AGH,Hemavan,Ängelholm,1065.4037698306147,6.750975889436473,2024,passengers_per_year
+HMV,MMX,Hemavan,Malmö,1149.2358286336034,31.278314597849146,2024,passengers_per_year
+HMV,HAD,Hemavan,Hamstad,1022.1800136738384,3.0015213533952827,2024,passengers_per_year
+HMV,GOT,Hemavan,Göteborg,922.8240449440002,46.55868011637398,2024,passengers_per_year
+HMV,THN,Hemavan,Trollhättan–Vänersborg,848.1407699042018,4.731577032260869,2024,passengers_per_year
+HMV,TYF,Hemavan,Torsby,640.9326405917358,0.5697339496895195,2024,passengers_per_year
+HMV,KSD,Hemavan,Karlstad,727.8421940232927,4.118544307231555,2024,passengers_per_year
+HMV,HFS,Hemavan,Hägfors,651.3605844065268,0.4506389600866742,2024,passengers_per_year
+HMV,ORB,Hemavan,Örebro,734.8063255091294,2.227279555912836,2024,passengers_per_year
+HMV,BLE,Hemavan,Borlänge,607.1151133432428,2.1629665261673847,2024,passengers_per_year
+HMV,MXX,Hemavan,Mora-Siljan,544.1418546019347,1.3963963863036797,2024,passengers_per_year
+HMV,SDL,Hemavan,Sundsvall,385.7977458206821,39.154005230530146,2024,passengers_per_year
+HMV,KRF,Hemavan,Höga Kusten,334.9781088279408,6.658110969371979,2024,passengers_per_year
+HMV,OER,Hemavan,Örnsköldsvik,327.32482716398243,18.98656083008185,2024,passengers_per_year
+HMV,OSD,Hemavan,Åre Östersund,295.27160258583126,67.76887876820085,2024,passengers_per_year
+HMV,EVG,Hemavan,Härjedalen,422.723434395756,0.6228267957022444,2024,passengers_per_year
+HMV,UME,Hemavan,Umeå,333.104681941704,127.41543399873031,2024,passengers_per_year
+HMV,SFT,Hemavan,Skellefteå,308.0025091055902,43.98465162500585,2024,passengers_per_year
+HMV,LYC,Hemavan,Lycksele,220.69999231546018,6.3610469551704725,2024,passengers_per_year
+HMV,VHM,Hemavan,Vilhelmina,158.89103667788487,3.696311925883497,2024,passengers_per_year
+HMV,AJR,Hemavan,Arvidsjaur,190.66370373806043,5.90425829348721,2024,passengers_per_year
+HMV,LLA,Hemavan,Luleå,322.3753611314092,162.08914254695262,2024,passengers_per_year
+HMV,GEV,Hemavan,Gällivare,292.03376225428036,18.546573365135703,2024,passengers_per_year
+HMV,KRN,Hemavan,Kiruna,320.9357220466684,26.118223385112717,2024,passengers_per_year
+HMV,PJA,Hemavan,Pajala,387.78147957409885,2.7082997982256405,2024,passengers_per_year
+HMV,CPH,Hemavan,Köpenhamn,1149.18659577883,0.006632755149709483,2024,passengers_per_year
+CPH,ARN,Köpenhamn,Arlanda,553.9842135324657,52.869676341869365,2024,passengers_per_year
+CPH,JKG,Köpenhamn,Jönköping,255.7058795693968,0.8516306998538196,2024,passengers_per_year
+CPH,VXO,Köpenhamn,Växjö-Kronoberg,201.20545717610722,2.0355502599943627,2024,passengers_per_year
+CPH,KLR,Köpenhamn,Kalmar,261.2662462823697,1.427759688205435,2024,passengers_per_year
+CPH,VBY,Köpenhamn,Visby,425.6444059246529,0.4926499997713852,2024,passengers_per_year
+CPH,RNB,Köpenhamn,Ronneby,184.16316620720497,2.4141083852909544,2024,passengers_per_year
+CPH,KID,Köpenhamn,Kristianstad,104.11845345447433,1.2197437536474607,2024,passengers_per_year
+CPH,AGH,Köpenhamn,Ängelholm,84.24345190230261,4.930746454498256,2024,passengers_per_year
+CPH,MMX,Köpenhamn,Malmö,49.256367216214386,30.746501284091178,2024,passengers_per_year
+CPH,HAD,Köpenhamn,Hamstad,127.00659780916003,1.7681880812615465,2024,passengers_per_year
+CPH,GOT,Köpenhamn,Göteborg,230.60095458340052,16.513425268067476,2024,passengers_per_year
+CPH,THN,Köpenhamn,Trollhättan–Vänersborg,305.50906077434814,1.154584284286126,2024,passengers_per_year
+CPH,TYF,Köpenhamn,Torsby,509.6743575155975,0.049710576952108905,2024,passengers_per_year
+CPH,KSD,Köpenhamn,Karlstad,421.4668250678205,0.5567386949986118,2024,passengers_per_year
+CPH,HFS,Köpenhamn,Hägfors,497.88213585037556,0.04156527695386251,2024,passengers_per_year
+CPH,ORB,Köpenhamn,Örebro,432.5464840742201,0.29799845889867277,2024,passengers_per_year
+CPH,BLE,Köpenhamn,Borlänge,562.1108392721793,0.15211687762820292,2024,passengers_per_year
+CPH,MXX,Köpenhamn,Mora-Siljan,608.534882635902,0.07470672680716126,2024,passengers_per_year
+CPH,SDL,Köpenhamn,Sundsvall,820.5272010042482,0.8299262859516953,2024,passengers_per_year
+CPH,KRF,Köpenhamn,Höga Kusten,881.5547241772449,0.10670329816526922,2024,passengers_per_year
+CPH,OER,Köpenhamn,Örnsköldsvik,942.9403909648838,0.25604425366416567,2024,passengers_per_year
+CPH,OSD,Köpenhamn,Åre Östersund,854.1864659173629,1.0530791934654995,2024,passengers_per_year
+CPH,EVG,Köpenhamn,Härjedalen,727.5881343848787,0.018265412339921343,2024,passengers_per_year
+CPH,UME,Köpenhamn,Umeå,1011.4791447658513,1.468761085565636,2024,passengers_per_year
+CPH,SFT,Köpenhamn,Skellefteå,1109.4512728096036,0.3727383272223911,2024,passengers_per_year
+CPH,LYC,Köpenhamn,Lycksele,1051.1301216339755,0.0501378121450584,2024,passengers_per_year
+CPH,VHM,Köpenhamn,Vilhelmina,1027.872477744871,0.02645750190103794,2024,passengers_per_year
+CPH,AJR,Köpenhamn,Arvidsjaur,1172.699244323494,0.03185654274194729,2024,passengers_per_year
+CPH,LLA,Köpenhamn,Luleå,1223.468839928825,1.0707028171517001,2024,passengers_per_year
+CPH,GEV,Köpenhamn,Gällivare,1358.4704211330202,0.08103257232400085,2024,passengers_per_year
+CPH,KRN,Köpenhamn,Kiruna,1422.4441557879939,0.10453479694345662,2024,passengers_per_year
+CPH,PJA,Köpenhamn,Pajala,1410.3778676552133,0.013203578453710303,2024,passengers_per_year
+CPH,HMV,Köpenhamn,Hemavan,1149.18659577883,0.0066327551497095145,2024,passengers_per_year
