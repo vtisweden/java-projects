@@ -31,7 +31,7 @@ public class MHStateLogger<X> extends MHAbstractStateProcessor<X> {
 	}
 
 	@Override
-	public void processStateHook(X state) {
+	public void processStateHook(X state, double logWeight) {
 		System.out.println("MH iteration " + super.iteration());
 		System.out.println("  state     = " + state);
 	}

@@ -51,7 +51,7 @@ class PlotAgeByActivityHistogram extends MHAbstractStateProcessor<MultiRoundTrip
 	}
 
 	@Override
-	public void processStateHook(MultiRoundTrip<GridNodeWithActivity> multiRoundTrip) {
+	public void processStateHook(MultiRoundTrip<GridNodeWithActivity> multiRoundTrip, double logWeight) {
 		for (var roundTrip : multiRoundTrip) {
 
 			List<Episode> episodes = roundTrip.getEpisodes();

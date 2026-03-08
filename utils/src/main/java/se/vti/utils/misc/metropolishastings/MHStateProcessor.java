@@ -24,13 +24,17 @@ package se.vti.utils.misc.metropolishastings;
  * 
  * @author GunnarF
  * 
- * @param <S>
+ * @param <X>
  */
-public interface MHStateProcessor<S> {
+public interface MHStateProcessor<X> {
 
-	public void start();
+	void start();
 
-	public void processState(final S state);
+	void processState(X state);
+	
+	default void processState(X state, double logWeight) {
+		processState(state);
+	}
 
 	public void end();
 

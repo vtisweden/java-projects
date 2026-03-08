@@ -53,9 +53,14 @@ public abstract class MHAbstractStateProcessor<X> implements MHStateProcessor<X>
 	}
 
 	@Override
-	public final void processState(X state) {
+	public void processState(X state) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public final void processState(X state, double logWeight) {
 		if ((this.iteration >= this.burnInIterations) && (this.iteration % this.samplingInterval == 0)) {
-			this.processStateHook(state);
+			this.processStateHook(state, logWeight);
 			this.samples++;
 		}
 		this.iteration++;
@@ -65,5 +70,5 @@ public abstract class MHAbstractStateProcessor<X> implements MHStateProcessor<X>
 	public void end() {
 	}
 
-	public abstract void processStateHook(X state);
+	public abstract void processStateHook(X state, double logWeight);
 }

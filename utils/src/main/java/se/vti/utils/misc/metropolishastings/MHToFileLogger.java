@@ -22,8 +22,8 @@ package se.vti.utils.misc.metropolishastings;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * 
@@ -73,8 +73,8 @@ public class MHToFileLogger<X> extends MHAbstractStateProcessor<X> implements MH
 	}
 
 	@Override
-	public final void processStateHook(X state) {
-		String dataLine = createDataLine(state);
+	public final void processStateHook(X state, double logWeight) {
+		String dataLine = createDataLine(state, logWeight);
 		if (dataLine != null) {
 			this.writer.println(dataLine);
 			if (this.flushEachLine) {
@@ -84,11 +84,11 @@ public class MHToFileLogger<X> extends MHAbstractStateProcessor<X> implements MH
 	}
 
 	public String createHeaderLine() {
-		return "Iteration\tTimestamp";
+		return "Iteration\tTimestamp\tLogWeight";
 	}
 
-	public String createDataLine(X state) {
-		return String.format("%d\t%2$tY-%2$tm-%2$td_%2$tH:%2$tM:%2$tS", this.iteration(),
-				new Date(System.currentTimeMillis()));
+	public String createDataLine(X state, double logWeight) {
+		return String.format(Locale.US, "%d\t%2$tY-%2$tm-%2$td_%2$tH:%2$tM:%2$tS\t%3$f", this.iteration(),
+				new Date(System.currentTimeMillis()), logWeight);
 	}
 }

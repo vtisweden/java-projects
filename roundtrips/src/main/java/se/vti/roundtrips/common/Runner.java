@@ -20,18 +20,22 @@
 package se.vti.roundtrips.common;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
+import se.vti.roundtrips.samplingweights.priors.IndividualBinomialPrior;
 import se.vti.roundtrips.samplingweights.priors.PopulationBinomialPrior;
 import se.vti.roundtrips.samplingweights.priors.Prior;
-import se.vti.roundtrips.samplingweights.priors.IndividualBinomialPrior;
 import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
 import se.vti.utils.misc.metropolishastings.MHBatchBasedStatisticEstimator;
+import se.vti.utils.misc.metropolishastings.MHSampleLogger;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 import se.vti.utils.misc.metropolishastings.MHStatisticsToFileLogger;
 import se.vti.utils.misc.metropolishastings.MHWeight;
@@ -51,10 +55,14 @@ public class Runner<N extends Node> {
 	private MHWeight<MultiRoundTrip<N>> prior = null;
 
 	private List<MHBatchBasedStatisticEstimator<MultiRoundTrip<N>>> statisticEstimators = new ArrayList<>();
+	private Map<String, Function<MultiRoundTrip<N>, Double>> sampleExtractors = new LinkedHashMap<>();
 	private List<MHStateProcessor<MultiRoundTrip<N>>> stateProcessors = new ArrayList<>();
 
 	private long weightsLogInterval = 1000l;
 	private String weightsLogFile = "./logWeights.log";
+
+	private long sampleLogInterval = 1000l;
+	private String samplesLogFile = "./samples.log";
 
 	private long statisticsLogInterval = 1000l;
 	private String statisticsLogFile = "./statistics.log";
@@ -100,9 +108,8 @@ public class Runner<N extends Node> {
 
 	private void checkForNotPrior(MHWeight<?> weight) {
 		if (weight instanceof Prior) {
-			throw new RuntimeException(
-					weight.getClass().getSimpleName() + " implements " + Prior.class.getSimpleName()
-							+ ". Cannot be added as a sampling weight, must be set as a prior.");
+			throw new RuntimeException(weight.getClass().getSimpleName() + " implements " + Prior.class.getSimpleName()
+					+ ". Cannot be added as a sampling weight, must be set as a prior.");
 		}
 	}
 
@@ -130,6 +137,11 @@ public class Runner<N extends Node> {
 
 	public Runner<N> addStatisticEstimator(MHBatchBasedStatisticEstimator<MultiRoundTrip<N>> statisticEstimator) {
 		this.statisticEstimators.add(statisticEstimator);
+		return this;
+	}
+
+	public Runner<N> addSampleExtractor(String name, Function<MultiRoundTrip<N>, Double> function) {
+		this.sampleExtractors.put(name, function);
 		return this;
 	}
 
@@ -181,7 +193,7 @@ public class Runner<N extends Node> {
 				.defineError(() -> (this.numberOfIterations == null), "Undefined parameter: numberOfIterations")
 				.defineError(() -> (this.numberOfIterations != null && this.numberOfIterations < 1),
 						"numberOfIterations smaller than one");
-		
+
 		if (checker.check()) {
 			this.weights.add(this.prior);
 			var algo = new MHAlgorithm<MultiRoundTrip<N>>(new MultiRoundTripProposal<N>(this.scenario), this.weights,
@@ -199,6 +211,15 @@ public class Runner<N extends Node> {
 					algo.addStateProcessor(statisticEstimator);
 				}
 			}
+
+			if ((this.samplesLogFile != null) && (this.sampleExtractors.size() > 0)) {
+				var samplesLogger = new MHSampleLogger<MultiRoundTrip<N>>(this.sampleLogInterval, this.samplesLogFile);
+				algo.addStateProcessor(samplesLogger);
+				for (var entry : this.sampleExtractors.entrySet()) {
+					samplesLogger.add(entry.getKey(), entry.getValue());
+				}
+			}
+
 			this.stateProcessors.stream().forEach(sp -> algo.addStateProcessor(sp));
 			algo.setInitialState(this.initialState);
 			algo.setMsgInterval(this.messageInterval);

@@ -50,7 +50,7 @@ class PlotTimeUseHistogram extends MHAbstractStateProcessor<RoundTrip<GridNodeWi
 	}
 
 	@Override
-	public void processStateHook(RoundTrip<GridNodeWithActivity> roundTrip) {
+	public void processStateHook(RoundTrip<GridNodeWithActivity> roundTrip, double logWeight) {
 		List<Episode> episodes = roundTrip.getEpisodes();
 		for (int i = 0; i < episodes.size(); i += 2) {
 			var stay = (StayEpisode<GridNodeWithActivity>) episodes.get(i);

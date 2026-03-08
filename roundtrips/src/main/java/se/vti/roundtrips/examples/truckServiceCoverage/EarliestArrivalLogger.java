@@ -50,7 +50,7 @@ class EarliestArrivalLogger extends MHToFileLogger<MultiRoundTrip<GridNode>> {
 	}
 
 	@Override
-	public String createDataLine(MultiRoundTrip<GridNode> multiRoundTrip) {
+	public String createDataLine(MultiRoundTrip<GridNode> multiRoundTrip, double logWeight) {
 		double[] earliestArrival_h = new double[2 * (this.gridSize - 1)];
 		Arrays.fill(earliestArrival_h, Double.POSITIVE_INFINITY);
 		for (var roundTrip : multiRoundTrip) {
