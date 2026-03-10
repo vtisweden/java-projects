@@ -33,15 +33,13 @@ import se.vti.utils.misc.metropolishastings.MHAbstractStateProcessor;
  */
 public class FleetPerformanceLogger extends MHAbstractStateProcessor<MultiRoundTrip<NodeWithCoords>> {
 
-	final long[] departures = new long[24];
-
 	private final Map<NodeWithCoords, Double> node2servedDemandSum_pax = new LinkedHashMap<>();
 
 	double servedDemand_paxKm = 0.0;
 	double emptySeatsSum_npaxKm = 0.0;
 	double totalDemandSum_paxKm = 0.0;
 	double numberOfUsedPlanesSum = 0.0;
-	
+
 	public FleetPerformanceLogger(long burnInIterations, long samplingInterval) {
 		super(burnInIterations, samplingInterval);
 	}
@@ -53,15 +51,6 @@ public class FleetPerformanceLogger extends MHAbstractStateProcessor<MultiRoundT
 
 	@Override
 	public void processStateHook(MultiRoundTrip<NodeWithCoords> fleet, double logWeight) {
-		for (var plane : fleet) {
-			var episodes = plane.getEpisodes();
-			for (int i = 1; i < episodes.size(); i += 2) {
-				var move = (MoveEpisode<?>) episodes.get(i);
-				if (move.getOrigin() != move.getDestination()) {
-					this.departures[(int) (move.getEndTime_h() - move.getDuration_h())]++;
-				}
-			}
-		}
 		var summary = fleet.getSummary(PlaneUsageSummary.class);
 		for (var nodeAndServedDemand : summary.node2servedDemand_pax.entrySet()) {
 			this.node2servedDemandSum_pax.compute(nodeAndServedDemand.getKey(),

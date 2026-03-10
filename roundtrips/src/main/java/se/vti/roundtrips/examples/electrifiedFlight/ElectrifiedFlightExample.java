@@ -22,10 +22,10 @@ package se.vti.roundtrips.examples.electrifiedFlight;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -45,6 +45,7 @@ import se.vti.roundtrips.simulator.electrified.BatteryWrapAroundSimulator;
 import se.vti.roundtrips.simulator.electrified.ElectrifiedMoveSimulator;
 import se.vti.roundtrips.simulator.electrified.ElectrifiedStaySimulator;
 import se.vti.roundtrips.simulator.electrified.StrictlyNonNegativeBatteryCharge;
+import se.vti.utils.misc.Tuple;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
@@ -54,15 +55,26 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class ElectrifiedFlightExample {
 
-	static final Logger log = LogManager.getLogger(ElectrifiedFlightExample.class);
-	static final Scenario<NodeWithCoords> scenario;
-	static {
-		double timeBinSize_h = 1.0 / 1;
-		int numberOfTimeBins = 24 * 1;
+	static Logger log = LogManager.getLogger(ElectrifiedFlightExample.class);
 
+	static double timeBinSize_h = 1.0;
+	static int numberOfTimeBins = 24;
+
+	static double speed_km_h = 300.0;
+	static double batteryCapacity_kWh = 600;
+	static double chargingRate_kW = 600;
+	static double cruiseConsumption_kWh_km = 1.5;
+	static double chargeWraparoundTolerance_kWh = 0.01 * batteryCapacity_kWh;
+
+	static int planeSize_pax = 18;
+	static int fleetSize = 200;
+
+	static final Scenario<NodeWithCoords> scenario;
+	static final Map<Tuple<NodeWithCoords, NodeWithCoords>, Double> od2Demand_pax;
+	static final Map<NodeWithCoords, Double> node2Demand_paxKm;
+	static {
 		var scenarioBuilder = new ScenarioBuilder<NodeWithCoords>().setTimeBinSize_h(timeBinSize_h)
 				.setNumberOfTimeBins(numberOfTimeBins);
-
 		/*
 		 * Load airports table.
 		 */
@@ -75,7 +87,6 @@ public class ElectrifiedFlightExample {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-
 		/*
 		 * Add airports to the scenario.
 		 */
@@ -86,42 +97,18 @@ public class ElectrifiedFlightExample {
 			log.info("Loading airport: " + code + " (" + x_km + ", " + y_km + ")");
 			scenarioBuilder.addNode(new NodeWithCoords(code, x_km, y_km));
 		}
-
 		/*
 		 * Compute inter-airport distances and flight times.
 		 */
-		double speed_km_h = 300.0;
 		scenarioBuilder.setMoveDistanceFunction((from, to) -> from.computeEuclideanDistance(to));
 		scenarioBuilder.setMoveTimeFunction((from, to) -> from.computeEuclideanDistance(to) / speed_km_h);
-
 		/*
-		 * Scenario is complete. Now create runner for computing the Monte Carlo
-		 * analysis.
+		 * Create scenario instance.
 		 */
 		scenario = scenarioBuilder.build();
-	}
-
-	static FleetPerformanceLogger run(double servedDemandShareWeight, double emptySeatShareWeight) {
-		var runner = new Runner<>(scenario).setUniformPrior()
-				.addIndividualWeight(new StrictlyPeriodicSchedule<NodeWithCoords>(24.0))
-				.setNumberOfIterations(totalIterations);
 
 		/*
-		 * Configure electrification technology.
-		 */
-		double batteryCapacity_kWh = 600;
-		double chargingRate_kW = 600;
-		double cruiseConsumption_kWh_km = 1.5;
-		double chargeWraparoundTolerance_kWh = 0.01 * batteryCapacity_kWh;
-		var simulator = (DefaultSimulator<NodeWithCoords>) scenario.getOrCreateSimulator();
-		simulator.setStaySimulator(new ElectrifiedStaySimulator<>(scenario).setChargeAnywhere(true));
-		simulator.setMoveSimulator(new ElectrifiedMoveSimulator<>(scenario));
-		simulator.setWrapAroundSimulator(new BatteryWrapAroundSimulator(batteryCapacity_kWh, chargingRate_kW,
-				cruiseConsumption_kWh_km, chargeWraparoundTolerance_kWh));
-		runner.addIndividualWeight(new StrictlyNonNegativeBatteryCharge<>());
-
-		/*
-		 * Load demand table.
+		 * Load demand.
 		 */
 		CSVParser demandParser;
 		try {
@@ -132,24 +119,49 @@ public class ElectrifiedFlightExample {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		double earliestTravel_h = 6.0;
-		double latestTravel_h = 22.0;
-		int planeSize_pax = 18;
-		int fleetSize = 200;
-		double demandSum = 0;
-		PlaneUsageSummary planeUsage = new PlaneUsageSummary(scenario, fleetSize, planeSize_pax, earliestTravel_h,
-				latestTravel_h);
+		od2Demand_pax = new LinkedHashMap<>();
+		node2Demand_paxKm = new LinkedHashMap<>();
 		for (CSVRecord r : demandParser) {
 			var from = scenario.getNode(r.get("from_iata"));
 			var to = scenario.getNode(r.get("to_iata"));
-			int demand_pax_day = (int) Math.round(Double.parseDouble(r.get("flow")) / 365.0);
+			double pax = Double.parseDouble(r.get("flow")) / 365.0;
 			if (from.computeEuclideanDistance(to) * cruiseConsumption_kWh_km <= (1.0 - 1e-8) * batteryCapacity_kWh) {
-				log.info(from + " -> " + to + ": " + demand_pax_day + " passengers / day");
-				planeUsage.setDemand(from, to, demand_pax_day);
-				demandSum += demand_pax_day;
+				od2Demand_pax.put(new Tuple<>(from, to), pax);
+				double paxKm = pax * from.computeEuclideanDistance(to);
+				node2Demand_paxKm.compute(from, (n, s) -> (s == null) ? paxKm : (s + paxKm));
+				node2Demand_paxKm.compute(to, (n, s) -> (s == null) ? paxKm : (s + paxKm));
 			}
 		}
-		log.info("total demand = " + demandSum + " pax per day");
+	}
+
+	static FleetPerformanceLogger run(double servedDemandShareWeight, double emptySeatShareWeight) {
+
+		var runner = new Runner<>(scenario).setUniformPrior()
+				.addIndividualWeight(new StrictlyPeriodicSchedule<NodeWithCoords>(24.0))
+				.setNumberOfIterations(totalIterations);
+
+		/*
+		 * Configure electrification technology.
+		 */
+		var simulator = (DefaultSimulator<NodeWithCoords>) scenario.getOrCreateSimulator();
+		simulator.setStaySimulator(new ElectrifiedStaySimulator<>(scenario).setChargeAnywhere(true));
+		simulator.setMoveSimulator(new ElectrifiedMoveSimulator<>(scenario));
+		simulator.setWrapAroundSimulator(new BatteryWrapAroundSimulator(batteryCapacity_kWh, chargingRate_kW,
+				cruiseConsumption_kWh_km, chargeWraparoundTolerance_kWh));
+		runner.addIndividualWeight(new StrictlyNonNegativeBatteryCharge<>());
+
+		/*
+		 * Configure demand analysis.
+		 */
+		var planeUsage = new PlaneUsageSummary(scenario, fleetSize, planeSize_pax);
+		for (var odEntry : od2Demand_pax.entrySet()) {
+			var od = odEntry.getKey();
+			var from = od.getA();
+			var to = od.getB();
+			if (from.computeEuclideanDistance(to) * cruiseConsumption_kWh_km <= (1.0 - 1e-8) * batteryCapacity_kWh) {
+				planeUsage.setDemand(from, to, odEntry.getValue());
+			}
+		}
 
 		/*
 		 * Create an "all grounded" initial state.
@@ -163,7 +175,7 @@ public class ElectrifiedFlightExample {
 		runner.setInitialState(initialFlightPattern);
 
 		/*
-		 * Number of active planes.
+		 * Objective function: reduce empty seats, increase served demand.
 		 */
 		runner.addPopulationWeight(new MHWeight<MultiRoundTrip<NodeWithCoords>>() {
 
@@ -182,69 +194,48 @@ public class ElectrifiedFlightExample {
 		});
 
 		/*
-		 * Logging
+		 * Configure logging.
 		 */
-		runner.addSampleExtractor("NumberOfActivePlanes", fleet -> {
-			double active = 0;
-			for (var plane : fleet) {
-				if (plane.size() > 1) {
-					active++;
-				}
-			}
-			return active;
-		});
-
-		runner.addSampleExtractor("servedDemand_paxKm", fleet -> {
-			return fleet.getSummary(PlaneUsageSummary.class).servedDemand_paxKm;
-		});
-		runner.addSampleExtractor("emptySeat_npaxKm", fleet -> {
-			return fleet.getSummary(PlaneUsageSummary.class).emptySeats_npaxKm;
-		});
-		runner.addSampleExtractor("totalDemand_paxKm", fleet -> {
-			return fleet.getSummary(PlaneUsageSummary.class).totalDemand_paxKm;
-		});
-
 		var fleetPerformanceLogger = new FleetPerformanceLogger(burnInIterations, samplingInterval);
 		runner.addStateProcessor(fleetPerformanceLogger);
+
+		/*
+		 * Run experiment.
+		 */
 		runner.run();
 		return fleetPerformanceLogger;
 	}
 
-	static final long burnInIterations = 1_000_000;
+	static final long burnInIterations = 100_000;
 	static final long samplingInterval = 10_000;
-	static final long totalIterations = 11_000_000;
+	static final long totalIterations = 1_100_000;
 
 	public static void main(String[] args) throws Exception {
 
-		PrintWriter timeProfileWriter = new PrintWriter("timeProfiles.log");
 		PrintWriter nodeUsageWriter = new PrintWriter("nodeUsages.log");
-
-		timeProfileWriter.println("servedDemandShareWeight\temptySeatShareWeight\t"
-				+ IntStream.range(0, 24).boxed().map(h -> "" + h).collect(Collectors.joining("\t")));
 		nodeUsageWriter.println(
-				"servedDemandShareWeight\temptySeatShareWeight\tnumberOfUsedPlanesSum\tservedDemand_paxKm\temptySeatsSum_npaxKm\ttotalDemandSum_paxKm\t"
+				"\tservedDemandShareWeight\temptySeatShareWeight\tnumberOfUsedPlanesSum\tservedDemand_paxKm\temptySeatsSum_npaxKm\t"
 						+ scenario.getNodesView().stream().map(n -> n.getBasicName())
 								.collect(Collectors.joining("\t")));
+		nodeUsageWriter.println("TotalDemand(paxKm)\t\t\t\t\t\t" + scenario.getNodesView().stream()
+				.map(n -> "" + node2Demand_paxKm.getOrDefault(n, 0.0)).collect(Collectors.joining("\t")));
+		nodeUsageWriter.flush();
 
-		var range = List.of(0, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096);
-		for (double servedDemandShareWeight : range) {
-			for (double emptySeatShareWeight : range) {
+		// var range = List.of(0, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096);
+		var servedDemandShareRange = List.of(0, 400, 800);
+		var emptySeatShareRange = List.of(-200, 200, 600, 1000);
+		for (double servedDemandShareWeight : servedDemandShareRange) {
+			for (double emptySeatShareWeight : emptySeatShareRange) {
 				var logger = run(servedDemandShareWeight, emptySeatShareWeight);
-				timeProfileWriter.println(servedDemandShareWeight + "\t" + emptySeatShareWeight + "\t"
-						+ Arrays.stream(logger.departures).boxed().map(d -> "" + d).collect(Collectors.joining("\t")));
-				timeProfileWriter.flush();
-				nodeUsageWriter.println(servedDemandShareWeight + "\t" + emptySeatShareWeight + "\t"
+				nodeUsageWriter.println("\t" + servedDemandShareWeight + "\t" + emptySeatShareWeight + "\t"
 						+ (logger.numberOfUsedPlanesSum / logger.samples()) + "\t"
 						+ (logger.servedDemand_paxKm / logger.samples()) + "\t"
 						+ (logger.emptySeatsSum_npaxKm / logger.samples()) + "\t"
-						+ (logger.totalDemandSum_paxKm / logger.samples()) + "\t"
 						+ logger.getAvgServedDemand_pax(scenario.getNodesView()).stream().map(x -> "" + x)
 								.collect(Collectors.joining("\t")));
 				nodeUsageWriter.flush();
 			}
 		}
-
-		timeProfileWriter.close();
 		nodeUsageWriter.close();
 
 		System.out.println("DONE");
