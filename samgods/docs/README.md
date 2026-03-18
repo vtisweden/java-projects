@@ -1,11 +1,12 @@
 # se.vti.samgods
 
-*2025-08-27  This documentation is work in progress. Current version is readable but not exhaustive.*
+The program se.vti.samgods ("VTI-Samgods") approximates and extends (primarily the logistics module of) the Swedish national freight model system Samgods ("TRV-Samgods"). The national model is maintained and documented by Trafikverket, see [here](https://bransch.trafikverket.se/tjanster/system-och-verktyg/Prognos--och-analysverktyg/Samgods/).
 
+Published under GPL, see [LICENSE](LICENSE), [COPYING](COPYING), [WARRANTY](WARRANTY) files.
 
 ## Outline 
 
-The program se.vti.samgods ("VTI-Samgods") approximates and extends (primarily the logistics module of) the Swedish national freight model system Samgods ("TRV-Samgods"). The national model is maintained and documented by Trafikverket, see [here](https://bransch.trafikverket.se/tjanster/system-och-verktyg/Prognos--och-analysverktyg/Samgods/).
+*2025-08-27  This documentation is work in progress. Current version is readable but not exhaustive.*
 
 The purpose of VTI-Samgods is to enable lightweight experimentation with and further developments of TRV-Samgods in an open and flexible programming environment. VTI-Samgods uses ony a subset of all parameters available in TRV-Samgods. VTI-Samgods does not aim to reproduce Sweden's current freight transport system at the greatest possible level of detail; focus is more on the underlying models and their possible refinements.
 
