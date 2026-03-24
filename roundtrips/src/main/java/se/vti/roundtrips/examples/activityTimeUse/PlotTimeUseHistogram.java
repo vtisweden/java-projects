@@ -26,7 +26,6 @@ import java.util.Map;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.simulator.Episode;
-import se.vti.roundtrips.simulator.MoveEpisode;
 import se.vti.roundtrips.simulator.StayEpisode;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.Tuple;
@@ -50,7 +49,7 @@ class PlotTimeUseHistogram extends MHAbstractStateProcessor<RoundTrip<GridNodeWi
 	}
 
 	@Override
-	public void processStateHook(RoundTrip<GridNodeWithActivity> roundTrip) {
+	public void processStateHook(RoundTrip<GridNodeWithActivity> roundTrip, double logWeight) {
 		List<Episode> episodes = roundTrip.getEpisodes();
 		for (int i = 0; i < episodes.size(); i += 2) {
 			var stay = (StayEpisode<GridNodeWithActivity>) episodes.get(i);

@@ -51,5 +51,12 @@ public class NodeWithCoords extends Node {
 	public NodeWithCoords(String basicName, double x, double y, Enum<?>... labels) {
 		this(basicName, x, y, 0.0, labels);
 	}
+	
+	public double computeEuclideanDistance(NodeWithCoords other) {
+		double deltaX = this.x - other.x;
+		double deltaY = this.y - other.y;
+		double deltaZ = this.z - other.z;
+		return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+	}
 
 }

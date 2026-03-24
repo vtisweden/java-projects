@@ -151,7 +151,7 @@ public class MHAlgorithm<S extends Object> {
 		this.lastCompTime_ms += System.currentTimeMillis() - tick_ms;
 
 		for (MHStateProcessor<S> processor : this.stateProcessors) {
-			processor.processState(currentState.getState());
+			processor.processState(currentState.getState(), currentState.getLogWeight());
 		}
 
 		/*
@@ -183,7 +183,7 @@ public class MHAlgorithm<S extends Object> {
 			this.lastCompTime_ms += System.currentTimeMillis() - tick_ms;
 
 			for (MHStateProcessor<S> processor : this.stateProcessors) {
-				processor.processState(currentState.getState());
+				processor.processState(currentState.getState(), currentState.getLogWeight());
 			}
 		}
 

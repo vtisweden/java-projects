@@ -26,21 +26,21 @@ import se.vti.roundtrips.single.RoundTrip;
  * 
  * @author GunnarF
  *
- * @param <L> the location type
+ * @param <N> the location type
  * 
  */
-public interface MultiRoundTripSummary<L extends Node> {
+public interface MultiRoundTripSummary<N extends Node> {
 
 	void clear();
 
-	void update(int roundTripIndex, RoundTrip<L> oldRoundTrip, RoundTrip<L> newRoundTrip);
+	void update(int roundTripIndex, RoundTrip<N> oldRoundTrip, RoundTrip<N> newRoundTrip);
 
-	default void update(RoundTrip<L> newRoundTrip, MultiRoundTrip<L> allRoundTrips) {
+	default void update(RoundTrip<N> newRoundTrip, MultiRoundTrip<N> allRoundTrips) {
 		int roundTripIndex = newRoundTrip.getIndex();
 		update(roundTripIndex, allRoundTrips.getRoundTrip(roundTripIndex), newRoundTrip);
 	}
 
 
-	MultiRoundTripSummary<L> clone();
+	MultiRoundTripSummary<N> clone();
 
 }

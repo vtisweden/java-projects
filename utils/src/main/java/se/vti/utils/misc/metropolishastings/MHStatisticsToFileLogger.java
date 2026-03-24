@@ -51,8 +51,8 @@ public class MHStatisticsToFileLogger<X> extends MHToFileLogger<X> {
 	}
 
 	@Override
-	public String createDataLine(X state) {
-		StringBuffer result = new StringBuffer(super.createDataLine(state));
+	public String createDataLine(X state, double logWeight) {
+		StringBuffer result = new StringBuffer(super.createDataLine(state, logWeight));
 		boolean foundData = false;
 		for (var statisticEstimator : this.statisticsEstimators) {
 			Double mean = statisticEstimator.getMeanValue();

@@ -32,23 +32,32 @@ import se.vti.roundtrips.single.RoundTrip;
 public class ElectrifiedStaySimulator<N extends Node> extends DefaultStaySimulator<N> {
 
 	private final ChargingUtils utils = new ChargingUtils();
-	
+	private boolean chargeAnywhere = false;
+
 	public ElectrifiedStaySimulator(Scenario<N> scenario) {
 		super(scenario);
 	}
 
+	public ElectrifiedStaySimulator<N> setChargeAnywhere(boolean chargeAnywhere) {
+		this.chargeAnywhere = chargeAnywhere;
+		return this;
+	}
+
 	public SimulatorState computeFinalState(RoundTrip<N> roundTrip, StayEpisode<N> parking) {
-		BatteryState initialState = (BatteryState) parking.getInitialState();		
+		BatteryState initialState = (BatteryState) parking.getInitialState();
 		BatteryState finalState = initialState.clone();
-		
-		Charging chargingYesNo = this.utils.extractCharging(parking);
-		assert(chargingYesNo != null);
-		
-		if (chargingYesNo == Charging.YES) {
+
+		if (this.chargeAnywhere) {
 			finalState.charge(parking.getDuration_h());
-		}		
+		} else {
+			Charging chargingYesNo = this.utils.extractCharging(parking);
+			assert (chargingYesNo != null);
+			if (chargingYesNo == Charging.YES) {
+				finalState.charge(parking.getDuration_h());
+			}
+		}
+
 		return finalState;
 	}
-	
-	
+
 }

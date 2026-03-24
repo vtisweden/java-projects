@@ -42,7 +42,7 @@ class MissionLogger extends MHToFileLogger<MultiRoundTrip<GridNode>> {
 	}
 
 	@Override
-	public String createDataLine(MultiRoundTrip<GridNode> state) {
+	public String createDataLine(MultiRoundTrip<GridNode> state, double logWeight) {
 		int goingThroughDepot = 0;
 		int neverAtDepot = 0;
 		int unused = 0;

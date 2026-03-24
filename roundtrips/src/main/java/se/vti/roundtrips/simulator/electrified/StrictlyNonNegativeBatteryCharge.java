@@ -1,5 +1,5 @@
 /**
- * se.vti.utils
+ * se.vti.skellefeaV2X
  * 
  * Copyright (C) 2023 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -17,25 +17,38 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.utils.misc.metropolishastings;
+package se.vti.roundtrips.simulator.electrified;
+
+import java.util.List;
+
+import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.simulator.Episode;
+import se.vti.roundtrips.simulator.MoveEpisode;
+import se.vti.roundtrips.single.RoundTrip;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
-  * Based on floetteroed.utilities.math.metropolishastings package.
  * 
  * @author GunnarF
- * 
- * @param <X>
+ *
  */
-public interface MHStateProcessor<X> {
+public class StrictlyNonNegativeBatteryCharge<N extends Node> implements MHWeight<RoundTrip<N>> {
 
-	void start();
-
-	void processState(X state);
-	
-	default void processState(X state, double logWeight) {
-		processState(state);
+	public StrictlyNonNegativeBatteryCharge() {
 	}
 
-	public void end();
+	@Override
+	public double logWeight(RoundTrip<N> roundTrip) {
+		if (roundTrip.size() >= 2) {
+			List<Episode> episodes = roundTrip.getEpisodes();
+			for (int i = 1; i < episodes.size(); i += 2) {
+				var batteryState = (BatteryState) ((MoveEpisode<?>) episodes.get(i)).getFinalState();
+				if (batteryState.getCharge_kWh() < 0.0) {
+					return Double.NEGATIVE_INFINITY;
+				}
+			}
+		}
+		return 0.0;
+	}
 
 }

@@ -44,8 +44,8 @@ public class MHWeightsToFileLogger<X> extends MHToFileLogger<X> {
 	}
 
 	@Override
-	public String createDataLine(X state) {
-		StringBuffer result = new StringBuffer(super.createDataLine(state));
+	public String createDataLine(X state, double logWeight) {
+		StringBuffer result = new StringBuffer(super.createDataLine(state, logWeight));
 		for (MHWeight<X> samplingWeight : this.samplingWeights.getComponentsView()) {
 			result.append("\t");
 			result.append(samplingWeight.logWeight(state));
