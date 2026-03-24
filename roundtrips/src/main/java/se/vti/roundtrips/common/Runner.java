@@ -189,6 +189,10 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
+	public MHWeightContainer<MultiRoundTrip<N>> getWeights() {
+		return this.weights;
+	}
+
 	// -------------------- RUNNING --------------------
 
 	public void run() {
