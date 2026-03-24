@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.apache.logging.log4j.LogManager;
+
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
@@ -237,10 +239,10 @@ public class Runner<N extends Node> {
 				try {
 					this.postRunHooks.get(ii).run(this.postRunHookArgs.get(ii));
 				} catch (Exception e) {
-					System.out.println(String.format("Post-run hook %d failed: %s", ii, e.getMessage(), e));
+					LogManager.getLogger(this.getClass()).error(String.format("Post-run hook %d failed: %s", ii, e.getMessage()), e);
 				}
 			}
-						
+
 		} else {
 			throw new RuntimeException(checker.getRecentErrors());
 		}
