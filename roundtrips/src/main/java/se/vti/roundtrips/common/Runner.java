@@ -57,6 +57,8 @@ public class Runner<N extends Node> {
 	private List<MHBatchBasedStatisticEstimator<MultiRoundTrip<N>>> statisticEstimators = new ArrayList<>();
 	private Map<String, Function<MultiRoundTrip<N>, Double>> sampleExtractors = new LinkedHashMap<>();
 	private List<MHStateProcessor<MultiRoundTrip<N>>> stateProcessors = new ArrayList<>();
+	private List<Hook> postRunHooks = new ArrayList<>();
+	private List<String[]> postRunHookArgs = new ArrayList<>();
 
 	private long weightsLogInterval = 1000l;
 	private String weightsLogFile = "./logWeights.log";
@@ -152,6 +154,12 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
+	public Runner<N> addPostRunHook(Hook hook, String... args) {
+		this.postRunHooks.add(hook); 
+		this.postRunHookArgs.add(args == null ? new String[0] : args);
+		return this; 
+	}
+
 	public Runner<N> setInitialState(MultiRoundTrip<N> initialState) {
 		this.initialState = initialState;
 		return this;
@@ -224,6 +232,15 @@ public class Runner<N extends Node> {
 			algo.setInitialState(this.initialState);
 			algo.setMsgInterval(this.messageInterval);
 			algo.run(this.numberOfIterations);
+
+			for (int ii = 0; ii < this.postRunHooks.size(); ii++) {
+				try {
+					this.postRunHooks.get(ii).run(this.postRunHookArgs.get(ii));
+				} catch (Exception e) {
+					System.out.println(String.format("Post-run hook %d failed: %s", ii, e.getMessage(), e));
+				}
+			}
+						
 		} else {
 			throw new RuntimeException(checker.getRecentErrors());
 		}
