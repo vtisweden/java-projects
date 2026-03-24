@@ -66,4 +66,15 @@ public class IntervalUtils {
 		}
 		return result_h;
 	}
+
+	// For completeness
+	public double computeUnion_h(List<Tuple<Double, Double>> intervals1, List<Tuple<Double, Double>> intervals2) {
+		double len1 = 0.0; 
+		double len2 = 0.0; 
+
+		for (var t : intervals1) len1 += t.getB() - t.getA();
+		for (var t : intervals2) len2 += t.getB() - t.getA();
+		double overlap = computeOverlap_h(intervals1, intervals2);
+		return len1 + len2 - overlap;
+		}
 }
