@@ -1,6 +1,6 @@
 package se.vti.roundtrips.common;
 
 @FunctionalInterface
-public interface Hook {
-	void run(String... args);
+public interface Hook<S> {
+	void run(S state, String... args);
 }
