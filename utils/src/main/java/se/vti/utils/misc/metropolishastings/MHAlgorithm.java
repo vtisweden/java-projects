@@ -23,82 +23,61 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import se.vti.utils.misc.metropolishastings.terminationcriteria.FixedNumberOfIterationsTerminationCriterion;
+import se.vti.utils.misc.metropolishastings.terminationcriteria.TerminationCriterion;
+
 /**
  * 
  * Based on floetteroed.utilities.math.metropolishastings package.
  * 
  * @author GunnarF
  * 
- * @param <S>
+ * @param <X>
  */
-public class MHAlgorithm<S extends Object> {
+public class MHAlgorithm<X extends Object> {
 
 	// -------------------- CONSTANTS --------------------
 
-	private final MHOneStepLogic<S> oneStepLogic;
+	private final MHOneStepLogic<X> oneStepLogic;
 
-	private final MHProposal<S> proposal;
+	private final MHProposal<X> proposal;
 
-//	private final MHWeight<S> weight;
-//
-//	private final Random rnd;
-
+	private TerminationCriterion<X> terminationCriterion;
+	
 	// -------------------- MEMBERS --------------------
 
-	private MHStateProcessor<S> stateLogger;
-	
-	private S initialState = null;
+	private MHStateProcessor<X> stateLogger;
 
-	private List<MHStateProcessor<S>> stateProcessors = new ArrayList<MHStateProcessor<S>>();
+	private X initialState = null;
 
-//	private long msgInterval = 1;
+	private List<MHStateProcessor<X>> stateProcessors = new ArrayList<MHStateProcessor<X>>();
 
 	private long lastCompTime_ms = 0;
 
-	private S finalState = null;
+	private X finalState = null;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public MHAlgorithm(final MHOneStepLogic<S> oneStepLogic, final MHProposal<S> proposal
-//			, final MHWeight<S> weight,
-//			final Random rnd
-			) {
-//		if (oneStepLogic == null) {
-//			throw new IllegalArgumentException("oneStepLogic is null");
-//		}
-//		if (proposal == null) {
-//			throw new IllegalArgumentException("proposal is null");
-//		}
-//		if (weight == null) {
-//			throw new IllegalArgumentException("weight is null");
-//		}
-//		if (rnd == null) {
-//			throw new IllegalArgumentException("rnd is null");
-//		}
+	public MHAlgorithm(final MHOneStepLogic<X> oneStepLogic, final MHProposal<X> proposal) {
 		this.oneStepLogic = oneStepLogic;
 		this.proposal = proposal;
-//		this.weight = weight;
-//		this.rnd = rnd;
-
-
-		
 	}
 
-	public MHAlgorithm(final MHProposal<S> proposal, final MHWeight<S> weight, final Random rnd) {
-		this(new MHSequentialOneStepLogic<S>(proposal, weight, rnd), proposal);
+	public MHAlgorithm(final MHProposal<X> proposal, final MHWeight<X> weight, final Random rnd) {
+		this(new MHSequentialOneStepLogic<X>(proposal, weight, rnd), proposal);
 	}
 
 	// -------------------- SETTERS AND GETTERS --------------------
 
-	public void setInitialState(final S initialState) {
+	public void setInitialState(final X initialState) {
 		this.initialState = initialState;
 	}
 
-	public S getInitialState() {
+	public X getInitialState() {
 		return this.initialState;
 	}
 
-	public S getFinalState() {
+	public X getFinalState() {
 		return this.finalState;
 	}
 
@@ -110,9 +89,20 @@ public class MHAlgorithm<S extends Object> {
 		}
 	}
 
-	public void addStateProcessor(final MHStateProcessor<S> stateProcessor) {
+	public void addTerminationCriterion(TerminationCriterion<X> terminationCriterion) {
+		if (this.terminationCriterion != null) {
+			throw new RuntimeException("Termination criterion already added.");
+		}
+		this.terminationCriterion = terminationCriterion;
+		this.stateProcessors.add(terminationCriterion);
+	}
+	
+	public void addStateProcessor(final MHStateProcessor<X> stateProcessor) {
 		if (stateProcessor == null) {
 			throw new IllegalArgumentException("state processor is null");
+		}
+		if (stateProcessor instanceof TerminationCriterion) {
+			throw new IllegalArgumentException("add termination criterion through separate setter");
 		}
 		this.stateProcessors.add(stateProcessor);
 	}
@@ -123,66 +113,54 @@ public class MHAlgorithm<S extends Object> {
 
 	// -------------------- IMPLEMENTATION --------------------
 
-	public void run(final long iterations) {
+	public void run(long iterations) {
+		
+		if (this.terminationCriterion != null) {
+			throw new RuntimeException("Cannot set simultaneously set number of iterations and termination criterion.");
+		}
+		this.addTerminationCriterion(new FixedNumberOfIterationsTerminationCriterion<X>(iterations));
+		this.run();
+	}
 
+	public void run() {
+
+		if (this.terminationCriterion == null) {
+			throw new RuntimeException("No termination criterion defined");
+		}
+		
 		this.lastCompTime_ms = 0;
 
 		if (this.stateLogger != null) {
 			this.stateProcessors.add(0, this.stateLogger);
 		}
-		
+
 		/*
 		 * initialize (iteration 0)
 		 */
-		for (MHStateProcessor<S> processor : this.stateProcessors) {
+		for (MHStateProcessor<X> processor : this.stateProcessors) {
 			processor.start();
 		}
 
 		long tick_ms = System.currentTimeMillis();
-//		S currentState;
-//		if (this.initialState != null) {
-//			currentState = this.initialState;
-//		} else {
-//			currentState = this.proposal.newInitialState();
-//		}
-//		double currentLogWeight = this.weight.logWeight(currentState);
-		MHState<S> currentState = this.oneStepLogic.createInitial(this.initialState != null ? this.initialState : this.proposal.newInitialState());
-		
+		MHState<X> currentState = this.oneStepLogic
+				.createInitial(this.initialState != null ? this.initialState : this.proposal.newInitialState());
+
 		this.lastCompTime_ms += System.currentTimeMillis() - tick_ms;
 
-		for (MHStateProcessor<S> processor : this.stateProcessors) {
+		for (MHStateProcessor<X> processor : this.stateProcessors) {
 			processor.processState(currentState.getState(), currentState.getLogWeight());
 		}
 
 		/*
 		 * iterate (iterations 1, 2, ...)
 		 */
-		for (long i = 1; i <= iterations; i++) {
-
-//			if ((this.msgInterval >= 1) && (i % this.msgInterval == 0)) {
-//				System.out.println("MH iteration " + i);
-//				System.out.println("  state     = " + currentState.getState());
-//				System.out.println("  logweight = " + currentLogWeight);
-//				System.out.println("  weight    = " + Math.exp(currentLogWeight));
-//			}
-
+		int i = 0;
+		while (!this.terminationCriterion.terminate()) {
+			i++;
 			tick_ms = System.currentTimeMillis();
-
-//			final MHTransition<S> proposalTransition = this.proposal.newTransition(currentState);
-//			final S proposalState = proposalTransition.getNewState();
-//			double proposalLogWeight = this.weight.logWeight(proposalState);
-//			final double logAlpha = (proposalLogWeight - currentLogWeight)
-//					+ (proposalTransition.getBwdLogProb() - proposalTransition.getFwdLogProb());
-//
-//			if (Math.log(this.rnd.nextDouble()) < logAlpha) {
-//				currentState = proposalState;
-//				currentLogWeight = proposalLogWeight;
-//			}
 			currentState = this.oneStepLogic.drawNext(currentState);
-			
 			this.lastCompTime_ms += System.currentTimeMillis() - tick_ms;
-
-			for (MHStateProcessor<S> processor : this.stateProcessors) {
+			for (MHStateProcessor<X> processor : this.stateProcessors) {
 				processor.processState(currentState.getState(), currentState.getLogWeight());
 			}
 		}
@@ -192,7 +170,7 @@ public class MHAlgorithm<S extends Object> {
 		 */
 		this.finalState = currentState.getState();
 
-		for (MHStateProcessor<S> processor : this.stateProcessors) {
+		for (MHStateProcessor<X> processor : this.stateProcessors) {
 			processor.end();
 		}
 	}

@@ -1,7 +1,7 @@
 /**
- * se.vti.utils.misc.metropolishastings
+ * se.vti.utils
  * 
- * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -17,28 +17,15 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.utils.misc.metropolishastings;
+package se.vti.utils.misc.metropolishastings.terminationcriteria;
 
-import java.util.Random;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 
 /**
  * @author GunnarF
  */
-class TestMHBatchBasedVarianceEstimator {
+public interface TerminationCriterion<X> extends MHStateProcessor<X> {
+	
+	public boolean terminate();
 
-	@Test
-	void test() {
-		Random rnd = new Random(4711);
-		var estimator = new MHBatchBasedStatisticEstimator<Double>("test", x -> x).setNumberOfBatches(30)
-				.setShareOfDiscardedTransients(0.0);
-		for (int i = 0; i < 3_000; i++) {
-			estimator.processState(rnd.nextGaussian());
-		}
-		Assertions.assertEquals(0.019856271262419806, estimator.getMeanValue());
-		Assertions.assertEquals(1.231471105380889, estimator.getEffectiveVariance());
-		Assertions.assertEquals(4.1049036846029635E-4, estimator.getVarianceOfMean());
-	}
 }

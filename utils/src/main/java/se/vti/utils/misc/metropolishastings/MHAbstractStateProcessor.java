@@ -1,5 +1,5 @@
 /**
- * se.vti.roundtrips.logging
+ * se.vti.utils
  * 
  * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
  * 

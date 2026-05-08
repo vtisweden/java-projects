@@ -17,52 +17,40 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.utils.misc.metropolishastings;
+package se.vti.utils.misc.metropolishastings.terminationcriteria;
 
 /**
-  * Based on floetteroed.utilities.math.metropolishastings package.
  * 
  * @author GunnarF
  * 
- * @param <S>
  */
-public class MHTransition<S extends Object> {
+public class FixedNumberOfIterationsTerminationCriterion<X> implements TerminationCriterion<X> {
 
-	// -------------------- CONSTANTS --------------------
+	private final long maxIterations;
 
-	private final S oldState;
+	private long iterations;
 
-	private final S newState;
-
-	private final double fwdLogProb;
-
-	private final double bwdLogProb;
-
-	// -------------------- CONSTRUCTION --------------------
-
-	public MHTransition(final S oldState, final S newState,
-			final double fwdLogProb, final double bwdLogProb) {
-		this.oldState = oldState;
-		this.newState = newState;
-		this.fwdLogProb = fwdLogProb;
-		this.bwdLogProb = bwdLogProb;
+	public FixedNumberOfIterationsTerminationCriterion(long maxIterations) {
+		this.maxIterations = maxIterations;
 	}
 
-	// -------------------- CONTENT ACCESS --------------------
-
-	public S getOldState() {
-		return this.oldState;
+	@Override
+	public void start() {
+		this.iterations = 0;
 	}
 
-	public S getNewState() {
-		return this.newState;
+	@Override
+	public void processState(X state) {
+		this.iterations++;
 	}
 
-	public double getFwdLogProb() {
-		return this.fwdLogProb;
+	@Override
+	public void end() {
 	}
 
-	public double getBwdLogProb() {
-		return this.bwdLogProb;
+	@Override
+	public boolean terminate() {
+		return (this.iterations >= this.maxIterations);
 	}
+
 }

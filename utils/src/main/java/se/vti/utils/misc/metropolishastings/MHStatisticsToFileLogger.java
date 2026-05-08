@@ -30,13 +30,13 @@ import java.util.Locale;
  */
 public class MHStatisticsToFileLogger<X> extends MHToFileLogger<X> {
 
-	private List<MHBatchBasedStatisticEstimator<X>> statisticsEstimators = new ArrayList<>();
+	private List<MHOverlappingBatchBasedStatisticEstimator<X>> statisticsEstimators = new ArrayList<>();
 
 	public MHStatisticsToFileLogger(long logInterval, String logFileName) {
 		super(logInterval, logFileName);
 	}
 
-	public void add(MHBatchBasedStatisticEstimator<X> statisticsEstimator) {
+	public void add(MHOverlappingBatchBasedStatisticEstimator<X> statisticsEstimator) {
 		this.statisticsEstimators.add(statisticsEstimator);
 	}
 

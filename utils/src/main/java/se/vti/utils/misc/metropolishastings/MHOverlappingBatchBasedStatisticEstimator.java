@@ -27,7 +27,7 @@ import java.util.function.Function;
 /**
  * @author GunnarF
  */
-public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
+public class MHOverlappingBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 
 	// -------------------- CONSTANTS --------------------
 
@@ -39,7 +39,7 @@ public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 
 	private double shareOfDiscardedTransients = 0.1;
 
-	private int numberOfBatches = 30;
+	private int batchSize = 10;
 
 	private final List<Double> allDataPoints = new ArrayList<>();
 
@@ -53,27 +53,27 @@ public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 
 	// -------------------- CONSTRUCTION AND CONFIGURATION --------------------
 
-	public MHBatchBasedStatisticEstimator(String name, Function<X, Double> stateToStatistic) {
+	public MHOverlappingBatchBasedStatisticEstimator(String name, Function<X, Double> stateToStatistic) {
 		this.name = name;
 		this.stateToStatistic = stateToStatistic;
 	}
 
-	public MHBatchBasedStatisticEstimator(String name) {
+	public MHOverlappingBatchBasedStatisticEstimator(String name) {
 		this(name, null);
 	}
 
-	public MHBatchBasedStatisticEstimator<X> setStateToStatistic(Function<X, Double> f) {
+	public MHOverlappingBatchBasedStatisticEstimator<X> setStateToStatistic(Function<X, Double> f) {
 		this.stateToStatistic = f;
 		return this;
 	}
 
-	public MHBatchBasedStatisticEstimator<X> setShareOfDiscardedTransients(double share) {
+	public MHOverlappingBatchBasedStatisticEstimator<X> setShareOfDiscardedTransients(double share) {
 		this.shareOfDiscardedTransients = share;
 		return this;
 	}
 
-	public MHBatchBasedStatisticEstimator<X> setNumberOfBatches(int numberOfBatches) {
-		this.numberOfBatches = numberOfBatches;
+	public MHOverlappingBatchBasedStatisticEstimator<X> setBatchSize(int batchSize) {
+		this.batchSize = batchSize;
 		return this;
 	}
 
@@ -122,41 +122,39 @@ public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
 		}
 		this.statisticsUpToDate = true;
 
-		int burnIn = (int) (this.shareOfDiscardedTransients * this.allDataPoints.size());
-		int usable = this.allDataPoints.size() - burnIn;
-		if (usable < this.numberOfBatches * 2) {
+		int nTotal = this.allDataPoints.size();
+		int burnIn = (int) (this.shareOfDiscardedTransients * nTotal);
+		int usable = nTotal - burnIn;
+		if (usable < 2 * this.batchSize) {
 			return;
 		}
 
-		int batchSize = usable / this.numberOfBatches;
-		double[] batchMeans = new double[this.numberOfBatches];
-		int i = burnIn;
-		for (int batch = 0; batch < this.numberOfBatches; batch++) {
-			double sum = 0;
-			for (int j = 0; j < batchSize; j++) {
-				sum += this.allDataPoints.get(i++);
+		int numberOfBatches = usable - this.batchSize + 1;
+		if (numberOfBatches < 2) {
+			return;
+		}
+
+		double[] batchMeans = new double[numberOfBatches];
+		for (int batch = 0; batch < numberOfBatches; batch++) {
+			double sum = 0.0;
+			for (int j = 0; j < this.batchSize; j++) {
+				sum += this.allDataPoints.get(burnIn + batch + j);
 			}
-			batchMeans[batch] = sum / batchSize;
+			batchMeans[batch] = sum / this.batchSize;
 		}
 
-		this.meanValue = Arrays.stream(batchMeans).sum() / this.numberOfBatches;
+		this.meanValue = Arrays.stream(batchMeans).sum() / numberOfBatches;
+		double var = Arrays.stream(batchMeans).map(bm -> bm - this.meanValue).map(e -> e * e).sum() / numberOfBatches;
+		this.effectiveVariance = this.batchSize * var;
+		this.varianceOfMean = this.effectiveVariance / usable;
 
-		double varBatchMeans = 0;
-		for (double bm : batchMeans) {
-			double e = bm - this.meanValue;
-			varBatchMeans += e * e;
+		double num = 0.0;
+		for (int batch = 0; batch < numberOfBatches - 1; batch++) {
+			num += (batchMeans[batch] - this.meanValue) * (batchMeans[batch + 1] - this.meanValue);
 		}
-		varBatchMeans /= (this.numberOfBatches - 1.0);
-		this.effectiveVariance = batchSize * varBatchMeans;
-		this.varianceOfMean = this.effectiveVariance / (this.numberOfBatches * batchSize);
-
-		double num = 0;
-		for (int b = 0; b < this.numberOfBatches - 1; b++) {
-			num += (batchMeans[b] - this.meanValue) * (batchMeans[b + 1] - this.meanValue);
-		}
-		double den = 0;
-		for (int b = 0; b < this.numberOfBatches; b++) {
-			double e = batchMeans[b] - this.meanValue;
+		double den = 0.0;
+		for (int batch = 0; batch < numberOfBatches; batch++) {
+			double e = batchMeans[batch] - this.meanValue;
 			den += e * e;
 		}
 		this.batchMeanAutoCorrelation = (den > 0 ? num / den : 0.0);
