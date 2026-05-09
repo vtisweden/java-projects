@@ -47,6 +47,7 @@ import se.vti.roundtrips.simulator.electrified.ElectrifiedStaySimulator;
 import se.vti.roundtrips.simulator.electrified.StrictlyNonNegativeBatteryCharge;
 import se.vti.utils.misc.Tuple;
 import se.vti.utils.misc.metropolishastings.MHWeight;
+import se.vti.utils.misc.metropolishastings.terminationcriteria.BlockAverageTerminationCriterion;
 
 /**
  * 
@@ -139,6 +140,12 @@ public class ElectrifiedFlightExample {
 		var runner = new Runner<>(scenario).setUniformPrior()
 				.addIndividualWeight(new StrictlyPeriodicSchedule<NodeWithCoords>(24.0))
 				.setNumberOfIterations(totalIterations);
+
+		var terminationCriterion = new BlockAverageTerminationCriterion<MultiRoundTrip<NodeWithCoords>>()
+				.setCheckInterval(10_000).setMinSamples(10_000)
+				.setConvergenceStatsFileName("electrified-flight_demandWeight" + servedDemandShareWeight
+						+ "_emptySeatWeight" + emptySeatShareWeight + ".tsv");
+		runner.setTerminationCriterion(terminationCriterion);
 
 		/*
 		 * Configure electrification technology.

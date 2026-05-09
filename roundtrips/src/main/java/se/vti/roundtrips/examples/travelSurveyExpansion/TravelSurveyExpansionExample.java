@@ -117,8 +117,8 @@ public class TravelSurveyExpansionExample {
 		runner.configureWeightLogging("./output/travelSurveyExpansion/logWeights.log", totalIterations / 100);
 		runner.addStateProcessor(
 				new PlotAgeByActivityHistogram(totalIterations / 2, totalIterations / 100, syntheticPopulation));
-		runner.configureStatisticsLogging("./output/travelSurveyExpansion/statisticsLogs.log", 1000)
-				.addStatisticEstimator(new TotalTravelTime<GridNodeWithActivity>());
+//		runner.configureStatisticsLogging("./output/travelSurveyExpansion/statisticsLogs.log", 1000)
+//				.addStatisticEstimator(new TotalTravelTime<GridNodeWithActivity>());
 
 		// Configure sampling and run.
 		var initialRoundTrip = scenario.createInitialMultiRoundTrip(homes, Arrays.asList(0), syntheticPopulationSize);

@@ -34,13 +34,15 @@ import se.vti.roundtrips.samplingweights.priors.Prior;
 import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
-import se.vti.utils.misc.metropolishastings.MHBatchBasedStatisticEstimator;
+import se.vti.utils.misc.metropolishastings.MHOverlappingBatchBasedStatisticEstimator;
 import se.vti.utils.misc.metropolishastings.MHSampleLogger;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 import se.vti.utils.misc.metropolishastings.MHStatisticsToFileLogger;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 import se.vti.utils.misc.metropolishastings.MHWeightContainer;
 import se.vti.utils.misc.metropolishastings.MHWeightsToFileLogger;
+import se.vti.utils.misc.metropolishastings.terminationcriteria.FixedNumberOfIterationsTerminationCriterion;
+import se.vti.utils.misc.metropolishastings.terminationcriteria.TerminationCriterion;
 
 /**
  * @author GunnarF
@@ -54,7 +56,7 @@ public class Runner<N extends Node> {
 	private final MHWeightContainer<MultiRoundTrip<N>> weights = new MHWeightContainer<>();
 	private MHWeight<MultiRoundTrip<N>> prior = null;
 
-	private List<MHBatchBasedStatisticEstimator<MultiRoundTrip<N>>> statisticEstimators = new ArrayList<>();
+	private List<MHOverlappingBatchBasedStatisticEstimator<MultiRoundTrip<N>>> statisticEstimators = new ArrayList<>();
 	private Map<String, Function<MultiRoundTrip<N>, Double>> sampleExtractors = new LinkedHashMap<>();
 	private List<MHStateProcessor<MultiRoundTrip<N>>> stateProcessors = new ArrayList<>();
 
@@ -68,7 +70,8 @@ public class Runner<N extends Node> {
 	private String statisticsLogFile = "./statistics.log";
 
 	private MultiRoundTrip<N> initialState = null;
-	private Long numberOfIterations = null;
+//	private Long numberOfIterations = null;
+	private TerminationCriterion<MultiRoundTrip<N>> terminationCriterion = null;
 	private long messageInterval = 1000l;
 
 	private boolean runWasAlreadyCalled = false;
@@ -135,7 +138,8 @@ public class Runner<N extends Node> {
 
 	// STATISTICS
 
-	public Runner<N> addStatisticEstimator(MHBatchBasedStatisticEstimator<MultiRoundTrip<N>> statisticEstimator) {
+	public Runner<N> addStatisticEstimator(
+			MHOverlappingBatchBasedStatisticEstimator<MultiRoundTrip<N>> statisticEstimator) {
 		this.statisticEstimators.add(statisticEstimator);
 		return this;
 	}
@@ -157,9 +161,14 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
-	public Runner<N> setNumberOfIterations(long numberOfIterations) {
-		this.numberOfIterations = numberOfIterations;
+	public Runner<N> setTerminationCriterion(TerminationCriterion<MultiRoundTrip<N>> criterion) {
+		this.terminationCriterion = criterion;
 		return this;
+	}
+
+	public Runner<N> setNumberOfIterations(long numberOfIterations) {
+		return this.setTerminationCriterion(
+				new FixedNumberOfIterationsTerminationCriterion<MultiRoundTrip<N>>(numberOfIterations));
 	}
 
 	public Runner<N> setMessageInterval(long messageInterval) {
@@ -190,9 +199,7 @@ public class Runner<N extends Node> {
 
 		var checker = new SpecificationChecker().defineError(() -> (this.prior == null), "No prior defined")
 				.defineError(() -> (this.initialState == null), "No initial state defined")
-				.defineError(() -> (this.numberOfIterations == null), "Undefined parameter: numberOfIterations")
-				.defineError(() -> (this.numberOfIterations != null && this.numberOfIterations < 1),
-						"numberOfIterations smaller than one");
+				.defineError(() -> (this.terminationCriterion == null), "Undefined termination criterion");
 
 		if (checker.check()) {
 			this.weights.add(this.prior);
@@ -223,7 +230,8 @@ public class Runner<N extends Node> {
 			this.stateProcessors.stream().forEach(sp -> algo.addStateProcessor(sp));
 			algo.setInitialState(this.initialState);
 			algo.setMsgInterval(this.messageInterval);
-			algo.run(this.numberOfIterations);
+			algo.setTerminationCriterion(this.terminationCriterion);
+			algo.run();
 		} else {
 			throw new RuntimeException(checker.getRecentErrors());
 		}

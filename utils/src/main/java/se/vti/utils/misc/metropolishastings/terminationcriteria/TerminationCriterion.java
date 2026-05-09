@@ -26,6 +26,6 @@ import se.vti.utils.misc.metropolishastings.MHStateProcessor;
  */
 public interface TerminationCriterion<X> extends MHStateProcessor<X> {
 	
-	public boolean terminate();
+	boolean terminate();
 
 }

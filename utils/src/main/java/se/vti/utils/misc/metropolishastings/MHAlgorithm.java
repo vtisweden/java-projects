@@ -89,7 +89,7 @@ public class MHAlgorithm<X extends Object> {
 		}
 	}
 
-	public void addTerminationCriterion(TerminationCriterion<X> terminationCriterion) {
+	public void setTerminationCriterion(TerminationCriterion<X> terminationCriterion) {
 		if (this.terminationCriterion != null) {
 			throw new RuntimeException("Termination criterion already added.");
 		}
@@ -118,10 +118,10 @@ public class MHAlgorithm<X extends Object> {
 		if (this.terminationCriterion != null) {
 			throw new RuntimeException("Cannot set simultaneously set number of iterations and termination criterion.");
 		}
-		this.addTerminationCriterion(new FixedNumberOfIterationsTerminationCriterion<X>(iterations));
+		this.setTerminationCriterion(new FixedNumberOfIterationsTerminationCriterion<X>(iterations));
 		this.run();
 	}
-
+	
 	public void run() {
 
 		if (this.terminationCriterion == null) {

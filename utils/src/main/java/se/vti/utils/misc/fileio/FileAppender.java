@@ -19,27 +19,41 @@
  */
 package se.vti.utils.misc.fileio;
 
-import java.io.File;
-
-import org.apache.commons.io.FileUtils;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.*;
 
 /**
- *
  * @author GunnarF
- *
  */
-public class Hacks {
+public class FileAppender {
 
-	public static void append2file(File file, String line) {
-		try {
-			FileUtils.writeStringToFile(file, line, true);
-		} catch (Exception e) {
+	private final Path filePath;
+
+	public FileAppender(String fileName) throws IOException {
+		this.filePath = Paths.get(fileName);
+		Path parent = this.filePath.getParent();
+		if (parent != null && Files.notExists(parent)) {
+			Files.createDirectories(parent);
+		}
+		Files.deleteIfExists(this.filePath);
+		Files.createFile(this.filePath);
+	}
+
+	public void appendLine(String text) {
+		try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardOpenOption.APPEND)) {
+			writer.write(text);
+			writer.newLine();
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static void append2file(String fileName, String line) {
-		append2file(new File(fileName), line);
+	public void append(String text) {
+		try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardOpenOption.APPEND)) {
+			writer.write(text);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
-
 }
