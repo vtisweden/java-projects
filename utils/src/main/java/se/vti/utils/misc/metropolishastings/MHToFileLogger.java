@@ -84,7 +84,7 @@ public class MHToFileLogger<X> extends MHAbstractStateProcessor<X> implements MH
 	}
 
 	public String createHeaderLine() {
-		return "Iteration\tTimestamp\tLogWeight";
+		return "Iteration\tTimestamp\tWeightedLogWeightSum";
 	}
 
 	public String createDataLine(X state, double logWeight) {
