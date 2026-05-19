@@ -20,6 +20,7 @@
 package se.vti.roundtrips.common;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,6 +172,14 @@ public class Runner<N extends Node> {
 
 	// -------------------- RUNNING --------------------
 
+	public List<MHWeight<MultiRoundTrip<N>>> getSamplingWeightsView() {
+		return this.weights.getComponentsView();
+	}
+	
+	public List<Double> getWeightsOfSamplingWeightsView() {
+		return this.weights.getWeightsView();
+	}
+	
 	private MultiRoundTrip<N> finalState = null;
 	
 	public MultiRoundTrip<N> getFinalState() {
