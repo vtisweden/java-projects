@@ -34,10 +34,8 @@ import se.vti.roundtrips.samplingweights.priors.Prior;
 import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
-import se.vti.utils.misc.metropolishastings.MHOverlappingBatchBasedStatisticEstimator;
 import se.vti.utils.misc.metropolishastings.MHSampleLogger;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
-import se.vti.utils.misc.metropolishastings.MHStatisticsToFileLogger;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 import se.vti.utils.misc.metropolishastings.MHWeightContainer;
 import se.vti.utils.misc.metropolishastings.MHWeightsToFileLogger;
@@ -56,7 +54,6 @@ public class Runner<N extends Node> {
 	private final MHWeightContainer<MultiRoundTrip<N>> weights = new MHWeightContainer<>();
 	private MHWeight<MultiRoundTrip<N>> prior = null;
 
-	private List<MHOverlappingBatchBasedStatisticEstimator<MultiRoundTrip<N>>> statisticEstimators = new ArrayList<>();
 	private Map<String, Function<MultiRoundTrip<N>, Double>> sampleExtractors = new LinkedHashMap<>();
 	private List<MHStateProcessor<MultiRoundTrip<N>>> stateProcessors = new ArrayList<>();
 
@@ -66,11 +63,7 @@ public class Runner<N extends Node> {
 	private long sampleLogInterval = 1000l;
 	private String samplesLogFile = "./samples.log";
 
-	private long statisticsLogInterval = 1000l;
-	private String statisticsLogFile = "./statistics.log";
-
 	private MultiRoundTrip<N> initialState = null;
-//	private Long numberOfIterations = null;
 	private TerminationCriterion<MultiRoundTrip<N>> terminationCriterion = null;
 	private long messageInterval = 1000l;
 
@@ -138,12 +131,6 @@ public class Runner<N extends Node> {
 
 	// STATISTICS
 
-	public Runner<N> addStatisticEstimator(
-			MHOverlappingBatchBasedStatisticEstimator<MultiRoundTrip<N>> statisticEstimator) {
-		this.statisticEstimators.add(statisticEstimator);
-		return this;
-	}
-
 	public Runner<N> addSampleExtractor(String name, Function<MultiRoundTrip<N>, Double> function) {
 		this.sampleExtractors.put(name, function);
 		return this;
@@ -182,14 +169,14 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
-	public Runner<N> configureStatisticsLogging(String fileName, long logInterval) {
-		this.statisticsLogFile = fileName;
-		this.statisticsLogInterval = logInterval;
-		return this;
-	}
-
 	// -------------------- RUNNING --------------------
 
+	private MultiRoundTrip<N> finalState = null;
+	
+	public MultiRoundTrip<N> getFinalState() {
+		return this.finalState;
+	}
+	
 	public void run() {
 
 		if (this.runWasAlreadyCalled) {
@@ -209,15 +196,6 @@ public class Runner<N extends Node> {
 				this.stateProcessors
 						.add(new MHWeightsToFileLogger<>(this.weightsLogInterval, this.weights, this.weightsLogFile));
 			}
-			if ((this.statisticsLogFile != null) && (this.statisticEstimators.size() > 0)) {
-				var statisticsLogger = new MHStatisticsToFileLogger<MultiRoundTrip<N>>(this.statisticsLogInterval,
-						this.statisticsLogFile);
-				algo.addStateProcessor(statisticsLogger);
-				for (var statisticEstimator : this.statisticEstimators) {
-					statisticsLogger.add(statisticEstimator);
-					algo.addStateProcessor(statisticEstimator);
-				}
-			}
 
 			if ((this.samplesLogFile != null) && (this.sampleExtractors.size() > 0)) {
 				var samplesLogger = new MHSampleLogger<MultiRoundTrip<N>>(this.sampleLogInterval, this.samplesLogFile);
@@ -232,6 +210,7 @@ public class Runner<N extends Node> {
 			algo.setMsgInterval(this.messageInterval);
 			algo.setTerminationCriterion(this.terminationCriterion);
 			algo.run();
+			this.finalState = algo.getFinalState();
 		} else {
 			throw new RuntimeException(checker.getRecentErrors());
 		}

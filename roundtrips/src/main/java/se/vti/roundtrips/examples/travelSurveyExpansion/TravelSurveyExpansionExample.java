@@ -30,7 +30,6 @@ import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivi
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
 import se.vti.roundtrips.samplingweights.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.samplingweights.StrictlyRequireMaxNumberOfStops;
-import se.vti.roundtrips.statistics.TotalTravelTime;
 
 /**
  * 
