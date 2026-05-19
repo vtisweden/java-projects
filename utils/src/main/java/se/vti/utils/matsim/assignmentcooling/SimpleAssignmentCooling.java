@@ -40,17 +40,10 @@ public class SimpleAssignmentCooling implements IterationStartsListener, Startup
 		log.info("Identified subpopulations: " + this.allSubpopulations);
 	}
 
-	private double computeRate(double initialRate, int iteration, double iterationExponent) {
-		return initialRate / Math.pow(1.0 + iteration, iterationExponent);
-	}
-
 	@Override
 	public void notifyIterationStarts(IterationStartsEvent event) {
 		int iteration = event.getIteration() - event.getServices().getConfig().controller().getFirstIteration();
 		if (iteration >= 0) {
-
-			final double baseInnovationRate = this.computeRate(1.0, iteration, 0.5);
-			log.info("Setting base innovation rate to " + baseInnovationRate);
 
 			var strategyManager = event.getServices().getStrategyManager();
 			for (String subpopulation : this.allSubpopulations) {
@@ -68,8 +61,8 @@ public class SimpleAssignmentCooling implements IterationStartsListener, Startup
 				assert (numberOfExpBetaPlanSelectorStrategies > 0);
 				assert (numberOfInnovationStrategies > 0);
 
-				final double innovationRate = Math.min(1.0, numberOfInnovationStrategies * baseInnovationRate);
-				final double selectionRate = 1.0 - innovationRate;
+				final double innovationRate = Math.min(1.0 / numberOfInnovationStrategies, 1.0 / Math.pow(1.0 + iteration, 0.5));
+				final double selectionRate = (1.0 - innovationRate) / numberOfExpBetaPlanSelectorStrategies;
 				log.info("Subpoulation: " + subpopulation);
 				log.info("  Setting innovation rate rate to " + innovationRate);
 				log.info("  Setting selection rate to " + selectionRate);
@@ -78,9 +71,9 @@ public class SimpleAssignmentCooling implements IterationStartsListener, Startup
 					String strategyName = strategy.toString();
 					double weight;
 					if (ExpBetaPlanSelector.class.getSimpleName().toString().equals(strategyName)) {
-						weight = selectionRate / numberOfExpBetaPlanSelectorStrategies;
+						weight = selectionRate;
 					} else {
-						weight = innovationRate / numberOfInnovationStrategies;
+						weight = innovationRate;
 					}
 					strategyManager.changeWeightOfStrategy(strategy, subpopulation, weight);
 				}

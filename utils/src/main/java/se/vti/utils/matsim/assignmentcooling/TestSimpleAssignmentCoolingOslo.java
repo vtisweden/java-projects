@@ -41,7 +41,10 @@ public class TestSimpleAssignmentCoolingOslo {
 
 	public static void main(String[] args) {
 
-		String configFileName = "./src/test/resources/se/vti/utils/matsim/assignmentcooling/oslo_config_cooling_example.xml";
+//		boolean useCooling = false;
+		boolean useCooling = true;
+		String configFileName = "./oslo_config_cooling_example.xml";
+//		String configFileName = "./src/test/resources/se/vti/utils/matsim/assignmentcooling/oslo_config_cooling_example.xml";
 
 		Config config = ConfigUtils.loadConfig(configFileName);
 		config.controller().setOverwriteFileSetting(OverwriteFileSetting.deleteDirectoryIfExists);
@@ -49,12 +52,14 @@ public class TestSimpleAssignmentCoolingOslo {
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 		Controler controler = new Controler(scenario);
 
-		controler.addOverridingModule(new AbstractModule() {
-			@Override
-			public void install() {
-				this.addControlerListenerBinding().to(SimpleAssignmentCooling.class);
-			}
-		});
+		if (useCooling) {
+			controler.addOverridingModule(new AbstractModule() {
+				@Override
+				public void install() {
+					this.addControlerListenerBinding().to(SimpleAssignmentCooling.class);
+				}
+			});
+		}
 
 		controler.run();
 	}

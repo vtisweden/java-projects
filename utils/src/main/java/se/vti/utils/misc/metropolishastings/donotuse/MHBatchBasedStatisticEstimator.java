@@ -17,14 +17,17 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.utils.misc.metropolishastings;
+package se.vti.utils.misc.metropolishastings.donotuse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
+import se.vti.utils.misc.metropolishastings.MHStateProcessor;
+
 /**
+ * @deprecated
  * @author GunnarF
  */
 public class MHBatchBasedStatisticEstimator<X> implements MHStateProcessor<X> {
