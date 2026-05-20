@@ -9,7 +9,7 @@ Currently available modules:
 
 
 | Name | Description | Maintainer | Status |
-|--------|---------------|----------------|--------------|--------------|
+|--------|---------------|----------------|--------------|
 | ATAP | "Agent-based/atomic dynamic traffic assignment problem". A MATSim plugin for the approximation of Nash equilibria. | gunnar.flotterod@vti.se | [![Build and test atap](https://github.com/vtisweden/java-projects/actions/workflows/build-atap.yml/badge.svg)](https://github.com/vtisweden/java-projects/actions/workflows/build-atap.yml) | 
 | CERTAIN | Simulates emergency service fleet performance, in particular with respect electrification parameters.  | gunnar.flotterod@vti.se | [![Build and test certain](https://github.com/vtisweden/java-projects/actions/workflows/build-certain.yml/badge.svg)](https://github.com/vtisweden/java-projects/actions/workflows/build-certain.yml)
 | DYNAMEQ | Translate input files from Dynameq format to a format suitable for use in MATSim. | filip.kristofersson@vti.se | [![Build and test dynameq](https://github.com/vtisweden/java-projects/actions/workflows/build-dynameq.yml/badge.svg)](https://github.com/vtisweden/java-projects/actions/workflows/build-dynameq.yml) |
