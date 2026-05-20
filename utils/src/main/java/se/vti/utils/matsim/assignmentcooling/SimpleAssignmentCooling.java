@@ -25,6 +25,8 @@ public class SimpleAssignmentCooling implements IterationStartsListener, Startup
 
 	private static final Logger log = LogManager.getLogger(SimpleAssignmentCooling.class);
 
+	private final double burnInIterations = 100;
+
 	private Set<String> allSubpopulations = null;
 
 	@Inject
@@ -61,7 +63,14 @@ public class SimpleAssignmentCooling implements IterationStartsListener, Startup
 				assert (numberOfExpBetaPlanSelectorStrategies > 0);
 				assert (numberOfInnovationStrategies > 0);
 
-				final double innovationRate = Math.min(1.0 / numberOfInnovationStrategies, 1.0 / Math.pow(1.0 + iteration, 0.5));
+				final double innovationRate;
+				if (iteration < this.burnInIterations) {
+					innovationRate = Math.min(1.0 / numberOfInnovationStrategies,
+							1.0 - 1.0 / Math.sqrt(this.burnInIterations - iteration + 4.0));
+				} else {
+					innovationRate = Math.min(1.0 / numberOfInnovationStrategies,
+							1.0 / Math.sqrt(iteration - this.burnInIterations + 4.0));
+				}
 				final double selectionRate = (1.0 - innovationRate) / numberOfExpBetaPlanSelectorStrategies;
 				log.info("Subpoulation: " + subpopulation);
 				log.info("  Setting innovation rate rate to " + innovationRate);

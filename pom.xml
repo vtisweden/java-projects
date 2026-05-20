@@ -23,7 +23,6 @@
 	<module>atap</module>
 	<module>certain</module>
   	<module>dynameq</module>
-  	<module>emulation</module>
 	<module>roundtrips</module>
 	<module>samgods</module>
 	<module>tramodby</module>

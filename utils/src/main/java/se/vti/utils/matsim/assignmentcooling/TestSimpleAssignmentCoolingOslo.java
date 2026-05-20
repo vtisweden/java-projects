@@ -41,8 +41,8 @@ public class TestSimpleAssignmentCoolingOslo {
 
 	public static void main(String[] args) {
 
-//		boolean useCooling = false;
 		boolean useCooling = true;
+//		boolean useCooling = true;
 		String configFileName = "./oslo_config_cooling_example.xml";
 //		String configFileName = "./src/test/resources/se/vti/utils/matsim/assignmentcooling/oslo_config_cooling_example.xml";
 
