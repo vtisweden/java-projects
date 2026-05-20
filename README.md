@@ -1,6 +1,6 @@
 # Java code repository maintained at VTI's Traffic Analysis and Logistics group
 
-This repository contains open-source (GPL-licensed) code developed at or in collaboration with our group. Published packages are considered sufficiently stable for external use, but come with no warranty (see the GPL disclaimer for details). Currently available modules:
+This repository contains open-source (GPL-licensed) code developed at or in collaboration with our group. Published packages are considered sufficiently stable to be tried out, but come with no warranty (see the GPL disclaimer for details). Currently available modules:
 
 | Name | Description | Maintainer |
 |--------|---------------|----------------|
