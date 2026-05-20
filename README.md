@@ -4,13 +4,13 @@ This repository contains open-source (GPL-licensed) code developed at or in coll
 
 | Name | Description | Maintainer |
 |--------|---------------|----------------|
-| ATAP | "Agent-based/atomic dynamic traffic assignment problem". A MATSim plugin for the approximation of Nash equilibria. | gunnar.flotterod@vti.se |
-| CERTAIN | Simulates emergency service fleet performance, in particular with respect electrification parameters.  | gunnar.flotterod@vti.se |
-| DYNAMEQ | Translate input files from Dynameq format to a format suitable for use in MATSim. | filip.kristofersson@vti.se |
-| ROUNDTRIPS | Samples spatio-temporal population trajectories from a wide range of target distributions. | gunnar.flotterod@vti.se |
-| SAMGODS | Approximates and extends the Swedish national freight model system Samgods, in particular its logistics module. | gunnar.flotterod@vti.se | 
-| TRAMODBY | Couples the Norwegian travel demand model TraMod_By to MATSim. | filip.kristofersson@vti.se |
-| UTILS | General support functionality and tools | gunnar.flotterod@vti.se |
+| [ATAP](https://github.com/vtisweden/java-projects/tree/master/atap) | "Agent-based/atomic dynamic traffic assignment problem". A MATSim plugin for the approximation of Nash equilibria. | gunnar.flotterod@vti.se |
+| [CERTAIN](https://github.com/vtisweden/java-projects/tree/master/certain) | Simulates emergency service fleet performance, in particular with respect electrification parameters.  | gunnar.flotterod@vti.se |
+| [DYNAMEQ](https://github.com/vtisweden/java-projects/tree/master/dynameq) | Translate input files from Dynameq format to a format suitable for use in MATSim. | filip.kristofersson@vti.se |
+| [ROUNDTRIPS](https://github.com/vtisweden/java-projects/tree/master/roundtrips) | Samples spatio-temporal population trajectories from a wide range of target distributions. | gunnar.flotterod@vti.se |
+| [SAMGODS](https://github.com/vtisweden/java-projects/tree/master/samgods) | Approximates and extends the Swedish national freight model system Samgods, in particular its logistics module. | gunnar.flotterod@vti.se | 
+| [TRAMODBY](https://github.com/vtisweden/java-projects/tree/master/tramodby) | Couples the Norwegian travel demand model TraMod_By to MATSim. | filip.kristofersson@vti.se |
+| [UTILS](https://github.com/vtisweden/java-projects/tree/master/utils) | General support functionality and tools | gunnar.flotterod@vti.se |
 
 If you miss a program we do refer to elsewhere, it may not have been published. Contact us in this case.
 
