@@ -1,19 +1,11 @@
-# se.vti.roundtrips
+# ROUNDTRIPS
 
-The se.vti.roundtrips package samples spatio-temporal (vehicle) round trips from un-normalized distributions and provides support functionality for extendability and analysis. 
+The `se.vti.roundtrips` package samples spatio-temporal (vehicle, person) round trips from un-normalized distributions and provides support functionality for extendability and analysis. 
 
-Published under GPL, see [LICENSE](LICENSE), [COPYING](COPYING), [WARRANTY](WARRANTY) files.
+This project is under intensive (further) development; we are currently relying on small example applications for documentation. The package `se.vti.roundtrips.examples` contains the following subpackages, all for illustrative purposes only:
+* `activityTimeUse` creates individual mobility all-day activity/travel patterns.
+* `elektrifiedFlight` studies different configurations of an electrified domestic air transportation system.
+* `travelSurveyExpansion` extrapolates a limited travel survey into population-wide travel/activity patterns.
+* `truckServiceCoverage` studies possible truck round tours, subject to fleet and delivery constraints.
 
-**Maven dependency (using [github packages](https://docs.github.com/en/packages))**:
-
-	<dependency>
-		<groupId>se.vti.java-projects</groupId>
-		<artifactId>roundtrips</artifactId>
-		<version>0.1.15</version>
-	</dependency>
-	
-This project is under intensive (further) development; we are currently relying on small example applications for documentation: `se.vti.roundtrips.examples`.
-
-The flexibility of the framework is exemplified by the little `se.vti.roundtrips.simulator.electrified` package, which is sufficent to enable basic fleet electrification analyses.
-
-	
+Contact: gunnar.flotterod@vti.se	

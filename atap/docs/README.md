@@ -4,3 +4,5 @@ The `se.vti.atap` package implements a solution heuristic for the agent-based tr
 
 **To maintain consistency with ongoing MATSim developments, documentation and the most up-to-date version of this package are hosted on the MATSim github repository. [See here.](https://github.com/matsim-org/matsim-libs/tree/main/contribs/atap)**
 
+Contact: gunnar.flotterod@vti.se
+
