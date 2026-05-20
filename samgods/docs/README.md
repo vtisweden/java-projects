@@ -6,8 +6,6 @@ Contact: gunnar.flotterod@vti.se
 
 ## Outline 
 
-*2025-08-27  This documentation is work in progress. Current version is readable but not exhaustive.*
-
 The purpose of VTI-Samgods is to enable lightweight experimentation with and further developments of TRV-Samgods in an open and flexible programming environment. VTI-Samgods uses ony a subset of all parameters available in TRV-Samgods. VTI-Samgods does not aim to reproduce Sweden's current freight transport system at the greatest possible level of detail; focus is more on the underlying models and their possible refinements.
 
 One motivation for writing this program was to refine the modeling of consolidation (different shipments sharing the same vehicle). The currently implemented solution is still relatively simple (and the topic of continuous improvements). Vehicles are merely assumed to travel from an origin to a destination, and to then return back to the origin. A representation of richer driving patterns, including several loading/unloading episodes along the way, is the topic of ongoing work. Currently, consolidation works best for "small" vehicles (trucks) and worst for "large" vehicles (vessels).

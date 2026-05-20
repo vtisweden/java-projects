@@ -1,4 +1,4 @@
-# se.vti.utils
+# UTILS
 
 The `se.vti.utils` java package contains relatively simple support functionality and scripts used in other se.vti packages.
 
