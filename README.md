@@ -1,4 +1,25 @@
-# java-projects
+# Java code repository maintained at VTI's Traffic Analysis and Logistics group
+
+This repository contains open-source (GPL-licensed) code developed at or in collaboration with our group. Published packages are considered sufficiently stable for external use, but come with no warranty (see the GPL disclaimer for details). 
+
+Currently available modules:
+
+
+
+
+
+| Name | Description | Dependencies | Maintainer |
+|--------|---------------|----------------|--------------|
+| ATAP   |           |  | gunnar.flotterod@vti.se |
+
+
+
+
+
+
+
+
+
 
 Various java projects, mostly related to MATSim.
 
