@@ -1,7 +1,7 @@
 /**
- * georgia.weekly
+ * se.vti.roundtrips
  * 
- * Copyright (C) 2024 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2024-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
