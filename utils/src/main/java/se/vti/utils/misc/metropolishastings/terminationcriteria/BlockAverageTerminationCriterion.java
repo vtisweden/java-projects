@@ -159,7 +159,7 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 	public boolean terminate() {
 		return this.stabilized;
 	}
-	
+
 	// -------------------- INTERNALS --------------------
 
 	private void checkStabilization() {
@@ -177,32 +177,28 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 			variances.add(stats.variance);
 			cutIndices.add(start);
 		}
-		
+
+		this.stabilized = false;
 		this.stabilizationMeanRange = Double.POSITIVE_INFINITY;
 		this.stabilizationVarianceRange = Double.POSITIVE_INFINITY;
 
-		for (int i = 0; i < means.size() - 2; i++) {
+		for (int i = 0; (i < means.size() - 2) && !this.stabilized; i++) {
 
-			double dMean1 = Math.abs(means.get(i) - means.get(i + 1))
-					/ (Math.sqrt(0.5 * (variances.get(i) + variances.get(i + 1))) + 1e-8);
-			double dVar1 = Math.abs(variances.get(i) - variances.get(i + 1))
-					/ (0.5 * (variances.get(i) + variances.get(i + 1)) + 1e-8);
+			double meanVariance = mean(variances.get(i), variances.get(i + 1), variances.get(i + 2));
+			double meanRange = (max(means.get(i), means.get(i + 1), means.get(i + 2))
+					- min(means.get(i), means.get(i + 1), means.get(i + 2))) / (Math.sqrt(meanVariance) + 1e-8);
+			double varRange = (max(variances.get(i), variances.get(i + 1), variances.get(i + 2))
+					- min(variances.get(i), variances.get(i + 1), variances.get(i + 2))) / (meanVariance + 1e-8);
 
-			double dMean2 = Math.abs(means.get(i + 1) - means.get(i + 2))
-					/ (Math.sqrt(0.5 * (variances.get(i + 1) + variances.get(i + 2))) + 1e-8);
-			double dVar2 = Math.abs(variances.get(i + 1) - variances.get(i + 2))
-					/ (0.5 * (variances.get(i + 1) + variances.get(i + 2)) + 1e-8);
+			this.stabilizationMeanRange = Math.min(this.stabilizationMeanRange, meanRange);
+			this.stabilizationVarianceRange = Math.min(this.stabilizationVarianceRange, varRange);
 
-			this.stabilizationMeanRange = Math.min(this.stabilizationMeanRange, Math.max(dMean1, dMean2));
-			this.stabilizationVarianceRange = Math.min(this.stabilizationVarianceRange, Math.max(dVar1, dVar2));
-
-			boolean stableMeans = (dMean1 < this.standardizedMeanTolerance)
-					&& (dMean2 < this.standardizedMeanTolerance);
-			boolean stableVars = (dVar1 < this.relativeVarianceTolerance) && (dVar2 < this.relativeVarianceTolerance);
+			boolean stableMeans = (meanRange < this.standardizedMeanTolerance);
+			boolean stableVars = (varRange < this.relativeVarianceTolerance);
 
 			int burnInIndex = cutIndices.get(i + 1);
 			this.burnInIteration = burnInIndex;
-			
+
 			boolean threeWindowConsistent = this.checkThreeWindowConsistency(burnInIndex);
 
 			this.stabilized = stableMeans && stableVars && threeWindowConsistent;
@@ -218,8 +214,8 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 		Stats w1 = this.computeStats(start, start + _L);
 		Stats w2 = this.computeStats(start + _L, start + 2 * _L);
 		Stats w3 = this.computeStats(start + 2 * _L, _N);
-
-		double meanVariance = (w1.variance + w2.variance + w3.variance) / 3.0;
+		
+		double meanVariance = mean(w1.variance, w2.variance, w3.variance);
 
 		double meanRange = (this.max(w1.mean, w2.mean, w3.mean) - this.min(w1.mean, w2.mean, w3.mean))
 				/ (Math.sqrt(meanVariance) + 1e-8);
@@ -273,6 +269,10 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 	private double min(double a, double b, double c) {
 		return Math.min(a, Math.min(b, c));
+	}
+
+	private double mean(double a, double b, double c) {
+		return (a + b + c) / 3.0;
 	}
 
 	// -------------------- TESTING/EXPLORATION --------------------

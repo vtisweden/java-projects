@@ -41,13 +41,13 @@ public class TestSimpleAssignmentCoolingOslo {
 
 	public static void main(String[] args) {
 
-		boolean useCooling = true;
 //		boolean useCooling = true;
 		String configFileName = "./oslo_config_cooling_example.xml";
 //		String configFileName = "./src/test/resources/se/vti/utils/matsim/assignmentcooling/oslo_config_cooling_example.xml";
 
 		Config config = ConfigUtils.loadConfig(configFileName);
 		config.controller().setOverwriteFileSetting(OverwriteFileSetting.deleteDirectoryIfExists);
+		boolean useCooling = config.getModules().containsKey(AssignmentCoolingConfigGroup.GROUP_NAME);
 
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 		Controler controler = new Controler(scenario);

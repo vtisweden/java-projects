@@ -7,12 +7,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.core.config.Config;
+import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.events.IterationStartsEvent;
 import org.matsim.core.controler.events.StartupEvent;
 import org.matsim.core.controler.listener.IterationStartsListener;
 import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.core.population.PopulationUtils;
 import org.matsim.core.replanning.selectors.ExpBetaPlanSelector;
+import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule.DefaultPlansRemover;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -25,12 +27,17 @@ public class SimpleAssignmentCooling implements IterationStartsListener, Startup
 
 	private static final Logger log = LogManager.getLogger(SimpleAssignmentCooling.class);
 
-	private final double burnInIterations = 100;
+	private final AssignmentCoolingConfigGroup coolingConfig;
 
 	private Set<String> allSubpopulations = null;
 
 	@Inject
 	public SimpleAssignmentCooling(Config config) {
+		if (!config.replanning().getPlanSelectorForRemoval().equals(DefaultPlansRemover.WorstPlanSelector.toString())) {
+			throw new RuntimeException(
+					"Must use " + DefaultPlansRemover.WorstPlanSelector.toString() + " plan selector for removal.");
+		}
+		this.coolingConfig = ConfigUtils.addOrGetModule(config, AssignmentCoolingConfigGroup.class);
 	}
 
 	@Override
@@ -64,12 +71,11 @@ public class SimpleAssignmentCooling implements IterationStartsListener, Startup
 				assert (numberOfInnovationStrategies > 0);
 
 				final double innovationRate;
-				if (iteration < this.burnInIterations) {
-					innovationRate = Math.min(1.0 / numberOfInnovationStrategies,
-							1.0 - 1.0 / Math.sqrt(this.burnInIterations - iteration + 4.0));
+				if (iteration < this.coolingConfig.getBurnInIterations()) {
+					innovationRate = 1.0;
 				} else {
 					innovationRate = Math.min(1.0 / numberOfInnovationStrategies,
-							1.0 / Math.sqrt(iteration - this.burnInIterations + 4.0));
+							1.0 / Math.sqrt(iteration - this.coolingConfig.getBurnInIterations() + 1));
 				}
 				final double selectionRate = (1.0 - innovationRate) / numberOfExpBetaPlanSelectorStrategies;
 				log.info("Subpoulation: " + subpopulation);
