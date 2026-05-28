@@ -75,7 +75,9 @@ public class SimpleAssignmentCooling implements IterationStartsListener, Startup
 					innovationRate = 1.0;
 				} else {
 					innovationRate = Math.min(1.0 / numberOfInnovationStrategies,
-							1.0 / Math.sqrt(iteration - this.coolingConfig.getBurnInIterations() + 1));
+							Math.pow(iteration - this.coolingConfig.getBurnInIterations() + 1,
+									(-1.0) * this.coolingConfig.getInnovationIterationExponent()));
+//							Math.sqrt(iteration - this.coolingConfig.getBurnInIterations() + 1));
 				}
 				final double selectionRate = (1.0 - innovationRate) / numberOfExpBetaPlanSelectorStrategies;
 				log.info("Subpoulation: " + subpopulation);

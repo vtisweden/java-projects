@@ -22,6 +22,7 @@ package se.vti.utils.misc.metropolishastings.terminationcriteria;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.ToDoubleFunction;
@@ -49,6 +50,8 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 	private FileAppender statsLogger = null;
 
+	private boolean runIndefinitely = false;
+
 	// -------------------- INTERNAL STATES --------------------
 
 	private long iterations;
@@ -62,6 +65,7 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 	private Double stabilizationVarianceRange;
 	private Double threeWindowMeanRange;
 	private Double threeWindowVarianceRange;
+	private Double stabilizedMean;
 
 	// -------------------- CONSTRUCTION AND CONFIGURATION --------------------
 
@@ -112,6 +116,11 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 		return this;
 	}
 
+	public BlockAverageTerminationCriterion<X> setRunIndefinitely(boolean runIndefinitely) {
+		this.runIndefinitely = runIndefinitely;
+		return this;
+	}
+
 	// --------------- IMPLEMENTATION OF TerminationCriterion ---------------
 
 	@Override
@@ -122,7 +131,7 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 		if (this.statsLogger != null) {
 			this.statsLogger.appendLine(
 					"iteration\tburnInIteration\tstabilizationMeanRange\tstabilizationVarianceRange\tthreeWindowMeanRange"
-							+ "\tthreeWindowVarianceRange\tmeanTolerance\tvarianceTolerance\tstabilized");
+							+ "\tthreeWindowVarianceRange\tmeanTolerance\tvarianceTolerance\tstabilized\tstableMean");
 		}
 	}
 
@@ -137,7 +146,8 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 						+ this.stabilizationMeanRange + "\t" + this.stabilizationVarianceRange + "\t"
 						+ this.nullToNothing(this.threeWindowMeanRange) + "\t"
 						+ this.nullToNothing(this.threeWindowVarianceRange) + "\t" + this.standardizedMeanTolerance
-						+ "\t" + this.relativeVarianceTolerance + "\t" + this.stabilized);
+						+ "\t" + this.relativeVarianceTolerance + "\t" + this.stabilized + "\t"
+						+ this.nullToNothing(this.stabilizedMean));
 			}
 		}
 	}
@@ -157,7 +167,7 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 	@Override
 	public boolean terminate() {
-		return this.stabilized;
+		return this.stabilized && !this.runIndefinitely;
 	}
 
 	// -------------------- INTERNALS --------------------
@@ -198,9 +208,9 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 			int burnInIndex = cutIndices.get(i + 1);
 			this.burnInIteration = burnInIndex;
-
+			this.stabilizedMean = this.mean(means.subList(i + 1, means.size()));
+			
 			boolean threeWindowConsistent = this.checkThreeWindowConsistency(burnInIndex);
-
 			this.stabilized = stableMeans && stableVars && threeWindowConsistent;
 		}
 	}
@@ -214,7 +224,7 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 		Stats w1 = this.computeStats(start, start + _L);
 		Stats w2 = this.computeStats(start + _L, start + 2 * _L);
 		Stats w3 = this.computeStats(start + 2 * _L, _N);
-		
+
 		double meanVariance = mean(w1.variance, w2.variance, w3.variance);
 
 		double meanRange = (this.max(w1.mean, w2.mean, w3.mean) - this.min(w1.mean, w2.mean, w3.mean))
@@ -271,8 +281,12 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 		return Math.min(a, Math.min(b, c));
 	}
 
-	private double mean(double a, double b, double c) {
-		return (a + b + c) / 3.0;
+	private double mean(double... values) {
+		return Arrays.stream(values).average().getAsDouble();
+	}
+
+	private double mean(List<Double> values) {
+		return values.stream().mapToDouble(x -> x).average().getAsDouble();
 	}
 
 	// -------------------- TESTING/EXPLORATION --------------------

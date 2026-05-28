@@ -25,4 +25,16 @@ public class AssignmentCoolingConfigGroup extends ReflectiveConfigGroup {
 	public int getBurnInIterations() {
 		return this.burnInIterations;
 	}
+	
+	private double innovationIterationExponent = 0.5;
+
+	@StringSetter("innovationIterationExponent")
+	public void setInnovationIterationExponent(double innovationIterationExponent) {
+		this.innovationIterationExponent = innovationIterationExponent;
+	}
+
+	@StringGetter("innovationIterationExponent")
+	public double getInnovationIterationExponent() {
+		return this.innovationIterationExponent;
+	}
 }
