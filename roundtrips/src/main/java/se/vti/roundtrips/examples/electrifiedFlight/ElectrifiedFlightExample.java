@@ -144,7 +144,7 @@ public class ElectrifiedFlightExample {
 		var terminationCriterion = new BlockAverageTerminationCriterion<MultiRoundTrip<NodeWithCoords>>()
 				.setCheckInterval(10_000).setMinSamples(10_000)
 				.setConvergenceStatsFileName("electrified-flight_demandWeight" + servedDemandShareWeight
-						+ "_emptySeatWeight" + emptySeatShareWeight + ".tsv");
+						+ "_emptySeatWeight" + emptySeatShareWeight + ".tsv"); // .setRunIndefinitely(true);
 		runner.setTerminationCriterion(terminationCriterion);
 
 		/*
