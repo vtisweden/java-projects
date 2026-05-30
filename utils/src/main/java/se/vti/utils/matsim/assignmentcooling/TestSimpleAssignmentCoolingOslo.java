@@ -41,7 +41,6 @@ public class TestSimpleAssignmentCoolingOslo {
 
 	public static void main(String[] args) {
 
-//		boolean useCooling = true;
 		String configFileName = "./oslo_config_cooling_example.xml";
 //		String configFileName = "./src/test/resources/se/vti/utils/matsim/assignmentcooling/oslo_config_cooling_example.xml";
 
@@ -56,7 +55,7 @@ public class TestSimpleAssignmentCoolingOslo {
 			controler.addOverridingModule(new AbstractModule() {
 				@Override
 				public void install() {
-					this.addControlerListenerBinding().to(SimpleAssignmentCooling.class);
+					this.addControlerListenerBinding().to(SimpleAssignmentCooling2.class);
 				}
 			});
 		}
