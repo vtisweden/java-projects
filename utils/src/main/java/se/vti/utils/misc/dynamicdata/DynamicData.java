@@ -32,14 +32,15 @@ import se.vti.utils.misc.math.MathHelpers;
  * 
  * @author Gunnar Flötteröd
  * 
- * @param <K>
- *            the key type
+ * @param <K> the key type
  */
 public class DynamicData<K> implements Serializable {
 
 	// -------------------- CONSTANTS --------------------
 
 	private static final long serialVersionUID = 1L;
+
+	private final MathHelpers mathHelpers = new MathHelpers();
 
 	private final int startTime_s;
 
@@ -136,18 +137,15 @@ public class DynamicData<K> implements Serializable {
 	// -------------------- ADVANCED CONTENT ACCESS --------------------
 
 	/**
-	 * Returns the sum of entry values for all time bins that overlap with the
-	 * given time interval in the following way: For every bin that is entirely
-	 * contained in [startTime_s, endTime_s), its entry value is summed up; for
-	 * every bin that only partially contained in that interval, only a fraction
-	 * that corresponds to the overlap is summed up.
+	 * Returns the sum of entry values for all time bins that overlap with the given
+	 * time interval in the following way: For every bin that is entirely contained
+	 * in [startTime_s, endTime_s), its entry value is summed up; for every bin that
+	 * only partially contained in that interval, only a fraction that corresponds
+	 * to the overlap is summed up.
 	 * 
-	 * @param key
-	 *            the key of the queried time series
-	 * @param startTime_s
-	 *            the start time in seconds (inclusive)
-	 * @param endTime_s
-	 *            the end time in seconds (exclusive)
+	 * @param key         the key of the queried time series
+	 * @param startTime_s the start time in seconds (inclusive)
+	 * @param endTime_s   the end time in seconds (exclusive)
 	 * 
 	 */
 	public double getSum(final K key, final int startTime_s, final int endTime_s) {
@@ -162,23 +160,20 @@ public class DynamicData<K> implements Serializable {
 
 		double result = 0;
 		for (int bin = startBin; bin <= endBin; bin++) {
-			final double weight = MathHelpers.overlap(binStart_s(bin), binStart_s(bin) + getBinSize_s(), startTime_s,
-					endTime_s) / this.getBinSize_s();
+			final double weight = this.mathHelpers.overlap(binStart_s(bin), binStart_s(bin) + getBinSize_s(),
+					startTime_s, endTime_s) / this.getBinSize_s();
 			result += weight * dataArray[bin];
 		}
 		return result;
 	}
 
 	/**
-	 * Returns the average entry value for all time bins that overlap with the
-	 * given time interval.
+	 * Returns the average entry value for all time bins that overlap with the given
+	 * time interval.
 	 * 
-	 * @param key
-	 *            the key of the queried time series
-	 * @param startTime_s
-	 *            the start time in seconds (inclusive)
-	 * @param endTime_s
-	 *            the end time in seconds (exclusive)
+	 * @param key         the key of the queried time series
+	 * @param startTime_s the start time in seconds (inclusive)
+	 * @param endTime_s   the end time in seconds (exclusive)
 	 * 
 	 */
 	public double getAverage(final K key, final int startTime_s, final int endTime_s) {
@@ -187,14 +182,14 @@ public class DynamicData<K> implements Serializable {
 	}
 
 	/**
-	 * Overrides all entries in this instance for which other has an entry by
-	 * the latter; all other entries of this remain unchanged.
+	 * Overrides all entries in this instance for which other has an entry by the
+	 * latter; all other entries of this remain unchanged.
 	 * 
 	 */
 	public void overrideWithNonZeros(final DynamicData<K> source) {
 		for (Map.Entry<K, double[]> sourceEntry : source.data.entrySet()) {
 			final K key = sourceEntry.getKey();
-			final double[] newValue = MathHelpers.override(this.data.get(key), sourceEntry.getValue(), false);
+			final double[] newValue = this.mathHelpers.override(this.data.get(key), sourceEntry.getValue(), false);
 			this.data.put(key, newValue);
 		}
 	}
@@ -217,7 +212,7 @@ public class DynamicData<K> implements Serializable {
 		}
 		this.binCnt = newBinCnt;
 	}
-	
+
 	// TODO NEW
 	public double sumOfEntries2() {
 		double result = 0;

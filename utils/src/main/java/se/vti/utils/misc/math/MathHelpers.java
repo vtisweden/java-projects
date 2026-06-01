@@ -34,16 +34,16 @@ import java.util.Set;
  */
 public class MathHelpers {
 
-	private static final MathHelpers globalInstance = new MathHelpers();
-	
-	public MathHelpers() {		
+	private static final MathHelpers singleton = new MathHelpers();
+
+	public static MathHelpers singleton() {
+		return singleton;
 	}
-	
-	public static MathHelpers globalInstance() {
-		return globalInstance;
+
+	public MathHelpers() {
 	}
-	
-	public static Double parseDouble(final String s) {
+
+	public Double parseDouble(final String s) {
 		if (s == null) {
 			return null;
 		} else {
@@ -51,7 +51,7 @@ public class MathHelpers {
 		}
 	}
 
-	public static Integer parseInteger(final String s) {
+	public Integer parseInteger(final String s) {
 		if (s == null) {
 			return null;
 		} else {
@@ -59,7 +59,7 @@ public class MathHelpers {
 		}
 	}
 
-	public static Long parseLong(final String s) {
+	public Long parseLong(final String s) {
 		if (s == null) {
 			return null;
 		} else {
@@ -67,7 +67,7 @@ public class MathHelpers {
 		}
 	}
 
-	public static Boolean parseBoolean(final String s) {
+	public Boolean parseBoolean(final String s) {
 		if (s == null) {
 			return null;
 		} else {
@@ -75,30 +75,27 @@ public class MathHelpers {
 		}
 	}
 
-	public static double length(final double x1, final double y1,
-			final double x2, final double y2) {
+	public double length(final double x1, final double y1, final double x2, final double y2) {
 		final double dx = x2 - x1;
 		final double dy = y2 - y1;
 		return Math.sqrt(dx * dx + dy * dy);
 	}
 
-	public static double overlap(final double start1, final double end1,
-			final double start2, final double end2) {
+	public double overlap(final double start1, final double end1, final double start2, final double end2) {
 		return Math.max(0, (Math.min(end1, end2) - Math.max(start1, start2)));
 	}
 
-	public static double round(final double x, final int digits) {
+	public double round(final double x, final int digits) {
 		final double fact = Math.pow(10.0, digits);
 		return Math.round(x * fact) / fact;
 	}
 
-	public static int round(final double x) {
+	public int round(final double x) {
 		return (int) round(x, 0);
 	}
 
 	// TODO NEW
-	public static synchronized <T> Set<T> drawWithoutReplacement(int n,
-			final Collection<T> collection, final Random rnd) {
+	public <T> Set<T> drawWithoutReplacement(int n, final Collection<T> collection, final Random rnd) {
 		final Set<T> result = new LinkedHashSet<T>();
 		while ((result.size() < n) && (result.size() < collection.size())) {
 			result.add(draw(collection, rnd));
@@ -107,7 +104,7 @@ public class MathHelpers {
 	}
 
 	// TODO NEW
-	public static <T> T draw(final Collection<T> collection, final Random rnd) {
+	public <T> T draw(final Collection<T> collection, final Random rnd) {
 		final int index = rnd.nextInt(collection.size());
 		Iterator<T> it = collection.iterator();
 		for (int i = 0; i < index; i++) {
@@ -117,20 +114,17 @@ public class MathHelpers {
 	}
 
 	// TODO NEW
-	public static <T> T drawAndRemove(final Collection<T> collection,
-			final Random rnd) {
+	public <T> T drawAndRemove(final Collection<T> collection, final Random rnd) {
 		final T result = draw(collection, rnd);
 		collection.remove(result);
 		return result;
 	}
 
-	public static double draw(final double lower, final double upper,
-			final Random rnd) {
+	public double draw(final double lower, final double upper, final Random rnd) {
 		return lower + rnd.nextDouble() * (upper - lower);
 	}
 
-	public static double[] override(final double[] dest, final double[] source,
-			final boolean overrideWithZeros) {
+	public double[] override(final double[] dest, final double[] source, final boolean overrideWithZeros) {
 		if (source == null) {
 			if (overrideWithZeros) {
 				return null;
@@ -154,11 +148,10 @@ public class MathHelpers {
 	}
 
 	// TODO NEW
-	public static <E> E draw(final Map<E, Double> event2proba, final Random rnd) {
+	public <E> E draw(final Map<E, Double> event2proba, final Random rnd) {
 		final double x = rnd.nextDouble();
 		double pSum = 0;
-		final Iterator<Map.Entry<E, Double>> it = event2proba.entrySet()
-				.iterator();
+		final Iterator<Map.Entry<E, Double>> it = event2proba.entrySet().iterator();
 		E result = null;
 		do {
 			Map.Entry<E, Double> next = it.next();
@@ -169,12 +162,10 @@ public class MathHelpers {
 	}
 
 	// TODO NEW
-	public static <E> E draw(final Map<E, Double> event2weight,
-			final double weightSum, final Random rnd) {
+	public <E> E draw(final Map<E, Double> event2weight, final double weightSum, final Random rnd) {
 		final double x = weightSum * rnd.nextDouble();
 		double cumulativeWeight = 0;
-		final Iterator<Map.Entry<E, Double>> it = event2weight.entrySet()
-				.iterator();
+		final Iterator<Map.Entry<E, Double>> it = event2weight.entrySet().iterator();
 		E result = null;
 		do {
 			Map.Entry<E, Double> next = it.next();
@@ -185,7 +176,7 @@ public class MathHelpers {
 	}
 
 	// TODO NEW
-	public static int drawIndex(double[] probas, Random rnd) {
+	public int drawIndex(double[] probas, Random rnd) {
 		double u = rnd.nextDouble();
 		double probaSum = 0.0;
 		for (int i = 0; i < probas.length; i++) {
@@ -196,11 +187,10 @@ public class MathHelpers {
 		}
 		return (probas.length - 1);
 	}
-	
+
 	// TODO NEW
 	// the order of the bounds does not matter
-	public static double projectOnInterval(final double value,
-			final double bound1, final double bound2) {
+	public double projectOnInterval(final double value, final double bound1, final double bound2) {
 		double halfBounded = Math.max(value, Math.min(bound1, bound2));
 		return Math.min(halfBounded, Math.max(bound1, bound2));
 	}
@@ -216,7 +206,7 @@ public class MathHelpers {
 		double bFreq = 0;
 		double cFreq = 0;
 		for (int i = 0; i < 1000; i++) {
-			final String draw = draw(m, 3, new Random());
+			final String draw = singleton().draw(m, 3, new Random());
 			if ("A".equals(draw)) {
 				aFreq++;
 			} else if ("B".equals(draw)) {
