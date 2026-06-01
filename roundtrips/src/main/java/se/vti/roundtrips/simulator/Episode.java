@@ -32,6 +32,8 @@ import se.vti.utils.misc.math.MathHelpers;
  */
 public class Episode {
 
+	private final MathHelpers mathHelpers = new MathHelpers();
+
 	private Double duration_h = null;
 	private Double end_h = null;
 
@@ -150,7 +152,7 @@ public class Episode {
 		double overlap_h = 0.0;
 		for (Tuple<Double, Double> int1 : this.effectiveIntervals(periodLength_h)) {
 			for (Tuple<Double, Double> int2 : intervals) {
-				overlap_h += MathHelpers.overlap(int1.getA(), int1.getB(), int2.getA(), int2.getB());
+				overlap_h += this.mathHelpers.overlap(int1.getA(), int1.getB(), int2.getA(), int2.getB());
 			}
 		}
 		return overlap_h;
@@ -159,7 +161,8 @@ public class Episode {
 	public double overlap_h(Tuple<Double, Double> interval, double periodLength_h) {
 		double overlap_h = 0.0;
 		for (Tuple<Double, Double> myInterval : this.effectiveIntervals(periodLength_h)) {
-			overlap_h += MathHelpers.overlap(myInterval.getA(), myInterval.getB(), interval.getA(), interval.getB());
+			overlap_h += this.mathHelpers.overlap(myInterval.getA(), myInterval.getB(), interval.getA(),
+					interval.getB());
 		}
 		return overlap_h;
 	}
@@ -174,7 +177,7 @@ public class Episode {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + ":time(" + MathHelpers.round(this.end_h - this.duration_h, 2) + ","
-				+ MathHelpers.round(this.end_h, 2) + ")";
+		return this.getClass().getSimpleName() + ":time(" + this.mathHelpers.round(this.end_h - this.duration_h, 2)
+				+ "," + this.mathHelpers.round(this.end_h, 2) + ")";
 	}
 }

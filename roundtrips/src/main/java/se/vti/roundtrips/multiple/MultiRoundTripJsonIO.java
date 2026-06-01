@@ -55,13 +55,19 @@ import se.vti.roundtrips.single.RoundTripJsonIO;
  */
 public class MultiRoundTripJsonIO {
 
+	private static final MultiRoundTripJsonIO singleton = new MultiRoundTripJsonIO();
+
+	public static MultiRoundTripJsonIO singleton() {
+		return singleton;
+	}
+
 	private MultiRoundTripJsonIO() {
 	}
 
 	private static class Serializer extends JsonSerializer<MultiRoundTrip<? extends Node>> {
 		@Override
-		public synchronized void serialize(MultiRoundTrip<? extends Node> value, JsonGenerator gen,
-				SerializerProvider serializers) throws IOException {
+		public void serialize(MultiRoundTrip<? extends Node> value, JsonGenerator gen, SerializerProvider serializers)
+				throws IOException {
 			gen.writeStartArray();
 			for (RoundTrip<? extends Node> roundTrip : value) {
 				gen.writeObject(roundTrip);
@@ -70,20 +76,9 @@ public class MultiRoundTripJsonIO {
 		}
 	}
 
-	public static synchronized void writeToFile(MultiRoundTrip<? extends Node> multiRoundTrip, String fileName)
-			throws JsonGenerationException, JsonMappingException, IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.enable(SerializationFeature.INDENT_OUTPUT);
-		SimpleModule module = new SimpleModule();
-		module.addSerializer((Class) RoundTrip.class, new RoundTripJsonIO.Serializer());
-		module.addSerializer((Class) MultiRoundTrip.class, new MultiRoundTripJsonIO.Serializer());
-		mapper.registerModule(module);
-		mapper.writeValue(new File(fileName), multiRoundTrip);
-	}
-
 	private static class Deserializer extends JsonDeserializer<MultiRoundTrip<Node>> {
 		@Override
-		public synchronized MultiRoundTrip<Node> deserialize(JsonParser p, DeserializationContext ctxt)
+		public MultiRoundTrip<Node> deserialize(JsonParser p, DeserializationContext ctxt)
 				throws IOException, JsonProcessingException {
 			JsonNode root = p.getCodec().readTree(p);
 			List<RoundTrip<Node>> roundTrips = new ArrayList<>();
@@ -99,7 +94,18 @@ public class MultiRoundTripJsonIO {
 		}
 	}
 
-	public static synchronized <N extends Node> MultiRoundTrip<N> readFromFile(Scenario<N> scenario, String fileName)
+	public void writeToFile(MultiRoundTrip<? extends Node> multiRoundTrip, String fileName)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		SimpleModule module = new SimpleModule();
+		module.addSerializer((Class) RoundTrip.class, new RoundTripJsonIO.Serializer());
+		module.addSerializer((Class) MultiRoundTrip.class, new MultiRoundTripJsonIO.Serializer());
+		mapper.registerModule(module);
+		mapper.writeValue(new File(fileName), multiRoundTrip);
+	}
+
+	public <N extends Node> MultiRoundTrip<N> readFromFile(Scenario<N> scenario, String fileName)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();

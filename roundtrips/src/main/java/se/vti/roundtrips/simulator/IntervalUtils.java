@@ -31,6 +31,8 @@ import se.vti.utils.misc.math.MathHelpers;
  */
 public class IntervalUtils {
 
+	private final MathHelpers mathHelpers = new MathHelpers();
+
 	private final double periodLength_h;
 
 	public IntervalUtils(double periodLength_h) {
@@ -54,14 +56,15 @@ public class IntervalUtils {
 	}
 
 	/**
-	 * Requires the entries *within* each interval list argument to be non-overlapping.
-	 * This is guaranteed if the lists have been computed by extractIntervals(...)
+	 * Requires the entries *within* each interval list argument to be
+	 * non-overlapping. This is guaranteed if the lists have been computed by
+	 * extractIntervals(...)
 	 */
 	public double computeOverlap_h(List<Tuple<Double, Double>> intervals1, List<Tuple<Double, Double>> intervals2) {
 		double result_h = 0.0;
 		for (Tuple<Double, Double> int1 : intervals1) {
 			for (Tuple<Double, Double> int2 : intervals2) {
-				result_h += MathHelpers.overlap(int1.getA(), int1.getB(), int2.getA(), int2.getB());
+				result_h += this.mathHelpers.overlap(int1.getA(), int1.getB(), int2.getA(), int2.getB());
 			}
 		}
 		return result_h;

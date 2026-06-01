@@ -65,7 +65,7 @@ class TestRoundTripJSonIO {
 			RoundTrip<Node> rt = new RoundTrip<>(0, Arrays.asList(home, work), Arrays.asList(7, 18));
 			File out = tempFile("rt-node.json");
 
-			RoundTripJsonIO.writeToFile(rt, out.getAbsolutePath());
+			RoundTripJsonIO.singleton().writeToFile(rt, out.getAbsolutePath());
 
 			ObjectMapper om = new ObjectMapper();
 			JsonNode root = om.readTree(out);
@@ -96,8 +96,8 @@ class TestRoundTripJSonIO {
 			RoundTrip<Node> original = new RoundTrip<>(42, Arrays.asList(home, work), dpts);
 			File out = tempFile("rt-node-roundtrip.json");
 
-			RoundTripJsonIO.writeToFile(original, out.getAbsolutePath());
-			RoundTrip<Node> restored = RoundTripJsonIO.readFromFile(scenario, out.getAbsolutePath());
+			RoundTripJsonIO.singleton().writeToFile(original, out.getAbsolutePath());
+			RoundTrip<Node> restored = RoundTripJsonIO.singleton().readFromFile(scenario, out.getAbsolutePath());
 
 			assertNotNull(restored);
 			assertEquals(42, restored.getIndex());
@@ -126,7 +126,7 @@ class TestRoundTripJSonIO {
 			RoundTrip<NodeWithCoords> rt = new RoundTrip<>(0, Arrays.asList(home, work), Arrays.asList(7, 18));
 			File out = tempFile("rt-nodecoords.json");
 
-			RoundTripJsonIO.writeToFile(rt, out.getAbsolutePath());
+			RoundTripJsonIO.singleton().writeToFile(rt, out.getAbsolutePath());
 
 			ObjectMapper om = new ObjectMapper();
 			JsonNode root = om.readTree(out);
@@ -151,8 +151,9 @@ class TestRoundTripJSonIO {
 			RoundTrip<NodeWithCoords> original = new RoundTrip<>(7, Arrays.asList(home, work), Arrays.asList(8, 19));
 			File out = tempFile("rt-nodecoords-roundtrip.json");
 
-			RoundTripJsonIO.writeToFile(original, out.getAbsolutePath());
-			RoundTrip<NodeWithCoords> restored = RoundTripJsonIO.readFromFile(scenario, out.getAbsolutePath());
+			RoundTripJsonIO.singleton().writeToFile(original, out.getAbsolutePath());
+			RoundTrip<NodeWithCoords> restored = RoundTripJsonIO.singleton().readFromFile(scenario,
+					out.getAbsolutePath());
 
 			assertNotNull(restored);
 			assertEquals(7, restored.getIndex());

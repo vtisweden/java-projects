@@ -49,12 +49,18 @@ import se.vti.roundtrips.common.Scenario;
  */
 public class RoundTripJsonIO {
 
-	private RoundTripJsonIO() {
+	private static final RoundTripJsonIO singleton = new RoundTripJsonIO();
+	
+	public static RoundTripJsonIO singleton() {
+		return singleton;
+	}
+	
+	public RoundTripJsonIO() {
 	}
 
 	public static class Serializer extends JsonSerializer<RoundTrip<? extends Node>> {
 		@Override
-		public synchronized void serialize(RoundTrip<? extends Node> value, JsonGenerator gen,
+		public void serialize(RoundTrip<? extends Node> value, JsonGenerator gen,
 				SerializerProvider serializers) throws IOException {
 			gen.writeStartObject();
 			gen.writeFieldName("index");
@@ -84,7 +90,7 @@ public class RoundTripJsonIO {
 		}
 
 		@Override
-		public synchronized RoundTrip<N> deserialize(JsonParser p, DeserializationContext ctxt)
+		public RoundTrip<N> deserialize(JsonParser p, DeserializationContext ctxt)
 				throws IOException, JsonProcessingException {
 
 			JsonNode node = p.getCodec().readTree(p);
@@ -106,7 +112,7 @@ public class RoundTripJsonIO {
 		}
 	}
 
-	public static synchronized void writeToFile(RoundTrip<? extends Node> roundTrip, String fileName)
+	public void writeToFile(RoundTrip<? extends Node> roundTrip, String fileName)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -116,7 +122,7 @@ public class RoundTripJsonIO {
 		mapper.writeValue(new File(fileName), roundTrip);
 	}
 
-	public static synchronized <N extends Node> RoundTrip<N> readFromFile(Scenario<N> scenario, String fileName)
+	public <N extends Node> RoundTrip<N> readFromFile(Scenario<N> scenario, String fileName)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();

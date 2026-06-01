@@ -54,8 +54,8 @@ class TestMultiRoundTripJsonIO {
 				new RoundTrip<>(0, Arrays.asList(home, work), Arrays.asList(7, 18)));
 		multiRoundTrip.setRoundTripAndUpdateSummaries(1,
 				new RoundTrip<>(1, Arrays.asList(home, school), Arrays.asList(9, 13)));
-		MultiRoundTripJsonIO.writeToFile(multiRoundTrip, tempFile.toString());
-		multiRoundTrip = MultiRoundTripJsonIO.readFromFile(scenario, tempFile.toString());
+		MultiRoundTripJsonIO.singleton().writeToFile(multiRoundTrip, tempFile.toString());
+		multiRoundTrip = MultiRoundTripJsonIO.singleton().readFromFile(scenario, tempFile.toString());
 		System.out.println(multiRoundTrip);
 
 		Assertions.assertEquals(2, multiRoundTrip.size());
