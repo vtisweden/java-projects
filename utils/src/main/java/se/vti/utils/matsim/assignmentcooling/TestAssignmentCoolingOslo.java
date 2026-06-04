@@ -37,7 +37,7 @@ import org.matsim.core.scenario.ScenarioUtils;
  * @author Gunnar Flötteröd
  */
 
-public class TestSimpleAssignmentCoolingOslo {
+public class TestAssignmentCoolingOslo {
 
 	public static void main(String[] args) {
 
@@ -55,7 +55,7 @@ public class TestSimpleAssignmentCoolingOslo {
 			controler.addOverridingModule(new AbstractModule() {
 				@Override
 				public void install() {
-					this.addControlerListenerBinding().to(SimpleAssignmentCooling2.class);
+					this.addControlerListenerBinding().to(AssignmentCooling.class);
 				}
 			});
 		}

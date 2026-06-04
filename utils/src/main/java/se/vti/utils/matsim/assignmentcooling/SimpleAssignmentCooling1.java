@@ -23,16 +23,16 @@ import com.google.inject.Singleton;
  * @author GunnarF
  */
 @Singleton
-public class SimpleAssignmentCooling implements IterationStartsListener, StartupListener {
+public class SimpleAssignmentCooling1 implements IterationStartsListener, StartupListener {
 
-	private static final Logger log = LogManager.getLogger(SimpleAssignmentCooling.class);
+	private static final Logger log = LogManager.getLogger(SimpleAssignmentCooling1.class);
 
 	private final AssignmentCoolingConfigGroup coolingConfig;
 
 	private Set<String> allSubpopulations = null;
 
 	@Inject
-	public SimpleAssignmentCooling(Config config) {
+	public SimpleAssignmentCooling1(Config config) {
 		if (!config.replanning().getPlanSelectorForRemoval().equals(DefaultPlansRemover.WorstPlanSelector.toString())) {
 			throw new RuntimeException(
 					"Must use " + DefaultPlansRemover.WorstPlanSelector.toString() + " plan selector for removal.");

@@ -37,17 +37,17 @@ public class AssignmentCoolingConfigGroup extends ReflectiveConfigGroup {
 	public double getInnovationIterationExponent() {
 		return this.innovationIterationExponent;
 	}
-	
-//	private double selectionIterationExponent = 0.5;
-//
-//	@StringSetter("selectionIterationExponent")
-//	public void setSelectionIterationExponent(double selectionIterationExponent) {
-//		this.selectionIterationExponent = selectionIterationExponent;
-//	}
-//
-//	@StringGetter("selectionIterationExponent")
-//	public double getSelectionIterationExponent() {
-//		return this.selectionIterationExponent;
-//	}
+
+	private double selectionIterationExponent = 0.5;
+
+	@StringSetter("selectionIterationExponent")
+	public void setSelectionIterationExponent(double selectionIterationExponent) {
+		this.selectionIterationExponent = selectionIterationExponent;
+	}
+
+	@StringGetter("selectionIterationExponent")
+	public double getSelectionIterationExponent() {
+		return this.selectionIterationExponent;
+	}
 
 }
