@@ -16,8 +16,6 @@ import org.matsim.core.controler.listener.IterationStartsListener;
 import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.core.population.PopulationUtils;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule.DefaultPlansRemover;
-import org.matsim.core.replanning.strategies.KeepLastSelected;
-import org.matsim.core.replanning.strategies.SelectRandom;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -99,11 +97,10 @@ public class AssignmentCooling implements IterationStartsListener, StartupListen
 			if (postBurnInIterations >= 0) {
 				totalInnovationRate *= Math.pow(postBurnInIterations + 1,
 						(-1.0) * this.coolingConfig.getInnovationIterationExponent());
-				selectRandomRate = Math.min(selectRandomRate,
-						Math.pow(postBurnInIterations + 1,
-								(-1.0) * this.coolingConfig.getSelectionIterationExponent()));
+				selectRandomRate = Math.min(selectRandomRate, Math.pow(postBurnInIterations + 1,
+						(-1.0) * this.coolingConfig.getSelectionIterationExponent()));
 			}
-			
+
 			final double individualInnovationRate = totalInnovationRate / innovationStrategies.size();
 			final double keepLastSelectedRate = Math.max(0.0, 1.0 - totalInnovationRate - selectRandomRate);
 
@@ -115,9 +112,9 @@ public class AssignmentCooling implements IterationStartsListener, StartupListen
 			for (var strategy : strategyManager.getStrategies(subpopulation)) {
 				String strategyName = strategy.toString();
 				final double weight;
-				if (SelectRandom.class.getSimpleName().toString().equals(strategyName)) {
+				if ("RandomPlanSelector".equals(strategyName)) {
 					weight = selectRandomRate;
-				} else if (KeepLastSelected.class.getSimpleName().toString().equals(strategyName)) {
+				} else if ("KeepSelected".equals(strategyName)) {
 					weight = keepLastSelectedRate;
 				} else {
 					weight = individualInnovationRate;
