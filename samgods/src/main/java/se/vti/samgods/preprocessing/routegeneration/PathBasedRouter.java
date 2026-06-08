@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.samgods.network;
+package se.vti.samgods.preprocessing.routegeneration;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -53,11 +53,11 @@ import se.vti.samgods.transportation.consolidation.ConsolidationUnit;
  * @author GunnarF
  *
  */
-public class Router {
+public class PathBasedRouter {
 
 	// -------------------- LOGGING, ONLY FOR TESTING --------------------
 
-	private static final Logger log = LogManager.getLogger(Router.class);
+	private static final Logger log = LogManager.getLogger(PathBasedRouter.class);
 
 	private long lastUpdate_ms = System.currentTimeMillis();
 
@@ -222,16 +222,16 @@ public class Router {
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public Router(NetworkAndFleetDataProvider networkAndFleetDataProvider) {
+	public PathBasedRouter(NetworkAndFleetDataProvider networkAndFleetDataProvider) {
 		this.networkAndFleetDataProvider = networkAndFleetDataProvider;
 	}
 
-	public Router setLogProgress(boolean logProgress) {
+	public PathBasedRouter setLogProgress(boolean logProgress) {
 		this.logProgress = logProgress;
 		return this;
 	}
 
-	public Router setMaxThreads(int maxThreads) {
+	public PathBasedRouter setMaxThreads(int maxThreads) {
 		this.maxThreads = maxThreads;
 		return this;
 	}

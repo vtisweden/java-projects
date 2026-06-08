@@ -60,7 +60,7 @@ public class TransportDemandStatsTable {
 		for (int i = 0; i < Math.min(maxRowCnt, sortedEntries.size()); i++) {
 			Map.Entry<List<SamgodsConstants.TransportMode>, Integer> entry = sortedEntries.get(i);
 			table.addRow(i + 1, entry.getKey(), entry.getValue(),
-					MathHelpers.round(100.0 * entry.getValue().doubleValue() / total, 2));
+					MathHelpers.singleton().round(100.0 * entry.getValue().doubleValue() / total, 2));
 			table.addRule();
 		}
 
