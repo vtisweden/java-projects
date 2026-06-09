@@ -72,6 +72,7 @@ import se.vti.samgods.logistics.costs.NonTransportCostModel;
 import se.vti.samgods.logistics.costs.NonTransportCostModel_v1_22;
 import se.vti.samgods.network.NetworkReader;
 import se.vti.samgods.preprocessing.routegeneration.PathBasedRouter;
+import se.vti.samgods.preprocessing.routegeneration.TreeBasedRouter;
 import se.vti.samgods.transportation.consolidation.ConsolidationJob;
 import se.vti.samgods.transportation.consolidation.ConsolidationUnit;
 import se.vti.samgods.transportation.consolidation.HalfLoopConsolidationJobProcessor;
@@ -301,8 +302,10 @@ public class SamgodsRunner {
 			 * Routing changes the behavior of hashcode(..) / equals(..) in
 			 * ConsolidationUnit, but this should matter in the *values* of a HashMap.
 			 */
-			new PathBasedRouter(NetworkAndFleetDataProvider.getProviderInstance()).setLogProgress(true)
-					.setMaxThreads(this.maxThreads).route(consolidationUnitPattern2representativeUnit.values());
+//			new PathBasedRouter(NetworkAndFleetDataProvider.getProviderInstance()).setLogProgress(true)
+//					.setMaxThreads(this.maxThreads).route(consolidationUnitPattern2representativeUnit.values());
+			new TreeBasedRouter(NetworkAndFleetDataProvider.getProviderInstance()).setMaxThreads(this.maxThreads)
+					.route(consolidationUnitPattern2representativeUnit.values());
 
 			/*
 			 * Stream routed consolidation units to json file.

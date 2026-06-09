@@ -24,16 +24,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 
-import se.vti.samgods.calibration.ascs.TransportWorkAscCalibrator;
 import se.vti.samgods.common.SamgodsConfigGroup;
 import se.vti.samgods.common.SamgodsConstants;
-import se.vti.samgods.common.SamgodsRunner;
 import se.vti.samgods.common.SamgodsConstants.Commodity;
+import se.vti.samgods.common.SamgodsRunner;
 
 /**
  * 
@@ -56,11 +55,11 @@ public class TestSamgods {
 
 		Config config = ConfigUtils.loadConfig("config.xml");
 		SamgodsConfigGroup samgodsConfig = ConfigUtils.addOrGetModule(config, SamgodsConfigGroup.class);
-		
-		final double scaleFactor = 1.0; 
+
+		final double scaleFactor = 1.0;
 //		SamgodsRunner runner = new SamgodsRunner(samgodsConfig).setServiceInterval_days(7)
 //				.setConsideredCommodities(SamgodsConstants.Commodity.AGRICULTURE).setSamplingRate(0.001)
-//				.setMaxThreads(Integer.MAX_VALUE).setScale(Commodity.AGRICULTURE, scaleFactor * 0.0004)
+//				.setMaxThreads(1).setScale(Commodity.AGRICULTURE, scaleFactor * 0.0004)
 //				.setScale(Commodity.COAL, scaleFactor * 0.0000001).setScale(Commodity.METAL, scaleFactor * 0.0000001
 //				/* METAL: using coal parameter because, estimated has wrong sign */)
 //				.setScale(Commodity.FOOD, scaleFactor * 0.00006).setScale(Commodity.TEXTILES, scaleFactor * 0.0003)
@@ -91,17 +90,18 @@ public class TestSamgods {
 				.setScale(Commodity.TIMBER, scaleFactor * 0.00009).setScale(Commodity.AIR, scaleFactor * 0.00005)
 				.setEnforceReroute(false);
 
-		runner.loadVehiclesOtherThan("WG950", "KOMXL", "SYSXL", "WGEXL", "HGV74", "ROF7", "RAF5", "INW", "ROF2", "ROF5");
+		runner.loadVehiclesOtherThan("WG950", "KOMXL", "SYSXL", "WGEXL", "HGV74", "ROF7", "RAF5", "INW", "ROF2",
+				"ROF5");
 //		runner.checkAvailableVehicles();
 
 		runner.loadNetwork();
 
 		runner.setNetworkFlowsFileName("linkId2commodity2annualAmount_ton.json");
-		
+
 		runner.loadTransportDemand("./input_2024/ChainChoi", "XTD.out");
 
 		runner.createOrLoadConsolidationUnits();
-		
+
 		runner.run();
 
 		log.info("DONE");

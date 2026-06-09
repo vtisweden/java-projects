@@ -21,6 +21,7 @@ package se.vti.samgods.preprocessing.routegeneration;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,7 +49,6 @@ import se.vti.samgods.common.OD;
 import se.vti.samgods.common.SamgodsConstants;
 import se.vti.samgods.common.SamgodsConstants.Commodity;
 import se.vti.samgods.transportation.consolidation.ConsolidationUnit;
-import se.vti.utils.misc.math.MathHelpers;
 
 /**
  * 
@@ -59,30 +59,34 @@ import se.vti.utils.misc.math.MathHelpers;
  */
 public class TreeBasedRouter {
 
-	// -------------------- LOGGING, ONLY FOR TESTING --------------------
+	// -------------------- LOGGING --------------------
 
 	private static final Logger log = LogManager.getLogger(TreeBasedRouter.class);
 
 	private static int done = 0;
+	private static final int inc_pct = 1;
+	private static int nextOutput_pct;
 	private static Integer total = null;
-	private static double nextOutput;
 
 	private static synchronized void resetCounter(int total) {
 		done = 0;
-		nextOutput = 5; // 5 %.
+		nextOutput_pct = inc_pct;
 		TreeBasedRouter.total = total;
 	}
 
 	private static synchronized void incDone() {
 		done++;
-		double progress = MathHelpers.singleton().round(100.0 * done / total, 3);
-		if (progress >= nextOutput) {
-			log.info(progress + "% done");
-			nextOutput += 5; // Add 5 %.
+		double progress_pct = 100.0 * done / total;
+		if (progress_pct >= nextOutput_pct) {
+			log.info(progress_pct + "% done");
+			nextOutput_pct += inc_pct;
 		}
 	}
 
-	static class Job {
+	// -------------------- PARALLEL IMPLEMENTATION --------------------
+
+	private static class Job {
+
 		final static Job TERMINATE = new Job(null); // poison pill
 
 		static record Key(Commodity commodity, SamgodsConstants.TransportMode samgodsMode, Boolean isContainer) {
@@ -90,7 +94,7 @@ public class TreeBasedRouter {
 
 		final Key key;
 
-		final Map<OD, List<ConsolidationUnit>> od2ConsolidationUnits = new LinkedHashMap<>();
+		private final Map<OD, List<ConsolidationUnit>> od2ConsolidationUnits = new LinkedHashMap<>();
 
 		Job(Key key) {
 			this.key = key;
@@ -130,73 +134,89 @@ public class TreeBasedRouter {
 		private final NetworkAndFleetData networkAndFleetData;
 		private final BlockingQueue<Job> jobQueue;
 
-		private final Map<VehicleType, LeastCostPathTree> vehicleType2leastCostPathTree = new LinkedHashMap<>();
-
 		LeastCostPathTreeRunner(String name, NetworkAndFleetData networkAndFleetData, BlockingQueue<Job> jobQueue) {
 			this.name = name;
 			this.networkAndFleetData = networkAndFleetData;
 			this.jobQueue = jobQueue;
 		}
 
-		/* TODO */ void process(Job job) {
+		void process(Job job) {
 
 			final Set<VehicleType> compatibleVehicleTypes = this.networkAndFleetData
 					.getCompatibleVehicleTypes(job.getCommodity(), job.getSamgodsMode(), job.isContainer());
 			for (VehicleType vehicleType : compatibleVehicleTypes) {
 
+//				log.info("THREAD " + this.name + " processing vehicle type: " + vehicleType);
+
 				final Network unimodalNetwork = this.networkAndFleetData.getUnimodalNetwork(vehicleType);
 				if (unimodalNetwork == null) {
 					log.warn("No network available. Skipping job: " + job);
-//					return null;
+					return;
 				}
-
-				final LeastCostPathTree lcpt = this.vehicleType2leastCostPathTree.computeIfAbsent(vehicleType, vt -> {
-					final TravelDisutility travelDisutility = this.networkAndFleetData.getTravelDisutility(vehicleType);
-					final TravelTime travelTime = this.networkAndFleetData.getTravelTime(vehicleType);
-					if (travelTime == null) {
-						log.warn("No TravelTime available. Skipping job: " + job);
-						return null;
-					}
-					if (travelDisutility == null) {
-						log.warn("No TravelDisutility available. Skipping job: " + job);
-						return null;
-					}
-					return new LeastCostPathTree(travelTime, travelDisutility);
-				});
-				if (lcpt == null) {
-					log.warn("No LeastCostPathTree available. Skipping job: " + job);
-//					return null;
+				final TravelDisutility travelDisutility = this.networkAndFleetData.getTravelDisutility(vehicleType);
+				if (travelDisutility == null) {
+					log.warn("No TravelDisutility available. Skipping job: " + job);
+					return;
 				}
+				final TravelTime travelTime = this.networkAndFleetData.getTravelTime(vehicleType);
+				if (travelTime == null) {
+					log.warn("No TravelTime available. Skipping job: " + job);
+					return;
+				}
+				final LeastCostPathTree lcpt = new LeastCostPathTree(travelTime, travelDisutility);
 
-				Set<Id<Node>> originIds = job.computeOriginIds();
-				Set<Id<Node>> destinationIds = job.computeDestinationIds();
+				final Set<Id<Node>> originIds = job.computeOriginIds();
+				final Set<Id<Node>> destinationIds = job.computeDestinationIds();
 
 				for (Id<Node> originId : originIds) {
-					
+
+//					log.info("THREAD " + this.name + " processing origin: " + originId);
+
 					Node origin = unimodalNetwork.getNodes().get(originId);
-					lcpt.calculate(unimodalNetwork, origin, 0.0);
+					
+					if (origin == null) {
+						log.warn("Origin node " + originId + " does not exist in (presumably cleaned) network.");
+					} else {
+					
+						lcpt.calculate(unimodalNetwork, origin, 0.0);
 
-					final Map<Node, Link> node2inLinks = new LinkedHashMap<>();
-					for (Map.Entry<Id<Node>, LeastCostPathTree.NodeData> entry : lcpt.getTree().entrySet()) {
-						if (entry.getValue().getPrevNodeId() != null) {
-							final Node fromNode = unimodalNetwork.getNodes().get(entry.getValue().getPrevNodeId());
-							final Node toNode = unimodalNetwork.getNodes().get(entry.getKey());
-							final Link link = NetworkUtils.getConnectingLink(fromNode, toNode);
-							node2inLinks.put(toNode, link);
+						final Map<Node, Link> node2inLinks = new LinkedHashMap<>();
+						for (Map.Entry<Id<Node>, LeastCostPathTree.NodeData> entry : lcpt.getTree().entrySet()) {
+							if (entry.getValue().getPrevNodeId() != null) {
+								final Node fromNode = unimodalNetwork.getNodes().get(entry.getValue().getPrevNodeId());
+								final Node toNode = unimodalNetwork.getNodes().get(entry.getKey());
+								final Link link = NetworkUtils.getConnectingLink(fromNode, toNode);
+								node2inLinks.put(toNode, link);
+							}
 						}
-					}
 
-					for (Id<Node> destinationId : destinationIds) {
-						LinkedList<Link> route = new LinkedList<>();
-						Node currentNode = unimodalNetwork.getNodes().get(destinationId);
-						while (currentNode != origin) {							
-							Link link = node2inLinks.get(currentNode);
-							route.addFirst(link);
-							currentNode = link.getFromNode();
-						}					
-						for (ConsolidationUnit cu : job.od2ConsolidationUnits.get(new OD(originId, destinationId))) {
-							cu.setRouteFromLinks(vehicleType, route);
-						}
+						for (Id<Node> destinationId : destinationIds) {
+							Node currentNode = unimodalNetwork.getNodes().get(destinationId);
+							
+							if (currentNode == null) {
+								log.warn("Destination node " + destinationId + " does not exist in (presumably cleaned) network.");
+							} else {
+							
+								LinkedList<Link> route = new LinkedList<>();
+								boolean routeIsFeasible = true;
+								while (routeIsFeasible && (currentNode != origin)) {
+									Link link = node2inLinks.get(currentNode);
+									if (link != null) {
+										route.addFirst(link);
+										currentNode = link.getFromNode();
+									} else {
+										routeIsFeasible = false;
+									}
+								}
+								if (routeIsFeasible) {
+									for (ConsolidationUnit cu : job.od2ConsolidationUnits
+											.getOrDefault(new OD(originId, destinationId), Collections.emptyList())) {
+										cu.setRouteFromLinks(vehicleType, route);
+									}
+								}
+
+							}							
+						}	
 					}
 				}
 			}
@@ -204,7 +224,7 @@ public class TreeBasedRouter {
 
 		@Override
 		public void run() {
-			log.info("THREAD STARTED: " + this.name);
+			log.info("ROUTING THREAD STARTED: " + this.name);
 			try {
 				while (true) {
 					Job job = this.jobQueue.take();
@@ -221,7 +241,7 @@ public class TreeBasedRouter {
 		}
 	}
 
-	// -------------------- CONSTANTS AND MEMBERS --------------------
+	// -------------------- MEMBERS --------------------
 
 	private final NetworkAndFleetDataProvider networkAndFleetDataProvider;
 
@@ -242,9 +262,9 @@ public class TreeBasedRouter {
 
 	public void routeInternally(Collection<Job> allJobs) {
 		try {
-			
+
 			resetCounter(allJobs.size());
-			
+
 			final int threadCnt = Math.min(this.maxThreads, Runtime.getRuntime().availableProcessors());
 			final BlockingQueue<Job> jobQueue = new LinkedBlockingQueue<>(10 * threadCnt);
 			final List<Thread> routingThreads = new ArrayList<>();
@@ -264,7 +284,7 @@ public class TreeBasedRouter {
 				jobQueue.put(job);
 			}
 
-			log.info("Waiting for tree routing jobs to complete.");
+			log.info("Waiting for routing jobs to complete.");
 			for (int i = 0; i < routingThreads.size(); i++) {
 				jobQueue.put(Job.TERMINATE);
 			}
@@ -277,13 +297,14 @@ public class TreeBasedRouter {
 		}
 	}
 
-	public void route(Iterable<ConsolidationUnit> consolidationUnits) {
+	public void route(Collection<ConsolidationUnit> consolidationUnits) {
 		Map<Job.Key, Job> key2job = new LinkedHashMap<>();
 		for (ConsolidationUnit cu : consolidationUnits) {
 			Job.Key key = new Job.Key(cu.commodity, cu.samgodsMode, cu.isContainer);
 			key2job.computeIfAbsent(key, k -> new Job(key)).addConsolidationUnit(cu);
 		}
+		log.info("In total " + key2job.size() + " routing jobs representing " + consolidationUnits.size()
+				+ " consolidationUnits.");		
 		this.routeInternally(key2job.values());
 	}
-
 }

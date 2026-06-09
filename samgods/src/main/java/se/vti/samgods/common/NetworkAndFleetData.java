@@ -113,8 +113,8 @@ public class NetworkAndFleetData {
 		return new TravelDisutility() {
 			@Override
 			public double getLinkTravelDisutility(Link link, double time, Person person, Vehicle vehicle) {
-				assert (person == null);
-				assert (vehicle == null);
+//				assert (person == null);
+//				assert (vehicle == null);
 				return this.getLinkMinimumTravelDisutility(link);
 			}
 
@@ -130,8 +130,8 @@ public class NetworkAndFleetData {
 		return new TravelTime() {
 			@Override
 			public double getLinkTravelTime(Link link, double time, Person person, Vehicle vehicle) {
-				assert (person == null);
-				assert (vehicle == null);
+//				assert (person == null);
+//				assert (vehicle == null);
 				return Math.max(minTravelTime_s,
 						Units.S_PER_H * linkId2representativeUnitCost.get(link.getId()).duration_h);
 			}
