@@ -1,5 +1,5 @@
 /**
- * hermes
+ * se.vti.samgods
  * 
  * Copyright (C) 2025, 2026 by Gunnar Flötteröd (VTI, LiU).
  * 
@@ -89,7 +89,7 @@ public class SamgodsLoopSamplingRunner {
 	static final double defaultConsumptionRate_kWh_km = 0.01 * 130.0;
 	static final double chargeWraparoundTolerance_kWh = 0.001;
 
-	static NodeMappingDataContainer dataContainer = null;
+	static ScenarioDataContainer dataContainer = null;
 	static Scenario<NodeWithCoords> samplingScenario = null;
 
 	static void loadSamgodsScenarioIntoDataContainer(SamgodsConfigGroup samgodsConfig,
@@ -99,15 +99,16 @@ public class SamgodsLoopSamplingRunner {
 		var loopSamplingData = new SamgodsScenarioData(SamgodsConstants.TransportMode.Road, true, samgodsConfig,
 				SamgodsConstants.Commodity.AGRICULTURE);
 		try {
-			GeoJsonWriters.writeTerminals(loopSamplingData.getTransferNodes(), "GeoJsonNodes.json");
-			GeoJsonWriters.writeLinks(loopSamplingData.getNetwork().getLinks().values(), "GeoJsonLinks.json");
+			GeoJsonWriters.writeTerminals(loopSamplingData.getNetwork(), loopSamplingData.computeTerminalNodeIds(),
+					"GeoJsonNodes.json");
+			GeoJsonWriters.writeLinks(loopSamplingData.getNetwork(), "GeoJsonLinks.json");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 		var transportDurations = new TransportDurations(loopSamplingData.getNetwork(),
-				loopSamplingData.getTransferNodes(), 80.0);
-		log.info("Number of transfer nodes is " + loopSamplingData.getTransferNodes().size());
+				loopSamplingData.computeTerminalNodeIds(), 80.0);
+		log.info("Number of terminals is " + loopSamplingData.computeTerminalNodeIds().size());
 		log.info("Number of OD pairs is " + loopSamplingData.getOD2Demand_kTon().size());
 
 		var durationStats = new DescriptiveStatistics();
@@ -118,7 +119,7 @@ public class SamgodsLoopSamplingRunner {
 		log.info("  Transport duration standard deviation is " + durationStats.getStandardDeviation() + " hours.");
 		log.info("  Maximum transport duration is " + durationStats.getMax() + " hours.");
 
-		dataContainer = new NodeMappingDataContainer(loopSamplingData, transportDurations, allNodeLabels);
+		dataContainer = new ScenarioDataContainer(loopSamplingData, transportDurations, allNodeLabels);
 		log.info("Total number of OD pairs: " + dataContainer.getOD2Demand_kTon_View().size());
 		log.info("Total freight demand [kTon]: " + dataContainer.getTotalDemand_kTon());
 		log.info("Demand vector length [kTon]: " + dataContainer.getDemandVectorLength_kTon());

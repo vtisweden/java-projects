@@ -1,7 +1,7 @@
 /**
  * se.vti.samgods
  * 
- * Copyright (C) 2023 Gunnar Flötteröd (VTI, LiU), Rasmus Ringdahl (LiU). 
+ * Copyright (C) 2025, 2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -22,6 +22,7 @@ package se.vti.samgods.preprocessing.loopgeneration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,7 +42,7 @@ import se.vti.utils.misc.Units;
 /**
  * @author GunnarF
  * 
- * Based on tramodby SimMatrixCalculator, @author RasmusR
+ *         Based on tramodby SimMatrixCalculator, @author RasmusR
  */
 public class TransportDurations {
 
@@ -49,9 +50,9 @@ public class TransportDurations {
 
 	private final Map<Id<Node>, Map<Id<Node>, Double>> origin2Destination2TravelTime_s;
 
-	public TransportDurations(Network network, Set<Node> consideredNodes, double maxSpeed_km_h) {
+	public TransportDurations(Network network, Set<Id<Node>> consideredNodeIds, double maxSpeed_km_h) {
 		double maxSpeed_m_s = Units.M_S_PER_KM_H * maxSpeed_km_h;
-		
+
 		TravelTime linkTravelTimes = new TravelTime() {
 			@Override
 			public double getLinkTravelTime(Link link, double time, Person person, Vehicle vehicle) {
@@ -62,7 +63,7 @@ public class TransportDurations {
 				return t0_s;
 			}
 		};
-		
+
 		TravelDisutility linkCosts = new TravelDisutility() {
 			@Override
 			public double getLinkTravelDisutility(Link link, double time, Person person, Vehicle vehicle) {
@@ -75,6 +76,8 @@ public class TransportDurations {
 			}
 		};
 
+		Set<Node> consideredNodes = consideredNodeIds.stream().map(id -> network.getNodes().get(id))
+				.collect(Collectors.toSet());
 		this.origin2Destination2TravelTime_s = new LinkedHashMap<>(consideredNodes.size());
 		int cnt = 0;
 		for (var originNode : consideredNodes) {
@@ -104,11 +107,20 @@ public class TransportDurations {
 		}
 	}
 
+	Double getDuration_h(Id<Node> from, Id<Node> to) {
+		Double duration_s = this.getDuration_s(from, to);
+		if (duration_s != null) {
+			return Units.H_PER_S * duration_s;
+		} else {
+			return null;
+		}
+	}
+
 	Double getDuration_s(OD odPair) {
 		return this.getDuration_s(odPair.origin, odPair.destination);
 	}
 
 	Double getDuration_h(OD odPair) {
-		return Units.H_PER_S * this.getDuration_s(odPair);
+		return this.getDuration_h(odPair.origin, odPair.destination);
 	}
 }

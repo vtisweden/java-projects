@@ -32,14 +32,13 @@ import org.matsim.api.core.v01.network.Node;
 
 import se.vti.roundtrips.common.NodeWithCoords;
 import se.vti.samgods.common.OD;
-import se.vti.utils.misc.Units;
 
 /**
  * @author GunnarF
  */
-class NodeMappingDataContainer {
+class ScenarioDataContainer {
 
-	private final SamgodsScenarioData loopSamplingData;
+	private final SamgodsScenarioData samogodsScenarioData;
 	private final TransportDurations transportDurations;
 	private final double totalDemand_kTon;
 	private final double demandVectorLength_kTon;
@@ -47,28 +46,27 @@ class NodeMappingDataContainer {
 	private Map<Id<Node>, Set<NodeWithCoords>> nodeId2SamplingNodes = new LinkedHashMap<>();
 	private Map<NodeWithCoords, Id<Node>> samplingNode2NodeId = new LinkedHashMap<>();
 
-	NodeMappingDataContainer(SamgodsScenarioData loopSamplingData, TransportDurations transportDurations) {
+	ScenarioDataContainer(SamgodsScenarioData loopSamplingData, TransportDurations transportDurations) {
 		this(loopSamplingData, transportDurations, List.of(List.of()));
 	}
 
-	NodeMappingDataContainer(SamgodsScenarioData loopSamplingData, TransportDurations transportDurations,
+	ScenarioDataContainer(SamgodsScenarioData loopSamplingData, TransportDurations transportDurations,
 			List<List<Enum<?>>> allNodeLabels) {
-		this.loopSamplingData = loopSamplingData;
+		this.samogodsScenarioData = loopSamplingData;
 		this.transportDurations = transportDurations;
-		this.totalDemand_kTon = this.loopSamplingData.computeTotalDemand_kTon();
-		this.demandVectorLength_kTon = this.loopSamplingData.computeDemandVectorLength_kTon();
-
-		for (Id<Node> nodeId : loopSamplingData.getAllTerminalNodeIds()) {
+		this.totalDemand_kTon = this.samogodsScenarioData.computeTotalDemand_kTon();
+		this.demandVectorLength_kTon = this.samogodsScenarioData.computeDemandVectorLength_kTon();
+		for (Id<Node> nodeId : loopSamplingData.computeTerminalNodeIds()) {
 			Coord coord = loopSamplingData.getNetwork().getNodes().get(nodeId).getCoord();
 			for (List<Enum<?>> nodeLabels : allNodeLabels) {
-				this.addNode(nodeId, new NodeWithCoords(nodeId.toString(), coord.getX(), coord.getY(), nodeLabels));
+				NodeWithCoords samplingNode = new NodeWithCoords(nodeId.toString(), coord.getX(), coord.getY(),
+						nodeLabels);
+				this.nodeId2SamplingNodes.computeIfAbsent(nodeId, n -> new LinkedHashSet<NodeWithCoords>())
+						.add(samplingNode);
+				this.samplingNode2NodeId.put(samplingNode, nodeId);
+
 			}
 		}
-	}
-
-	private void addNode(Id<Node> nodeId, NodeWithCoords samplingNode) {
-		this.nodeId2SamplingNodes.computeIfAbsent(nodeId, n -> new LinkedHashSet<NodeWithCoords>()).add(samplingNode);
-		this.samplingNode2NodeId.put(samplingNode, nodeId);
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
@@ -82,11 +80,11 @@ class NodeMappingDataContainer {
 	}
 
 	Map<OD, Double> getOD2Demand_kTon_View() {
-		return Collections.unmodifiableMap(this.loopSamplingData.getOD2Demand_kTon());
+		return Collections.unmodifiableMap(this.samogodsScenarioData.getOD2Demand_kTon());
 	}
 
 	double getDemand_kTon(OD od) {
-		return this.loopSamplingData.getOD2Demand_kTon().getOrDefault(od, 0.0);
+		return this.samogodsScenarioData.getOD2Demand_kTon().getOrDefault(od, 0.0);
 	}
 
 	Set<NodeWithCoords> getSendingSamplingNodes(OD od) {
@@ -98,22 +96,22 @@ class NodeMappingDataContainer {
 	}
 
 	double getTotalSent_kTon(NodeWithCoords samplingNode) {
-		return this.loopSamplingData.getNodeId2Sent_Mton().getOrDefault(this.samplingNode2NodeId.get(samplingNode),
+		return this.samogodsScenarioData.getNodeId2Sent_Mton().getOrDefault(this.samplingNode2NodeId.get(samplingNode),
 				0.0);
 	}
 
 	double getTotalReceived_kTon(NodeWithCoords samplingNode) {
-		return this.loopSamplingData.getNodeId2Received_Mton().getOrDefault(this.samplingNode2NodeId.get(samplingNode),
-				0.0);
+		return this.samogodsScenarioData.getNodeId2Received_Mton()
+				.getOrDefault(this.samplingNode2NodeId.get(samplingNode), 0.0);
 	}
 
 	double getTransportDuration_h(OD od) {
-		return Units.H_PER_S * this.transportDurations.getDuration_s(od.origin, od.destination);
+		return this.transportDurations.getDuration_h(od);
 	}
 
 	double getTransportDuration_h(NodeWithCoords from, NodeWithCoords to) {
-		return this
-				.getTransportDuration_h(new OD(this.samplingNode2NodeId.get(from), this.samplingNode2NodeId.get(to)));
+		return this.transportDurations.getDuration_h(this.samplingNode2NodeId.get(from),
+				this.samplingNode2NodeId.get(to));
 	}
 
 	double getTotalDemand_kTon() {
@@ -124,9 +122,9 @@ class NodeMappingDataContainer {
 		return this.demandVectorLength_kTon;
 	}
 
-	OD getOD(NodeWithCoords fromNode, NodeWithCoords toNode) {
-		Id<Node> fromNodeId = this.samplingNode2NodeId.get(fromNode);
-		Id<Node> toNodeId = this.samplingNode2NodeId.get(toNode);
+	OD getOD(NodeWithCoords fromSamplingNode, NodeWithCoords toSamplingNode) {
+		Id<Node> fromNodeId = this.samplingNode2NodeId.get(fromSamplingNode);
+		Id<Node> toNodeId = this.samplingNode2NodeId.get(toSamplingNode);
 		if ((fromNodeId != null) && (toNodeId != null)) {
 			return new OD(fromNodeId, toNodeId);
 		} else {

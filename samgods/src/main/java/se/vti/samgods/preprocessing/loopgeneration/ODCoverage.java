@@ -1,7 +1,7 @@
 /**
- * hermes
+ * se.vti.samgods
  * 
- * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2025, 2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -39,13 +39,13 @@ import se.vti.samgods.common.OD;
  * @author GunnarF
  *
  */
-public class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSummary<N> {
+class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSummary<N> {
 
 	// -------------------- CONSTANTS --------------------
 
 	private final int numberOfRoundTrips;
 
-	private final NodeMappingDataContainer dataContainer;
+	private final ScenarioDataContainer dataContainer;
 
 	private final double minODCoverage;
 
@@ -53,62 +53,31 @@ public class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSumma
 
 	private boolean checkConsistency = false;
 
-	private List<LinkedHashSet<OD>> connectedODsPerRoundTripIndex;
+	private List<LinkedHashSet<OD>> roundTripIndex2ConnectedODs = null;
 
-	private Map<OD, Set<Integer>> od2ConnectingRoundTripIndices;
+	private Map<OD, Set<Integer>> od2ConnectingRoundTripIndices = null;
 
-	private double logWeight;
+	private Double logWeight = null;
 
-	private double disconnectedFlow_kTon;
-
-	private int numberOfConnectingRoundTripSegments;
-
-	private long numberOfUpdates;
+	private Long numberOfUpdates = null;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public ODCoverage(int numberOfRoundTrips, NodeMappingDataContainer dataContainer, double minODCoverage) {
+	ODCoverage(int numberOfRoundTrips, ScenarioDataContainer dataContainer, double minODCoverage) {
 		this.numberOfRoundTrips = numberOfRoundTrips;
 		this.dataContainer = dataContainer;
 		this.minODCoverage = minODCoverage;
-		this.initialize();
-	}
-
-	// -------------------- INTERNALS --------------------
-
-	private void initialize() {
-		this.connectedODsPerRoundTripIndex = IntStream.range(0, this.numberOfRoundTrips).boxed()
-				.map(i -> new LinkedHashSet<OD>()).toList();
-		this.od2ConnectingRoundTripIndices = this.dataContainer.getOD2Demand_kTon_View().keySet().stream()
-				.collect(Collectors.toMap(od -> od, od -> new LinkedHashSet<>()));
-		this.recomputeStatistics();
-	}
-
-	private void recomputeStatistics() {
-		this.logWeight = 0.0;
-		this.disconnectedFlow_kTon = 0.0;
-		this.numberOfConnectingRoundTripSegments = 0;
-		for (var odAndRoundTripIndices : this.od2ConnectingRoundTripIndices.entrySet()) {
-			var od = odAndRoundTripIndices.getKey();
-			int numberOfRoundTrips = odAndRoundTripIndices.getValue().size();
-			double demand_kTon = this.dataContainer.getDemand_kTon(od);
-			this.logWeight += demand_kTon * Math.log(this.minODCoverage + numberOfRoundTrips);
-			if (numberOfRoundTrips == 0) {
-				this.disconnectedFlow_kTon += demand_kTon;
-			} else {
-				this.numberOfConnectingRoundTripSegments += numberOfRoundTrips;
-			}
-		}
+		this.clear();
 	}
 
 	// -------------------- SETTERS AND GETTERS --------------------
 
-	public ODCoverage<N> setCheckConsistency(boolean checkConsistency) {
+	ODCoverage<N> setCheckConsistency(boolean checkConsistency) {
 		this.checkConsistency = checkConsistency;
 		return this;
 	}
 
-	public int getNumberOfConnectingRoundTrips(OD od) {
+	int getNumberOfConnectingRoundTrips(OD od) {
 		Set<Integer> connectingRoundTripIndices = this.od2ConnectingRoundTripIndices.get(od);
 		if (connectingRoundTripIndices == null) {
 			return 0;
@@ -117,27 +86,30 @@ public class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSumma
 		}
 	}
 
-	public double getLogWeight() {
+	double getLogWeight() {
 		return this.logWeight;
-	}
-
-	public double getConnectedFlow_kTon() {
-		return this.dataContainer.getTotalDemand_kTon() - this.disconnectedFlow_kTon;
-	}
-
-	public double getDisconnectedFlow_kTon() {
-		return this.disconnectedFlow_kTon;
-	}
-
-	public int getNumberOfConnectingRoundTripSegments() {
-		return this.numberOfConnectingRoundTripSegments;
 	}
 
 	// --------------- IMPLEMENTATION OF MultiRoundTripSummary ---------------
 
+	private void recomputeStatistics() {
+		this.logWeight = 0.0;
+		for (var odAndRoundTripIndices : this.od2ConnectingRoundTripIndices.entrySet()) {
+			var od = odAndRoundTripIndices.getKey();
+			int numberOfRoundTrips = odAndRoundTripIndices.getValue().size();
+			double demand_kTon = this.dataContainer.getDemand_kTon(od);
+			this.logWeight += demand_kTon * Math.log(this.minODCoverage + numberOfRoundTrips);
+		}
+	}
+
 	@Override
 	public void clear() {
-		this.initialize();
+		this.roundTripIndex2ConnectedODs = IntStream.range(0, this.numberOfRoundTrips).boxed()
+				.map(i -> new LinkedHashSet<OD>()).toList();
+		this.od2ConnectingRoundTripIndices = this.dataContainer.getOD2Demand_kTon_View().keySet().stream()
+				.collect(Collectors.toMap(od -> od, od -> new LinkedHashSet<>()));
+		this.recomputeStatistics();
+		this.numberOfUpdates = 0l;
 	}
 
 	@Override
@@ -150,66 +122,49 @@ public class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSumma
 
 		int changedRoundTripIndex = newRoundTrip.getIndex();
 
-		// Remove old roundtrip data.
+		// Remove old round trip data.
 
-		for (var affectedOD : this.connectedODsPerRoundTripIndex.get(changedRoundTripIndex)) {
-			
-			// Remove all logweight terms from affected (part of replaced roundtrip) OD.
+		for (var affectedOD : this.roundTripIndex2ConnectedODs.get(changedRoundTripIndex)) {
 			double demand_kTon = this.dataContainer.getDemand_kTon(affectedOD);
-			int numberOfRoundTrips = this.od2ConnectingRoundTripIndices.get(affectedOD).size();
-			this.logWeight -= demand_kTon * Math.log(this.minODCoverage + numberOfRoundTrips);
-
-			// Remove replaced roundtrip from list of roundtrips connecting the affected OD.
 			var connectingRoundTripIndices = this.od2ConnectingRoundTripIndices.get(affectedOD);
+
+			// Remove log-weight term for affected (part of replaced round trip) OD.
+			this.logWeight -= demand_kTon * Math.log(this.minODCoverage + connectingRoundTripIndices.size());
+
+			// Remove replaced round trip from list of round trips connecting affected OD.
 			connectingRoundTripIndices.remove(changedRoundTripIndex);
-			if (connectingRoundTripIndices.size() == 0) {
-				this.disconnectedFlow_kTon += this.dataContainer.getDemand_kTon(affectedOD);
-			}
-			
-			// (Re-)add remaining logweight terms to affected (part of replaced roundtrip) OD.
-			numberOfRoundTrips = this.od2ConnectingRoundTripIndices.get(affectedOD).size();
-			this.logWeight += demand_kTon * Math.log(this.minODCoverage + numberOfRoundTrips);
+
+			// (Re-)add remaining log-weight term for affected OD.
+			this.logWeight += demand_kTon * Math.log(this.minODCoverage + connectingRoundTripIndices.size());
 		}
 
-		this.numberOfConnectingRoundTripSegments -= this.connectedODsPerRoundTripIndex.get(changedRoundTripIndex)
-				.size();
-		this.connectedODsPerRoundTripIndex.get(changedRoundTripIndex).clear();
+		this.roundTripIndex2ConnectedODs.get(changedRoundTripIndex).clear();
 
-		// Add new roundtrip data.
+		// Add new round trip data.
 
 		for (int fromNodeIndex = 0; fromNodeIndex < newRoundTrip.size(); fromNodeIndex++) {
 			for (int toNodeIndex = 0; toNodeIndex < newRoundTrip.size(); toNodeIndex++) {
 				if (fromNodeIndex != toNodeIndex) {
-					
-					N fromNode = newRoundTrip.getNode(fromNodeIndex);
-//					N toNode = newRoundTrip.getSuccessorNode(toNodeIndex);
-					N toNode = newRoundTrip.getNode(toNodeIndex);
-					OD affectedOD = this.dataContainer.getOD(fromNode, toNode);
-					
+
+					OD affectedOD = this.dataContainer.getOD(newRoundTrip.getNode(fromNodeIndex),
+							newRoundTrip.getNode(toNodeIndex));
 					if ((affectedOD != null) && this.dataContainer.getOD2Demand_kTon_View().containsKey(affectedOD)) {
 
-						// Remove all logweight terms from affected (part of newly added roundtrip) OD.
 						double demand_kTon = this.dataContainer.getDemand_kTon(affectedOD);
-						int numberOfRoundTrips = this.od2ConnectingRoundTripIndices.get(affectedOD).size();
-						this.logWeight -= demand_kTon * Math.log(this.minODCoverage + numberOfRoundTrips);
+						Set<Integer> connectingRoundTripIndices = this.od2ConnectingRoundTripIndices.get(affectedOD);
+
+						// Remove all logweight terms from affected (part of newly added roundtrip) OD.
+						this.logWeight -= demand_kTon
+								* Math.log(this.minODCoverage + connectingRoundTripIndices.size());
 
 						// Register the new roundtrip as connecting the affected OD pair.
-						this.connectedODsPerRoundTripIndex.get(changedRoundTripIndex).add(affectedOD);
-
+						this.roundTripIndex2ConnectedODs.get(changedRoundTripIndex).add(affectedOD);
 						// Add new roundtrip to list of roundtrips connecting the affected OD.
-						var connectingRoundTripIndices = this.od2ConnectingRoundTripIndices.get(affectedOD);
-						if (!connectingRoundTripIndices.contains(changedRoundTripIndex)) {
-							if (connectingRoundTripIndices.size() == 0) {
-								this.disconnectedFlow_kTon -= this.dataContainer.getDemand_kTon(affectedOD);
-							}
-							connectingRoundTripIndices.add(changedRoundTripIndex);
-							this.numberOfConnectingRoundTripSegments++;
-						}
+						connectingRoundTripIndices.add(changedRoundTripIndex);
 
 						// (Re-)add remaining logweight terms to affected (part of new roundtrip) OD.
-//						numberOfRoundTrips = this.od2ConnectingRoundTripIndices.get(affectedOD).size();
-						numberOfRoundTrips = connectingRoundTripIndices.size();
-						this.logWeight += demand_kTon * Math.log(this.minODCoverage + numberOfRoundTrips);
+						this.logWeight += demand_kTon
+								* Math.log(this.minODCoverage + connectingRoundTripIndices.size());
 					}
 				}
 			}
@@ -220,25 +175,15 @@ public class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSumma
 		if (this.checkConsistency) {
 
 			double currentLogWeight = this.logWeight;
-			double currentDisconnectedFlow_kTon = this.disconnectedFlow_kTon;
-			int currentNumberOfConnectingRoundTripSegments = this.numberOfConnectingRoundTripSegments;
 			this.recomputeStatistics();
 			double logWeightError = currentLogWeight - this.logWeight;
-			double disconnectedFlowError = currentDisconnectedFlow_kTon - this.disconnectedFlow_kTon;
-			int numberOfConnectingLoopsError = currentNumberOfConnectingRoundTripSegments
-					- this.numberOfConnectingRoundTripSegments;
-			double absErr = Math.max(Math.max(Math.abs(logWeightError), Math.abs(disconnectedFlowError)),
-					Math.abs(numberOfConnectingLoopsError));
-			if (absErr > 1e-8) {
-				throw new RuntimeException("logWeightError = " + logWeightError + "\ndisconnectedFlowError_kTon = "
-						+ disconnectedFlowError + "\nnumberOfConnectingLoopsError = " + numberOfConnectingLoopsError);
+			if (Math.abs(logWeightError) > 1e-8) {
+				throw new RuntimeException("logWeightError = " + logWeightError);
 			}
 			this.logWeight = currentLogWeight;
-			this.disconnectedFlow_kTon = currentDisconnectedFlow_kTon;
-			this.numberOfConnectingRoundTripSegments = currentNumberOfConnectingRoundTripSegments;
 
 			for (int roundTripIndex = 0; roundTripIndex < this.numberOfRoundTrips; roundTripIndex++) {
-				for (var od : this.connectedODsPerRoundTripIndex.get(roundTripIndex)) {
+				for (var od : this.roundTripIndex2ConnectedODs.get(roundTripIndex)) {
 					if (!this.od2ConnectingRoundTripIndices.get(od).contains(roundTripIndex)) {
 						throw new RuntimeException("Round trip " + roundTripIndex + " connects OD pair " + od
 								+ ", but that OD pair does list the round trip as connecting.");
@@ -248,7 +193,7 @@ public class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSumma
 			for (var entry : this.od2ConnectingRoundTripIndices.entrySet()) {
 				var od = entry.getKey();
 				for (int roundTripIndex : entry.getValue()) {
-					if (!this.connectedODsPerRoundTripIndex.get(roundTripIndex).contains(od)) {
+					if (!this.roundTripIndex2ConnectedODs.get(roundTripIndex).contains(od)) {
 						throw new RuntimeException("OD pair " + od + " is connected by round trip " + roundTripIndex
 								+ ", but that round trip does not list the OD pair as connected.");
 					}
@@ -262,20 +207,20 @@ public class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSumma
 		}
 	}
 
-	/* for cloning */ private ODCoverage(int numberOfRoundTrips, double minODCoverage,
-			NodeMappingDataContainer dataContainer, List<? extends Set<OD>> connectedODsPerRoundTripIndex,
-			Map<OD, Set<Integer>> od2ConnectingRoundTripIndices, double logWeight, double disconnectedFlow_kTon,
-			int numberOfConnectingLoopSegments, long numberOfUpdates) {
+	// -------------------- OVERRIDING OF OBJECT.CLONE --------------------
+
+	private ODCoverage(int numberOfRoundTrips, double minODCoverage, ScenarioDataContainer dataContainer,
+			boolean checkConsistency, List<? extends Set<OD>> roundTripIndex2ConnectedODs,
+			Map<OD, Set<Integer>> od2ConnectingRoundTripIndices, double logWeight, long numberOfUpdates) {
 
 		this.numberOfRoundTrips = numberOfRoundTrips;
-
 		this.minODCoverage = minODCoverage;
-
 		this.dataContainer = dataContainer;
+		this.checkConsistency = checkConsistency;
 
-		this.connectedODsPerRoundTripIndex = new ArrayList<>(numberOfRoundTrips);
-		for (Set<OD> ods : connectedODsPerRoundTripIndex) {
-			this.connectedODsPerRoundTripIndex.add(new LinkedHashSet<OD>(ods));
+		this.roundTripIndex2ConnectedODs = new ArrayList<>(numberOfRoundTrips);
+		for (Set<OD> ods : roundTripIndex2ConnectedODs) {
+			this.roundTripIndex2ConnectedODs.add(new LinkedHashSet<OD>(ods));
 		}
 
 		this.od2ConnectingRoundTripIndices = new LinkedHashMap<>(od2ConnectingRoundTripIndices.size());
@@ -285,16 +230,13 @@ public class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSumma
 		}
 
 		this.logWeight = logWeight;
-		this.disconnectedFlow_kTon = disconnectedFlow_kTon;
-		this.numberOfConnectingRoundTripSegments = numberOfConnectingLoopSegments;
 		this.numberOfUpdates = numberOfUpdates;
 	}
 
 	@Override
 	public MultiRoundTripSummary<N> clone() {
-		ODCoverage<N> child = new ODCoverage<>(this.numberOfRoundTrips, this.minODCoverage, this.dataContainer,
-				this.connectedODsPerRoundTripIndex, this.od2ConnectingRoundTripIndices, this.logWeight,
-				this.disconnectedFlow_kTon, this.numberOfConnectingRoundTripSegments, this.numberOfUpdates);
-		return child;
+		return new ODCoverage<>(this.numberOfRoundTrips, this.minODCoverage, this.dataContainer, this.checkConsistency,
+				this.roundTripIndex2ConnectedODs, this.od2ConnectingRoundTripIndices, this.logWeight,
+				this.numberOfUpdates);
 	}
 }

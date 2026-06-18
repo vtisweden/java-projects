@@ -1,7 +1,7 @@
 /**
- * se.vti.skellefeaV2X
+ * se.vti.samgods
  * 
- * Copyright (C) 2023 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2025,2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -33,16 +33,16 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class MaxNumberOfChargingPointsConstraint<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
+class MaxNumberOfChargingPointsConstraint<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
 
 	private final int maxNumberOfChargingPoints;
 	private final ChargingUtils utils = new ChargingUtils();
 
-	public MaxNumberOfChargingPointsConstraint(int maxNumberOfChargingPoints) {
+	MaxNumberOfChargingPointsConstraint(int maxNumberOfChargingPoints) {
 		this.maxNumberOfChargingPoints = maxNumberOfChargingPoints;
 	}
 
-	public static <M extends Node> Map<M, Integer> computeChargingNodeUsages(MultiRoundTrip<M> roundTrips,
+	static <M extends Node> Map<M, Integer> computeChargingNodeUsages(MultiRoundTrip<M> roundTrips,
 			ChargingUtils utils) {
 		Map<M, Integer> chargingNodeUsages = new LinkedHashMap<>();
 		for (var roundTrip : roundTrips) {
@@ -58,15 +58,6 @@ public class MaxNumberOfChargingPointsConstraint<N extends Node> implements MHWe
 
 	@Override
 	public double logWeight(MultiRoundTrip<N> roundTrips) {
-//		Set<N> usedChargingNodes = new LinkedHashSet<>();
-//		for (var roundTrip : roundTrips) {
-//			for (int i = 0; i < roundTrip.size(); i++) {
-//				N node = roundTrip.getNode(i);
-//				if (Charging.YES == this.utils.extractCharging(node)) {
-//					usedChargingNodes.add(node);
-//				}
-//			}
-//		}
 		if (computeChargingNodeUsages(roundTrips, this.utils).size() <= this.maxNumberOfChargingPoints) {
 			return 0.0;
 		} else {

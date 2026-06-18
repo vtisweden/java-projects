@@ -1,9 +1,27 @@
+/**
+ * se.vti.samgods
+ * 
+ * Copyright (C) 2025, 2026 by Gunnar Flötteröd (VTI, LiU).
+ * 
+ * VTI = Swedish National Road and Transport Institute
+ * LiU = Linköping University, Sweden
+ * 
+ * This program is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation, either 
+ * version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
+ */
 package se.vti.samgods.preprocessing.loopgeneration;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -12,7 +30,9 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Link;
+import org.matsim.api.core.v01.network.Network;
 import org.matsim.api.core.v01.network.Node;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,15 +49,16 @@ import se.vti.samgods.common.OD;
  */
 class GeoJsonWriters {
 
-	static void writeTerminals(Set<Node> transferNodes, String outputFile) throws IOException {
+	static void writeTerminals(Network network, Set<Id<Node>> transferNodeIds, String outputFile) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode root = mapper.createObjectNode();
 		root.put("type", "FeatureCollection");
 
 		ArrayNode features = mapper.createArrayNode();
 
-		for (Node node : transferNodes) {
-
+		for (Id<Node> nodeId : transferNodeIds) {
+			Node node = network.getNodes().get(nodeId);
+			
 			ObjectNode feature = mapper.createObjectNode();
 			feature.put("type", "Feature");
 
@@ -63,14 +84,14 @@ class GeoJsonWriters {
 		mapper.writerWithDefaultPrettyPrinter().writeValue(new File(outputFile), root);
 	}
 
-	static void writeLinks(Collection<? extends Link> links, String outputFile) throws IOException {
+	static void writeLinks(Network network, String outputFile) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode root = mapper.createObjectNode();
 		root.put("type", "FeatureCollection");
 
 		ArrayNode features = mapper.createArrayNode();
 
-		for (Link link : links) {
+		for (Link link : network.getLinks().values()) {
 			ObjectNode feature = mapper.createObjectNode();
 			feature.put("type", "Feature");
 
@@ -107,7 +128,7 @@ class GeoJsonWriters {
 		mapper.writerWithDefaultPrettyPrinter().writeValue(new File(outputFile), root);
 	}
 	
-	public static void writeCoverage(NodeMappingDataContainer dataContainer, List<MultiRoundTrip<NodeWithCoords>> allSolutions) {
+	static void writeCoverage(ScenarioDataContainer dataContainer, List<MultiRoundTrip<NodeWithCoords>> allSolutions) {
 
 		// total sent == total received
 		double totalTarget_kTon = dataContainer.getTotalDemand_kTon();

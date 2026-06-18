@@ -1,7 +1,7 @@
 /**
- * hermes
+ * se.vti.samgods
  * 
- * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2025, 2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -68,15 +68,11 @@ class SamgodsScenarioData {
 
 	private final Network network;
 
-	private final Set<Node> transferNodes;
-
 	private final Map<OD, Double> od2Demand_kTon;
 
 	private final LinkedHashMap<Id<Node>, Double> nodeId2Sent_Mton;
 
 	private final LinkedHashMap<Id<Node>, Double> nodeId2Received_Mton;
-
-	private final Set<Id<Node>> allTerminalNodeIds;
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -124,7 +120,6 @@ class SamgodsScenarioData {
 
 		log.info("Extracting OD pairs and transfer nodes.");
 		this.od2Demand_kTon = new LinkedHashMap<>();
-		this.transferNodes = new LinkedHashSet<>();
 		var transportDemand = new TransportDemandAndChains();
 		for (var commodity : commodities) {
 			log.info("Processing commodity: " + commodity);
@@ -138,8 +133,6 @@ class SamgodsScenarioData {
 							Node unloadingNode = this.network.getNodes().get(episode.getUnloadingNodeId());
 							if ((loadingNode != null) && (unloadingNode != null)) {
 								this.od2Demand_kTon.put(episode.getLoadingUnloadingOD(), 0.0);
-								this.transferNodes.add(loadingNode);
-								this.transferNodes.add(unloadingNode);
 							}
 						}
 					}
@@ -187,19 +180,12 @@ class SamgodsScenarioData {
 			this.nodeId2Sent_Mton.compute(od.origin, (n, s) -> (s == null) ? amount_Mton : s + amount_Mton);
 			this.nodeId2Received_Mton.compute(od.destination, (n, r) -> (r == null) ? amount_Mton : r + amount_Mton);
 		}
-		this.allTerminalNodeIds = new LinkedHashSet<>();
-		this.allTerminalNodeIds.addAll(nodeId2Sent_Mton.keySet());
-		this.allTerminalNodeIds.addAll(nodeId2Received_Mton.keySet());
 	}
 
 	// -------------------- GETTERS --------------------
 
 	Network getNetwork() {
 		return this.network;
-	}
-
-	Set<Node> getTransferNodes() {
-		return this.transferNodes;
 	}
 
 	Map<OD, Double> getOD2Demand_kTon() {
@@ -214,8 +200,11 @@ class SamgodsScenarioData {
 		return this.nodeId2Received_Mton;
 	}
 
-	Set<Id<Node>> getAllTerminalNodeIds() {
-		return this.allTerminalNodeIds;
+	Set<Id<Node>> computeTerminalNodeIds() {
+		Set<Id<Node>> allTerminalNodeIds = new LinkedHashSet<>();
+		allTerminalNodeIds.addAll(this.nodeId2Sent_Mton.keySet());
+		allTerminalNodeIds.addAll(this.nodeId2Received_Mton.keySet());
+		return allTerminalNodeIds;
 	}
 
 	double computeTotalDemand_kTon() {
