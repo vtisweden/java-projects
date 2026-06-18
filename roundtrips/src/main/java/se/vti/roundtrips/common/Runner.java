@@ -20,13 +20,13 @@
 package se.vti.roundtrips.common;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.roundtrips.multiple.MultiRoundTripJsonIO;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.priors.IndividualBinomialPrior;
@@ -63,6 +63,9 @@ public class Runner<N extends Node> {
 
 	private long sampleLogInterval = 1000l;
 	private String samplesLogFile = "./samples.log";
+
+	private long stateDumpInterval = 0;
+	private String stateDumpFilePrefix = null;
 
 	private MultiRoundTrip<N> initialState = null;
 	private TerminationCriterion<MultiRoundTrip<N>> terminationCriterion = null;
@@ -170,22 +173,28 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
+	public Runner<N> configureStateDumping(String fileNamePrefix, long dumpInterval) {
+		this.stateDumpInterval = dumpInterval;
+		this.stateDumpFilePrefix = fileNamePrefix;
+		return this;
+	}
+
 	// -------------------- RUNNING --------------------
 
 	public List<MHWeight<MultiRoundTrip<N>>> getSamplingWeightsView() {
 		return this.weights.getComponentsView();
 	}
-	
+
 	public List<Double> getWeightsOfSamplingWeightsView() {
 		return this.weights.getWeightsView();
 	}
-	
+
 	private MultiRoundTrip<N> finalState = null;
-	
+
 	public MultiRoundTrip<N> getFinalState() {
 		return this.finalState;
 	}
-	
+
 	public void run() {
 
 		if (this.runWasAlreadyCalled) {
@@ -198,13 +207,43 @@ public class Runner<N extends Node> {
 				.defineError(() -> (this.terminationCriterion == null), "Undefined termination criterion");
 
 		if (checker.check()) {
+						
 			this.weights.add(this.prior);
-			var algo = new MHAlgorithm<MultiRoundTrip<N>>(new MultiRoundTripProposal<N>(this.scenario), this.weights,
-					this.scenario.getRandom());
-			if (this.weightsLogFile != null) {
+			if ((this.weightsLogFile != null) && (this.weightsLogInterval > 0)) {
 				this.stateProcessors
 						.add(new MHWeightsToFileLogger<>(this.weightsLogInterval, this.weights, this.weightsLogFile));
 			}
+			
+			if ((this.stateDumpFilePrefix != null) && (this.stateDumpInterval > 0)) {
+				this.stateProcessors.add(new MHStateProcessor<MultiRoundTrip<N>>() {
+					int iteration;
+
+					@Override
+					public void start() {
+						this.iteration = 0;
+					}
+
+					@Override
+					public void processState(MultiRoundTrip<N> state) {
+						if (this.iteration % stateDumpInterval == 0) {
+							try {
+								MultiRoundTripJsonIO.singleton().writeToFile(state,
+										stateDumpFilePrefix + "." + this.iteration + ".json");
+							} catch (Exception e) {
+								throw new RuntimeException(e);
+							}
+						}
+						this.iteration++;
+					}
+
+					@Override
+					public void end() {
+					}
+				});
+			}
+
+			var algo = new MHAlgorithm<MultiRoundTrip<N>>(new MultiRoundTripProposal<N>(this.scenario), this.weights,
+					this.scenario.getRandom());
 
 			if ((this.samplesLogFile != null) && (this.sampleExtractors.size() > 0)) {
 				var samplesLogger = new MHSampleLogger<MultiRoundTrip<N>>(this.sampleLogInterval, this.samplesLogFile);
@@ -215,9 +254,9 @@ public class Runner<N extends Node> {
 			}
 
 			this.stateProcessors.stream().forEach(sp -> algo.addStateProcessor(sp));
-			algo.setInitialState(this.initialState);
 			algo.setMsgInterval(this.messageInterval);
 			algo.setTerminationCriterion(this.terminationCriterion);
+			algo.setInitialState(this.initialState);
 			algo.run();
 			this.finalState = algo.getFinalState();
 		} else {

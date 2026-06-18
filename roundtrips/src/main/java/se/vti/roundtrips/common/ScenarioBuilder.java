@@ -79,6 +79,11 @@ public class ScenarioBuilder<N extends Node> {
 		return this;
 	}
 
+	public ScenarioBuilder<N> addNodes(Set<N> nodes) {
+		this.nodes.addAll(nodes);
+		return this;
+	}
+
 	public ScenarioBuilder<N> setMoveDistanceFunction(BiFunction<N, N, Double> nodesToDistance_km) {
 		this.nodesToDistance_km = nodesToDistance_km;
 		return this;
