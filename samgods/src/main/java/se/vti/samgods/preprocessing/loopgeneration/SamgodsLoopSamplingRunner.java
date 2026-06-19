@@ -320,8 +320,10 @@ class SamgodsLoopSamplingRunner {
 
 	public static void main(String[] args) {
 
-		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
-				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road" }).runSimulation();
+		new SamgodsLoopSamplingRunner(args).runSimulation();
+
+//		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
+//				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road" }).runSimulation();
 
 //		new SamgodsLoopSamplingRunner(args).createGIS(args, false);
 
