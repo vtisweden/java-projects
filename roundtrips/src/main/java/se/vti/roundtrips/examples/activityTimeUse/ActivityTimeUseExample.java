@@ -99,7 +99,7 @@ class ActivityTimeUseExample {
 		 */
 		var runner = new Runner<GridNodeWithActivity>(scenario);
 
-		runner.setUniformPrior();
+		runner.setIndividualUniformPrior();
 
 		// Enforce that every single round trip is completed within the day.
 		runner.addIndividualWeight(new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()));

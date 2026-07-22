@@ -1,7 +1,7 @@
 /**
- * instances.testing
+ * se.vti.roundtrips
  * 
- * Copyright (C) 2024 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2024-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -35,6 +35,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class SingleToMultiWeight<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
 
+	@Deprecated // TODO Not clear why one would ever use AVERAGE.
 	public enum LogWeightAggregation {
 		SUM, AVERAGE
 	};

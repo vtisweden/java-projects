@@ -32,7 +32,7 @@ import se.vti.roundtrips.common.Scenario;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
-import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
+import se.vti.roundtrips.samplingweights.priors.IndividualUniformPrior;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 import se.vti.utils.misc.metropolishastings.MHWeightContainer;
@@ -68,7 +68,7 @@ class TestUniformTarget {
 		generator.populateRandomly(initialRoundTrips);
 
 		var weights = new MHWeightContainer<MultiRoundTrip<Node>>();
-		weights.add(new SingleToMultiWeight<Node>(new SingleRoundTripUniformPrior<Node>(scenario)));
+		weights.add(new SingleToMultiWeight<Node>(new IndividualUniformPrior<Node>(scenario)));
 
 		var algo = new MHAlgorithm<MultiRoundTrip<Node>>(new MultiRoundTripProposal<Node>(scenario), weights, scenario.getRandom());
 		algo.setInitialState(initialRoundTrips);

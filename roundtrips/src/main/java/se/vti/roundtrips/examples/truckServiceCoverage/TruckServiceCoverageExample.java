@@ -94,7 +94,7 @@ class TruckServiceCoverageExample {
 		 */
 
 		// A uniform prior spreading out sampling where information is missing.
-		runner.setUniformPrior();
+		runner.setIndividualUniformPrior();
 
 		// Ensure that every single round trip is completed within the day.
 		runner.addIndividualWeight(new StrictlyPeriodicSchedule<GridNode>(scenario.getPeriodLength_h()));

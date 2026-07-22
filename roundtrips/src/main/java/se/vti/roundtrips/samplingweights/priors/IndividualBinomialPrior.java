@@ -12,14 +12,14 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class IndividualBinomialPrior<N extends Node> implements MHWeight<RoundTrip<N>>, Prior {
 
-	private final SingleRoundTripUniformPrior<N> uniformPrior;
+	private final IndividualUniformPrior<N> uniformPrior;
 
 	private final double[] binomialLogWeightsOverSize;
 
 	// -------------------- CONSTRUCTION --------------------
 
 	public IndividualBinomialPrior(int numberOfNodes, int numberOfTimeBins, double expectedRoundTripSize) {
-		this.uniformPrior = new SingleRoundTripUniformPrior<>(numberOfNodes, numberOfTimeBins);
+		this.uniformPrior = new IndividualUniformPrior<>(numberOfNodes, numberOfTimeBins);
 		this.binomialLogWeightsOverSize = new PriorUtils().computeBinomialLogWeights(expectedRoundTripSize,
 				numberOfTimeBins);
 	}

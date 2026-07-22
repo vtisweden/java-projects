@@ -137,7 +137,7 @@ public class ElectrifiedFlightExample {
 
 	static FleetPerformanceLogger run(double servedDemandShareWeight, double emptySeatShareWeight) {
 
-		var runner = new Runner<>(scenario).setUniformPrior()
+		var runner = new Runner<>(scenario).setIndividualUniformPrior()
 				.addIndividualWeight(new StrictlyPeriodicSchedule<NodeWithCoords>(24.0))
 				.setNumberOfIterations(totalIterations);
 

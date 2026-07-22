@@ -21,7 +21,7 @@ package se.vti.roundtrips.samplingweights.priors;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.common.Scenario;
-import se.vti.roundtrips.single.RoundTrip;
+import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
@@ -29,30 +29,39 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class SingleRoundTripUniformPrior<N extends Node> implements MHWeight<RoundTrip<N>>, Prior {
+public class PopulationUniformPrior<N extends Node> implements MHWeight<MultiRoundTrip<N>>, Prior {
 
-	private final double[] uniformLogWeightsOverSize;
+	private final int numberOfNodes;
+
+	private final int numberOfTimeBins;
+
+	private double[] uniformLogWeightsOverTotalSize = null; // lazy initialization
 
 	// -------------------- CONSTRUCTION --------------------
-	
-	public SingleRoundTripUniformPrior(int numberOfNodes, int numberOfTimeBins) {
-		this.uniformLogWeightsOverSize = new PriorUtils().computeUniformLogWeights(numberOfNodes, numberOfTimeBins);
+
+	public PopulationUniformPrior(int numberOfNodes, int numberOfTimeBins) {
+		this.numberOfNodes = numberOfNodes;
+		this.numberOfTimeBins = numberOfTimeBins;
 	}
 
-	public SingleRoundTripUniformPrior(Scenario<N> scenario) {
+	public PopulationUniformPrior(Scenario<N> scenario) {
 		this(scenario.getNumberOfNodes(), scenario.getNumberOfTimeBins());
 	}
 
 	// -------------------- IMPLEMENTATION OF MHWeight --------------------
-	
+
 	@Override
 	public boolean allowsForWeightsOtherThanOneInMHWeightContainer() {
 		return false;
 	}
 
 	@Override
-	public double logWeight(RoundTrip<N> roundTrip) {
-		return this.uniformLogWeightsOverSize[roundTrip.size()];
+	public double logWeight(MultiRoundTrip<N> roundTrips) {
+		if (this.uniformLogWeightsOverTotalSize == null) {
+			this.uniformLogWeightsOverTotalSize = new PriorUtils().computeUniformLogWeights(this.numberOfNodes,
+					this.numberOfTimeBins * roundTrips.size());
+		}
+		return this.uniformLogWeightsOverTotalSize[roundTrips.computeSumOfRoundTripSizes()];
 	}
 
 }

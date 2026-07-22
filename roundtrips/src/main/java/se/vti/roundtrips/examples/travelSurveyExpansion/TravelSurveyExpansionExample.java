@@ -107,7 +107,7 @@ public class TravelSurveyExpansionExample {
 		var runner = new Runner<GridNodeWithActivity>(scenario);
 
 		// Definee the sampling weights.
-		runner.setUniformPrior().addIndividualWeight(new StrictlyRequireMaxNumberOfStops<GridNodeWithActivity>(6))
+		runner.setIndividualUniformPrior().addIndividualWeight(new StrictlyRequireMaxNumberOfStops<GridNodeWithActivity>(6))
 				.addIndividualWeight(new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()))
 				.addIndividualWeight(new StrictlyEnforceUniqueHomeLocation())
 				.addPopulationWeight(new ExplainRoundTripsByResponses2(responses, syntheticPopulation));

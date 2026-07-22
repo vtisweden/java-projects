@@ -31,8 +31,9 @@ import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.priors.IndividualBinomialPrior;
 import se.vti.roundtrips.samplingweights.priors.PopulationBinomialPrior;
+import se.vti.roundtrips.samplingweights.priors.PopulationUniformPrior;
 import se.vti.roundtrips.samplingweights.priors.Prior;
-import se.vti.roundtrips.samplingweights.priors.SingleRoundTripUniformPrior;
+import se.vti.roundtrips.samplingweights.priors.IndividualUniformPrior;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
 import se.vti.utils.misc.metropolishastings.MHSampleLogger;
@@ -77,7 +78,7 @@ public class Runner<N extends Node> {
 
 	public Runner(Scenario<N> scenario) {
 		this.scenario = scenario;
-		this.setUniformPrior();
+		this.setIndividualUniformPrior();
 	}
 
 	// PRIORS
@@ -92,12 +93,16 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
-	public Runner<N> setUniformPrior() {
-		return this.setIndividualPrior(new SingleRoundTripUniformPrior<>(this.scenario));
+	public Runner<N> setIndividualUniformPrior() {
+		return this.setIndividualPrior(new IndividualUniformPrior<>(this.scenario));
 	}
 
 	public Runner<N> setIndividualBinomialPrior(double meanRoundTripSize) {
 		return this.setIndividualPrior(new IndividualBinomialPrior<>(this.scenario, meanRoundTripSize));
+	}
+
+	public Runner<N> setPopulationUniformPrior() {
+		return this.setPopulationPrior(new PopulationUniformPrior<>(this.scenario));
 	}
 
 	public Runner<N> setPopulationBinomialPrior(double meanRoundTripSize) {
@@ -207,13 +212,13 @@ public class Runner<N extends Node> {
 				.defineError(() -> (this.terminationCriterion == null), "Undefined termination criterion");
 
 		if (checker.check()) {
-						
+
 			this.weights.add(this.prior);
 			if ((this.weightsLogFile != null) && (this.weightsLogInterval > 0)) {
 				this.stateProcessors
 						.add(new MHWeightsToFileLogger<>(this.weightsLogInterval, this.weights, this.weightsLogFile));
 			}
-			
+
 			if ((this.stateDumpFilePrefix != null) && (this.stateDumpInterval > 0)) {
 				this.stateProcessors.add(new MHStateProcessor<MultiRoundTrip<N>>() {
 					int iteration;
