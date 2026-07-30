@@ -47,9 +47,9 @@ public class PopulationBinomialPrior<N extends Node> implements MHWeight<MultiRo
 	public double logWeight(MultiRoundTrip<N> roundTrips) {
 		if (this.uniformPrior == null) {
 			this.uniformPrior = new PopulationUniformPrior<N>(this.numberOfNodes, this.numberOfTimeBins);
-			double expectation = this.meanRoundTripSize * roundTrips.size();
+			double numberOfSuccesses = this.meanRoundTripSize * roundTrips.size();
 			int numberOfTrials = this.numberOfTimeBins * roundTrips.size();
-			this.binomialLogWeightsOverTotalSize = new PriorUtils().computeBinomialLogWeights(expectation,
+			this.binomialLogWeightsOverTotalSize = new PriorUtils().computeBinomialLogWeights(numberOfSuccesses,
 					numberOfTrials);
 		}
 		return (this.uniformPrior.logWeight(roundTrips)

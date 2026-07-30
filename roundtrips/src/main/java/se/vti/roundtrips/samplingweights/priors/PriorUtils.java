@@ -50,7 +50,7 @@ class PriorUtils {
 		assert (numberOfSuccesses >= 0);
 		assert (numberOfSuccesses <= numberOfTrials);
 		assert (numberOfTrials > 0);
-		BinomialDistribution binDistr = new BinomialDistribution(numberOfTrials, numberOfSuccesses / numberOfTrials);
+		var binDistr = new BinomialDistribution(numberOfTrials, numberOfSuccesses / numberOfTrials);
 		double[] logWeights = new double[numberOfTrials + 1];
 		for (int j = 0; j < logWeights.length; j++) {
 			logWeights[j] = binDistr.logProbability(j);

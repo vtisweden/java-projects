@@ -63,5 +63,4 @@ public class PopulationUniformPrior<N extends Node> implements MHWeight<MultiRou
 		}
 		return this.uniformLogWeightsOverTotalSize[roundTrips.computeSumOfRoundTripSizes()];
 	}
-
 }

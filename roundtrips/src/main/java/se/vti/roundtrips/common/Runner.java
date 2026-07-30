@@ -83,11 +83,6 @@ public class Runner<N extends Node> {
 
 	// PRIORS
 
-	public <P extends Prior & MHWeight<MultiRoundTrip<N>>> Runner<N> setPopulationPrior(P prior) {
-		this.prior = prior;
-		return this;
-	}
-
 	public <P extends Prior & MHWeight<RoundTrip<N>>> Runner<N> setIndividualPrior(P prior) {
 		this.prior = new SingleToMultiWeight<>(prior);
 		return this;
@@ -99,6 +94,11 @@ public class Runner<N extends Node> {
 
 	public Runner<N> setIndividualBinomialPrior(double meanRoundTripSize) {
 		return this.setIndividualPrior(new IndividualBinomialPrior<>(this.scenario, meanRoundTripSize));
+	}
+
+	public <P extends Prior & MHWeight<MultiRoundTrip<N>>> Runner<N> setPopulationPrior(P prior) {
+		this.prior = prior;
+		return this;
 	}
 
 	public Runner<N> setPopulationUniformPrior() {

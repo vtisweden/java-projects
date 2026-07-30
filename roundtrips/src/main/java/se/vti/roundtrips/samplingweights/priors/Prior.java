@@ -1,7 +1,7 @@
 /**
- * se.vti.roundtrips.samplingweights.priors
+ * se.vti.roundtrips
  * 
- * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2025-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden

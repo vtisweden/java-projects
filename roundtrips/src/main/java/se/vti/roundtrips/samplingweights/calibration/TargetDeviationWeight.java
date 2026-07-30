@@ -1,7 +1,7 @@
 /**
- * od2roundtrips.model
+ * se.vti.roundtrips
  * 
- * Copyright (C) 2024 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2024-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -109,7 +109,7 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 			// ExpansionFactor equals width of uniform discretization noise distribution.
 			this.expansionFactor = this.realPopulationSize / syntheticPopulationSize;
 			if (this.accountForDiscretizationNoise) {
-				this.discretizationVariance = this.expansionFactor * this.expansionFactor / 12.0;
+				this.discretizationVariance = (this.expansionFactor * this.expansionFactor - 1.0) / 12.0;
 				this.discretizationStandardDeviation = Math.sqrt(this.discretizationVariance);
 			} else {
 				this.discretizationVariance = 0.0;
