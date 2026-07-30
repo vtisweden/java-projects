@@ -65,7 +65,7 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 	 * b = sigma / sqrt(2)
 	 * 
 	 */
-	public TargetDeviationWeight<N> setToTwoSidedExponential(double standardDeviationWithoutDiscretization) { 
+	public TargetDeviationWeight<N> setToTwoSidedExponential(double standardDeviationWithoutDiscretization) {
 		this.absoluteResidualToLogWeight = (r -> (-1.0) * r * Math.sqrt(2.0)
 				/ (standardDeviationWithoutDiscretization + this.discretizationStandardDeviation));
 		return this;
@@ -106,7 +106,9 @@ public abstract class TargetDeviationWeight<N extends Node> implements MHWeight<
 
 	/* package for testing */ void computeExpansionFactor(int syntheticPopulationSize) {
 		if (!this.expansionFactorIsComputed) {
-			// ExpansionFactor equals width of uniform discretization noise distribution.
+			if (this.realPopulationSize < syntheticPopulationSize) {
+				throw new RuntimeException("Real population size must not be smaller than synthetic population size.");
+			}
 			this.expansionFactor = this.realPopulationSize / syntheticPopulationSize;
 			if (this.accountForDiscretizationNoise) {
 				this.discretizationVariance = (this.expansionFactor * this.expansionFactor - 1.0) / 12.0;
