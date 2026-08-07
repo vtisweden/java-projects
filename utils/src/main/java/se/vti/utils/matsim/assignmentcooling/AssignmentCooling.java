@@ -90,14 +90,17 @@ public class AssignmentCooling implements IterationStartsListener, StartupListen
 						+ innovationStrategies);
 			}
 
-			double totalInnovationRate = 1.0 / (1.0 + this.maxNumberOfPlans);
-			double selectRandomRate = 1.0 - totalInnovationRate;
-
-			int postBurnInIterations = iteration - this.coolingConfig.getBurnInIterations();
-			if (postBurnInIterations >= 0) {
-				totalInnovationRate *= Math.pow(postBurnInIterations + 1,
+			final double maxInnovationRate = 1.0 / (1.0 + this.maxNumberOfPlans);
+			final int postBurnInIterations = iteration - this.coolingConfig.getBurnInIterations();
+			final double totalInnovationRate;
+			final double selectRandomRate;
+			if (postBurnInIterations < 0) {
+				totalInnovationRate = maxInnovationRate;
+				selectRandomRate = 1.0 - totalInnovationRate;
+			} else {
+				totalInnovationRate = maxInnovationRate * Math.pow(postBurnInIterations + 1,
 						(-1.0) * this.coolingConfig.getInnovationIterationExponent());
-				selectRandomRate = Math.min(selectRandomRate, Math.pow(postBurnInIterations + 1,
+				selectRandomRate = Math.min(1.0 - totalInnovationRate, Math.pow(postBurnInIterations + 1,
 						(-1.0) * this.coolingConfig.getSelectionIterationExponent()));
 			}
 

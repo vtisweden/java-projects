@@ -52,6 +52,8 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 	private boolean runIndefinitely = false;
 
+	private int minNumberOfStableSamples = 0;
+
 	// -------------------- INTERNAL STATES --------------------
 
 	private long iterations;
@@ -118,6 +120,11 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 	public BlockAverageTerminationCriterion<X> setRunIndefinitely(boolean runIndefinitely) {
 		this.runIndefinitely = runIndefinitely;
+		return this;
+	}
+
+	public BlockAverageTerminationCriterion<X> setMinNumberOfStableSamples(int minNumberOfStableSamples) {
+		this.minNumberOfStableSamples = minNumberOfStableSamples;
 		return this;
 	}
 
@@ -209,9 +216,9 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 			int burnInIndex = cutIndices.get(i + 1);
 			this.burnInIteration = burnInIndex;
 			this.stabilizedMean = this.mean(means.subList(i + 1, means.size()));
-			
+
 			boolean threeWindowConsistent = this.checkThreeWindowConsistency(burnInIndex);
-			this.stabilized = stableMeans && stableVars && threeWindowConsistent;
+			this.stabilized = stableMeans && stableVars && threeWindowConsistent && (this.samples.size() - this.burnInIteration >= this.minNumberOfStableSamples);
 		}
 	}
 
