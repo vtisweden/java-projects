@@ -1,7 +1,7 @@
 /**
  * se.vti.utils
  * 
- * Copyright (C) 2023 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2023-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -54,20 +54,20 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 	private int minNumberOfStableSamples = 0;
 
-	// -------------------- INTERNAL STATES --------------------
+	// -------------------- INTERNAL STATES, PACKAGE PRIVATE FOR TESTING --------------------
 
-	private long iterations;
+	long iterations;
 
-	private final List<Double> samples = new ArrayList<>();
+	final List<Double> samples = new ArrayList<>();
 
-	private boolean stabilized = false;
+	boolean stabilized = false;
 
-	private Integer burnInIteration;
-	private Double stabilizationMeanRange;
-	private Double stabilizationVarianceRange;
-	private Double threeWindowMeanRange;
-	private Double threeWindowVarianceRange;
-	private Double stabilizedMean;
+	Integer burnInIteration;
+	Double stabilizationMeanRange;
+	Double stabilizationVarianceRange;
+	Double threeWindowMeanRange;
+	Double threeWindowVarianceRange;
+	Double stabilizedMean;
 
 	// -------------------- CONSTRUCTION AND CONFIGURATION --------------------
 
