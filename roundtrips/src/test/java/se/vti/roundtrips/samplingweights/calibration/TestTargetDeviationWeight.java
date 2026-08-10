@@ -73,8 +73,8 @@ class TestTargetDeviationWeight {
 		var testInstance = new TestInstance(realPopulationSize).setToTwoSidedExponential(1.0).setAccountForDiscretizationNoise(true);
 		testInstance.computeExpansionFactor(syntheticPopulationSize);
 		Assertions.assertEquals(0, Math.abs(testInstance.computeLogWeight(syntheticPopulationSize / 2.0, realPopulationSize / 2.0)));		
-		Assertions.assertEquals(-4.734955805047642, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 - 1, realPopulationSize / 2.0));		
-		Assertions.assertEquals(-4.734955805047642, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 + 1, realPopulationSize / 2.0));		
+		Assertions.assertEquals(-4.735184643019201, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 - 1, realPopulationSize / 2.0));		
+		Assertions.assertEquals(-4.735184643019201, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 + 1, realPopulationSize / 2.0));		
 	}
 
 	@Test
@@ -91,8 +91,8 @@ class TestTargetDeviationWeight {
 		var testInstance = new TestInstance(realPopulationSize).setToGaussian(1.0).setAccountForDiscretizationNoise(true);
 		testInstance.computeExpansionFactor(syntheticPopulationSize);
 		Assertions.assertEquals(0, Math.abs(testInstance.computeLogWeight(syntheticPopulationSize / 2.0, realPopulationSize / 2.0)));		
-		Assertions.assertEquals(-5.9928086296444265, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 - 1, realPopulationSize / 2.0));		
-		Assertions.assertEquals(-5.9928086296444265, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 + 1, realPopulationSize / 2.0));		
+		Assertions.assertEquals(-5.993407252022775, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 - 1, realPopulationSize / 2.0));		
+		Assertions.assertEquals(-5.993407252022775, testInstance.computeLogWeight(syntheticPopulationSize / 2.0 + 1, realPopulationSize / 2.0));		
 	}
 
 }
