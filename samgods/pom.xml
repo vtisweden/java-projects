@@ -56,7 +56,7 @@
 		<dependency>
 			<groupId>se.vti.java-projects</groupId>
 			<artifactId>roundtrips</artifactId>
-			<version>0.1.21-SNAPSHOT</version>
+			<version>0.1.24-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -71,11 +71,13 @@
 		    <version>3.6.1</version>
 		</dependency>
 
+		<!--
 		<dependency>
 			<groupId>se.vti.java-projects</groupId>
 			<artifactId>utils</artifactId>
 			<version>0.1.13</version>
 		</dependency>
+		-->
 
 		<!-- This is the matsim "core": -->
 		<dependency>

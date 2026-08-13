@@ -110,6 +110,8 @@ class SamgodsLoopSamplingRunner {
 		maxCoverageErrorOption.setRequired(true);
 		options.addOption(maxCoverageErrorOption);
 
+		this.configureSamplingOptions(options);
+		
 		try {
 			CommandLine cmd = new DefaultParser().parse(options, args);
 			Config config = ConfigUtils.loadConfig(cmd.getOptionValue(configFileNameOption));
@@ -147,8 +149,10 @@ class SamgodsLoopSamplingRunner {
 		log.info("  Transport duration standard deviation is " + durationStats.getStandardDeviation() + " hours.");
 		log.info("  Maximum transport duration is " + durationStats.getMax() + " hours.");
 
-		List<List<Enum<?>>> allNodeLabels = List.of(List.of());
-		this.addToNodeLabels(allNodeLabels);
+//		List<List<Enum<?>>> allNodeLabels = List.of(List.of());
+		List<List<Enum<?>>> allNodeLabels = new ArrayList<>();
+		allNodeLabels.add(new ArrayList<>(0));
+		this.modifyNodeLabels(allNodeLabels);
 		this.dataContainer = new ScenarioDataContainer(loopSamplingData, transportDurations, allNodeLabels);
 		log.info("Total number of OD pairs: " + dataContainer.getOD2Demand_kTon_View().size());
 		log.info("Total freight demand [kTon]: " + dataContainer.getTotalDemand_kTon());
@@ -164,15 +168,18 @@ class SamgodsLoopSamplingRunner {
 		scenarioBuilder.setMoveTimeFunction((a, b) -> this.dataContainer.getTransportDuration_h(a, b));
 
 		this.samplingScenario = scenarioBuilder.build();
-		configureSamplingScenario(args);
+		configureSamplingScenario(args, options);
 	}
 
 	// HOOKS FOR SUBCLASSING (quick fix to not lose electrification functionality)
 
-	void configureSamplingScenario(String[] args) {
+	void configureSamplingOptions(Options options) {		
+	}
+	
+	void configureSamplingScenario(String[] args, Options options) {
 	}
 
-	void addToNodeLabels(List<List<Enum<?>>> allNodeLabels) {
+	void modifyNodeLabels(List<List<Enum<?>>> allNodeLabels) {
 	}
 
 	void parametrizeInitialRoundTripGenerator(RandomRoundTripGenerator<NodeWithCoords> generator) {
@@ -191,16 +198,28 @@ class SamgodsLoopSamplingRunner {
 
 	void runSimulation() {
 
-		log.info("Started simulation ...");
-
-		final double mu = Math.PI / Math.sqrt(2.0) / this.maxCoverageError / dataContainer.getDemandVectorLength_kTon();
-		log.info("max coverage error = " + this.maxCoverageError);
-		log.info("total demand = " + this.dataContainer.getTotalDemand_kTon() + " kTon");
-		log.info("demand vector length = " + this.dataContainer.getDemandVectorLength_kTon() + " kTon");
-		log.info("=>  mu = " + mu);
+		log.info("Starting simulation ...");
 
 		var runner = new Runner<NodeWithCoords>(this.samplingScenario);
-		runner.setUniformPrior();
+
+		final double mu = Math.PI / Math.sqrt(2.0) / this.maxCoverageError / dataContainer.getDemandVectorLength_kTon();
+		log.info("Computing uncertainty scale");
+		log.info("  max coverage error = " + this.maxCoverageError);
+		log.info("  total demand = " + this.dataContainer.getTotalDemand_kTon() + " kTon");
+		log.info("  demand vector length = " + this.dataContainer.getDemandVectorLength_kTon() + " kTon");
+		log.info("  =>  mu = " + mu);
+
+//		double numberOfODPairs = this.dataContainer.getOD2Demand_kTon_View().size();
+//		double avgODPairsPerLoop = numberOfODPairs / this.loopCount;
+//		log.info("Parametrizing prior");
+//		log.info("  number of OD pairs = " + numberOfODPairs);
+//		log.info("  avg. OD pairs per loop = " + avgODPairsPerLoop);
+//		log.info("  => setting this as mean per loop in binomial prior");		
+//		runner.setIndividualUniformPrior(); 
+//		runner.setPopulationUniformPrior(); 
+		runner.setIndividualBinomialPrior(0.5 * this.samplingScenario.getNumberOfTimeBins()); 
+//		runner.setPopulationBinomialPrior(0.5 * this.samplingScenario.getNumberOfTimeBins()); 
+		
 		var strictlyPeriodicWeight = new StrictlyPeriodicSchedule<NodeWithCoords>(periodLength_h);
 		runner.addIndividualWeight(strictlyPeriodicWeight);
 		runner.addPopulationWeight(new MHWeight<MultiRoundTrip<NodeWithCoords>>() {
@@ -241,7 +260,7 @@ class SamgodsLoopSamplingRunner {
 
 		runner.setMessageInterval(1000);
 		runner.configureWeightLogging("samplingWeights.tsv", 1000);
-		runner.configureStateDumping("./roundTrips", 100_000);
+		runner.configureStateDumping("./roundTrips", 10_000);
 		runner.setTerminationCriterion(new BlockAverageTerminationCriterion<MultiRoundTrip<NodeWithCoords>>()
 				.setCheckInterval(10_000).setConvergenceStatsFileName("convergenceStats.tsv").setMinSamples(100_000));
 		runner.run();

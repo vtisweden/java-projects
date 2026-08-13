@@ -34,7 +34,6 @@ import org.apache.logging.log4j.Logger;
 import se.vti.roundtrips.common.NodeWithCoords;
 import se.vti.roundtrips.common.RandomRoundTripGenerator;
 import se.vti.roundtrips.common.Runner;
-import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.simulator.DefaultSimulator;
 import se.vti.roundtrips.simulator.electrified.BatteryWrapAroundSimulator;
 import se.vti.roundtrips.simulator.electrified.Charging;
@@ -66,18 +65,24 @@ class ElectrifiedSamgodsLoopSamplingRunner extends SamgodsLoopSamplingRunner {
 	}
 
 	@Override
-	void configureSamplingScenario(String[] args) {
-
-		var options = new Options();
-
+	void configureSamplingOptions(Options options) {
 		var stationCntOption = new Option(stationCntLabel, true, stationCntLabel);
 		stationCntOption.setRequired(false);
 		options.addOption(stationCntOption);
+	}
+
+	@Override
+	void configureSamplingScenario(String[] args, Options options) {
+
+//		var options = new Options();
+//		var stationCntOption = new Option(stationCntLabel, true, stationCntLabel);
+//		stationCntOption.setRequired(false);
+//		options.addOption(stationCntOption);
 		try {
 			CommandLine cmd = new DefaultParser().parse(options, args);
-			this.chargingStationCount = (cmd.hasOption(stationCntOption)
-					? Integer.parseInt(cmd.getOptionValue(stationCntOption))
-					: null);
+			this.chargingStationCount = (cmd.hasOption(stationCntLabel)
+					? Integer.parseInt(cmd.getOptionValue(stationCntLabel))
+					: 0);
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		}
@@ -90,7 +95,8 @@ class ElectrifiedSamgodsLoopSamplingRunner extends SamgodsLoopSamplingRunner {
 	}
 
 	@Override
-	void addToNodeLabels(List<List<Enum<?>>> allNodeLabels) {
+	void modifyNodeLabels(List<List<Enum<?>>> allNodeLabels) {
+		allNodeLabels.clear();
 		allNodeLabels.add(List.of(Charging.YES));
 		allNodeLabels.add(List.of(Charging.NO));
 	}
@@ -112,9 +118,9 @@ class ElectrifiedSamgodsLoopSamplingRunner extends SamgodsLoopSamplingRunner {
 
 	public static void main(String[] args) {
 
-//		createGIS(args, true);
+		new ElectrifiedSamgodsLoopSamplingRunner(args).runSimulation();
 
-//		runSimulation(args);
+//		createGIS(args, true);
 
 //		runSimulation(new String[] { "-configFileName", "./input/config.xml", "-loopCnt", "1000", "-stationCnt", "200",
 //				"-maxCoverageError", "0.1"});
