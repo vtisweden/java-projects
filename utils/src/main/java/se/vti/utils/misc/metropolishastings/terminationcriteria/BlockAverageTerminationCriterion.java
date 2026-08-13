@@ -54,7 +54,8 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 	private int minNumberOfStableSamples = 0;
 
-	// -------------------- INTERNAL STATES, PACKAGE PRIVATE FOR TESTING --------------------
+	// -------------------- INTERNAL STATES, PACKAGE PRIVATE FOR TESTING
+	// --------------------
 
 	long iterations;
 
@@ -183,66 +184,94 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 		int _N = this.samples.size();
 
-		List<Double> means = new ArrayList<>();
-		List<Double> variances = new ArrayList<>();
+		List<Double> stabilizationCheckMeans = new ArrayList<>();
+		List<Double> stabilizationCheckVariances = new ArrayList<>();
 		List<Integer> cutIndices = new ArrayList<>();
 
 		for (int initialPercent = 0; initialPercent <= 60; initialPercent += 10) {
 			int start = (int) (0.01 * initialPercent * _N);
 			Stats stats = computeStats(start, _N);
-			means.add(stats.mean);
-			variances.add(stats.variance);
+			stabilizationCheckMeans.add(stats.mean);
+			stabilizationCheckVariances.add(stats.variance);
 			cutIndices.add(start);
 		}
 
+		double smallestToleranceViolation = Double.POSITIVE_INFINITY;
+
 		this.stabilized = false;
-		this.stabilizationMeanRange = Double.POSITIVE_INFINITY;
-		this.stabilizationVarianceRange = Double.POSITIVE_INFINITY;
 
-		for (int i = 0; (i < means.size() - 2) && !this.stabilized; i++) {
+		this.burnInIteration = null;
+		this.stabilizedMean = null;
+		this.stabilizationMeanRange = null;
+		this.stabilizationVarianceRange = null;
+		this.threeWindowMeanRange = null;
+		this.threeWindowVarianceRange = null;
 
-			double meanVariance = mean(variances.get(i), variances.get(i + 1), variances.get(i + 2));
-			double meanRange = (max(means.get(i), means.get(i + 1), means.get(i + 2))
-					- min(means.get(i), means.get(i + 1), means.get(i + 2))) / (Math.sqrt(meanVariance) + 1e-8);
-			double varRange = (max(variances.get(i), variances.get(i + 1), variances.get(i + 2))
-					- min(variances.get(i), variances.get(i + 1), variances.get(i + 2))) / (meanVariance + 1e-8);
-
-			this.stabilizationMeanRange = Math.min(this.stabilizationMeanRange, meanRange);
-			this.stabilizationVarianceRange = Math.min(this.stabilizationVarianceRange, varRange);
-
-			boolean stableMeans = (meanRange < this.standardizedMeanTolerance);
-			boolean stableVars = (varRange < this.relativeVarianceTolerance);
+		for (int i = 0; (i < stabilizationCheckMeans.size() - 2) && !this.stabilized; i++) {
 
 			int burnInIndex = cutIndices.get(i + 1);
-			this.burnInIteration = burnInIndex;
-			this.stabilizedMean = this.mean(means.subList(i + 1, means.size()));
 
-			boolean threeWindowConsistent = this.checkThreeWindowConsistency(burnInIndex);
-			this.stabilized = stableMeans && stableVars && threeWindowConsistent && (this.samples.size() - this.burnInIteration >= this.minNumberOfStableSamples);
+			// extract stabilization statistics
+
+			final double stabilizationMeanRange;
+			final double stabilizationVarianceRange;
+			{
+				double stabilizationMeanVariance = mean(stabilizationCheckVariances.get(i),
+						stabilizationCheckVariances.get(i + 1), stabilizationCheckVariances.get(i + 2));
+				stabilizationMeanRange = (max(stabilizationCheckMeans.get(i), stabilizationCheckMeans.get(i + 1),
+						stabilizationCheckMeans.get(i + 2))
+						- min(stabilizationCheckMeans.get(i), stabilizationCheckMeans.get(i + 1),
+								stabilizationCheckMeans.get(i + 2)))
+						/ (Math.sqrt(stabilizationMeanVariance) + 1e-8);
+				stabilizationVarianceRange = (max(stabilizationCheckVariances.get(i),
+						stabilizationCheckVariances.get(i + 1), stabilizationCheckVariances.get(i + 2))
+						- min(stabilizationCheckVariances.get(i), stabilizationCheckVariances.get(i + 1),
+								stabilizationCheckVariances.get(i + 2)))
+						/ (stabilizationMeanVariance + 1e-8);
+			}
+
+			// extract three window statistics
+
+			final double threeWindowMeanRange;
+			final double threeWindowVarianceRange;
+			{
+				int start = burnInIndex;
+				int remaining = _N - start;
+				int _L = remaining / 3;
+
+				Stats w1 = this.computeStats(start, start + _L);
+				Stats w2 = this.computeStats(start + _L, start + 2 * _L);
+				Stats w3 = this.computeStats(start + 2 * _L, _N);
+
+				double threeWindowMeanVariance = mean(w1.variance, w2.variance, w3.variance);
+				threeWindowMeanRange = (this.max(w1.mean, w2.mean, w3.mean) - this.min(w1.mean, w2.mean, w3.mean))
+						/ (Math.sqrt(threeWindowMeanVariance) + 1e-8);
+				threeWindowVarianceRange = (this.max(w1.variance, w2.variance, w3.variance)
+						- this.min(w1.variance, w2.variance, w3.variance)) / (threeWindowMeanVariance + 1e-8);
+			}
+
+			// book-keep smallest tolerance violation independently of stabilization
+
+			double toleranceViolation = this.max(stabilizationMeanRange - this.standardizedMeanTolerance,
+					stabilizationVarianceRange - this.relativeVarianceTolerance,
+					threeWindowMeanRange - this.standardizedMeanTolerance,
+					threeWindowVarianceRange - this.relativeVarianceTolerance);
+
+			if (toleranceViolation < smallestToleranceViolation) {
+				this.burnInIteration = burnInIndex;
+				this.stabilizedMean = stabilizationCheckMeans.get(i + 1);
+				this.stabilizationMeanRange = stabilizationMeanRange;
+				this.stabilizationVarianceRange = stabilizationVarianceRange;
+				this.threeWindowMeanRange = threeWindowMeanRange;
+				this.threeWindowVarianceRange = threeWindowVarianceRange;
+				smallestToleranceViolation = toleranceViolation;
+			}
+
+			// check stabilization
+
+			this.stabilized = (toleranceViolation <= 0.0)
+					&& (this.samples.size() - burnInIndex >= this.minNumberOfStableSamples);
 		}
-	}
-
-	private boolean checkThreeWindowConsistency(int start) {
-
-		int _N = this.samples.size();
-		int remaining = _N - start;
-		int _L = remaining / 3;
-
-		Stats w1 = this.computeStats(start, start + _L);
-		Stats w2 = this.computeStats(start + _L, start + 2 * _L);
-		Stats w3 = this.computeStats(start + 2 * _L, _N);
-
-		double meanVariance = mean(w1.variance, w2.variance, w3.variance);
-
-		double meanRange = (this.max(w1.mean, w2.mean, w3.mean) - this.min(w1.mean, w2.mean, w3.mean))
-				/ (Math.sqrt(meanVariance) + 1e-8);
-		double varRange = (this.max(w1.variance, w2.variance, w3.variance)
-				- this.min(w1.variance, w2.variance, w3.variance)) / (meanVariance + 1e-8);
-
-		this.threeWindowMeanRange = meanRange;
-		this.threeWindowVarianceRange = varRange;
-
-		return ((meanRange < this.standardizedMeanTolerance) && (varRange < this.relativeVarianceTolerance));
 	}
 
 	// -------------------- HELPERS --------------------
@@ -284,16 +313,16 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 		return Math.max(a, Math.max(b, c));
 	}
 
+	private double max(double a, double b, double c, double d) {
+		return Math.max(Math.max(a, b), Math.max(c, d));
+	}
+
 	private double min(double a, double b, double c) {
 		return Math.min(a, Math.min(b, c));
 	}
 
 	private double mean(double... values) {
 		return Arrays.stream(values).average().getAsDouble();
-	}
-
-	private double mean(List<Double> values) {
-		return values.stream().mapToDouble(x -> x).average().getAsDouble();
 	}
 
 	// -------------------- TESTING/EXPLORATION --------------------
