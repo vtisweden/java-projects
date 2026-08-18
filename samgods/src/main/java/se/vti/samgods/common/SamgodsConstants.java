@@ -19,12 +19,28 @@
  */
 package se.vti.samgods.common;
 
+import se.vti.samgods.logistics.TransportEpisode;
+import se.vti.samgods.transportation.consolidation.ConsolidationUnit;
+
 /**
  * 
  * @author GunnarF
  *
  */
 public class SamgodsConstants {
+
+	public static record CommodityModeContainer(Commodity commodity, SamgodsConstants.TransportMode samgodsMode,
+			Boolean isContainer) {
+		
+		public CommodityModeContainer(ConsolidationUnit consolidationUnit) {
+			this(consolidationUnit.commodity, consolidationUnit.samgodsMode, consolidationUnit.isContainer);
+		}
+		
+		public CommodityModeContainer(TransportEpisode transportEpisode) {
+			this(transportEpisode.getCommodity(), transportEpisode.getMode(), transportEpisode.isContainer());
+		}
+
+	};
 
 	// -------------------- TRANSPORT MODES --------------------
 

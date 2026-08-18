@@ -48,6 +48,7 @@ import se.vti.samgods.common.NetworkAndFleetDataProvider;
 import se.vti.samgods.common.OD;
 import se.vti.samgods.common.SamgodsConstants;
 import se.vti.samgods.common.SamgodsConstants.Commodity;
+import se.vti.samgods.common.SamgodsConstants.CommodityModeContainer;
 import se.vti.samgods.transportation.consolidation.ConsolidationUnit;
 
 /**
@@ -89,21 +90,18 @@ public class TreeBasedRouter {
 
 		final static Job TERMINATE = new Job(null); // poison pill
 
-		static record Key(Commodity commodity, SamgodsConstants.TransportMode samgodsMode, Boolean isContainer) {
-		};
-
-		final Key key;
+		final CommodityModeContainer key;
 
 		private final Map<OD, List<ConsolidationUnit>> od2ConsolidationUnits = new LinkedHashMap<>();
 
-		Job(Key key) {
+		Job(CommodityModeContainer key) {
 			this.key = key;
 		}
 
 		void addConsolidationUnit(ConsolidationUnit cu) {
-			assert (this.key.commodity.equals(cu.commodity));
-			assert (this.key.samgodsMode.equals(cu.samgodsMode));
-			assert (this.key.isContainer.equals(cu.isContainer));
+			assert (this.key.commodity().equals(cu.commodity));
+			assert (this.key.samgodsMode().equals(cu.samgodsMode));
+			assert (this.key.isContainer().equals(cu.isContainer));
 			this.od2ConsolidationUnits.computeIfAbsent(cu.od, od -> new ArrayList<>()).add(cu);
 		}
 
@@ -116,15 +114,15 @@ public class TreeBasedRouter {
 		}
 
 		Commodity getCommodity() {
-			return this.key.commodity;
+			return this.key.commodity();
 		}
 
 		SamgodsConstants.TransportMode getSamgodsMode() {
-			return this.key.samgodsMode;
+			return this.key.samgodsMode();
 		}
 
 		boolean isContainer() {
-			return this.key.isContainer;
+			return this.key.isContainer();
 		}
 	}
 
@@ -298,9 +296,9 @@ public class TreeBasedRouter {
 	}
 
 	public void route(Collection<ConsolidationUnit> consolidationUnits) {
-		Map<Job.Key, Job> key2job = new LinkedHashMap<>();
+		Map<CommodityModeContainer, Job> key2job = new LinkedHashMap<>();
 		for (ConsolidationUnit cu : consolidationUnits) {
-			Job.Key key = new Job.Key(cu.commodity, cu.samgodsMode, cu.isContainer);
+			CommodityModeContainer key = new CommodityModeContainer(cu.commodity, cu.samgodsMode, cu.isContainer);
 			key2job.computeIfAbsent(key, k -> new Job(key)).addConsolidationUnit(cu);
 		}
 		log.info("In total " + key2job.size() + " routing jobs representing " + consolidationUnits.size()
