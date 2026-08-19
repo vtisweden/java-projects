@@ -71,7 +71,6 @@ import se.vti.samgods.logistics.choice.MonetaryChainAndShipmentSizeUtilityFuncti
 import se.vti.samgods.logistics.costs.NonTransportCostModel;
 import se.vti.samgods.logistics.costs.NonTransportCostModel_v1_22;
 import se.vti.samgods.network.NetworkReader;
-import se.vti.samgods.preprocessing.routegeneration.PathBasedRouter;
 import se.vti.samgods.preprocessing.routegeneration.TreeBasedRouter;
 import se.vti.samgods.transportation.consolidation.ConsolidationJob;
 import se.vti.samgods.transportation.consolidation.ConsolidationUnit;
@@ -208,6 +207,10 @@ public class SamgodsRunner {
 
 	public Network getNetwork() {
 		return this.network;
+	}
+	
+	public TransportDemandAndChains getTransportDemand() {
+		return this.transportDemand;
 	}
 
 	// -------------------- LOAD VEHICLE FLEET --------------------
