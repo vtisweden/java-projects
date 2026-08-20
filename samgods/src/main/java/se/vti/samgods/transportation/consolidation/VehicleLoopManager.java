@@ -25,8 +25,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
+import org.matsim.api.core.v01.Id;
+import org.matsim.api.core.v01.network.Node;
+
+import se.vti.samgods.common.SamgodsConstants.Commodity;
+import se.vti.samgods.common.SamgodsConstants.CommodityMode;
 import se.vti.samgods.common.SamgodsConstants.CommodityModeContainer;
+import se.vti.samgods.common.SamgodsConstants.TransportMode;
 
 /**
  * Exploratory -- consider wiring this directly into the affected classes /
@@ -38,24 +45,24 @@ class VehicleLoopManager {
 
 	// -------------------- MEMBERS --------------------
 
-	private final Map<CommodityModeContainer, Set<ConsolidationUnit>> allConsolidationUnits = new LinkedHashMap<>();
+	private final Map<CommodityMode, Set<ConsolidationUnit>> allConsolidationUnits = new LinkedHashMap<>();
 
-	private final Map<CommodityModeContainer, Set<VehicleLoop>> allLoops = new LinkedHashMap<>();
+	private final Map<CommodityMode, Set<VehicleLoop>> allLoops = new LinkedHashMap<>();
 
 	// -------------------- CONSTRUCTION --------------------
 
 	VehicleLoopManager(Set<ConsolidationUnit> allConsolidationUnits) {
 		for (ConsolidationUnit consolidationUnit : allConsolidationUnits) {
 			this.allConsolidationUnits
-					.computeIfAbsent(new CommodityModeContainer(consolidationUnit), cmc -> new LinkedHashSet<>())
+					.computeIfAbsent(new CommodityMode(consolidationUnit), cmc -> new LinkedHashSet<>())
 					.add(consolidationUnit);
 		}
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
-	
+
 	void addLoop(VehicleLoop loop) {
-		var allLoops = this.allLoops.computeIfAbsent(loop.getCommodityModeContainer(), c -> new LinkedHashSet<>());
+		var allLoops = this.allLoops.computeIfAbsent(loop.getCommodityMode(), c -> new LinkedHashSet<>());
 		for (VehicleLoop existingLoop : allLoops) {
 			if (this.equalUpToShift(existingLoop.getMATSimNodeIdsView(), loop.getMATSimNodeIdsView())) {
 				return;
@@ -63,12 +70,20 @@ class VehicleLoopManager {
 		}
 		allLoops.add(loop);
 
-		for (ConsolidationUnit consolidationUnit : allConsolidationUnits.getOrDefault(loop.getCommodityModeContainer(),
+		for (ConsolidationUnit consolidationUnit : allConsolidationUnits.getOrDefault(loop.getCommodity(),
 				Collections.emptySet())) {
 			if (loop.containsOD(consolidationUnit.od)) {
 				loop.addConsolidationUnit(consolidationUnit);
 			}
 		}
+	}
+
+	List<ConsolidationUnit> getConsolidationUnits(Id<Node> fromNodeId, Id<Node> toNodeId, Commodity commodity,
+			TransportMode mode) {
+		return Stream
+				.concat(this.allConsolidationUnits.get(new CommodityModeContainer(commodity, mode, false)).stream(),
+						this.allConsolidationUnits.get(new CommodityModeContainer(commodity, mode, false)).stream())
+				.filter(cu -> cu.od.origin.equals(fromNodeId) && cu.od.destination.equals(toNodeId)).toList();
 	}
 
 	// -------------------- INTERNALS --------------------
@@ -89,4 +104,5 @@ class VehicleLoopManager {
 		}
 		return false;
 	}
+
 }

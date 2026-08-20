@@ -29,15 +29,39 @@ import se.vti.samgods.transportation.consolidation.ConsolidationUnit;
  */
 public class SamgodsConstants {
 
-	public static record CommodityModeContainer(Commodity commodity, SamgodsConstants.TransportMode samgodsMode,
-			Boolean isContainer) {
-		
+	public static record CommodityMode(Commodity commodity, SamgodsConstants.TransportMode samgodsMode) {
+
+		public CommodityMode(ConsolidationUnit consolidationUnit) {
+			this(consolidationUnit.commodity, consolidationUnit.samgodsMode);
+		}
+
+		public CommodityMode(TransportEpisode transportEpisode) {
+			this(transportEpisode.getCommodity(), transportEpisode.getMode());
+		}
+
+	};
+
+	public static record CommodityModeContainer(CommodityMode commodityMode, Boolean isContainer) {
+
+		public CommodityModeContainer(Commodity commodity, SamgodsConstants.TransportMode samgodsMode,
+				boolean isContainer) {
+			this(new CommodityMode(commodity, samgodsMode), isContainer);
+		}
+
 		public CommodityModeContainer(ConsolidationUnit consolidationUnit) {
 			this(consolidationUnit.commodity, consolidationUnit.samgodsMode, consolidationUnit.isContainer);
 		}
-		
+
 		public CommodityModeContainer(TransportEpisode transportEpisode) {
 			this(transportEpisode.getCommodity(), transportEpisode.getMode(), transportEpisode.isContainer());
+		}
+
+		public Commodity commodity() {
+			return this.commodityMode.commodity();
+		}
+
+		public TransportMode samgodsMode() {
+			return this.commodityMode.samgodsMode();
 		}
 
 	};

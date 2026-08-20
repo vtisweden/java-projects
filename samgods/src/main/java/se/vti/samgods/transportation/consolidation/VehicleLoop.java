@@ -29,30 +29,41 @@ import org.matsim.api.core.v01.network.Node;
 import org.matsim.vehicles.VehicleType;
 
 import se.vti.samgods.common.OD;
-import se.vti.samgods.common.SamgodsConstants.CommodityModeContainer;
+import se.vti.samgods.common.SamgodsConstants;
+import se.vti.samgods.common.SamgodsConstants.CommodityMode;
 
 /**
  * @author GunnarF
  */
 public class VehicleLoop {
 
-	private final CommodityModeContainer commodityModeContainer;
+	private final CommodityMode commodityMode;
 
 	private final List<Id<Node>> matsimNodeIds;
 
 	private final Set<ConsolidationUnit> consolidationUnits = new LinkedHashSet<>();
 
-	private final Set<VehicleType> feasibleVehicleTypes = new LinkedHashSet<>();
+	private Set<VehicleType> feasibleVehicleTypes = null;
 
-	VehicleLoop(CommodityModeContainer commodityModeContainer, List<Id<Node>> matsimNodesIds,
-			Set<VehicleType> allVehicleTypes) {
-		this.commodityModeContainer = commodityModeContainer;
+	VehicleLoop(CommodityMode commodityMode, List<Id<Node>> matsimNodesIds) {
+		this.commodityMode= commodityMode;
 		this.matsimNodeIds = Collections.unmodifiableList(matsimNodesIds);
-		this.feasibleVehicleTypes.addAll(allVehicleTypes);
 	}
 
-	public CommodityModeContainer getCommodityModeContainer() {
-		return this.commodityModeContainer;
+	VehicleLoop(SamgodsConstants.Commodity commodity, SamgodsConstants.TransportMode mode, List<Id<Node>> matsimNodesIds) {
+		this(new CommodityMode(commodity, mode), matsimNodesIds);
+	}
+
+	public SamgodsConstants.Commodity getCommodity() {
+		return this.commodityMode.commodity();
+	}
+	
+	public SamgodsConstants.TransportMode getMode() {
+		return this.commodityMode.samgodsMode();
+	}
+	
+	public CommodityMode getCommodityMode() {
+		return this.commodityMode;
 	}
 
 	public List<Id<Node>> getMATSimNodeIdsView() {
@@ -64,9 +75,13 @@ public class VehicleLoop {
 	}
 
 	public void addConsolidationUnit(ConsolidationUnit consolidationUnit) {
-		assert (this.commodityModeContainer.equals(new CommodityModeContainer(consolidationUnit)));
+		assert (this.commodityMode.equals(new CommodityMode(consolidationUnit)));
 		this.consolidationUnits.add(consolidationUnit);
-		this.feasibleVehicleTypes.retainAll(extractRoutedVehicleTypes(consolidationUnit));
+		if (this.feasibleVehicleTypes == null) {
+			this.feasibleVehicleTypes = new LinkedHashSet<>(this.extractRoutedVehicleTypes(consolidationUnit));
+		} else {
+			this.feasibleVehicleTypes.retainAll(this.extractRoutedVehicleTypes(consolidationUnit));	
+		}		
 	}
 
 	// TODO wrong place

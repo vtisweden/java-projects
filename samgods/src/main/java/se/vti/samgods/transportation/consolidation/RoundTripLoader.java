@@ -33,6 +33,7 @@ import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 
 import se.vti.roundtrips.common.ScenarioBuilder;
+import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripJsonIO;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.samgods.common.SamgodsConfigGroup;
@@ -60,6 +61,9 @@ class RoundTripLoader {
 	}
 
 	void load(String fileName, SamgodsConstants.Commodity commodity, SamgodsConstants.TransportMode mode) {
+
+		// build sampling scenario (necessary for loading)
+
 		var scenarioBuilder = new ScenarioBuilder<se.vti.roundtrips.common.Node>().setTimeBinSize_h(this.timeBinSize_h)
 				.setNumberOfTimeBins(this.numberOfTimeBins);
 		scenarioBuilder.addNodes(this.allNodeIds.stream().map(id -> new se.vti.roundtrips.common.Node(id.toString()))
@@ -67,18 +71,25 @@ class RoundTripLoader {
 		scenarioBuilder.setMoveDistanceFunction((a, b) -> 0.0);
 		scenarioBuilder.setMoveTimeFunction((a, b) -> 0.0);
 		var samplingScenario = scenarioBuilder.build();
+
+		// load round trips
+
+		final MultiRoundTrip<se.vti.roundtrips.common.Node> roundTrips;
 		try {
-			var roundTrips = MultiRoundTripJsonIO.singleton().readFromFile(samplingScenario, fileName);
-			System.out.println("Loaded " + roundTrips.size() +  " roundtrips.");
+			roundTrips = MultiRoundTripJsonIO.singleton().readFromFile(samplingScenario, fileName);
+			System.out.println("Loaded " + roundTrips.size() + " roundtrips.");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
 
-	VehicleLoop createVehicleLoop(RoundTrip<?> roundTrip) {
-		// TODO See comment in load function -- need to decide on sampling node type.
-		// Extract boilerplate code from SamgodsLoopSamplingRunner.
-		throw new UnsupportedOperationException();
+		// turn round trips into vehicle loops and add to manager
+
+		for (var roundTrip : roundTrips) {
+			var matsimNodeIds = new ArrayList<>(
+					roundTrip.getNodesView().stream().map(n -> Id.createNodeId(n.getBasicName())).toList());
+			var loop = new VehicleLoop(commodity, mode, matsimNodeIds);
+			this.loopManager.addLoop(loop);
+		}
 	}
 
 	public static void main(String[] args) throws IOException {
