@@ -79,6 +79,8 @@ public class NetworkReader {
 
 	private final Map<TransportMode, Double> mode2fallbackSpeed_km_h = new LinkedHashMap<>();
 
+	private boolean onlyDomestic = false;
+
 	// -------------------- CONSTRUCTION --------------------
 
 	public NetworkReader() {
@@ -106,6 +108,11 @@ public class NetworkReader {
 	public NetworkReader setFallbackSpeed_km_h(TransportMode mode, double speed_km_h) {
 		log.info("Setting fallback speed for mode " + mode + " to " + speed_km_h + " km/h");
 		this.mode2fallbackSpeed_km_h.put(mode, speed_km_h);
+		return this;
+	}
+
+	public NetworkReader setOnlyDomestic(boolean onlyDomestic) {
+		log.info("Setting onlyDomestic to " + onlyDomestic);
 		return this;
 	}
 
@@ -156,55 +163,62 @@ public class NetworkReader {
 			final double nodeDist_m = NetworkUtils.getEuclideanDistance(fromNode.getCoord(), toNode.getCoord());
 			final boolean isDomestic = domesticNodes.contains(fromNode) && domesticNodes.contains(toNode);
 
-			final double lanes = Double.parseDouble(record.get(LINK_LANES));
-			final SamgodsConstants.TransportMode samgodsMode = SamgodsConstants.TransportMode
-					.valueOf(record.get(LINK_MODE));
-			double length_m = Double.parseDouble(record.get(LINK_LENGTH_M));
-			if (length_m < nodeDist_m) {
-				// do not log mm-deviations
-				if (length_m < nodeDist_m - 1e-3) {
-					log.warn("Increasing link " + id + "'s length from " + length_m + "m to node distance " + nodeDist_m
-							+ "m.");
-				}
-				length_m = nodeDist_m;
-			}
+			if (!isDomestic && this.onlyDomestic) {
 
-			final String[] networkModes = record.get(LINK_MODESTR).split("");
+				log.info("Skipping non-domestic link " + id);
 
-			final Double speed1_km_h = ParseNumberUtils.parseDoubleOrNull(record.get(LINK_SPEED_1));
-			final Double speed2_km_h = ParseNumberUtils.parseDoubleOrNull(record.get(LINK_SPEED_2));
-			double speed_km_h;
-			if (speed1_km_h != null) {
-				if (speed2_km_h != null) {
-					speed_km_h = Math.max(speed1_km_h, speed2_km_h);
-				} else {
-					speed_km_h = speed1_km_h;
-				}
 			} else {
-				if (speed2_km_h != null) {
-					speed_km_h = speed2_km_h;
-				} else {
-					speed_km_h = this.mode2fallbackSpeed_km_h.get(samgodsMode);
-				}
-			}
-			assert (Double.isFinite(speed_km_h));
 
-			if (speed_km_h < this.minSpeed_km_h) {
-				LogManager.getLogger(NetworkReader.class)
-						.warn("Skipping link " + id + " because of too low speed: " + speed_km_h + " km/h.");
-			} else {
-				final double capacity_veh_h = ParseNumberUtils
-						.parseDoubleOrDefault(record.get(LINK_CAPACITY_TRAINS_DAY), Double.POSITIVE_INFINITY) / 24.0;
-				if (capacity_veh_h < this.minCapacity_veh_h) {
-					LogManager.getLogger(NetworkReader.class).warn(
-							"Skipping link " + id + " because of too low capacity: " + capacity_veh_h + " veh/h.");
+				final double lanes = Double.parseDouble(record.get(LINK_LANES));
+				final SamgodsConstants.TransportMode samgodsMode = SamgodsConstants.TransportMode
+						.valueOf(record.get(LINK_MODE));
+				double length_m = Double.parseDouble(record.get(LINK_LENGTH_M));
+				if (length_m < nodeDist_m) {
+					// do not log mm-deviations
+					if (length_m < nodeDist_m - 1e-3) {
+						log.warn("Increasing link " + id + "'s length from " + length_m + "m to node distance "
+								+ nodeDist_m + "m.");
+					}
+					length_m = nodeDist_m;
+				}
+
+				final String[] networkModes = record.get(LINK_MODESTR).split("");
+
+				final Double speed1_km_h = ParseNumberUtils.parseDoubleOrNull(record.get(LINK_SPEED_1));
+				final Double speed2_km_h = ParseNumberUtils.parseDoubleOrNull(record.get(LINK_SPEED_2));
+				double speed_km_h;
+				if (speed1_km_h != null) {
+					if (speed2_km_h != null) {
+						speed_km_h = Math.max(speed1_km_h, speed2_km_h);
+					} else {
+						speed_km_h = speed1_km_h;
+					}
 				} else {
-					final Link link = NetworkUtils.createAndAddLink(network, id, fromNode, toNode, length_m,
-							Units.M_S_PER_KM_H * speed_km_h, capacity_veh_h, lanes, null, null);
-					final SamgodsLinkAttributes linkAttributes = new SamgodsLinkAttributes(samgodsMode, speed1_km_h,
-							speed2_km_h, isDomestic, networkModes);
-					link.setAllowedModes(TransportModes.computeMatsimModesMapFerryToCarriedModes(linkAttributes));
-					link.getAttributes().putAttribute(SamgodsLinkAttributes.ATTRIBUTE_NAME, linkAttributes);
+					if (speed2_km_h != null) {
+						speed_km_h = speed2_km_h;
+					} else {
+						speed_km_h = this.mode2fallbackSpeed_km_h.get(samgodsMode);
+					}
+				}
+				assert (Double.isFinite(speed_km_h));
+
+				if (speed_km_h < this.minSpeed_km_h) {
+					LogManager.getLogger(NetworkReader.class)
+							.warn("Skipping link " + id + " because of too low speed: " + speed_km_h + " km/h.");
+				} else {
+					final double capacity_veh_h = ParseNumberUtils.parseDoubleOrDefault(
+							record.get(LINK_CAPACITY_TRAINS_DAY), Double.POSITIVE_INFINITY) / 24.0;
+					if (capacity_veh_h < this.minCapacity_veh_h) {
+						LogManager.getLogger(NetworkReader.class).warn(
+								"Skipping link " + id + " because of too low capacity: " + capacity_veh_h + " veh/h.");
+					} else {
+						final Link link = NetworkUtils.createAndAddLink(network, id, fromNode, toNode, length_m,
+								Units.M_S_PER_KM_H * speed_km_h, capacity_veh_h, lanes, null, null);
+						final SamgodsLinkAttributes linkAttributes = new SamgodsLinkAttributes(samgodsMode, speed1_km_h,
+								speed2_km_h, isDomestic, networkModes);
+						link.setAllowedModes(TransportModes.computeMatsimModesMapFerryToCarriedModes(linkAttributes));
+						link.getAttributes().putAttribute(SamgodsLinkAttributes.ATTRIBUTE_NAME, linkAttributes);
+					}
 				}
 			}
 		}

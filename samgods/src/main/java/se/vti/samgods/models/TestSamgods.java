@@ -94,7 +94,7 @@ public class TestSamgods {
 				"ROF5");
 //		runner.checkAvailableVehicles();
 
-		runner.loadNetwork();
+		runner.loadEntireNetwork();
 
 		runner.setNetworkFlowsFileName("linkId2commodity2annualAmount_ton.json");
 

@@ -208,9 +208,23 @@ public class SamgodsRunner {
 	public Network getNetwork() {
 		return this.network;
 	}
-	
+
 	public TransportDemandAndChains getTransportDemand() {
 		return this.transportDemand;
+	}
+
+	public Set<ConsolidationUnit> getConsolidationUnits() {
+		Set<ConsolidationUnit> result = new LinkedHashSet<>();
+		for (var commodity : this.consideredCommodities) {
+			for (var chainsPerOd : this.transportDemand.getCommodity2od2transportChains().get(commodity).values()) {
+				for (var chain : chainsPerOd) {
+					for (var episode : chain.getEpisodes()) {
+						result.addAll(episode.getConsolidationUnits());
+					}
+				}
+			}
+		}
+		return result;
 	}
 
 	// -------------------- LOAD VEHICLE FLEET --------------------
@@ -250,8 +264,14 @@ public class SamgodsRunner {
 
 	// -------------------- LOAD NETWORK --------------------
 
-	public SamgodsRunner loadNetwork() throws IOException {
-		this.network = new NetworkReader().load(this.config.getNetworkNodesFileName(),
+	public SamgodsRunner loadDomesticNetwork() throws IOException {
+		this.network = new NetworkReader().setOnlyDomestic(true).load(this.config.getNetworkNodesFileName(),
+				this.config.getNetworkLinksFileName());
+		return this;
+	}
+
+	public SamgodsRunner loadEntireNetwork() throws IOException {
+		this.network = new NetworkReader().setOnlyDomestic(false).load(this.config.getNetworkNodesFileName(),
 				this.config.getNetworkLinksFileName());
 		return this;
 	}

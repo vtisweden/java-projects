@@ -25,19 +25,17 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Node;
+import org.matsim.vehicles.VehicleType;
 
-import se.vti.samgods.common.SamgodsConstants.Commodity;
+import se.vti.samgods.common.OD;
 import se.vti.samgods.common.SamgodsConstants.CommodityMode;
-import se.vti.samgods.common.SamgodsConstants.CommodityModeContainer;
-import se.vti.samgods.common.SamgodsConstants.TransportMode;
+import se.vti.samgods.transportation.costs.BasicTransportCost;
 
 /**
- * Exploratory -- consider wiring this directly into the affected classes /
- * interfaces.
+ * Exploratory.
  * 
  * @author GunnarF
  */
@@ -45,16 +43,24 @@ class VehicleLoopManager {
 
 	// -------------------- MEMBERS --------------------
 
-	private final Map<CommodityMode, Set<ConsolidationUnit>> allConsolidationUnits = new LinkedHashMap<>();
+	record CommodityModeOD(CommodityMode commodityMode, OD od) {
+		CommodityModeOD(ConsolidationUnit consolidationUnit) {
+			this(new CommodityMode(consolidationUnit), consolidationUnit.od);
+		}
+	}
 
-	private final Map<CommodityMode, Set<VehicleLoop>> allLoops = new LinkedHashMap<>();
+	// -------------------- MEMBERS --------------------
+
+	private final Map<CommodityMode, Set<VehicleLoop>> commodityMode2VehicleLoops = new LinkedHashMap<>();
+
+	private final Map<CommodityModeOD, Set<ConsolidationUnit>> commodityModeOD2ConsolidationUnits = new LinkedHashMap<>();
 
 	// -------------------- CONSTRUCTION --------------------
 
 	VehicleLoopManager(Set<ConsolidationUnit> allConsolidationUnits) {
 		for (ConsolidationUnit consolidationUnit : allConsolidationUnits) {
-			this.allConsolidationUnits
-					.computeIfAbsent(new CommodityMode(consolidationUnit), cmc -> new LinkedHashSet<>())
+			this.commodityModeOD2ConsolidationUnits
+					.computeIfAbsent(new CommodityModeOD(consolidationUnit), cmod -> new LinkedHashSet<>())
 					.add(consolidationUnit);
 		}
 	}
@@ -62,28 +68,66 @@ class VehicleLoopManager {
 	// -------------------- IMPLEMENTATION --------------------
 
 	void addLoop(VehicleLoop loop) {
-		var allLoops = this.allLoops.computeIfAbsent(loop.getCommodityMode(), c -> new LinkedHashSet<>());
+
+		// Find out if this loop should be added at all, and do so if adequate.
+
+		Set<VehicleLoop> allLoops = this.commodityMode2VehicleLoops.computeIfAbsent(loop.getCommodityMode(),
+				c -> new LinkedHashSet<>());
 		for (VehicleLoop existingLoop : allLoops) {
 			if (this.equalUpToShift(existingLoop.getMATSimNodeIdsView(), loop.getMATSimNodeIdsView())) {
 				return;
 			}
 		}
-		allLoops.add(loop);
 
-		for (ConsolidationUnit consolidationUnit : allConsolidationUnits.getOrDefault(loop.getCommodity(),
-				Collections.emptySet())) {
-			if (loop.containsOD(consolidationUnit.od)) {
-				loop.addConsolidationUnit(consolidationUnit);
+		// Find all feasible vehicle types.
+
+		Set<VehicleType> feasibleVehicleTypes = null;
+		Id<Node> predecessorNodeId = loop.getMATSimNodeIdsView().getLast();
+		for (int i = 0; i < loop.size(); i++) {
+			Id<Node> currentNodeId = loop.getMATSimNodeIdsView().get(i);
+			OD od = new OD(predecessorNodeId, currentNodeId);
+			Set<ConsolidationUnit> consolidationUnits = this.commodityModeOD2ConsolidationUnits
+					.get(new CommodityModeOD(loop.getCommodityMode(), od));
+			if ((consolidationUnits == null) || (consolidationUnits.size() == 0)) {
+				feasibleVehicleTypes = new LinkedHashSet<>(0);
+				System.err.println("Rejecting loop because of lacking consolidation units.");
+				return;
+			} else {
+				for (ConsolidationUnit cu : consolidationUnits) {
+					for (var vehicleTypes : cu.vehicleType2route.keySet()) {
+						if (feasibleVehicleTypes == null) {
+							feasibleVehicleTypes = new LinkedHashSet<>(vehicleTypes);
+						} else {
+							feasibleVehicleTypes.retainAll(vehicleTypes);
+						}
+					}
+				}
 			}
+			predecessorNodeId = currentNodeId;
 		}
+		if ((feasibleVehicleTypes == null) || (feasibleVehicleTypes.size() == 0)) {
+			System.err.println("Rejecting loop because of lacking vehicle types.");
+			return;
+		}
+
+		// Loop is topologically new and has at least one vehicle type that applies on
+		// all single-step ODs.
+
+		loop.setFeasibleVehicleTypes(feasibleVehicleTypes);
+		allLoops.add(loop);
 	}
 
-	List<ConsolidationUnit> getConsolidationUnits(Id<Node> fromNodeId, Id<Node> toNodeId, Commodity commodity,
-			TransportMode mode) {
-		return Stream
-				.concat(this.allConsolidationUnits.get(new CommodityModeContainer(commodity, mode, false)).stream(),
-						this.allConsolidationUnits.get(new CommodityModeContainer(commodity, mode, false)).stream())
-				.filter(cu -> cu.od.origin.equals(fromNodeId) && cu.od.destination.equals(toNodeId)).toList();
+	void printStats() {
+		int numberOfLoops = 0;
+		int numberOfFeasibleVehicleTypes = 0;
+		for (var loops : this.commodityMode2VehicleLoops.values()) {
+			numberOfLoops += loops.size();
+			for (var loop : loops) {
+				numberOfFeasibleVehicleTypes+= loop.getFeasibleVehicleTypesView().size();
+			}
+		}
+		System.out.println("Total number of topological loops: " + numberOfLoops);
+		System.out.println("Total number vehicle-type/loop pairs:" + numberOfFeasibleVehicleTypes);
 	}
 
 	// -------------------- INTERNALS --------------------

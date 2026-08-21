@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,11 +36,12 @@ import org.matsim.core.config.ConfigUtils;
 import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripJsonIO;
-import se.vti.roundtrips.single.RoundTrip;
 import se.vti.samgods.common.SamgodsConfigGroup;
 import se.vti.samgods.common.SamgodsConstants;
 import se.vti.samgods.common.SamgodsConstants.Commodity;
+import se.vti.samgods.common.SamgodsConstants.TransportMode;
 import se.vti.samgods.common.SamgodsRunner;
+import se.vti.samgods.logistics.TransportChain;
 
 /**
  * @author GunnarF
@@ -105,9 +107,9 @@ class RoundTripLoader {
 
 		final double scaleFactor = 1.0;
 		SamgodsRunner runner = new SamgodsRunner(samgodsConfig).setServiceInterval_days(7)
-				.setConsideredCommodities(SamgodsConstants.Commodity.AGRICULTURE).setSamplingRate(0.01)
-				.setMaxThreads(16).setScale(Commodity.AGRICULTURE, scaleFactor * 0.0004)
-				.setScale(Commodity.COAL, scaleFactor * 0.0000001).setScale(Commodity.METAL, scaleFactor * 0.0000001
+				.setConsideredCommodities(SamgodsConstants.Commodity.AGRICULTURE).setSamplingRate(1.0).setMaxThreads(16)
+				.setScale(Commodity.AGRICULTURE, scaleFactor * 0.0004).setScale(Commodity.COAL, scaleFactor * 0.0000001)
+				.setScale(Commodity.METAL, scaleFactor * 0.0000001
 				/* METAL: using coal parameter because, estimated has wrong sign */)
 				.setScale(Commodity.FOOD, scaleFactor * 0.00006).setScale(Commodity.TEXTILES, scaleFactor * 0.0003)
 				.setScale(Commodity.WOOD, scaleFactor * 0.000003).setScale(Commodity.COKE, scaleFactor * 0.00002)
@@ -123,26 +125,35 @@ class RoundTripLoader {
 
 		runner.loadVehiclesOtherThan("WG950", "KOMXL", "SYSXL", "WGEXL", "HGV74", "ROF7", "RAF5", "INW", "ROF2",
 				"ROF5");
-		runner.loadNetwork();
+		runner.loadDomesticNetwork();
 
-//		runner.setNetworkFlowsFileName("linkId2commodity2annualAmount_ton.json");
+		runner.setNetworkFlowsFileName("linkId2commodity2annualAmount_ton.json");
 		runner.loadTransportDemand("./input_2024/ChainChoi", "XTD.out");
-//		runner.createOrLoadConsolidationUnits();
+		runner.createOrLoadConsolidationUnits();
 
 		// load roundtrips
 
 		Set<Id<Node>> terminals = new LinkedHashSet<>();
-		runner.getTransportDemand().getCommodity2od2annualShipments().get(SamgodsConstants.Commodity.AGRICULTURE)
-				.entrySet().forEach(e -> {
-					if (e.getValue().stream().mapToDouble(aa -> aa.getTotalAmount_ton()).sum() > 0) {
-						terminals.add(e.getKey().origin);
-						terminals.add(e.getKey().destination);
-					}
-				});
+		var od2transportChains = runner.getTransportDemand().getCommodity2od2transportChains()
+				.get(SamgodsConstants.Commodity.AGRICULTURE);
+		for (List<TransportChain> chainsPerOD : od2transportChains.values()) {
+			for (var transportChain : chainsPerOD) {
+				for (var transportEpisode : transportChain.getEpisodes()) {
+					Id<Node> fromNodeId = transportEpisode.getLoadingNodeId();
+					Id<Node> toNodeId = transportEpisode.getUnloadingNodeId();
+					terminals.add(fromNodeId);
+					terminals.add(toNodeId);
+				}
+			}
+		}
 		System.out.println("Using " + terminals.size() + " active terminals.");
-		var roundTripLoader = new RoundTripLoader(null, terminals, 4.0, 42);
-		roundTripLoader.load("./input_2024/roundtrips.AGRICULTURE.json", null, null);
 
+		var loopManager = new VehicleLoopManager(runner.getConsolidationUnits());
+		var roundTripLoader = new RoundTripLoader(loopManager, terminals, 4.0, 42);
+		roundTripLoader.load("./input_2024/roundtrips.AGRICULTURE.json", Commodity.AGRICULTURE, TransportMode.Road);
+
+		loopManager.printStats();
+		
 	}
 
 }

@@ -67,6 +67,8 @@ class SamgodsLoopSamplingRunner {
 	static final String maxCoverageErrorLabel = "maxCoverageError";
 	static final String commodityLabel = "commodity";
 	static final String transportModeLabel = "transportMode";
+	static final String nodesFile = "nodesFile";
+	static final String linksFile = "linksFile";
 
 	static final int periodLength_h = 7 * 24;
 	static final int timeBinSize_h = 4;
@@ -81,7 +83,7 @@ class SamgodsLoopSamplingRunner {
 	final int loopCount;
 	final SamgodsConstants.Commodity commodity;
 	final SamgodsConstants.TransportMode transportMode;
-
+	
 	SamgodsLoopSamplingRunner(String[] args) {
 
 		var options = new Options();
@@ -109,6 +111,14 @@ class SamgodsLoopSamplingRunner {
 		var maxCoverageErrorOption = new Option(maxCoverageErrorLabel, true, maxCoverageErrorLabel);
 		maxCoverageErrorOption.setRequired(true);
 		options.addOption(maxCoverageErrorOption);
+		
+		var nodesFileOption = new Option(nodesFile, true, nodesFile);
+		nodesFileOption.setRequired(false);
+		options.addOption(nodesFileOption);
+
+		var linksFileOption = new Option(linksFile, true, linksFile);
+		linksFileOption.setRequired(false);
+		options.addOption(linksFileOption);
 
 		this.configureSamplingOptions(options);
 		
@@ -121,6 +131,7 @@ class SamgodsLoopSamplingRunner {
 			this.commodity = SamgodsConstants.Commodity.valueOf(cmd.getOptionValue(commodityOption));
 			this.transportMode = SamgodsConstants.TransportMode.valueOf(cmd.getOptionValue(transportModeOption));
 			this.maxCoverageError = Double.parseDouble(cmd.getOptionValue(maxCoverageErrorOption));
+
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		}

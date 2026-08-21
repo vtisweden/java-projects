@@ -20,7 +20,6 @@
 package se.vti.samgods.transportation.consolidation;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,8 +40,6 @@ public class VehicleLoop {
 
 	private final List<Id<Node>> matsimNodeIds;
 
-	private final Set<ConsolidationUnit> consolidationUnits = new LinkedHashSet<>();
-
 	private Set<VehicleType> feasibleVehicleTypes = null;
 
 	VehicleLoop(CommodityMode commodityMode, List<Id<Node>> matsimNodesIds) {
@@ -54,6 +51,18 @@ public class VehicleLoop {
 		this(new CommodityMode(commodity, mode), matsimNodesIds);
 	}
 
+	public void setFeasibleVehicleTypes(Set<VehicleType> feasibleVehicleTypes) {
+		this.feasibleVehicleTypes = Collections.unmodifiableSet(feasibleVehicleTypes);
+	}
+
+	public Set<VehicleType> getFeasibleVehicleTypesView() {
+		return this.feasibleVehicleTypes;
+	}
+
+	public int size() {
+		return this.matsimNodeIds.size();
+	}
+	
 	public SamgodsConstants.Commodity getCommodity() {
 		return this.commodityMode.commodity();
 	}
@@ -72,24 +81,5 @@ public class VehicleLoop {
 
 	public boolean containsOD(OD od) {
 		return (this.matsimNodeIds.contains(od.origin) && this.matsimNodeIds.contains(od.destination));
-	}
-
-	public void addConsolidationUnit(ConsolidationUnit consolidationUnit) {
-		assert (this.commodityMode.equals(new CommodityMode(consolidationUnit)));
-		this.consolidationUnits.add(consolidationUnit);
-		if (this.feasibleVehicleTypes == null) {
-			this.feasibleVehicleTypes = new LinkedHashSet<>(this.extractRoutedVehicleTypes(consolidationUnit));
-		} else {
-			this.feasibleVehicleTypes.retainAll(this.extractRoutedVehicleTypes(consolidationUnit));	
-		}		
-	}
-
-	// TODO wrong place
-	private Set<VehicleType> extractRoutedVehicleTypes(ConsolidationUnit consolidationUnit) {
-		Set<VehicleType> result = new LinkedHashSet<>();
-		for (var vehicleTypes : consolidationUnit.vehicleType2route.keySet()) {
-			result.addAll(vehicleTypes);
-		}
-		return result;
-	}
+	}	
 }

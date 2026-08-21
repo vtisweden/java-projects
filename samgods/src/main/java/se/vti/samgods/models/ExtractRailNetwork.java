@@ -101,7 +101,7 @@ public class ExtractRailNetwork {
 		runner.loadVehiclesOtherThan("WG950", "KOMXL", "SYSXL", "WGEXL", "HGV74", "ROF7", "RAF5", "INW", "ROF2", "ROF5");
 //		runner.checkAvailableVehicles();
 
-		runner.loadNetwork();
+		runner.loadEntireNetwork();
 
 		Network network = runner.getNetwork();
 		

@@ -58,12 +58,6 @@ class SamgodsScenarioData {
 
 	private static final Logger log = LogManager.getLogger(SamgodsScenarioData.class);
 
-	private final SamgodsConstants.TransportMode transportMode;
-
-	private final boolean onlyDomestic;
-
-	private final SamgodsConfigGroup samgodsConfig;
-
 	// -------------------- MEMBERS --------------------
 
 	private final Network network;
@@ -79,14 +73,10 @@ class SamgodsScenarioData {
 	SamgodsScenarioData(SamgodsConstants.TransportMode transportMode, boolean onlyDomestic,
 			SamgodsConfigGroup samgodsConfig, SamgodsConstants.Commodity... commodities) {
 
-		this.transportMode = transportMode;
-		this.onlyDomestic = onlyDomestic;
-		this.samgodsConfig = samgodsConfig;
-
 		log.info("Loading network.");
 		try {
-			this.network = new NetworkReader().load(this.samgodsConfig.getNetworkNodesFileName(),
-					this.samgodsConfig.getNetworkLinksFileName());
+			this.network = new NetworkReader().setOnlyDomestic(onlyDomestic)
+					.load(samgodsConfig.getNetworkNodesFileName(), samgodsConfig.getNetworkLinksFileName());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -96,7 +86,8 @@ class SamgodsScenarioData {
 			final Set<Id<Link>> excludedLinkIds = new LinkedHashSet<>();
 			for (Link link : this.network.getLinks().values()) {
 				SamgodsLinkAttributes linkAttrs = SamgodsNetworkUtils.instance.getLinkAttrs(link);
-				if ((this.onlyDomestic && !linkAttrs.isDomestic) || !this.transportMode.equals(linkAttrs.samgodsMode)) {
+				// TODO domestic check should be taken care of by NetworkReader
+				if ((onlyDomestic && !linkAttrs.isDomestic) || !transportMode.equals(linkAttrs.samgodsMode)) {
 					excludedLinkIds.add(link.getId());
 				}
 			}
@@ -124,11 +115,11 @@ class SamgodsScenarioData {
 		for (var commodity : commodities) {
 			log.info("Processing commodity: " + commodity);
 			new ChainChoiReader(commodity, transportDemand, true, true)
-					.parse(this.samgodsConfig.getChainChoiFileName(commodity));
+					.parse(samgodsConfig.getChainChoiFileName(commodity));
 			for (var odAndChains : transportDemand.getCommodity2od2transportChains().get(commodity).entrySet()) {
 				for (TransportChain chain : odAndChains.getValue()) {
 					for (TransportEpisode episode : chain.getEpisodes()) {
-						if (this.transportMode.equals(episode.getMode())) {
+						if (transportMode.equals(episode.getMode())) {
 							Node loadingNode = this.network.getNodes().get(episode.getLoadingNodeId());
 							Node unloadingNode = this.network.getNodes().get(episode.getUnloadingNodeId());
 							if ((loadingNode != null) && (unloadingNode != null)) {
@@ -153,7 +144,7 @@ class SamgodsScenarioData {
 						double demandPerChain_kton = totalDemand_kTon / chains.size();
 						for (TransportChain chain : chains) {
 							for (TransportEpisode episode : chain.getEpisodes()) {
-								if (this.transportMode.equals(episode.getMode())
+								if (transportMode.equals(episode.getMode())
 										&& this.od2Demand_kTon.containsKey(episode.getLoadingUnloadingOD())) {
 									this.od2Demand_kTon.compute(episode.getLoadingUnloadingOD(),
 											(od, d) -> (d == null) ? demandPerChain_kton : d + demandPerChain_kton);
