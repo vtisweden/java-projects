@@ -19,9 +19,12 @@
  */
 package se.vti.samgods.transportation.consolidation;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,15 +47,13 @@ public class LoopManager {
 
 	private final Map<CommodityMode, Set<Loop>> commodityMode2Loops = new LinkedHashMap<>();
 
+	private Map<ConsolidationUnit, Set<Loop>> consolidationUnit2Loops = null;
+
 	private ConsolidationUnitManager consolidationUnitManager = null;
 
 	// -------------------- CONSTRUCTION --------------------
 
 	public LoopManager() {
-	}
-
-	public LoopManager(ConsolidationUnitManager consolidationUnitManager) {
-		this.consolidationUnitManager = consolidationUnitManager;
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
@@ -62,9 +63,7 @@ public class LoopManager {
 	}
 
 	public void addLoops(Set<Loop> loops) {
-
 		for (Loop loop : loops) {
-
 			Set<Loop> storedLoops = this.commodityMode2Loops.computeIfAbsent(loop.getCommodityMode(),
 					l -> new LinkedHashSet<>());
 			boolean isNew = true;
@@ -104,51 +103,64 @@ public class LoopManager {
 		return this.consolidationUnitManager.getAllRepresentativeConsolidationUnits();
 	}
 
+	public Set<Loop> getLoops(ConsolidationUnit consolidationUnit) {
+		return this.consolidationUnit2Loops.get(consolidationUnit);
+	}
+	
 	public void postprocessLoops() {
+
+		this.consolidationUnit2Loops = new LinkedHashMap<>();
+
 		for (var entry : this.commodityMode2Loops.entrySet()) {
 			var commodityMode = entry.getKey();
-			for (Loop loop : entry.getValue()) {
 
+			for (Loop loop : entry.getValue()) {
 				Set<VehicleType> feasibleContainerVehicleTypes = null;
 				Set<VehicleType> feasibleNoContainerVehicleTypes = null;
-				Id<Node> predecessorNodeId = loop.getMATSimNodeIdsView().getLast();
+
+				List<Set<ConsolidationUnit>> consolidationUnitsPerContainerSegment = new ArrayList<>(loop.size());
+				List<Set<ConsolidationUnit>> consolidationUnitsPerNoContainerSegment = new ArrayList<>(loop.size());
+
 				for (int i = 0; i < loop.size(); i++) {
-					Id<Node> currentNodeId = loop.getMATSimNodeIdsView().get(i);
-					OD od = new OD(predecessorNodeId, currentNodeId);
+					Id<Node> fromNodeId = loop.getMATSimNodeIdsView().get(i);
+					Id<Node> toNodeId = loop.getMATSimNodeIdsView().get((i + 1) % loop.size());
+					OD od = new OD(fromNodeId, toNodeId);
 
 					var consolidationUnits = this.consolidationUnitManager.getConsolidationUnits(commodityMode, od);
-					if ((consolidationUnits == null) || (consolidationUnits.size() == 0)) {
+					Set<ConsolidationUnit> containerConsolidationUnits = new LinkedHashSet<>();
+					Set<ConsolidationUnit> noContainerConsolidationUnits = new LinkedHashSet<>();
+					consolidationUnitsPerContainerSegment.add(containerConsolidationUnits);
+					consolidationUnitsPerNoContainerSegment.add(noContainerConsolidationUnits);
 
+					if ((consolidationUnits == null) || (consolidationUnits.size() == 0)) {
 						feasibleContainerVehicleTypes = new LinkedHashSet<>(0);
 						feasibleNoContainerVehicleTypes = new LinkedHashSet<>(0);
 						System.err.println("Rejecting loop because of lacking consolidation units.");
 						break;
+					}
 
-					} else {
+					for (ConsolidationUnit cu : consolidationUnits) {
+						Set<VehicleType> unitVehicleTypes = new LinkedHashSet<>();
+						for (var vehicleTypes : cu.vehicleType2route.keySet()) {
+							unitVehicleTypes.addAll(vehicleTypes);
+						}
 
-						for (ConsolidationUnit cu : consolidationUnits) {
-
-							Set<VehicleType> unitVehicleTypes = new LinkedHashSet<>();
-							for (var vehicleTypes : cu.vehicleType2route.keySet()) {
-								unitVehicleTypes.addAll(vehicleTypes);
-							}
-
-							if (cu.isContainer) {
-								if (feasibleContainerVehicleTypes == null) {
-									feasibleContainerVehicleTypes = new LinkedHashSet<>(unitVehicleTypes);
-								} else {
-									feasibleContainerVehicleTypes.retainAll(unitVehicleTypes);
-								}
+						if (cu.isContainer) {
+							containerConsolidationUnits.add(cu);
+							if (feasibleContainerVehicleTypes == null) {
+								feasibleContainerVehicleTypes = new LinkedHashSet<>(unitVehicleTypes);
 							} else {
-								if (feasibleNoContainerVehicleTypes == null) {
-									feasibleNoContainerVehicleTypes = new LinkedHashSet<>(unitVehicleTypes);
-								} else {
-									feasibleNoContainerVehicleTypes.retainAll(unitVehicleTypes);
-								}
+								feasibleContainerVehicleTypes.retainAll(unitVehicleTypes);
+							}
+						} else {
+							noContainerConsolidationUnits.add(cu);
+							if (feasibleNoContainerVehicleTypes == null) {
+								feasibleNoContainerVehicleTypes = new LinkedHashSet<>(unitVehicleTypes);
+							} else {
+								feasibleNoContainerVehicleTypes.retainAll(unitVehicleTypes);
 							}
 						}
 					}
-					predecessorNodeId = currentNodeId;
 				}
 
 				var feasibleVehicleTypes = new LinkedHashSet<VehicleType>();
@@ -161,9 +173,26 @@ public class LoopManager {
 				if (feasibleVehicleTypes.isEmpty()) {
 					System.err.println("Rejecting loop because of lacking vehicle types.");
 				} else {
+
 					loop.setFeasibleVehicleTypes(feasibleVehicleTypes);
+
+					this.alignConsolidationUnitsPerSegmentWithLoop(consolidationUnitsPerContainerSegment, loop);
+					loop.setConsolidationUnitsPerContainerSegment(consolidationUnitsPerContainerSegment);
+
+					this.alignConsolidationUnitsPerSegmentWithLoop(consolidationUnitsPerNoContainerSegment, loop);
+					loop.setConsolidationUnitsPerNoContainerSegment(consolidationUnitsPerNoContainerSegment);
 				}
 			}
+		}
+	}
+
+	private void alignConsolidationUnitsPerSegmentWithLoop(List<Set<ConsolidationUnit>> consolidationUnitsPerSegment,
+			Loop loop) {
+		for (var consolidationUnits : consolidationUnitsPerSegment) {
+			consolidationUnits.removeIf(cu -> cu.vehicleType2route.keySet().stream().flatMap(Set::stream)
+					.noneMatch(loop.getFeasibleVehicleTypesView()::contains));
+			consolidationUnits.stream().forEach(
+					cu -> this.consolidationUnit2Loops.computeIfAbsent(cu, cu2 -> new LinkedHashSet<>()).add(loop));
 		}
 	}
 
@@ -176,7 +205,8 @@ public class LoopManager {
 		for (var loops : this.commodityMode2Loops.values()) {
 			numberOfLoops += loops.size();
 			for (var loop : loops) {
-				if (loop.getFeasibleVehicleTypesView() != null) {
+				if (loop.getFeasibleVehicleTypesView() != null && loop.getFeasibleVehicleTypesView().size() > 0
+						&& (loop.isContainerVehicleCompatible() || loop.isNoContainerVehicleCompatible())) {
 					System.out.println("Loop with " + loop.getFeasibleVehicleTypesView().size()
 							+ " feasible vehicle types: " + loop.getFeasibleVehicleTypesView().stream()
 									.map(t -> t.getId().toString()).collect(Collectors.joining(",")));
@@ -184,7 +214,8 @@ public class LoopManager {
 						numberOfFeasibleLoops++;
 					}
 					numberOfFeasibleVehicleTypes += loop.getFeasibleVehicleTypesView().size();
-					vehicleTypes2count.compute(loop.getFeasibleVehicleTypesView(), (vt, ct) -> ct == null ? ct = 1 : (ct + 1));
+					vehicleTypes2count.compute(loop.getFeasibleVehicleTypesView(),
+							(vt, ct) -> ct == null ? ct = 1 : (ct + 1));
 				}
 			}
 		}

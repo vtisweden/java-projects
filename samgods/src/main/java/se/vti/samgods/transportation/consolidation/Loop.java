@@ -42,8 +42,12 @@ public class Loop {
 
 	private Set<VehicleType> feasibleVehicleTypes = null;
 
+	private List<Set<ConsolidationUnit>> consolidationUnitsPerContainerSegment = null;
+
+	private List<Set<ConsolidationUnit>> consolidationUnitsPerNoContainerSegment = null;
+
 	Loop(CommodityMode commodityMode, List<Id<Node>> matsimNodesIds) {
-		this.commodityMode= commodityMode;
+		this.commodityMode = commodityMode;
 		this.matsimNodeIds = Collections.unmodifiableList(matsimNodesIds);
 	}
 
@@ -55,6 +59,37 @@ public class Loop {
 		this.feasibleVehicleTypes = Collections.unmodifiableSet(feasibleVehicleTypes);
 	}
 
+	public void setConsolidationUnitsPerContainerSegment(
+			List<Set<ConsolidationUnit>> consolidationUnitsPerContainerSegment) {
+		this.consolidationUnitsPerContainerSegment = consolidationUnitsPerContainerSegment;
+	}
+
+	public void setConsolidationUnitsPerNoContainerSegment(
+			List<Set<ConsolidationUnit>> consolidationUnitsPerNoContainerSegment) {
+		this.consolidationUnitsPerNoContainerSegment = consolidationUnitsPerNoContainerSegment;
+	}
+
+	public Set<ConsolidationUnit> getContainerConsolidationUnits(int i) {
+		return this.consolidationUnitsPerContainerSegment.get(i);
+	}
+
+	public Set<ConsolidationUnit> getNoContainerConsolidationUnits(int i) {
+		return this.consolidationUnitsPerNoContainerSegment.get(i);
+	}
+
+	public boolean isContainerVehicleCompatible() {
+		return this.isVehicleCompatible(this.consolidationUnitsPerContainerSegment);
+	}
+
+	public boolean isNoContainerVehicleCompatible() {
+		return this.isVehicleCompatible(this.consolidationUnitsPerNoContainerSegment);
+	}
+	
+	private boolean isVehicleCompatible(List<Set<ConsolidationUnit>> consolidationUnitsPerSegment) {
+		return (consolidationUnitsPerSegment != null) && (consolidationUnitsPerSegment.size() == this.size())
+				&& consolidationUnitsPerSegment.stream().allMatch(cus -> cus != null && cus.size() > 0);
+	}
+
 	public Set<VehicleType> getFeasibleVehicleTypesView() {
 		return this.feasibleVehicleTypes;
 	}
@@ -62,15 +97,15 @@ public class Loop {
 	public int size() {
 		return this.matsimNodeIds.size();
 	}
-	
+
 	public SamgodsConstants.Commodity getCommodity() {
 		return this.commodityMode.commodity();
 	}
-	
+
 	public SamgodsConstants.TransportMode getMode() {
 		return this.commodityMode.samgodsMode();
 	}
-	
+
 	public CommodityMode getCommodityMode() {
 		return this.commodityMode;
 	}
@@ -81,5 +116,5 @@ public class Loop {
 
 	public boolean containsOD(OD od) {
 		return (this.matsimNodeIds.contains(od.origin) && this.matsimNodeIds.contains(od.destination));
-	}	
+	}
 }

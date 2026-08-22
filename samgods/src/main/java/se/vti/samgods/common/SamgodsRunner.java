@@ -374,7 +374,7 @@ public class SamgodsRunner {
 			}
 			this.loopManager.postprocessLoops();
 			this.loopManager.printStats();
-			
+
 		} else {
 
 			if (this.enforceReroute || !(new File(this.config.getConsolidationUnitsFileName()).exists())) {
@@ -421,6 +421,76 @@ public class SamgodsRunner {
 		}
 	}
 
+	// -------------------- BOOLEAN --------------------
+
+	private ConcurrentHashMap<ConsolidationUnit, HalfLoopConsolidationJobProcessor.FleetAssignment> consolidateHalfLoops(
+			Map<ConsolidationUnit, List<ChainAndShipmentSize>> consolidationUnit2choices) {
+		final ConcurrentHashMap<ConsolidationUnit, HalfLoopConsolidationJobProcessor.FleetAssignment> consolidationUnit2assignment = new ConcurrentHashMap<>();
+		{
+			final int threadCnt = Math.min(this.maxThreads, Runtime.getRuntime().availableProcessors());
+			BlockingQueue<ConsolidationJob> jobQueue = new LinkedBlockingQueue<>(10 * threadCnt);
+			List<Thread> consolidationThreads = new ArrayList<>();
+
+			try {
+
+				log.info("Starting " + threadCnt + " consolidation threads.");
+				for (int i = 0; i < threadCnt; i++) {
+					NetworkAndFleetData networkAndFleetData = NetworkAndFleetDataProvider.getProviderInstance()
+							.createDataInstance();
+					HalfLoopConsolidationJobProcessor consolidationProcessor = new HalfLoopConsolidationJobProcessor(
+							jobQueue, consolidationUnit2assignment, networkAndFleetData,
+							new LinkedHashMap<>(this.commodity2scale), this.ascDataProvider);
+					Thread choiceThread = new Thread(consolidationProcessor);
+					consolidationThreads.add(choiceThread);
+					choiceThread.start();
+				}
+
+				log.info("Starting to populate consolidation job queue, continuing as threads progress.");
+				final NetworkAndFleetData networkAndFleetData = NetworkAndFleetDataProvider.getProviderInstance()
+						.createDataInstance();
+				for (Map.Entry<ConsolidationUnit, List<ChainAndShipmentSize>> entry : consolidationUnit2choices
+						.entrySet()) {
+					ConsolidationUnit consolidationUnit = entry.getKey();
+					List<ChainAndShipmentSize> choices = entry.getValue();
+					if ((choices != null) && (choices.size() > 0)) {
+						final double totalDemand_ton = choices.stream()
+								.mapToDouble(c -> c.annualShipment.getTotalAmount_ton()).sum();
+						if (totalDemand_ton >= 1e-3
+								&& consolidationUnit.computeLengthStats_km(networkAndFleetData).getMean() >= 1e-3) {
+							ConsolidationJob job = new ConsolidationJob(consolidationUnit, choices,
+									this.commodity2serviceInterval_days.get(consolidationUnit.commodity));
+							jobQueue.put(job);
+						}
+					} else {
+						log.warn("No transport chains available for consolidation: " + consolidationUnit);
+					}
+				}
+
+				log.info("Waiting for choice jobs to complete.");
+				for (int i = 0; i < consolidationThreads.size(); i++) {
+					jobQueue.put(ConsolidationJob.TERMINATE);
+				}
+				for (Thread consolidationThread : consolidationThreads) {
+					consolidationThread.join();
+				}
+
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+
+			return consolidationUnit2assignment;
+		}
+	}
+
+	private ConcurrentHashMap<ConsolidationUnit, HalfLoopConsolidationJobProcessor.FleetAssignment> consolidateLoops(
+			Map<ConsolidationUnit, List<ChainAndShipmentSize>> consolidationUnit2choices) {
+		final ConcurrentHashMap<ConsolidationUnit, HalfLoopConsolidationJobProcessor.FleetAssignment> consolidationUnit2assignment = new ConcurrentHashMap<>();
+		{
+			throw new UnsupportedOperationException("TODO!");
+		}
+//		return consolidationUnit2assignment;
+	}
+
 	// -------------------- RUN ITERATIONS --------------------
 
 	public void run() {
@@ -448,15 +518,15 @@ public class SamgodsRunner {
 			this.fleetCalibrator = null;
 		}
 
-		final Set<ConsolidationUnit> allConsolidationUnits = new LinkedHashSet<>();
-		for (SamgodsConstants.Commodity commodity : this.consideredCommodities) {
-			log.info(commodity + ": Collecting consolidation units.");
-			for (List<TransportChain> transportChains : this.transportDemand.getCommodity2od2transportChains()
-					.get(commodity).values()) {
-				transportChains.stream().flatMap(c -> c.getEpisodes().stream())
-						.forEach(e -> allConsolidationUnits.addAll(e.getConsolidationUnits()));
-			}
-		}
+//		final Set<ConsolidationUnit> allConsolidationUnits = new LinkedHashSet<>();
+//		for (SamgodsConstants.Commodity commodity : this.consideredCommodities) {
+//			log.info(commodity + ": Collecting consolidation units.");
+//			for (List<TransportChain> transportChains : this.transportDemand.getCommodity2od2transportChains()
+//					.get(commodity).values()) {
+//				transportChains.stream().flatMap(c -> c.getEpisodes().stream())
+//						.forEach(e -> allConsolidationUnits.addAll(e.getConsolidationUnits()));
+//			}
+//		}
 
 		for (int iteration = 0; iteration < this.config.getMaxIterations(); iteration++) {
 			log.info("STARTING ITERATION " + iteration);
@@ -553,60 +623,13 @@ public class SamgodsRunner {
 //			populationCreator.writeToFile("./input_2024/shipmentPlans.xml");
 
 			/*
-			 * Consolidate.
+			 * CONSOLIDATE.
 			 */
-			final ConcurrentHashMap<ConsolidationUnit, HalfLoopConsolidationJobProcessor.FleetAssignment> consolidationUnit2assignment = new ConcurrentHashMap<>();
-			{
-				final int threadCnt = Math.min(this.maxThreads, Runtime.getRuntime().availableProcessors());
-				BlockingQueue<ConsolidationJob> jobQueue = new LinkedBlockingQueue<>(10 * threadCnt);
-				List<Thread> consolidationThreads = new ArrayList<>();
-
-				try {
-
-					log.info("Starting " + threadCnt + " consolidation threads.");
-					for (int i = 0; i < threadCnt; i++) {
-						NetworkAndFleetData networkAndFleetData = NetworkAndFleetDataProvider.getProviderInstance()
-								.createDataInstance();
-						HalfLoopConsolidationJobProcessor consolidationProcessor = new HalfLoopConsolidationJobProcessor(
-								jobQueue, consolidationUnit2assignment, networkAndFleetData,
-								new LinkedHashMap<>(this.commodity2scale), this.ascDataProvider);
-						Thread choiceThread = new Thread(consolidationProcessor);
-						consolidationThreads.add(choiceThread);
-						choiceThread.start();
-					}
-
-					log.info("Starting to populate consolidation job queue, continuing as threads progress.");
-					final NetworkAndFleetData networkAndFleetData = NetworkAndFleetDataProvider.getProviderInstance()
-							.createDataInstance();
-					for (Map.Entry<ConsolidationUnit, List<ChainAndShipmentSize>> entry : consolidationUnit2choices
-							.entrySet()) {
-						ConsolidationUnit consolidationUnit = entry.getKey();
-						List<ChainAndShipmentSize> choices = entry.getValue();
-						if ((choices != null) && (choices.size() > 0)) {
-							final double totalDemand_ton = choices.stream()
-									.mapToDouble(c -> c.annualShipment.getTotalAmount_ton()).sum();
-							if (totalDemand_ton >= 1e-3
-									&& consolidationUnit.computeLengthStats_km(networkAndFleetData).getMean() >= 1e-3) {
-								ConsolidationJob job = new ConsolidationJob(consolidationUnit, choices,
-										this.commodity2serviceInterval_days.get(consolidationUnit.commodity));
-								jobQueue.put(job);
-							}
-						} else {
-							log.warn("No transport chains available for consolidation: " + consolidationUnit);
-						}
-					}
-
-					log.info("Waiting for choice jobs to complete.");
-					for (int i = 0; i < consolidationThreads.size(); i++) {
-						jobQueue.put(ConsolidationJob.TERMINATE);
-					}
-					for (Thread consolidationThread : consolidationThreads) {
-						consolidationThread.join();
-					}
-
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
+			final ConcurrentHashMap<ConsolidationUnit, HalfLoopConsolidationJobProcessor.FleetAssignment> consolidationUnit2assignment;
+			if (this.loopManager != null) {
+				consolidationUnit2assignment = this.consolidateLoops(consolidationUnit2choices);
+			} else {
+				consolidationUnit2assignment = this.consolidateHalfLoops(consolidationUnit2choices);
 			}
 
 			/*

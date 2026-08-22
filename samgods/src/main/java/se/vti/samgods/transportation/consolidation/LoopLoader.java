@@ -105,18 +105,19 @@ public class LoopLoader {
 				.setScale(Commodity.FURNITURE, scaleFactor * 0.0002)
 				.setScale(Commodity.SECONDARYRAW, scaleFactor * 0.00001)
 				.setScale(Commodity.TIMBER, scaleFactor * 0.00009).setScale(Commodity.AIR, scaleFactor * 0.00005)
-				.setEnforceReroute(false);
+				.setEnforceReroute(true);
 
 		runner.loadVehiclesOtherThan("WG950", "KOMXL", "SYSXL", "WGEXL", "HGV74", "ROF7", "RAF5", "INW", "ROF2",
 				"ROF5");
 		runner.loadDomesticNetwork();
-
 		runner.setNetworkFlowsFileName("linkId2commodity2annualAmount_ton.json");
 		runner.loadTransportDemand("./input_2024/ChainChoi", "XTD.out");
 
-		runner.loadLoops("./input_2024/roundtrips.", ".json");
+//		runner.loadLoops("./input_2024/roundtrips.", ".json");
 
 		runner.createOrLoadConsolidationUnits();
 
+		runner.run();
+		
 	}
 }
