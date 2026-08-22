@@ -24,79 +24,63 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.network.Node;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 
-import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripJsonIO;
 import se.vti.samgods.common.SamgodsConfigGroup;
 import se.vti.samgods.common.SamgodsConstants;
 import se.vti.samgods.common.SamgodsConstants.Commodity;
-import se.vti.samgods.common.SamgodsConstants.TransportMode;
 import se.vti.samgods.common.SamgodsRunner;
-import se.vti.samgods.logistics.TransportChain;
 
 /**
  * @author GunnarF
  */
-class RoundTripLoader {
+public class LoopLoader {
 
-	private final VehicleLoopManager loopManager;
-
-	private final Set<Id<Node>> allNodeIds;
-
-	private final double timeBinSize_h;
-	private final int numberOfTimeBins;
-
-	RoundTripLoader(VehicleLoopManager loopManager, Set<Id<Node>> allNodeIds, double timeBinSize_h, int timeBinCnt) {
-		this.loopManager = loopManager;
-		this.allNodeIds = allNodeIds;
-		this.timeBinSize_h = timeBinSize_h;
-		this.numberOfTimeBins = timeBinCnt;
+	public LoopLoader() {
 	}
 
-	void load(String fileName, SamgodsConstants.Commodity commodity, SamgodsConstants.TransportMode mode) {
-
-		// build sampling scenario (necessary for loading)
-
-		var scenarioBuilder = new ScenarioBuilder<se.vti.roundtrips.common.Node>().setTimeBinSize_h(this.timeBinSize_h)
-				.setNumberOfTimeBins(this.numberOfTimeBins);
-		scenarioBuilder.addNodes(this.allNodeIds.stream().map(id -> new se.vti.roundtrips.common.Node(id.toString()))
-				.collect(Collectors.toSet()));
-		scenarioBuilder.setMoveDistanceFunction((a, b) -> 0.0);
-		scenarioBuilder.setMoveTimeFunction((a, b) -> 0.0);
-		var samplingScenario = scenarioBuilder.build();
+	public Set<Loop> load(String fileName, SamgodsConstants.Commodity commodity, SamgodsConstants.TransportMode mode) {
 
 		// load round trips
 
 		final MultiRoundTrip<se.vti.roundtrips.common.Node> roundTrips;
 		try {
-			roundTrips = MultiRoundTripJsonIO.singleton().readFromFile(samplingScenario, fileName);
+			roundTrips = MultiRoundTripJsonIO.singleton().readFromFile(name -> new se.vti.roundtrips.common.Node(name),
+					fileName);
 			System.out.println("Loaded " + roundTrips.size() + " roundtrips.");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
-		// turn round trips into vehicle loops and add to manager
+		// turn round trips into vehicle loops
 
+		Set<Loop> result = new LinkedHashSet<>();
 		for (var roundTrip : roundTrips) {
 			var matsimNodeIds = new ArrayList<>(
 					roundTrip.getNodesView().stream().map(n -> Id.createNodeId(n.getBasicName())).toList());
-			var loop = new VehicleLoop(commodity, mode, matsimNodeIds);
-			this.loopManager.addLoop(loop);
+			var loop = new Loop(commodity, mode, matsimNodeIds);
+			boolean isNew = true;
+			for (Loop existingLoop : result) {
+				if (LoopUtils.instance.equalUpToShift(existingLoop.getMATSimNodeIdsView(),
+						loop.getMATSimNodeIdsView())) {
+					isNew = false;
+					break;
+				}
+			}
+			if (isNew) {
+				result.add(loop);
+			}
 		}
+		return result;
 	}
 
 	public static void main(String[] args) throws IOException {
-
-		// create plain samgods
 
 		List<Commodity> allWithoutAir = new ArrayList<>(Arrays.asList(Commodity.values()));
 		allWithoutAir.remove(Commodity.AIR);
@@ -129,31 +113,10 @@ class RoundTripLoader {
 
 		runner.setNetworkFlowsFileName("linkId2commodity2annualAmount_ton.json");
 		runner.loadTransportDemand("./input_2024/ChainChoi", "XTD.out");
+
+		runner.loadLoops("./input_2024/roundtrips.", ".json");
+
 		runner.createOrLoadConsolidationUnits();
 
-		// load roundtrips
-
-		Set<Id<Node>> terminals = new LinkedHashSet<>();
-		var od2transportChains = runner.getTransportDemand().getCommodity2od2transportChains()
-				.get(SamgodsConstants.Commodity.AGRICULTURE);
-		for (List<TransportChain> chainsPerOD : od2transportChains.values()) {
-			for (var transportChain : chainsPerOD) {
-				for (var transportEpisode : transportChain.getEpisodes()) {
-					Id<Node> fromNodeId = transportEpisode.getLoadingNodeId();
-					Id<Node> toNodeId = transportEpisode.getUnloadingNodeId();
-					terminals.add(fromNodeId);
-					terminals.add(toNodeId);
-				}
-			}
-		}
-		System.out.println("Using " + terminals.size() + " active terminals.");
-
-		var loopManager = new VehicleLoopManager(runner.getConsolidationUnits());
-		var roundTripLoader = new RoundTripLoader(loopManager, terminals, 4.0, 42);
-		roundTripLoader.load("./input_2024/roundtrips.AGRICULTURE.json", Commodity.AGRICULTURE, TransportMode.Road);
-
-		loopManager.printStats();
-		
 	}
-
 }

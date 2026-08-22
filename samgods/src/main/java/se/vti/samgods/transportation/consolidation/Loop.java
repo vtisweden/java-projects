@@ -34,7 +34,7 @@ import se.vti.samgods.common.SamgodsConstants.CommodityMode;
 /**
  * @author GunnarF
  */
-public class VehicleLoop {
+public class Loop {
 
 	private final CommodityMode commodityMode;
 
@@ -42,12 +42,12 @@ public class VehicleLoop {
 
 	private Set<VehicleType> feasibleVehicleTypes = null;
 
-	VehicleLoop(CommodityMode commodityMode, List<Id<Node>> matsimNodesIds) {
+	Loop(CommodityMode commodityMode, List<Id<Node>> matsimNodesIds) {
 		this.commodityMode= commodityMode;
 		this.matsimNodeIds = Collections.unmodifiableList(matsimNodesIds);
 	}
 
-	VehicleLoop(SamgodsConstants.Commodity commodity, SamgodsConstants.TransportMode mode, List<Id<Node>> matsimNodesIds) {
+	Loop(SamgodsConstants.Commodity commodity, SamgodsConstants.TransportMode mode, List<Id<Node>> matsimNodesIds) {
 		this(new CommodityMode(commodity, mode), matsimNodesIds);
 	}
 

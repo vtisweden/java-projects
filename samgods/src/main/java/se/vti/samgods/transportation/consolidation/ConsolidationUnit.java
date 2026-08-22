@@ -83,8 +83,8 @@ public class ConsolidationUnit {
 
 	// --------------------CONSTRUCTION --------------------
 
-	/* package for testing */ ConsolidationUnit(OD od, SamgodsConstants.Commodity commodity,
-			SamgodsConstants.TransportMode mode, Boolean isContainer) {
+	public ConsolidationUnit(OD od, SamgodsConstants.Commodity commodity, SamgodsConstants.TransportMode mode,
+			Boolean isContainer) {
 		this.od = od;
 		this.commodity = commodity;
 		this.samgodsMode = mode;
@@ -107,6 +107,7 @@ public class ConsolidationUnit {
 
 	// -------------------- OVERRIDING Object --------------------
 
+	// Contains only immutable objects.
 	private List<Object> createAsList() {
 		return Arrays.asList(this.od, this.commodity, this.samgodsMode, this.isContainer);
 	}
@@ -201,7 +202,7 @@ public class ConsolidationUnit {
 	int distinctRoutes() {
 		return this.vehicleType2route.size();
 	}
-	
+
 	// -------------------- Json Serializer --------------------
 
 	public static class Serializer extends JsonSerializer<ConsolidationUnit> {

@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -74,7 +75,10 @@ import se.vti.samgods.network.NetworkReader;
 import se.vti.samgods.preprocessing.routegeneration.TreeBasedRouter;
 import se.vti.samgods.transportation.consolidation.ConsolidationJob;
 import se.vti.samgods.transportation.consolidation.ConsolidationUnit;
+import se.vti.samgods.transportation.consolidation.ConsolidationUnitManager;
 import se.vti.samgods.transportation.consolidation.HalfLoopConsolidationJobProcessor;
+import se.vti.samgods.transportation.consolidation.LoopLoader;
+import se.vti.samgods.transportation.consolidation.LoopManager;
 import se.vti.samgods.transportation.fleet.VehiclesReader;
 import se.vti.utils.MiscUtils;
 
@@ -288,157 +292,132 @@ public class SamgodsRunner {
 		return this;
 	}
 
-	// -------------------- PREPARE CONSOLIDATION UNITS --------------------
+	// -------------------- LOOPS --------------------
+
+	private ConsolidationUnitManager consolidationUnitManager = null;
+	private LoopManager loopManager = null;
+
+	public void loadLoops(String loopFilePrefix, String loopFileSuffix) {
+		if (this.loopManager == null) {
+			this.loopManager = new LoopManager();
+		}
+		for (Commodity commodity : this.consideredCommodities) {
+			for (TransportMode mode : TransportMode.values()) {
+				String fileName = loopFilePrefix + commodity + "." + mode + loopFileSuffix;
+				if (new File(fileName).exists()) {
+					log.info("Loading loop file " + fileName);
+					this.loopManager.addLoops(new LoopLoader().load(fileName, commodity, mode));
+				}
+			}
+		}
+	}
+
+	// -------------------- CONSOLIDATION UNITS --------------------
+
+	private void routeAndSaveConsolidationUnits(Collection<ConsolidationUnit> consolidationUnits) throws IOException {
+
+		new TreeBasedRouter(NetworkAndFleetDataProvider.getProviderInstance()).setMaxThreads(this.maxThreads)
+				.route(consolidationUnits);
+
+		long routedCnt = 0;
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, true);
+		FileOutputStream fos = new FileOutputStream(new File(this.config.getConsolidationUnitsFileName()));
+		JsonGenerator gen = mapper.getFactory().createGenerator(fos);
+		for (ConsolidationUnit consolidationUnit : consolidationUnits) {
+			if (consolidationUnit.vehicleType2route.size() > 0) {
+				mapper.writeValue(gen, consolidationUnit);
+				routedCnt++;
+			}
+		}
+		gen.flush();
+		gen.close();
+		fos.flush();
+		fos.close();
+		log.info("Wrote " + routedCnt + " (out of in total " + consolidationUnits.size()
+				+ ") routed consolidation units to file " + this.config.getConsolidationUnitsFileName());
+	}
+
+	private Set<ConsolidationUnit> loadRoutedConsolidationUnits() throws IOException {
+		log.info("Loading consolidation units from file " + this.config.getConsolidationUnitsFileName());
+		ObjectMapper mapper = new ObjectMapper();
+		SimpleModule module = (new SimpleModule()).addDeserializer(ConsolidationUnit.class,
+				new ConsolidationUnit.Deserializer(this.vehicles));
+		mapper.registerModule(module);
+		ObjectReader reader = mapper.readerFor(ConsolidationUnit.class);
+		JsonParser parser = mapper.getFactory().createParser(new File(this.config.getConsolidationUnitsFileName()));
+		Set<ConsolidationUnit> result = new LinkedHashSet<>();
+		while (parser.nextToken() != null) {
+			ConsolidationUnit unit = reader.readValue(parser);
+			result.add(unit);
+		}
+		parser.close();
+		return result;
+	}
 
 	public void createOrLoadConsolidationUnits() throws IOException {
 
 		NetworkAndFleetDataProvider.initialize(this.network, this.vehicles);
 
-		if (this.enforceReroute || !(new File(this.config.getConsolidationUnitsFileName()).exists())) {
+		this.consolidationUnitManager = new ConsolidationUnitManager();
 
-			/*
-			 * Several episodes may have consolidation units with the same routes. To reduce
-			 * routing effort, we collect here, for each possible routing configuration, one
-			 * representative consolidation unit to be routed. We store a back-links to the
-			 * consolidation units attached to the episodes in order to later replace them
-			 * by their equivalent routed instances.
-			 */
-			final Map<ConsolidationUnit, ConsolidationUnit> consolidationUnitPattern2representativeUnit = new LinkedHashMap<>();
-			for (SamgodsConstants.Commodity commodity : this.consideredCommodities) {
-				for (List<TransportChain> chains : this.transportDemand.getCommodity2od2transportChains().get(commodity)
-						.values()) {
-					for (TransportChain chain : chains) {
-						for (TransportEpisode episode : chain.getEpisodes()) {
-							episode.setConsolidationUnits(ConsolidationUnit.createUnrouted(episode));
-							for (ConsolidationUnit consolidationUnit : episode.getConsolidationUnits()) {
-								consolidationUnitPattern2representativeUnit.put(consolidationUnit.cloneWithoutRoutes(),
-										consolidationUnit);
-							}
-						}
-					}
-				}
+		if (this.loopManager != null) {
+
+			if (this.enforceReroute || !(new File(this.config.getConsolidationUnitsFileName()).exists())) {
+				this.loopManager.setConsolidationUnitManager(this.consolidationUnitManager);
+				this.loopManager.computeConsolidationUnits();
+				this.routeAndSaveConsolidationUnits(this.loopManager.getAllConsolidationUnits());
+			} else {
+				this.consolidationUnitManager.registerAll(this.loadRoutedConsolidationUnits());
+				this.loopManager.setConsolidationUnitManager(this.consolidationUnitManager);
 			}
-
-			/*
-			 * Route (if possible) the representative consolidation units.
-			 * 
-			 * Routing changes the behavior of hashcode(..) / equals(..) in
-			 * ConsolidationUnit, but this should matter in the *values* of a HashMap.
-			 */
-//			new PathBasedRouter(NetworkAndFleetDataProvider.getProviderInstance()).setLogProgress(true)
-//					.setMaxThreads(this.maxThreads).route(consolidationUnitPattern2representativeUnit.values());
-			new TreeBasedRouter(NetworkAndFleetDataProvider.getProviderInstance()).setMaxThreads(this.maxThreads)
-					.route(consolidationUnitPattern2representativeUnit.values());
-
-			/*
-			 * Stream routed consolidation units to json file.
-			 */
-			long routedCnt = 0;
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.enable(SerializationFeature.INDENT_OUTPUT);
-			mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, true);
-			FileOutputStream fos = new FileOutputStream(new File(this.config.getConsolidationUnitsFileName()));
-			JsonGenerator gen = mapper.getFactory().createGenerator(fos);
-			for (ConsolidationUnit consolidationUnit : consolidationUnitPattern2representativeUnit.values()) {
-				if (consolidationUnit.vehicleType2route.size() > 0) {
-					mapper.writeValue(gen, consolidationUnit);
-					routedCnt++;
-				}
-			}
-			gen.flush();
-			gen.close();
-			fos.flush();
-			fos.close();
-			log.info("Wrote " + routedCnt + " (out of in total " + consolidationUnitPattern2representativeUnit.size()
-					+ ") routed consolidation units to file " + this.config.getConsolidationUnitsFileName());
-
-			/*
-			 * Attach representative consolidation units to the episodes. This means that
-			 * episodes from now on share consolidation units. TransortChain.isRouted only
-			 * produces meaningful behavior after this operation is complete.
-			 * 
-			 * There must not be redundancies in the consolidation unit file.
-			 */
-			for (SamgodsConstants.Commodity commodity : this.consideredCommodities) {
-				for (List<TransportChain> chains : this.transportDemand.getCommodity2od2transportChains().get(commodity)
-						.values()) {
-					for (TransportChain chain : chains) {
-						for (TransportEpisode episode : chain.getEpisodes()) {
-							List<ConsolidationUnit> templates = new ArrayList<>(episode.getConsolidationUnits().size());
-							for (ConsolidationUnit tmpUnit : episode.getConsolidationUnits()) {
-								ConsolidationUnit routingEquivalent = tmpUnit.cloneWithoutRoutes();
-								ConsolidationUnit template = consolidationUnitPattern2representativeUnit
-										.get(routingEquivalent);
-								assert (template != null);
-								templates.add(template);
-							}
-							episode.setConsolidationUnits(templates);
-						}
-					}
-				}
-			}
-
+			this.loopManager.postprocessLoops();
+			this.loopManager.printStats();
+			
 		} else {
 
-			/*
-			 * Load (routed!) consolidation units.
-			 */
-			log.info("Loading consolidation units from file " + this.config.getConsolidationUnitsFileName());
-			ObjectMapper mapper = new ObjectMapper();
-			SimpleModule module = (new SimpleModule()).addDeserializer(ConsolidationUnit.class,
-					new ConsolidationUnit.Deserializer(this.vehicles));
-			mapper.registerModule(module);
-			ObjectReader reader = mapper.readerFor(ConsolidationUnit.class);
-			JsonParser parser = mapper.getFactory().createParser(new File(this.config.getConsolidationUnitsFileName()));
-			Map<ConsolidationUnit, ConsolidationUnit> consolidationUnitPattern2representativeUnit = new LinkedHashMap<>();
-			while (parser.nextToken() != null) {
-				ConsolidationUnit unit = reader.readValue(parser);
-//				unit.compress(); // TODO not necessary when the file is already compressed
-				consolidationUnitPattern2representativeUnit.put(unit.cloneWithoutRoutes(), unit);
-			}
-			parser.close();
+			if (this.enforceReroute || !(new File(this.config.getConsolidationUnitsFileName()).exists())) {
 
-			/*
-			 * Attach representative consolidation units to episodes.
-			 */
-			log.info("Attaching consolidation units to episodes.");
-			for (SamgodsConstants.Commodity commodity : this.consideredCommodities) {
-				log.info("... processing commodity: " + commodity);
-				for (List<TransportChain> chains : this.transportDemand.getCommodity2od2transportChains().get(commodity)
-						.values()) {
-					for (TransportChain chain : chains) {
-						for (TransportEpisode episode : chain.getEpisodes()) {
-							List<ConsolidationUnit> tmpUnits = ConsolidationUnit.createUnrouted(episode);
-							List<ConsolidationUnit> representativeUnits = new ArrayList<>(tmpUnits.size());
-							for (ConsolidationUnit tmpUnit : tmpUnits) {
-								ConsolidationUnit match = consolidationUnitPattern2representativeUnit
-										.get(tmpUnit.cloneWithoutRoutes());
-								if (match != null) {
-									representativeUnits.add(match);
-								} else {
-									representativeUnits = null;
-									break;
-								}
-							}
-							episode.setConsolidationUnits(representativeUnits);
+				for (SamgodsConstants.Commodity commodity : this.consideredCommodities) {
+					for (List<TransportChain> chains : this.transportDemand.getCommodity2od2transportChains()
+							.get(commodity).values()) {
+						for (TransportChain chain : chains) {
+							this.consolidationUnitManager.populateWithTemplateConsolidationUnits(chain);
+						}
+					}
+				}
+				this.routeAndSaveConsolidationUnits(
+						this.consolidationUnitManager.getAllRepresentativeConsolidationUnits());
+
+			} else {
+
+				this.consolidationUnitManager.registerAll(this.loadRoutedConsolidationUnits());
+				log.info("Attaching consolidation units to episodes.");
+				for (SamgodsConstants.Commodity commodity : this.consideredCommodities) {
+					log.info("... processing commodity: " + commodity);
+					for (List<TransportChain> chains : this.transportDemand.getCommodity2od2transportChains()
+							.get(commodity).values()) {
+						for (TransportChain chain : chains) {
+							this.consolidationUnitManager.populateWithTemplateConsolidationUnits(chain);
 						}
 					}
 				}
 			}
-		}
 
-		for (SamgodsConstants.Commodity commodity : this.consideredCommodities) {
-			long removedChainCnt = 0;
-			long totalChainCnt = 0;
-			for (Map.Entry<OD, List<TransportChain>> entry : this.transportDemand.getCommodity2od2transportChains()
-					.get(commodity).entrySet()) {
-				final int chainCnt = entry.getValue().size();
-				totalChainCnt += chainCnt;
-				entry.setValue(entry.getValue().stream().filter(c -> c.isRouted()).toList());
-				removedChainCnt += chainCnt - entry.getValue().size();
+			for (SamgodsConstants.Commodity commodity : this.consideredCommodities) {
+				long removedChainCnt = 0;
+				long totalChainCnt = 0;
+				for (Map.Entry<OD, List<TransportChain>> entry : this.transportDemand.getCommodity2od2transportChains()
+						.get(commodity).entrySet()) {
+					final int chainCnt = entry.getValue().size();
+					totalChainCnt += chainCnt;
+					entry.setValue(entry.getValue().stream().filter(c -> c.isRouted()).toList());
+					removedChainCnt += chainCnt - entry.getValue().size();
+				}
+				log.warn(commodity + ": Removed " + removedChainCnt + " out of " + totalChainCnt
+						+ " chains with incomplete routes.");
 			}
-			log.warn(commodity + ": Removed " + removedChainCnt + " out of " + totalChainCnt
-					+ " chains with incomplete routes.");
 		}
 	}
 
