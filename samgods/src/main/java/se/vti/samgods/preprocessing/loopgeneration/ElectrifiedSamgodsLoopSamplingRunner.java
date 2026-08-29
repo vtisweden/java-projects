@@ -21,7 +21,10 @@ package se.vti.samgods.preprocessing.loopgeneration;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -30,6 +33,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.matsim.api.core.v01.Id;
+import org.matsim.api.core.v01.network.Node;
 
 import se.vti.roundtrips.common.NodeWithCoords;
 import se.vti.roundtrips.common.RandomRoundTripGenerator;
@@ -41,6 +46,7 @@ import se.vti.roundtrips.simulator.electrified.ChargingUtils;
 import se.vti.roundtrips.simulator.electrified.ElectrifiedMoveSimulator;
 import se.vti.roundtrips.simulator.electrified.ElectrifiedStaySimulator;
 import se.vti.roundtrips.simulator.electrified.StrictlyNonNegativeBatteryCharge;
+import se.vti.utils.misc.Tuple;
 
 /**
  * 
@@ -52,7 +58,11 @@ class ElectrifiedSamgodsLoopSamplingRunner extends SamgodsLoopSamplingRunner {
 	static final Logger log = LogManager.getLogger(ElectrifiedSamgodsLoopSamplingRunner.class);
 
 	static final String stationCntLabel = "stationCnt";
-	
+	static final String stationPlacementLabel = "stationPlacement";
+
+	static final String maxThroughput = "maxThroughput";
+	static final String maxDegree = "maxDegree";
+	static final String endogenous = "endogenous";
 
 	static final double defaultCapacity_kWh = 728.0;
 	static final double defaultChargingRate_kW = 400.0;
@@ -60,6 +70,7 @@ class ElectrifiedSamgodsLoopSamplingRunner extends SamgodsLoopSamplingRunner {
 	static final double chargeWraparoundTolerance_kWh = 0.001;
 
 	Integer chargingStationCount;
+	String stationPlacement;
 
 	ElectrifiedSamgodsLoopSamplingRunner(String[] args) {
 		super(args);
@@ -68,17 +79,19 @@ class ElectrifiedSamgodsLoopSamplingRunner extends SamgodsLoopSamplingRunner {
 	@Override
 	void configureSamplingOptions(Options options) {
 		var stationCntOption = new Option(stationCntLabel, true, stationCntLabel);
-		stationCntOption.setRequired(false);
+		stationCntOption.setRequired(true);
 		options.addOption(stationCntOption);
+		var stationPlacementOption = new Option(stationPlacementLabel, true, stationPlacementLabel);
+		stationPlacementOption.setRequired(true);
+		options.addOption(stationPlacementOption);
 	}
 
 	@Override
 	void configureSamplingScenario(String[] args, Options options) {
 		try {
 			CommandLine cmd = new DefaultParser().parse(options, args);
-			this.chargingStationCount = (cmd.hasOption(stationCntLabel)
-					? Integer.parseInt(cmd.getOptionValue(stationCntLabel))
-					: 0);
+			this.chargingStationCount = Integer.parseInt(cmd.getOptionValue(stationCntLabel));
+			this.stationPlacement = cmd.getOptionValue(stationPlacementLabel);
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		}
@@ -97,28 +110,75 @@ class ElectrifiedSamgodsLoopSamplingRunner extends SamgodsLoopSamplingRunner {
 		allNodeLabels.add(List.of(Charging.NO));
 	}
 
+	Set<NodeWithCoords> allowedChargingSamplingNodes = null;
+
 	@Override
 	void addToSamplingWeights(Runner<NodeWithCoords> runner) {
 		runner.addIndividualWeight(new StrictlyNonNegativeBatteryCharge<>());
-		runner.addPopulationWeight(new MaxNumberOfChargingPointsConstraint<>(this.chargingStationCount));
+		if (this.stationPlacement.equals(maxThroughput) || (this.stationPlacement.equals(maxDegree))) {
+
+			List<Tuple<Id<Node>, Double>> nodesAndSize = new ArrayList<>();
+			for (var samgodsNodeId : this.dataContainer.getSamgodsNodeId2SamplingNodesView().keySet()) {
+				if (this.stationPlacement.equals(maxThroughput)) {
+					nodesAndSize.add(new Tuple<>(samgodsNodeId, this.dataContainer.getTotalSent_kTon(samgodsNodeId)
+							+ this.dataContainer.getTotalReceived_kTon(samgodsNodeId)));
+				} else {
+					nodesAndSize.add(new Tuple<Id<Node>, Double>(samgodsNodeId,
+							(double) this.dataContainer.getOD2Demand_kTon_View().keySet().stream().filter(
+									od -> od.origin.equals(samgodsNodeId) || od.destination.equals(samgodsNodeId))
+									.count()));
+				}
+
+			}
+			Collections.sort(nodesAndSize, (p, q) -> -Double.compare(p.getB(), q.getB()));
+
+			this.allowedChargingSamplingNodes = new LinkedHashSet<>(this.chargingStationCount);
+			for (Id<Node> samgodsNodeId : nodesAndSize.subList(0, this.chargingStationCount).stream()
+					.map(nt -> nt.getA()).collect(Collectors.toSet())) {
+				for (var samplingNode : this.dataContainer.getSamgodsNodeId2SamplingNodesView().get(samgodsNodeId)) {
+					if (ChargingUtils.singleton().extractCharging(samplingNode) == Charging.YES) {
+						this.allowedChargingSamplingNodes.add(samplingNode);
+					}
+				}
+			}
+			if (this.allowedChargingSamplingNodes.size() != this.chargingStationCount) {
+				throw new RuntimeException("Extracted " + this.allowedChargingSamplingNodes.size()
+						+ " feasible charging nodes but charging station count is " + this.chargingStationCount);
+			}
+			runner.addPopulationWeight(new ChargingPointsConstraint<NodeWithCoords>(this.allowedChargingSamplingNodes));
+
+		} else if (this.stationPlacement.equals(endogenous)) {
+			runner.addPopulationWeight(new MaxNumberOfChargingPointsConstraint<>(this.chargingStationCount));
+		} else {
+			throw new UnsupportedOperationException("Unknown station placement: " + this.stationPlacement);
+		}
 	}
 
 	@Override
 	void parametrizeInitialRoundTripGenerator(RandomRoundTripGenerator<NodeWithCoords> generator) {
-		List<NodeWithCoords> initialNodes = new ArrayList<>(samplingScenario.getNodesView().stream()
-				.filter(n -> Charging.YES == ChargingUtils.singleton().extractCharging(n)).toList());
-		Collections.shuffle(initialNodes);
-		initialNodes = initialNodes.subList(0, this.chargingStationCount);
+
+		List<NodeWithCoords> initialNodes;
+		if (this.stationPlacement.equals(maxThroughput) || (this.stationPlacement.equals(maxDegree))) {
+			initialNodes = new ArrayList<>(this.allowedChargingSamplingNodes);
+		} else if (this.stationPlacement.equals(endogenous)) {
+			initialNodes = new ArrayList<>(this.samplingScenario.getNodesView().stream()
+					.filter(n -> Charging.YES == ChargingUtils.singleton().extractCharging(n)).toList());
+			Collections.shuffle(initialNodes);
+			initialNodes = initialNodes.subList(0, this.chargingStationCount);
+		} else {
+			throw new RuntimeException("Unknown station placement: " + this.stationPlacement);
+		}
+
 		generator.setFeasibleNodes(initialNodes).setNumberOfStayEpisodesInterval(1, 1);
 	}
 
 	public static void main(String[] args) {
 
-//		new ElectrifiedSamgodsLoopSamplingRunner(args).runSimulation();
+		new ElectrifiedSamgodsLoopSamplingRunner(args).runSimulation();
 
 //		createGIS(args, true);
 
-		new ElectrifiedSamgodsLoopSamplingRunner(args).createGIS(args);
+//		new ElectrifiedSamgodsLoopSamplingRunner(args).createGIS(args);
 
 //		runSimulation(new String[] { "-configFileName", "./input/config.xml", "-loopCnt", "1000", "-stationCnt", "200",
 //				"-maxCoverageError", "0.1"});
