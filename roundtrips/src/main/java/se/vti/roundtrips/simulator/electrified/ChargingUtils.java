@@ -19,9 +19,12 @@
  */
 package se.vti.roundtrips.simulator.electrified;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.simulator.StayEpisode;
 
 /**
@@ -47,6 +50,20 @@ public class ChargingUtils {
 		}
 		return null;
 	}
+	
+	public <N extends Node> Map<N, Integer> computeChargingNodeUsages(MultiRoundTrip<N> roundTrips) {
+		Map<N, Integer> chargingNodeUsages = new LinkedHashMap<>();
+		for (var roundTrip : roundTrips) {
+			for (int i = 0; i < roundTrip.size(); i++) {
+				N node = roundTrip.getNode(i);
+				if (Charging.YES == this.extractCharging(node)) {
+					chargingNodeUsages.compute(node, (n, c) -> (c == null ? 0 : c) + 1);
+				}
+			}
+		}
+		return chargingNodeUsages;
+	}
+
 
 	public Charging extractCharging(StayEpisode<?> parking) {
 		return this.extractCharging(parking.getLocation());

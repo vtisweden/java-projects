@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -105,11 +106,17 @@ public class MultiRoundTripJsonIO {
 		mapper.writeValue(new File(fileName), multiRoundTrip);
 	}
 
-	public <N extends Node> MultiRoundTrip<N> readFromFile(Scenario<N> scenario, String fileName)
+	private <N extends Node> MultiRoundTrip<N> readFromFile(Scenario<N> scenario, Function<String, N> dummyNodeFactory, String fileName)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
+		
+		if (scenario != null) {
 		module.addDeserializer(RoundTrip.class, new RoundTripJsonIO.Deserializer<N>(scenario));
+		} else {
+			module.addDeserializer(RoundTrip.class, new RoundTripJsonIO.Deserializer<N>(dummyNodeFactory));
+		}
+		
 		module.addDeserializer(MultiRoundTrip.class, new Deserializer());
 		mapper.registerModule(module);
 		ObjectReader reader = mapper.readerFor(MultiRoundTrip.class);
@@ -118,4 +125,15 @@ public class MultiRoundTripJsonIO {
 		parser.close();
 		return result;
 	}
+
+	public <N extends Node> MultiRoundTrip<N> readFromFile(Scenario<N> scenario, String fileName)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		return this.readFromFile(scenario,  null, fileName);
+	}
+
+	public <N extends Node> MultiRoundTrip<N> readFromFile(Function<String, N> dummyNodeFactory, String fileName)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		return this.readFromFile(null, dummyNodeFactory, fileName);
+	}
+
 }

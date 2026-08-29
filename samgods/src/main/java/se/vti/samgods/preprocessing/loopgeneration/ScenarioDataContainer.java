@@ -43,40 +43,61 @@ class ScenarioDataContainer {
 	private final double totalDemand_kTon;
 	private final double demandVectorLength_kTon;
 
-	private Map<Id<Node>, Set<NodeWithCoords>> nodeId2SamplingNodes = new LinkedHashMap<>();
-	private Map<NodeWithCoords, Id<Node>> samplingNode2NodeId = new LinkedHashMap<>();
+	/*
+	 * Necessary because sampling may happen on an (electrification-)expanded
+	 * network.
+	 */
+	private Map<Id<Node>, Set<NodeWithCoords>> samgodsNodeId2SamplingNodes = new LinkedHashMap<>();
+	private Map<NodeWithCoords, Id<Node>> samplingNode2SamgodsNodeId = new LinkedHashMap<>();
 
 	ScenarioDataContainer(SamgodsScenarioData loopSamplingData, TransportDurations transportDurations) {
 		this(loopSamplingData, transportDurations, List.of(List.of()));
 	}
 
-	ScenarioDataContainer(SamgodsScenarioData loopSamplingData, TransportDurations transportDurations,
+	ScenarioDataContainer(SamgodsScenarioData samgodsScenarioData, TransportDurations transportDurations,
 			List<List<Enum<?>>> allNodeLabels) {
-		this.samogodsScenarioData = loopSamplingData;
+		this.samogodsScenarioData = samgodsScenarioData;
 		this.transportDurations = transportDurations;
 		this.totalDemand_kTon = this.samogodsScenarioData.computeTotalDemand_kTon();
 		this.demandVectorLength_kTon = this.samogodsScenarioData.computeDemandVectorLength_kTon();
-		for (Id<Node> nodeId : loopSamplingData.computeTerminalNodeIds()) {
-			Coord coord = loopSamplingData.getNetwork().getNodes().get(nodeId).getCoord();
+		for (Id<Node> samgodsNodeId : samgodsScenarioData.computeTerminalNodeIds()) {
+			Coord coord = samgodsScenarioData.getNetwork().getNodes().get(samgodsNodeId).getCoord();
 			for (List<Enum<?>> nodeLabels : allNodeLabels) {
-				NodeWithCoords samplingNode = new NodeWithCoords(nodeId.toString(), coord.getX(), coord.getY(),
+				NodeWithCoords samplingNode = new NodeWithCoords(samgodsNodeId.toString(), coord.getX(), coord.getY(),
 						nodeLabels);
-				this.nodeId2SamplingNodes.computeIfAbsent(nodeId, n -> new LinkedHashSet<NodeWithCoords>())
-						.add(samplingNode);
-				this.samplingNode2NodeId.put(samplingNode, nodeId);
-
+				this.samgodsNodeId2SamplingNodes
+						.computeIfAbsent(samgodsNodeId, n -> new LinkedHashSet<NodeWithCoords>()).add(samplingNode);
+				this.samplingNode2SamgodsNodeId.put(samplingNode, samgodsNodeId);
 			}
 		}
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
 
-	Set<Id<Node>> getAllNodeIdsView() {
-		return Collections.unmodifiableSet(this.nodeId2SamplingNodes.keySet());
+	double getXCoord(Id<Node> samgodsNodeId) {
+		// All labeled duplicates have the same coordinates.
+		return this.samgodsNodeId2SamplingNodes.get(samgodsNodeId).iterator().next().x;
 	}
 
+	double getYCoord(Id<Node> samgodsNodeId) {
+		// All labeled duplicates have the same coordinates.
+		return this.samgodsNodeId2SamplingNodes.get(samgodsNodeId).iterator().next().y;
+	}
+
+	Map<Id<Node>, Set<NodeWithCoords>> getSamgodsNodeId2SamplingNodesView() {
+		return Collections.unmodifiableMap(this.samgodsNodeId2SamplingNodes);
+	}
+
+	Id<Node> getSamgodsNodeId(NodeWithCoords samplingNode) {
+		return this.samplingNode2SamgodsNodeId.get(samplingNode);
+	}
+	
+//	Set<Id<Node>> getAllNodeIdsView() {
+//		return Collections.unmodifiableSet(this.nodeId2SamplingNodes.keySet());
+//	}
+
 	Set<NodeWithCoords> getAllSamplingNodesView() {
-		return Collections.unmodifiableSet(this.samplingNode2NodeId.keySet());
+		return Collections.unmodifiableSet(this.samplingNode2SamgodsNodeId.keySet());
 	}
 
 	Map<OD, Double> getOD2Demand_kTon_View() {
@@ -87,22 +108,31 @@ class ScenarioDataContainer {
 		return this.samogodsScenarioData.getOD2Demand_kTon().getOrDefault(od, 0.0);
 	}
 
-	Set<NodeWithCoords> getSendingSamplingNodes(OD od) {
-		return this.nodeId2SamplingNodes.get(od.origin);
+//	Set<NodeWithCoords> getSendingSamplingNodes(OD od) {
+//		return this.samgodsNodeId2SamplingNodes.get(od.origin);
+//	}
+//
+//	Set<NodeWithCoords> getReceivingSamplingNodes(OD od) {
+//		return this.samgodsNodeId2SamplingNodes.get(od.destination);
+//	}
+
+	double getTotalSent_kTon(Id<Node> samgodsNodeId) {
+		return this.samogodsScenarioData.getNodeId2Sent_Mton()
+				.getOrDefault(samgodsNodeId, 0.0);
 	}
 
-	Set<NodeWithCoords> getReceivingSamplingNodes(OD od) {
-		return this.nodeId2SamplingNodes.get(od.destination);
+	double getTotalReceived_kTon(Id<Node> samgodsNodeId) {
+		return this.samogodsScenarioData.getNodeId2Received_Mton()
+				.getOrDefault(samgodsNodeId, 0.0);
 	}
 
+	
 	double getTotalSent_kTon(NodeWithCoords samplingNode) {
-		return this.samogodsScenarioData.getNodeId2Sent_Mton().getOrDefault(this.samplingNode2NodeId.get(samplingNode),
-				0.0);
+		return this.getTotalSent_kTon(this.samplingNode2SamgodsNodeId.get(samplingNode));
 	}
 
 	double getTotalReceived_kTon(NodeWithCoords samplingNode) {
-		return this.samogodsScenarioData.getNodeId2Received_Mton()
-				.getOrDefault(this.samplingNode2NodeId.get(samplingNode), 0.0);
+		return this.getTotalReceived_kTon(this.samplingNode2SamgodsNodeId.get(samplingNode));
 	}
 
 	double getTransportDuration_h(OD od) {
@@ -110,8 +140,8 @@ class ScenarioDataContainer {
 	}
 
 	double getTransportDuration_h(NodeWithCoords from, NodeWithCoords to) {
-		return this.transportDurations.getDuration_h(this.samplingNode2NodeId.get(from),
-				this.samplingNode2NodeId.get(to));
+		return this.transportDurations.getDuration_h(this.samplingNode2SamgodsNodeId.get(from),
+				this.samplingNode2SamgodsNodeId.get(to));
 	}
 
 	double getTotalDemand_kTon() {
@@ -123,8 +153,8 @@ class ScenarioDataContainer {
 	}
 
 	OD getOD(NodeWithCoords fromSamplingNode, NodeWithCoords toSamplingNode) {
-		Id<Node> fromNodeId = this.samplingNode2NodeId.get(fromSamplingNode);
-		Id<Node> toNodeId = this.samplingNode2NodeId.get(toSamplingNode);
+		Id<Node> fromNodeId = this.samplingNode2SamgodsNodeId.get(fromSamplingNode);
+		Id<Node> toNodeId = this.samplingNode2SamgodsNodeId.get(toSamplingNode);
 		if ((fromNodeId != null) && (toNodeId != null)) {
 			return new OD(fromNodeId, toNodeId);
 		} else {

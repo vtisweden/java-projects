@@ -83,7 +83,7 @@ class SamgodsLoopSamplingRunner {
 	final int loopCount;
 	final SamgodsConstants.Commodity commodity;
 	final SamgodsConstants.TransportMode transportMode;
-	
+
 	SamgodsLoopSamplingRunner(String[] args) {
 
 		var options = new Options();
@@ -111,7 +111,7 @@ class SamgodsLoopSamplingRunner {
 		var maxCoverageErrorOption = new Option(maxCoverageErrorLabel, true, maxCoverageErrorLabel);
 		maxCoverageErrorOption.setRequired(true);
 		options.addOption(maxCoverageErrorOption);
-		
+
 		var nodesFileOption = new Option(nodesFile, true, nodesFile);
 		nodesFileOption.setRequired(false);
 		options.addOption(nodesFileOption);
@@ -121,7 +121,7 @@ class SamgodsLoopSamplingRunner {
 		options.addOption(linksFileOption);
 
 		this.configureSamplingOptions(options);
-		
+
 		try {
 			CommandLine cmd = new DefaultParser().parse(options, args);
 			Config config = ConfigUtils.loadConfig(cmd.getOptionValue(configFileNameOption));
@@ -184,9 +184,9 @@ class SamgodsLoopSamplingRunner {
 
 	// HOOKS FOR SUBCLASSING (quick fix to not lose electrification functionality)
 
-	void configureSamplingOptions(Options options) {		
+	void configureSamplingOptions(Options options) {
 	}
-	
+
 	void configureSamplingScenario(String[] args, Options options) {
 	}
 
@@ -228,9 +228,9 @@ class SamgodsLoopSamplingRunner {
 //		log.info("  => setting this as mean per loop in binomial prior");		
 //		runner.setIndividualUniformPrior(); 
 //		runner.setPopulationUniformPrior(); 
-		runner.setIndividualBinomialPrior(0.5 * this.samplingScenario.getNumberOfTimeBins()); 
+		runner.setIndividualBinomialPrior(0.5 * this.samplingScenario.getNumberOfTimeBins());
 //		runner.setPopulationBinomialPrior(0.5 * this.samplingScenario.getNumberOfTimeBins()); 
-		
+
 		var strictlyPeriodicWeight = new StrictlyPeriodicSchedule<NodeWithCoords>(periodLength_h);
 		runner.addIndividualWeight(strictlyPeriodicWeight);
 		runner.addPopulationWeight(new MHWeight<MultiRoundTrip<NodeWithCoords>>() {
@@ -279,59 +279,14 @@ class SamgodsLoopSamplingRunner {
 		log.info("... DONE");
 	}
 
-	void createGIS(String[] args, boolean electrified) {
+	void createGIS(String[] args) {
 
 		System.out.println("STARTED createGIS ...");
 
-//		Options options = new Options();
-//
-//		Option configFileNameOption = new Option(configFileNameLabel, true, configFileNameLabel);
-//		configFileNameOption.setRequired(true);
-//		options.addOption(configFileNameOption);
-//
-//		Option analyzedFilesFolderOption = new Option("analyzedFilesFolder", true, "analyzedFilesFolder");
-//		analyzedFilesFolderOption.setRequired(true);
-//		options.addOption(analyzedFilesFolderOption);
-//
-//		final SamgodsConfigGroup samgodsConfig;
-//		final Path analyzedFilesFolder;
-//		try {
-//			CommandLine cmd = new DefaultParser().parse(options, args);
-//			Config config = ConfigUtils.loadConfig(cmd.getOptionValue(configFileNameLabel));
-//			samgodsConfig = ConfigUtils.addOrGetModule(config, SamgodsConfigGroup.class);
-//			analyzedFilesFolder = Path.of(cmd.getOptionValue("analyzedFilesFolder"));
-//		} catch (ParseException e) {
-//			throw new RuntimeException(e);
-//		}
-//
-//		loadSamgodsScenarioIntoDataContainer(samgodsConfig,
-////				electrified ? List.of(List.of(), List.of(Charging.YES), List.of(Charging.NO)) : List.of(List.of()));
-//				createAllNodeLabels());
-//		createSamplingScenario();
-////		if (electrified) {
-////			var simulator = (DefaultSimulator<NodeWithCoords>) samplingScenario.getOrCreateSimulator();
-////			simulator.setStaySimulator(new ElectrifiedStaySimulator<>(samplingScenario));
-////			simulator.setMoveSimulator(new ElectrifiedMoveSimulator<>(samplingScenario));
-////			simulator.setWrapAroundSimulator(new BatteryWrapAroundSimulator(defaultCapacity_kWh, defaultChargingRate_kW,
-////					defaultConsumptionRate_kWh_km, chargeWraparoundTolerance_kWh));
-////		}
-//		configureSamplingScenario(args);
-
-		Options options = new Options();
-		Option analyzedFilesFolderOption = new Option("analyzedFilesFolder", true, "analyzedFilesFolder");
-		analyzedFilesFolderOption.setRequired(true);
-		options.addOption(analyzedFilesFolderOption);
-		final Path analyzedFilesFolder;
-		try {
-			CommandLine cmd = new DefaultParser().parse(options, args);
-			analyzedFilesFolder = Path.of(cmd.getOptionValue("analyzedFilesFolder"));
-		} catch (ParseException e) {
-			throw new RuntimeException(e);
-		}
-
 		List<MultiRoundTrip<NodeWithCoords>> allRoundTrips = new ArrayList<>();
 		try {
-			for (java.nio.file.Path path : java.nio.file.Files.list(analyzedFilesFolder).collect(Collectors.toList())) {
+			for (java.nio.file.Path path : java.nio.file.Files.list(Path.of("./results"))
+					.collect(Collectors.toList())) {
 				System.out.println("Loading sample: " + path.toString());
 				MultiRoundTrip<NodeWithCoords> roundTrips = MultiRoundTripJsonIO.singleton()
 						.readFromFile(samplingScenario, path.toAbsolutePath().toString());
@@ -343,14 +298,14 @@ class SamgodsLoopSamplingRunner {
 			throw new RuntimeException(e);
 		}
 
-		GeoJsonWriters.writeCoverage(dataContainer, allRoundTrips);
+		GeoJsonWriters.writeCoverage(this.dataContainer, allRoundTrips);
 
 		System.out.println("... DONE");
 	}
 
 	public static void main(String[] args) {
 
-		new SamgodsLoopSamplingRunner(args).runSimulation();
+//		new SamgodsLoopSamplingRunner(args).runSimulation();
 
 //		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
 //				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road" }).runSimulation();

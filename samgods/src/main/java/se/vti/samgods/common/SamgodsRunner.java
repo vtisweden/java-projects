@@ -421,7 +421,7 @@ public class SamgodsRunner {
 		}
 	}
 
-	// -------------------- BOOLEAN --------------------
+	// -------------------- CONSOLIDATION --------------------
 
 	private ConcurrentHashMap<ConsolidationUnit, HalfLoopConsolidationJobProcessor.FleetAssignment> consolidateHalfLoops(
 			Map<ConsolidationUnit, List<ChainAndShipmentSize>> consolidationUnit2choices) {

@@ -40,9 +40,10 @@ import se.vti.samgods.common.OD;
 import se.vti.utils.misc.Units;
 
 /**
+ * Based on tramodby SimMatrixCalculator, @author RasmusR
+ * 
  * @author GunnarF
  * 
- *         Based on tramodby SimMatrixCalculator, @author RasmusR
  */
 public class TransportDurations {
 

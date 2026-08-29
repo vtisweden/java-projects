@@ -19,12 +19,8 @@
  */
 package se.vti.samgods.preprocessing.loopgeneration;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.simulator.electrified.Charging;
 import se.vti.roundtrips.simulator.electrified.ChargingUtils;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
@@ -42,23 +38,9 @@ class MaxNumberOfChargingPointsConstraint<N extends Node> implements MHWeight<Mu
 		this.maxNumberOfChargingPoints = maxNumberOfChargingPoints;
 	}
 
-	static <M extends Node> Map<M, Integer> computeChargingNodeUsages(MultiRoundTrip<M> roundTrips,
-			ChargingUtils utils) {
-		Map<M, Integer> chargingNodeUsages = new LinkedHashMap<>();
-		for (var roundTrip : roundTrips) {
-			for (int i = 0; i < roundTrip.size(); i++) {
-				M node = roundTrip.getNode(i);
-				if (Charging.YES == utils.extractCharging(node)) {
-					chargingNodeUsages.compute(node, (n, c) -> (c == null ? 0 : c) + 1);
-				}
-			}
-		}
-		return chargingNodeUsages;
-	}
-
 	@Override
 	public double logWeight(MultiRoundTrip<N> roundTrips) {
-		if (computeChargingNodeUsages(roundTrips, this.utils).size() <= this.maxNumberOfChargingPoints) {
+		if (this.utils.computeChargingNodeUsages(roundTrips).size() <= this.maxNumberOfChargingPoints) {
 			return 0.0;
 		} else {
 			return Double.NEGATIVE_INFINITY;

@@ -22,7 +22,10 @@ package se.vti.roundtrips.single;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -85,8 +88,20 @@ public class RoundTripJsonIO {
 
 		private final Scenario<N> scenario;
 
+		// This to load without having to create a scenario.
+		private final Function<String, N> dummyNodeFactory;
+		private final Map<String, N> dummyNodes;
+		
 		public Deserializer(Scenario<N> scenario) {
 			this.scenario = scenario;
+			this.dummyNodeFactory = null;
+			this.dummyNodes = null;
+		}
+
+		public Deserializer(Function<String, N> dummyNodeFactory) {
+			this.scenario = null;
+			this.dummyNodeFactory = dummyNodeFactory;
+			this.dummyNodes = new LinkedHashMap<>();
 		}
 
 		@Override
@@ -99,7 +114,13 @@ public class RoundTripJsonIO {
 			List<N> scenarioNodes = new ArrayList<>();
 			JsonNode jsonNodes = node.get("nodes");
 			for (JsonNode n : jsonNodes) {
-				scenarioNodes.add(this.scenario.getNode(n.asText()));
+				
+				if (this.scenario != null) {
+					scenarioNodes.add(this.scenario.getNode(n.asText()));					
+				} else {
+					scenarioNodes.add(this.dummyNodes.computeIfAbsent(n.asText(), nn -> this.dummyNodeFactory.apply(nn)));
+				}
+				
 			}
 
 			List<Integer> departures = new ArrayList<>();

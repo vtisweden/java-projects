@@ -52,6 +52,7 @@ class ElectrifiedSamgodsLoopSamplingRunner extends SamgodsLoopSamplingRunner {
 	static final Logger log = LogManager.getLogger(ElectrifiedSamgodsLoopSamplingRunner.class);
 
 	static final String stationCntLabel = "stationCnt";
+	
 
 	static final double defaultCapacity_kWh = 728.0;
 	static final double defaultChargingRate_kW = 400.0;
@@ -73,11 +74,6 @@ class ElectrifiedSamgodsLoopSamplingRunner extends SamgodsLoopSamplingRunner {
 
 	@Override
 	void configureSamplingScenario(String[] args, Options options) {
-
-//		var options = new Options();
-//		var stationCntOption = new Option(stationCntLabel, true, stationCntLabel);
-//		stationCntOption.setRequired(false);
-//		options.addOption(stationCntOption);
 		try {
 			CommandLine cmd = new DefaultParser().parse(options, args);
 			this.chargingStationCount = (cmd.hasOption(stationCntLabel)
@@ -118,9 +114,11 @@ class ElectrifiedSamgodsLoopSamplingRunner extends SamgodsLoopSamplingRunner {
 
 	public static void main(String[] args) {
 
-		new ElectrifiedSamgodsLoopSamplingRunner(args).runSimulation();
+//		new ElectrifiedSamgodsLoopSamplingRunner(args).runSimulation();
 
 //		createGIS(args, true);
+
+		new ElectrifiedSamgodsLoopSamplingRunner(args).createGIS(args);
 
 //		runSimulation(new String[] { "-configFileName", "./input/config.xml", "-loopCnt", "1000", "-stationCnt", "200",
 //				"-maxCoverageError", "0.1"});
