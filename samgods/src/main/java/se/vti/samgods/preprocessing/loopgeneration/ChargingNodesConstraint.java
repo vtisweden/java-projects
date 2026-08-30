@@ -28,17 +28,18 @@ import se.vti.roundtrips.simulator.electrified.ChargingUtils;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
+ * Enforces that charging takes only place at designated charging nodes.
  * 
  * @author GunnarF
  *
  */
-class ChargingPointsConstraint<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
-
-	private final Set<N> chargingNodes;
+class ChargingNodesConstraint<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
 
 	private final ChargingUtils utils = new ChargingUtils();
 
-	ChargingPointsConstraint(Set<N> chargingNodes) {
+	private final Set<N> chargingNodes;
+
+	ChargingNodesConstraint(Set<N> chargingNodes) {
 		this.chargingNodes = chargingNodes;
 	}
 

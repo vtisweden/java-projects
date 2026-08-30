@@ -145,7 +145,7 @@ class ElectrifiedSamgodsLoopSamplingRunner extends SamgodsLoopSamplingRunner {
 				throw new RuntimeException("Extracted " + this.allowedChargingSamplingNodes.size()
 						+ " feasible charging nodes but charging station count is " + this.chargingStationCount);
 			}
-			runner.addPopulationWeight(new ChargingPointsConstraint<NodeWithCoords>(this.allowedChargingSamplingNodes));
+			runner.addPopulationWeight(new ChargingNodesConstraint<NodeWithCoords>(this.allowedChargingSamplingNodes));
 
 		} else if (this.stationPlacement.equals(endogenous)) {
 			runner.addPopulationWeight(new MaxNumberOfChargingPointsConstraint<>(this.chargingStationCount));

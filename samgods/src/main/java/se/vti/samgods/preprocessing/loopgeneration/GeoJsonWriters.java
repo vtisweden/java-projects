@@ -130,27 +130,27 @@ class GeoJsonWriters {
 		mapper.writerWithDefaultPrettyPrinter().writeValue(new File(outputFile), root);
 	}
 
-	static void writeCoverage(ScenarioDataContainer scenarioData, List<MultiRoundTrip<NodeWithCoords>> allRoundtrips) {
+	static void writeCoverage(ScenarioDataContainer scenarioData, List<MultiRoundTrip<NodeWithCoords>> allRoundTrips) {
 
 		double totalTarget_kTon = scenarioData.getTotalDemand_kTon(); // total sent == total received
 
 		/*
-		 * We reference by (basic) name and not by reference because there may be
-		 * multiple (labeled) instances of the same basic node.
+		 * Id<Node> is used in the samgods scenario to represent *physical* nodes.
+		 * 
+		 * Two NodeWithCoords instances with/without charging per physical node.
 		 */
-
 		Map<Id<Node>, DescriptiveStatistics> sender2FlowPerConnectionStats_kTon = new LinkedHashMap<>();
 		Map<Id<Node>, DescriptiveStatistics> receiver2FlowPerConnectionStats_kTon = new LinkedHashMap<>();
 
 		Map<Id<Node>, DescriptiveStatistics> sender2DisconnectedFlowStats_kTon = new LinkedHashMap<>();
 		Map<Id<Node>, DescriptiveStatistics> receiver2DisconnectedFlowStats_kTon = new LinkedHashMap<>();
 
-		Map<Id<Node>, Integer> node2usagesForCharging = new LinkedHashMap<>();
+		Map<Id<Node>, Integer> node2chargings = new LinkedHashMap<>();
 		Map<Id<Node>, Integer> node2visits = new LinkedHashMap<>();
 
 		int i = 0;
-		for (var roundTrips : allRoundtrips) {
-			System.out.println("Processing sample " + (++i) + " / " + allRoundtrips.size());
+		for (var roundTrips : allRoundTrips) {
+			System.out.println("Processing sample " + (++i) + " / " + allRoundTrips.size());
 
 			ODCoverage<NodeWithCoords> demandCoverage = roundTrips.getSummary(ODCoverage.class);
 			int totalCoverage = scenarioData.getOD2Demand_kTon_View().keySet().stream()
@@ -158,7 +158,7 @@ class GeoJsonWriters {
 
 			for (var samplingNodeAndUsage : ChargingUtils.singleton().computeChargingNodeUsages(roundTrips)
 					.entrySet()) {
-				node2usagesForCharging.compute(scenarioData.getSamgodsNodeId(samplingNodeAndUsage.getKey()),
+				node2chargings.compute(scenarioData.getSamgodsNodeId(samplingNodeAndUsage.getKey()),
 						(n, c) -> (c == null ? 0 : c) + samplingNodeAndUsage.getValue());
 			}
 
@@ -177,9 +177,6 @@ class GeoJsonWriters {
 				for (var odEntry : scenarioData.getOD2Demand_kTon_View().entrySet()) {
 
 					OD od = odEntry.getKey();
-//					var sender = scenarioData.getSendingSamplingNodes(od).iterator().next().getBasicName();
-//					var receiver = scenarioData.getReceivingSamplingNodes(od).iterator().next().getBasicName();
-
 					double flow_kTon = odEntry.getValue();
 					int connections = demandCoverage.getNumberOfConnectingRoundTrips(od);
 
@@ -210,7 +207,6 @@ class GeoJsonWriters {
 				/*
 				 * Now we update the average disconnected flow over solutions.
 				 */
-//				for (NodeWithCoords node : scenarioData.getAllSamplingNodesView()) {
 				for (Id<Node> samgodsNodeId : scenarioData.getSamgodsNodeId2SamplingNodesView().keySet()) {
 					sender2DisconnectedFlowStats_kTon.computeIfAbsent(samgodsNodeId, n -> new DescriptiveStatistics())
 							.addValue(sender2DisconnectedFlow_kTon.getOrDefault(samgodsNodeId, 0.0));
@@ -232,8 +228,8 @@ class GeoJsonWriters {
 		});
 
 		labels.add("MeanConnected(receiver)");
-		extractors.add(sender -> {
-			var stat = receiver2FlowPerConnectionStats_kTon.get(sender);
+		extractors.add(receiver -> {
+			var stat = receiver2FlowPerConnectionStats_kTon.get(receiver);
 			return (stat == null || stat.getN() == 0) ? "null" : "" + stat.getMean();
 		});
 
@@ -258,8 +254,8 @@ class GeoJsonWriters {
 		});
 
 		labels.add("MedianMeanConnected(receiver)");
-		extractors.add(sender -> {
-			var stat = receiver2FlowPerConnectionStats_kTon.get(sender);
+		extractors.add(receiver -> {
+			var stat = receiver2FlowPerConnectionStats_kTon.get(receiver);
 			return (stat == null || stat.getN() == 0) ? "null" : "" + stat.getPercentile(50.0);
 		});
 
@@ -277,7 +273,12 @@ class GeoJsonWriters {
 
 		labels.add("ChargingStationUsage");
 		extractors.add(node -> {
-			return "" + ((double) node2usagesForCharging.getOrDefault(node, 0)) / allRoundtrips.size();
+			return "" + ((double) node2chargings.getOrDefault(node, 0)) / allRoundTrips.size();
+		});
+
+		labels.add("Visits");
+		extractors.add(node -> {
+			return "" + ((double) node2visits.getOrDefault(node, 0)) / allRoundTrips.size();
 		});
 
 		Set<Id<Node>> allSamgodNodeIds = new LinkedHashSet<>(sender2FlowPerConnectionStats_kTon.keySet());
@@ -294,21 +295,21 @@ class GeoJsonWriters {
 				writer.print(scenarioData.getTotalSent_kTon(samgodsNodeId)
 						+ scenarioData.getTotalReceived_kTon(samgodsNodeId));
 				writer.print("\t");
-				writer.println(node2usagesForCharging.getOrDefault(samgodsNodeId, 0));
+				writer.println(node2chargings.getOrDefault(samgodsNodeId, 0));
 			}
 			writer.flush();
 			writer.close();
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		}
-		
+
 		try {
 			PrintWriter writer = new PrintWriter("stationUsageOverVisits.tsv");
 			writer.println("Visits\tChargingUsages");
 			for (Id<Node> samgodsNodeId : scenarioData.getSamgodsNodeId2SamplingNodesView().keySet()) {
 				writer.print(node2visits.getOrDefault(samgodsNodeId, 0));
 				writer.print("\t");
-				writer.println(node2usagesForCharging.getOrDefault(samgodsNodeId, 0));
+				writer.println(node2chargings.getOrDefault(samgodsNodeId, 0));
 			}
 			writer.flush();
 			writer.close();
