@@ -113,7 +113,7 @@ public class LoopLoader {
 		runner.setNetworkFlowsFileName("linkId2commodity2annualAmount_ton.json");
 		runner.loadTransportDemand("./input_2024/ChainChoi", "XTD.out");
 
-//		runner.loadLoops("./input_2024/roundtrips.", ".json");
+		runner.loadLoops("./input_2024/roundtrips.", ".json");
 
 		runner.createOrLoadConsolidationUnits();
 
