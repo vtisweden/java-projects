@@ -1,7 +1,7 @@
 /**
  * se.vti.roundtrips.simulator.electrified
  * 
- * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2025,2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -50,7 +50,11 @@ public class ChargingUtils {
 		}
 		return null;
 	}
-	
+
+	public Charging extractCharging(StayEpisode<?> parking) {
+		return this.extractCharging(parking.getLocation());
+	}
+
 	public <N extends Node> Map<N, Integer> computeChargingNodeUsages(MultiRoundTrip<N> roundTrips) {
 		Map<N, Integer> chargingNodeUsages = new LinkedHashMap<>();
 		for (var roundTrip : roundTrips) {
@@ -63,10 +67,4 @@ public class ChargingUtils {
 		}
 		return chargingNodeUsages;
 	}
-
-
-	public Charging extractCharging(StayEpisode<?> parking) {
-		return this.extractCharging(parking.getLocation());
-	}
-
 }
