@@ -24,7 +24,7 @@ import java.util.Random;
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.common.Scenario;
 import se.vti.roundtrips.single.RoundTrip;
-import se.vti.roundtrips.single.RoundTripProposal;
+import se.vti.roundtrips.single.RoundTripSingleStepProposal;
 import se.vti.utils.misc.metropolishastings.MHProposal;
 import se.vti.utils.misc.metropolishastings.MHTransition;
 
@@ -33,28 +33,28 @@ import se.vti.utils.misc.metropolishastings.MHTransition;
  * @author GunnarF
  *
  */
-public class MultiRoundTripProposal<L extends Node> implements MHProposal<MultiRoundTrip<L>> {
+public class MultiRoundTripProposal<N extends Node> implements MHProposal<MultiRoundTrip<N>> {
 
 	// -------------------- MEMBERS --------------------
 
 	private final Random rnd;
 
-	private final MHProposal<RoundTrip<L>> singleProposal;
+	private final MHProposal<RoundTrip<N>> singleRoundTripProposal;
 
 	private Double flipProba = null;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public MultiRoundTripProposal(Random rnd, MHProposal<RoundTrip<L>> singleProposal) {
+	public MultiRoundTripProposal(Random rnd, MHProposal<RoundTrip<N>> singleRoundTripProposal) {
 		this.rnd = rnd;
-		this.singleProposal = singleProposal;
+		this.singleRoundTripProposal = singleRoundTripProposal;
 	}
 
-	public MultiRoundTripProposal(Scenario<L> scenario) {
-		this(scenario.getRandom(), new RoundTripProposal<>(scenario));
+	public MultiRoundTripProposal(Scenario<N> scenario, MHProposal<RoundTrip<N>> singleRoundTripProposal) {
+		this(scenario.getRandom(), singleRoundTripProposal);
 	}
 
-	public MultiRoundTripProposal<L> setFlipProbability(double flipProbability) {
+	public MultiRoundTripProposal<N> setFlipProbability(double flipProbability) {
 		this.flipProba = flipProbability;
 		return this;
 	}
@@ -62,18 +62,18 @@ public class MultiRoundTripProposal<L extends Node> implements MHProposal<MultiR
 	// --------------------IMPLEMENTATION OF MHProposal --------------------
 
 	@Override
-	public MultiRoundTrip<L> newInitialState() {
+	public MultiRoundTrip<N> newInitialState() {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public MHTransition<MultiRoundTrip<L>> newTransition(MultiRoundTrip<L> from) {
+	public MHTransition<MultiRoundTrip<N>> newTransition(MultiRoundTrip<N> from) {
 
 		final double minFlipProba = 1.0 / Math.max(1.0, from.size());
 		final double flipProba = (this.flipProba != null ? Math.max(this.flipProba, minFlipProba) : minFlipProba);
 		final double atLeastOneFlipProba = 1.0 - Math.pow(1.0 - flipProba, from.size());
 
-		final MultiRoundTrip<L> to = from.clone();
+		final MultiRoundTrip<N> to = from.clone();
 
 		boolean flipped = false;
 		double fwdLogProba;
@@ -83,7 +83,7 @@ public class MultiRoundTripProposal<L extends Node> implements MHProposal<MultiR
 			bwdLogProba = 0.0;
 			for (int i = 0; i < from.size(); i++) {
 				if (this.rnd.nextDouble() < flipProba) {
-					MHTransition<RoundTrip<L>> transition = this.singleProposal.newTransition(from.getRoundTrip(i));
+					MHTransition<RoundTrip<N>> transition = this.singleRoundTripProposal.newTransition(from.getRoundTrip(i));
 					to.setRoundTripAndUpdateSummaries(i, transition.getNewState());
 					fwdLogProba += Math.log(flipProba) + transition.getFwdLogProb();
 					bwdLogProba += Math.log(flipProba) + transition.getBwdLogProb();

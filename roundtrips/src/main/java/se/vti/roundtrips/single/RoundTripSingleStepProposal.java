@@ -34,7 +34,7 @@ import se.vti.utils.misc.metropolishastings.MHTransition;
  *
  * @param <L> the location type
  */
-public class RoundTripProposal<L extends Node> implements MHProposal<RoundTrip<L>> {
+public class RoundTripSingleStepProposal<L extends Node> implements MHProposal<RoundTrip<L>> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -48,14 +48,14 @@ public class RoundTripProposal<L extends Node> implements MHProposal<RoundTrip<L
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public RoundTripProposal(RoundTripProposalParameters proposalParams, Scenario<L> scenario) {
+	public RoundTripSingleStepProposal(RoundTripProposalParameters proposalParams, Scenario<L> scenario) {
 		this.proposalParams = proposalParams;
 		this.scenario = scenario;
 		this.allLocations = scenario.getNodesView();
 		this.rnd = scenario.getRandom();
 	}
 
-	public RoundTripProposal(Scenario<L> scenario) {
+	public RoundTripSingleStepProposal(Scenario<L> scenario) {
 		this(new RoundTripProposalParameters(), scenario);
 	}
 

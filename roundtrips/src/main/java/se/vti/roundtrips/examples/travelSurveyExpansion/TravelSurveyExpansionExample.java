@@ -105,6 +105,8 @@ public class TravelSurveyExpansionExample {
 		var scenario = scenarioBuilder.build();
 
 		var runner = new Runner<GridNodeWithActivity>(scenario);
+		
+		runner.setExpectedProposalLength(10.0); // testing the feature
 
 		// Definee the sampling weights.
 		runner.setIndividualUniformPrior().addIndividualWeight(new StrictlyRequireMaxNumberOfStops<GridNodeWithActivity>(6))

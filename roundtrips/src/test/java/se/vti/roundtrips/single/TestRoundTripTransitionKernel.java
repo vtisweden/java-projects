@@ -209,7 +209,7 @@ class TestRoundTripTransitionKernel {
 	void testTransition() {
 		var scenario = createScenario();
 		var params = new RoundTripProposalParameters();
-		var proposal = new RoundTripProposal<Node>(params, scenario);
+		var proposal = new RoundTripSingleStepProposal<Node>(params, scenario);
 
 		for (int size = 0; size <= scenario.getNumberOfTimeBins(); size++) {
 			for (int replication = 0; replication < 10 + 10 * size; replication++) {
@@ -249,7 +249,7 @@ class TestRoundTripTransitionKernel {
 	void testNumberOfInsertionRemovalPoints() {
 		var scenario = createScenario();
 		var params = new RoundTripProposalParameters(0.5, 0.5, 0.0, 0.0); // only insert
-		var proposal = new RoundTripProposal<Node>(params, scenario);
+		var proposal = new RoundTripSingleStepProposal<Node>(params, scenario);
 
 		for (int size = 0; size <= scenario.getNumberOfTimeBins() - 1; size++) {
 			for (int replication = 0; replication < 10 + 10 * size; replication++) {

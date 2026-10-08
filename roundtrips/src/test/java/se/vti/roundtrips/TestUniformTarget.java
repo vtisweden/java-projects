@@ -33,6 +33,7 @@ import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.priors.IndividualUniformPrior;
+import se.vti.roundtrips.single.RoundTripSingleStepProposal;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 import se.vti.utils.misc.metropolishastings.MHWeightContainer;
@@ -70,7 +71,9 @@ class TestUniformTarget {
 		var weights = new MHWeightContainer<MultiRoundTrip<Node>>();
 		weights.add(new SingleToMultiWeight<Node>(new IndividualUniformPrior<Node>(scenario)));
 
-		var algo = new MHAlgorithm<MultiRoundTrip<Node>>(new MultiRoundTripProposal<Node>(scenario), weights, scenario.getRandom());
+		var algo = new MHAlgorithm<MultiRoundTrip<Node>>(
+				new MultiRoundTripProposal<Node>(scenario, new RoundTripSingleStepProposal<Node>(scenario)), weights,
+				scenario.getRandom());
 		algo.setInitialState(initialRoundTrips);
 
 		algo.addStateProcessor(new MHStateProcessor<MultiRoundTrip<Node>>() {
@@ -94,14 +97,13 @@ class TestUniformTarget {
 			@Override
 			public void end() {
 				System.out.println(Arrays.toString(this.sizeCounts));
-				assertArrayEquals(new long[]{75259, 75270, 74415, 75056}, this.sizeCounts);
+				assertArrayEquals(new long[] { 75259, 75270, 74415, 75056 }, this.sizeCounts);
 			}
 
 		});
 
 		algo.run(1_000_000);
 
-		
 	}
 
 }

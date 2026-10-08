@@ -30,12 +30,15 @@ import se.vti.roundtrips.multiple.MultiRoundTripJsonIO;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.priors.IndividualBinomialPrior;
+import se.vti.roundtrips.samplingweights.priors.IndividualUniformPrior;
 import se.vti.roundtrips.samplingweights.priors.PopulationBinomialPrior;
 import se.vti.roundtrips.samplingweights.priors.PopulationUniformPrior;
 import se.vti.roundtrips.samplingweights.priors.Prior;
-import se.vti.roundtrips.samplingweights.priors.IndividualUniformPrior;
 import se.vti.roundtrips.single.RoundTrip;
+import se.vti.roundtrips.single.RoundTripMultiStepProposal;
+import se.vti.roundtrips.single.RoundTripSingleStepProposal;
 import se.vti.utils.misc.metropolishastings.MHAlgorithm;
+import se.vti.utils.misc.metropolishastings.MHProposal;
 import se.vti.utils.misc.metropolishastings.MHSampleLogger;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 import se.vti.utils.misc.metropolishastings.MHWeight;
@@ -67,6 +70,8 @@ public class Runner<N extends Node> {
 
 	private long stateDumpInterval = 0;
 	private String stateDumpFilePrefix = null;
+
+	private double expectedProposalLength = 1.0;
 
 	private MultiRoundTrip<N> initialState = null;
 	private TerminationCriterion<MultiRoundTrip<N>> terminationCriterion = null;
@@ -149,6 +154,14 @@ public class Runner<N extends Node> {
 
 	public Runner<N> addStateProcessor(MHStateProcessor<MultiRoundTrip<N>> processor) {
 		this.stateProcessors.add(processor);
+		return this;
+	}
+
+	public Runner<N> setExpectedProposalLength(double expectedProposalLength) {
+		if (expectedProposalLength < 1.0) {
+			throw new IllegalArgumentException("expectedProposalLength must not be smaller than one.");
+		}
+		this.expectedProposalLength = expectedProposalLength;
 		return this;
 	}
 
@@ -247,7 +260,15 @@ public class Runner<N extends Node> {
 				});
 			}
 
-			var algo = new MHAlgorithm<MultiRoundTrip<N>>(new MultiRoundTripProposal<N>(this.scenario), this.weights,
+			final MHProposal<RoundTrip<N>> roundTripProposal;
+			if (this.expectedProposalLength == 1.0) {
+				roundTripProposal = new RoundTripSingleStepProposal<N>(this.scenario);
+			} else {
+				roundTripProposal = new RoundTripMultiStepProposal<N>(this.scenario, this.expectedProposalLength);
+			}
+
+			var algo = new MHAlgorithm<MultiRoundTrip<N>>(
+					new MultiRoundTripProposal<N>(this.scenario, roundTripProposal), this.weights,
 					this.scenario.getRandom());
 
 			if ((this.samplesLogFile != null) && (this.sampleExtractors.size() > 0)) {
