@@ -6,7 +6,7 @@ The underlying method is described and illustrated in this working paper: Flött
 
 Contact: [gunnar.flotterod@vti.se](mailto:gunnar.flotterod@vti.se)
 
-The overall workflow when analyzing up a scenario looks as follows.
+The overall workflow when analyzing a scenario looks as follows.
 1. Decide how you want to represent the locations (nodes) of your scenario. Basic `Node.java` and `NodeWithCoords.java` implementations are available. 
 2. Instantiate and parameterize `Scenario.java`. This comprises setting the temporal resolution and defining nodes with distances and move times between them.
 3. Instantiate and parameterize `Runner.java`, which requires a complete `Scenario.java` upon construction. Use `set...Prior(...)` to set baseline distributions and add scenario-specific weights with `add...Weight(...)`.
