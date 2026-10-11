@@ -34,10 +34,10 @@ public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal
 
 	// -------------------- MEMBERS --------------------
 
+	private final Random rnd;
+
 	private final MultiRoundTripProposal<N> coldProposal;
 	private final MultiRoundTripProposal<N> hotProposal;
-
-	private final Random rnd;
 
 	private final double switchProba;
 
@@ -45,13 +45,11 @@ public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal
 
 	public ColdHotMultiRoundTripProposal(MultiRoundTripProposal<N> coldProposal, MultiRoundTripProposal<N> hotProposal,
 			double switchProba) {
+		this.rnd = coldProposal.getRandom();
 		this.coldProposal = coldProposal;
 		this.hotProposal = hotProposal;
-		this.rnd = coldProposal.getRandom();
 		this.switchProba = switchProba;
 	}
-
-	// -------------------- INTERNALS --------------------
 
 	// -------------------- IMPLEMENTATION OF MHProposal --------------------
 
@@ -70,12 +68,12 @@ public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal
 		if (this.rnd.nextDouble() < this.switchProba) {
 
 			to = from.clone();
-			int numberOfSwitches = 0;
-			while (numberOfSwitches == 0) {
+			boolean switched = false;
+			while (!switched) {
 				for (int i = 0; i < to.size(); i++) {
 					if (this.rnd.nextBoolean()) {
 						to.switchRoundTrip(i);
-						numberOfSwitches++;
+						switched = true;
 					}
 				}
 			}

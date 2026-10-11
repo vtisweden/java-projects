@@ -36,6 +36,7 @@ class ColdHotMultiRoundTrip<N extends Node> {
 	// -------------------- CONSTRUCTION --------------------
 
 	ColdHotMultiRoundTrip(MultiRoundTrip<N> coldMultiRoundTrip, MultiRoundTrip<N> hotMultiRoundTrip) {
+		assert (coldMultiRoundTrip.size() == hotMultiRoundTrip.size());
 		this.coldMultiRoundTrip = coldMultiRoundTrip;
 		this.hotMultiRoundTrip = hotMultiRoundTrip;
 	}
@@ -43,8 +44,6 @@ class ColdHotMultiRoundTrip<N extends Node> {
 	ColdHotMultiRoundTrip(int size) {
 		this(new MultiRoundTrip<>(size), new MultiRoundTrip<>(size));
 	}
-
-	// -------------------- INTERNALS --------------------
 
 	// -------------------- IMPLEMENTATION --------------------
 

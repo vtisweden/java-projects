@@ -24,6 +24,7 @@ import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
+ * @author GunnarF
  * 
  * @param <N>
  */
