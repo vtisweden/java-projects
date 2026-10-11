@@ -1,7 +1,7 @@
 /**
  * se.vti.roundtrips.multiple
  * 
- * Copyright (C) 2024 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2024-26 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -24,7 +24,6 @@ import java.util.Random;
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.common.Scenario;
 import se.vti.roundtrips.single.RoundTrip;
-import se.vti.roundtrips.single.RoundTripSingleStepProposal;
 import se.vti.utils.misc.metropolishastings.MHProposal;
 import se.vti.utils.misc.metropolishastings.MHTransition;
 
@@ -58,8 +57,12 @@ public class MultiRoundTripProposal<N extends Node> implements MHProposal<MultiR
 		this.flipProba = flipProbability;
 		return this;
 	}
+	
+	public Random getRandom() {
+		return this.rnd;
+	}
 
-	// --------------------IMPLEMENTATION OF MHProposal --------------------
+	// -------------------- IMPLEMENTATION OF MHProposal --------------------
 
 	@Override
 	public MultiRoundTrip<N> newInitialState() {
