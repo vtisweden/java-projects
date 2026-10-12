@@ -19,8 +19,10 @@
  */
 package se.vti.samgods.preprocessing.loopgeneration;
 
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
+import org.checkerframework.checker.units.qual.N;
+
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.simulator.electrified.ChargingUtils;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 

@@ -28,9 +28,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import se.vti.roundtrips.common.NodeWithCoords;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.multiple.MultiRoundTripSummary;
+import org.checkerframework.checker.units.qual.N;
+
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.multi.MultiRoundTripSummary;
+import se.vti.roundtrips.scenario.NodeWithCoords;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.samgods.common.OD;
 

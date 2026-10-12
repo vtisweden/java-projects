@@ -30,8 +30,8 @@ import org.matsim.api.core.v01.Id;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 
-import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.multiple.MultiRoundTripJsonIO;
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.multi.MultiRoundTripJsonIO;
 import se.vti.samgods.common.SamgodsConfigGroup;
 import se.vti.samgods.common.SamgodsConstants;
 import se.vti.samgods.common.SamgodsConstants.Commodity;
@@ -49,9 +49,9 @@ public class LoopLoader {
 
 		// load round trips
 
-		final MultiRoundTrip<se.vti.roundtrips.common.Node> roundTrips;
+		final MultiRoundTrip<se.vti.roundtrips.scenario.Node> roundTrips;
 		try {
-			roundTrips = MultiRoundTripJsonIO.singleton().readFromFile(name -> new se.vti.roundtrips.common.Node(name),
+			roundTrips = MultiRoundTripJsonIO.singleton().readFromFile(name -> new se.vti.roundtrips.scenario.Node(name),
 					fileName);
 			System.out.println("Loaded " + roundTrips.size() + " roundtrips.");
 		} catch (IOException e) {

@@ -36,9 +36,9 @@ import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Node;
 
-import se.vti.roundtrips.common.NodeWithCoords;
-import se.vti.roundtrips.common.RandomRoundTripGenerator;
-import se.vti.roundtrips.common.Runner;
+import se.vti.roundtrips.runner.Runner;
+import se.vti.roundtrips.scenario.NodeWithCoords;
+import se.vti.roundtrips.scenario.RandomRoundTripGenerator;
 import se.vti.roundtrips.simulator.DefaultSimulator;
 import se.vti.roundtrips.simulator.electrified.BatteryWrapAroundSimulator;
 import se.vti.roundtrips.simulator.electrified.Charging;

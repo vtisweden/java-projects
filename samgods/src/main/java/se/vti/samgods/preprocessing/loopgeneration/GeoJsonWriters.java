@@ -41,8 +41,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import se.vti.roundtrips.common.NodeWithCoords;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.scenario.NodeWithCoords;
 import se.vti.roundtrips.simulator.electrified.ChargingUtils;
 import se.vti.samgods.common.OD;
 

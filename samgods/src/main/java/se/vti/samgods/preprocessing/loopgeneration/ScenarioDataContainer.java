@@ -30,7 +30,7 @@ import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Node;
 
-import se.vti.roundtrips.common.NodeWithCoords;
+import se.vti.roundtrips.scenario.NodeWithCoords;
 import se.vti.samgods.common.OD;
 
 /**
