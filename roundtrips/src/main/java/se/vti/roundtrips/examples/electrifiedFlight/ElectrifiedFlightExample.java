@@ -35,6 +35,7 @@ import org.apache.logging.log4j.Logger;
 
 import se.vti.roundtrips.common.NodeWithCoords;
 import se.vti.roundtrips.common.RandomRoundTripGenerator;
+import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.common.Runner;
 import se.vti.roundtrips.common.Scenario;
 import se.vti.roundtrips.common.ScenarioBuilder;
@@ -141,7 +142,7 @@ public class ElectrifiedFlightExample {
 				.addIndividualWeight(new StrictlyPeriodicSchedule<NodeWithCoords>(24.0))
 				.setNumberOfIterations(totalIterations);
 
-		var terminationCriterion = new BlockAverageTerminationCriterion<MultiRoundTrip<NodeWithCoords>>()
+		var terminationCriterion = new BlockAverageTerminationCriterion<RoundTrips<NodeWithCoords>>()
 				.setCheckInterval(10_000).setMinSamples(10_000)
 				.setConvergenceStatsFileName("electrified-flight_demandWeight" + servedDemandShareWeight
 						+ "_emptySeatWeight" + emptySeatShareWeight + ".tsv"); // .setRunIndefinitely(true);
@@ -184,7 +185,7 @@ public class ElectrifiedFlightExample {
 		/*
 		 * Objective function: reduce empty seats, increase served demand.
 		 */
-		runner.addPopulationWeight(new MHWeight<MultiRoundTrip<NodeWithCoords>>() {
+		runner.addPopulationWeight(new MHWeight<RoundTrips<NodeWithCoords>>() {
 
 			@Override
 			public String name() {
@@ -193,8 +194,8 @@ public class ElectrifiedFlightExample {
 			}
 
 			@Override
-			public double logWeight(MultiRoundTrip<NodeWithCoords> fleet) {
-				var summary = fleet.getSummary(PlaneUsageSummary.class);
+			public double logWeight(RoundTrips<NodeWithCoords> fleet) {
+				var summary = fleet.getAsMultiRoundTrip().getSummary(PlaneUsageSummary.class);
 				return -emptySeatShareWeight * summary.emptySeats_npaxKm / summary.totalDemand_paxKm
 						+ servedDemandShareWeight * summary.servedDemand_paxKm / summary.totalDemand_paxKm;
 			}

@@ -22,6 +22,8 @@ package se.vti.roundtrips.multiple.coldhot;
 import java.util.Random;
 
 import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.common.RoundTrips;
+import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.utils.misc.metropolishastings.MHProposal;
 import se.vti.utils.misc.metropolishastings.MHTransition;
@@ -30,7 +32,7 @@ import se.vti.utils.misc.metropolishastings.MHTransition;
  * 
  * @param <N>
  */
-public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal<ColdHotMultiRoundTrip<N>> {
+public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal<RoundTrips<N>> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -59,15 +61,16 @@ public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal
 	}
 
 	@Override
-	public MHTransition<ColdHotMultiRoundTrip<N>> newTransition(ColdHotMultiRoundTrip<N> from) {
+	public MHTransition<RoundTrips<N>> newTransition(RoundTrips<N> from) {
 
+		final ColdHotMultiRoundTrip<N> fromColdHotMultiRoundTrip = (ColdHotMultiRoundTrip<N>) from;
 		final ColdHotMultiRoundTrip<N> to;
 		final double fwdLogProba;
 		final double bwdLogProba;
 
 		if (this.rnd.nextDouble() < this.switchProba) {
 
-			to = from.clone();
+			to = fromColdHotMultiRoundTrip.clone();
 			boolean switched = false;
 			while (!switched) {
 				for (int i = 0; i < to.size(); i++) {
@@ -83,9 +86,12 @@ public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal
 
 		} else {
 
-			var coldTransition = this.coldProposal.newTransition(from.getCold());
-			var hotTransition = this.hotProposal.newTransition(from.getHot());
-			to = new ColdHotMultiRoundTrip<>(coldTransition.getNewState(), hotTransition.getNewState());
+			MHTransition<RoundTrips<N>> coldTransition = this.coldProposal
+					.newTransition(fromColdHotMultiRoundTrip.getCold());
+			MHTransition<RoundTrips<N>> hotTransition = this.hotProposal
+					.newTransition(fromColdHotMultiRoundTrip.getHot());
+			to = new ColdHotMultiRoundTrip<>(coldTransition.getNewState().getAsMultiRoundTrip(),
+					hotTransition.getNewState().getAsMultiRoundTrip());
 			fwdLogProba = Math.log(1.0 - this.switchProba) + coldTransition.getFwdLogProb()
 					+ hotTransition.getFwdLogProb();
 			bwdLogProba = Math.log(1.0 - this.switchProba) + coldTransition.getBwdLogProb()

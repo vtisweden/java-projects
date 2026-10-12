@@ -22,14 +22,14 @@ package se.vti.roundtrips.samplingweights.calibration;
 import java.util.function.BiFunction;
 
 import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * @author GunnarF
  */
-public class SurveySmoothingWeight<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
+public class SurveySmoothingWeight<N extends Node> implements MHWeight<RoundTrips<N>> {
 
 	private final double[][] agentRespondentSimilarities;
 
@@ -51,7 +51,7 @@ public class SurveySmoothingWeight<N extends Node> implements MHWeight<MultiRoun
 	}
 
 	@Override
-	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
+	public double logWeight(RoundTrips<N> multiRoundTrip) {
 		double logWeight = 0.0;
 		// This double loop is slow. The inner loop could be parallelized.
 		for (int agentIndex = 0; agentIndex < multiRoundTrip.size(); agentIndex++) {

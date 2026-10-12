@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripJsonIO;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
@@ -56,11 +55,11 @@ public class Runner<N extends Node> {
 
 	private final Scenario<N> scenario;
 
-	private final MHWeightContainer<MultiRoundTrip<N>> weights = new MHWeightContainer<>();
-	private MHWeight<MultiRoundTrip<N>> prior = null;
+	private final MHWeightContainer<RoundTrips<N>> weights = new MHWeightContainer<>();
+	private MHWeight<RoundTrips<N>> prior = null;
 
-	private Map<String, Function<MultiRoundTrip<N>, Double>> sampleExtractors = new LinkedHashMap<>();
-	private List<MHStateProcessor<MultiRoundTrip<N>>> stateProcessors = new ArrayList<>();
+	private Map<String, Function<RoundTrips<N>, Double>> sampleExtractors = new LinkedHashMap<>();
+	private List<MHStateProcessor<RoundTrips<N>>> stateProcessors = new ArrayList<>();
 
 	private long weightsLogInterval = 1000l;
 	private String weightsLogFile = "./logWeights.log";
@@ -73,8 +72,8 @@ public class Runner<N extends Node> {
 
 	private double expectedProposalLength = 1.0;
 
-	private MultiRoundTrip<N> initialState = null;
-	private TerminationCriterion<MultiRoundTrip<N>> terminationCriterion = null;
+	private RoundTrips<N> initialState = null;
+	private TerminationCriterion<RoundTrips<N>> terminationCriterion = null;
 	private long messageInterval = 1000l;
 
 	private boolean runWasAlreadyCalled = false;
@@ -101,7 +100,7 @@ public class Runner<N extends Node> {
 		return this.setIndividualPrior(new IndividualBinomialPrior<>(this.scenario, meanRoundTripSize));
 	}
 
-	public <P extends Prior & MHWeight<MultiRoundTrip<N>>> Runner<N> setPopulationPrior(P prior) {
+	public <P extends Prior & MHWeight<RoundTrips<N>>> Runner<N> setPopulationPrior(P prior) {
 		this.prior = prior;
 		return this;
 	}
@@ -123,13 +122,13 @@ public class Runner<N extends Node> {
 		}
 	}
 
-	public Runner<N> addPopulationWeight(MHWeight<MultiRoundTrip<N>> weight, double factor) {
+	public Runner<N> addPopulationWeight(MHWeight<RoundTrips<N>> weight, double factor) {
 		this.checkForNotPrior(weight);
 		this.weights.add(weight, factor);
 		return this;
 	}
 
-	public Runner<N> addPopulationWeight(MHWeight<MultiRoundTrip<N>> weight) {
+	public Runner<N> addPopulationWeight(MHWeight<RoundTrips<N>> weight) {
 		return this.addPopulationWeight(weight, 1.0);
 	}
 
@@ -145,14 +144,14 @@ public class Runner<N extends Node> {
 
 	// STATISTICS
 
-	public Runner<N> addSampleExtractor(String name, Function<MultiRoundTrip<N>, Double> function) {
+	public Runner<N> addSampleExtractor(String name, Function<RoundTrips<N>, Double> function) {
 		this.sampleExtractors.put(name, function);
 		return this;
 	}
 
 	// OTHER
 
-	public Runner<N> addStateProcessor(MHStateProcessor<MultiRoundTrip<N>> processor) {
+	public Runner<N> addStateProcessor(MHStateProcessor<RoundTrips<N>> processor) {
 		this.stateProcessors.add(processor);
 		return this;
 	}
@@ -165,19 +164,19 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
-	public Runner<N> setInitialState(MultiRoundTrip<N> initialState) {
+	public Runner<N> setInitialState(RoundTrips<N> initialState) {
 		this.initialState = initialState;
 		return this;
 	}
 
-	public Runner<N> setTerminationCriterion(TerminationCriterion<MultiRoundTrip<N>> criterion) {
+	public Runner<N> setTerminationCriterion(TerminationCriterion<RoundTrips<N>> criterion) {
 		this.terminationCriterion = criterion;
 		return this;
 	}
 
 	public Runner<N> setNumberOfIterations(long numberOfIterations) {
 		return this.setTerminationCriterion(
-				new FixedNumberOfIterationsTerminationCriterion<MultiRoundTrip<N>>(numberOfIterations));
+				new FixedNumberOfIterationsTerminationCriterion<RoundTrips<N>>(numberOfIterations));
 	}
 
 	public Runner<N> setMessageInterval(long messageInterval) {
@@ -199,7 +198,7 @@ public class Runner<N extends Node> {
 
 	// -------------------- RUNNING --------------------
 
-	public List<MHWeight<MultiRoundTrip<N>>> getSamplingWeightsView() {
+	public List<MHWeight<RoundTrips<N>>> getSamplingWeightsView() {
 		return this.weights.getComponentsView();
 	}
 
@@ -207,9 +206,9 @@ public class Runner<N extends Node> {
 		return this.weights.getWeightsView();
 	}
 
-	private MultiRoundTrip<N> finalState = null;
+	private RoundTrips<N> finalState = null;
 
-	public MultiRoundTrip<N> getFinalState() {
+	public RoundTrips<N> getFinalState() {
 		return this.finalState;
 	}
 
@@ -233,7 +232,7 @@ public class Runner<N extends Node> {
 			}
 
 			if ((this.stateDumpFilePrefix != null) && (this.stateDumpInterval > 0)) {
-				this.stateProcessors.add(new MHStateProcessor<MultiRoundTrip<N>>() {
+				this.stateProcessors.add(new MHStateProcessor<RoundTrips<N>>() {
 					int iteration;
 
 					@Override
@@ -242,10 +241,10 @@ public class Runner<N extends Node> {
 					}
 
 					@Override
-					public void processState(MultiRoundTrip<N> state) {
+					public void processState(RoundTrips<N> state) {
 						if (this.iteration % stateDumpInterval == 0) {
 							try {
-								MultiRoundTripJsonIO.singleton().writeToFile(state,
+								MultiRoundTripJsonIO.singleton().writeToFile(state.getAsMultiRoundTrip(),
 										stateDumpFilePrefix + "." + this.iteration + ".json");
 							} catch (Exception e) {
 								throw new RuntimeException(e);
@@ -267,12 +266,11 @@ public class Runner<N extends Node> {
 				roundTripProposal = new RoundTripMultiStepProposal<N>(this.scenario, this.expectedProposalLength);
 			}
 
-			var algo = new MHAlgorithm<MultiRoundTrip<N>>(
-					new MultiRoundTripProposal<N>(this.scenario, roundTripProposal), this.weights,
-					this.scenario.getRandom());
+			var algo = new MHAlgorithm<RoundTrips<N>>(new MultiRoundTripProposal<N>(this.scenario, roundTripProposal),
+					this.weights, this.scenario.getRandom());
 
 			if ((this.samplesLogFile != null) && (this.sampleExtractors.size() > 0)) {
-				var samplesLogger = new MHSampleLogger<MultiRoundTrip<N>>(this.sampleLogInterval, this.samplesLogFile);
+				var samplesLogger = new MHSampleLogger<RoundTrips<N>>(this.sampleLogInterval, this.samplesLogFile);
 				algo.addStateProcessor(samplesLogger);
 				for (var entry : this.sampleExtractors.entrySet()) {
 					samplesLogger.add(entry.getKey(), entry.getValue());

@@ -22,6 +22,7 @@ package se.vti.roundtrips.multiple;
 import java.util.Random;
 
 import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.common.Scenario;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHProposal;
@@ -32,7 +33,7 @@ import se.vti.utils.misc.metropolishastings.MHTransition;
  * @author GunnarF
  *
  */
-public class MultiRoundTripProposal<N extends Node> implements MHProposal<MultiRoundTrip<N>> {
+public class MultiRoundTripProposal<N extends Node> implements MHProposal<RoundTrips<N>> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -70,13 +71,13 @@ public class MultiRoundTripProposal<N extends Node> implements MHProposal<MultiR
 	}
 
 	@Override
-	public MHTransition<MultiRoundTrip<N>> newTransition(MultiRoundTrip<N> from) {
+	public MHTransition<RoundTrips<N>> newTransition(RoundTrips<N> from) {
 
 		final double minFlipProba = 1.0 / Math.max(1.0, from.size());
 		final double flipProba = (this.flipProba != null ? Math.max(this.flipProba, minFlipProba) : minFlipProba);
 		final double atLeastOneFlipProba = 1.0 - Math.pow(1.0 - flipProba, from.size());
 
-		final MultiRoundTrip<N> to = from.clone();
+		final MultiRoundTrip<N> to = (MultiRoundTrip<N>) from.clone();
 
 		boolean flipped = false;
 		double fwdLogProba;

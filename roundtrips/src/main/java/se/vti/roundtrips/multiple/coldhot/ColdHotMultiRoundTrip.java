@@ -20,12 +20,14 @@
 package se.vti.roundtrips.multiple.coldhot;
 
 import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.roundtrips.single.RoundTrip;
 
 /**
  * @author GunnarF
  */
-class ColdHotMultiRoundTrip<N extends Node> {
+class ColdHotMultiRoundTrip<N extends Node> implements RoundTrips<N> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -47,10 +49,6 @@ class ColdHotMultiRoundTrip<N extends Node> {
 
 	// -------------------- IMPLEMENTATION --------------------
 
-	int size() {
-		return this.coldMultiRoundTrip.size();
-	}
-
 	void switchRoundTrip(int i) {
 		var previouslyColdRoundTrip = this.coldMultiRoundTrip.getRoundTrip(i);
 		this.coldMultiRoundTrip.setRoundTripAndUpdateSummaries(i, this.hotMultiRoundTrip.getRoundTrip(i));
@@ -66,8 +64,27 @@ class ColdHotMultiRoundTrip<N extends Node> {
 	}
 
 	@Override
+	public int size() {
+		return this.coldMultiRoundTrip.size();
+	}
+
+	@Override
+	public RoundTrip<N> getRoundTrip(int index) {
+		return this.coldMultiRoundTrip.getRoundTrip(index);
+	}
+
+	@Override
+	public int computeSumOfRoundTripSizes() {
+		return this.coldMultiRoundTrip.computeSumOfRoundTripSizes();
+	}
+
+	@Override
+	public MultiRoundTrip<N> getAsMultiRoundTrip() {
+		return this.coldMultiRoundTrip;
+	}
+
+	@Override
 	public ColdHotMultiRoundTrip<N> clone() {
 		return new ColdHotMultiRoundTrip<N>(this.coldMultiRoundTrip.clone(), this.hotMultiRoundTrip.clone());
 	}
-
 }

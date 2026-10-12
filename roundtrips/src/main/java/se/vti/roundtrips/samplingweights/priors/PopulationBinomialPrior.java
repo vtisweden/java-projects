@@ -1,8 +1,8 @@
 package se.vti.roundtrips.samplingweights.priors;
 
 import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.common.Scenario;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
@@ -10,7 +10,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class PopulationBinomialPrior<N extends Node> implements MHWeight<MultiRoundTrip<N>>, Prior {
+public class PopulationBinomialPrior<N extends Node> implements MHWeight<RoundTrips<N>>, Prior {
 
 	// -------------------- CONSTANTS --------------------
 
@@ -44,7 +44,7 @@ public class PopulationBinomialPrior<N extends Node> implements MHWeight<MultiRo
 	}
 
 	@Override
-	public double logWeight(MultiRoundTrip<N> roundTrips) {
+	public double logWeight(RoundTrips<N> roundTrips) {
 		if (this.uniformPrior == null) {
 			this.uniformPrior = new PopulationUniformPrior<N>(this.numberOfNodes, this.numberOfTimeBins);
 			double numberOfSuccesses = this.meanRoundTripSize * roundTrips.size();

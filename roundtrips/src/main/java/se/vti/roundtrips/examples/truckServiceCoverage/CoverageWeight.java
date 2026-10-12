@@ -19,7 +19,7 @@
  */
 package se.vti.roundtrips.examples.truckServiceCoverage;
 
-import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.simulator.MoveEpisode;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
@@ -28,7 +28,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-class CoverageWeight implements MHWeight<MultiRoundTrip<GridNode>> {
+class CoverageWeight implements MHWeight<RoundTrips<GridNode>> {
 
 	private final int gridSize;
 
@@ -42,7 +42,7 @@ class CoverageWeight implements MHWeight<MultiRoundTrip<GridNode>> {
 	}
 
 	@Override
-	public double logWeight(MultiRoundTrip<GridNode> multiRoundTrip) {
+	public double logWeight(RoundTrips<GridNode> roundTrips) {
 
 		/*
 		 * Check if all nodes can be reached, directly or indirectly, from the depot.
@@ -63,7 +63,7 @@ class CoverageWeight implements MHWeight<MultiRoundTrip<GridNode>> {
 		boolean changed;
 		do {
 			changed = false;
-			for (var roundTrip : multiRoundTrip) {
+			for (var roundTrip : roundTrips.getAsMultiRoundTrip()) {
 				var episodes = roundTrip.getEpisodes();
 				for (int i = 1; i < episodes.size(); i += 2) {
 					// A round trip implies an alternating sequence of stay/move episodes.

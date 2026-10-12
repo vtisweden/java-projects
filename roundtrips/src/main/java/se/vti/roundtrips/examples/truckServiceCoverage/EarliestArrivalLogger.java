@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.simulator.StayEpisode;
 import se.vti.utils.misc.metropolishastings.MHToFileLogger;
@@ -32,7 +33,7 @@ import se.vti.utils.misc.metropolishastings.MHToFileLogger;
  * @author GunnarF
  *
  */
-class EarliestArrivalLogger extends MHToFileLogger<MultiRoundTrip<GridNode>> {
+class EarliestArrivalLogger extends MHToFileLogger<RoundTrips<GridNode>> {
 
 	private final GridNode depot;
 	private final int gridSize;
@@ -50,10 +51,10 @@ class EarliestArrivalLogger extends MHToFileLogger<MultiRoundTrip<GridNode>> {
 	}
 
 	@Override
-	public String createDataLine(MultiRoundTrip<GridNode> multiRoundTrip, double logWeight) {
+	public String createDataLine(RoundTrips<GridNode> roundTrips, double logWeight) {
 		double[] earliestArrival_h = new double[2 * (this.gridSize - 1)];
 		Arrays.fill(earliestArrival_h, Double.POSITIVE_INFINITY);
-		for (var roundTrip : multiRoundTrip) {
+		for (var roundTrip : roundTrips.getAsMultiRoundTrip()) {
 			for (int i = 0; i < roundTrip.getEpisodes().size(); i += 2) {
 				var stay = (StayEpisode<GridNode>) roundTrip.getEpisodes().get(i);
 				if (!this.depot.equals(stay.getLocation())) {

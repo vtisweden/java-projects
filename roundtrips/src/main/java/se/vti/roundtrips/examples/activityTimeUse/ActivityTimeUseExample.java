@@ -21,6 +21,7 @@ package se.vti.roundtrips.examples.activityTimeUse;
 
 import java.util.Random;
 
+import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.common.Runner;
 import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
@@ -136,7 +137,7 @@ class ActivityTimeUseExample {
 
 		// Log summary statistics over sampling iterations. See code for interpretation
 		runner.configureWeightLogging("./output/activityExpansion/logWeights.log", totalIterations / 100);
-		runner.addStateProcessor(new MHStateProcessor<MultiRoundTrip<GridNodeWithActivity>>() {
+		runner.addStateProcessor(new MHStateProcessor<RoundTrips<GridNodeWithActivity>>() {
 			private PlotTimeUseHistogram plotHistogram = new PlotTimeUseHistogram(totalIterations / 2,
 					totalIterations / 100);
 
@@ -146,7 +147,7 @@ class ActivityTimeUseExample {
 			}
 
 			@Override
-			public void processState(MultiRoundTrip<GridNodeWithActivity> state) {
+			public void processState(RoundTrips<GridNodeWithActivity> state) {
 				this.plotHistogram.processState(state.getRoundTrip(0));
 			}
 

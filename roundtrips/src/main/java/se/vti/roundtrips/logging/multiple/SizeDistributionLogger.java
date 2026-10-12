@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.roundtrips.common.RoundTrips;
 import se.vti.utils.misc.metropolishastings.MHToFileLogger;
 
 /**
@@ -32,7 +32,7 @@ import se.vti.utils.misc.metropolishastings.MHToFileLogger;
  * @author GunnarF
  *
  */
-public class SizeDistributionLogger<N extends Node> extends MHToFileLogger<MultiRoundTrip<N>> {
+public class SizeDistributionLogger<N extends Node> extends MHToFileLogger<RoundTrips<N>> {
 
 	private final int maxLength;
 
@@ -53,9 +53,9 @@ public class SizeDistributionLogger<N extends Node> extends MHToFileLogger<Multi
 	}
 
 	@Override
-	public String createDataLine(MultiRoundTrip<N> state, double logWeight) {
+	public String createDataLine(RoundTrips<N> state, double logWeight) {
 		this.lastSizeCnts = new int[this.maxLength + 1];
-		for (var roundTrip : state) {
+		for (var roundTrip : state.getAsMultiRoundTrip()) {
 			if (this.includeIntrazonal) {
 				this.lastSizeCnts[roundTrip.size()]++;
 			} else {

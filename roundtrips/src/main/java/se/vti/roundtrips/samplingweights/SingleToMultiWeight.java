@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
@@ -33,7 +33,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class SingleToMultiWeight<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
+public class SingleToMultiWeight<N extends Node> implements MHWeight<RoundTrips<N>> {
 
 	@Deprecated // TODO Not clear why one would ever use AVERAGE.
 	public enum LogWeightAggregation {
@@ -72,7 +72,7 @@ public class SingleToMultiWeight<N extends Node> implements MHWeight<MultiRoundT
 	}
 
 	@Override
-	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
+	public double logWeight(RoundTrips<N> multiRoundTrip) {
 
 		double logWeightSum = 0.0;
 

@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.common.RandomRoundTripGenerator;
+import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.common.Scenario;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
@@ -68,15 +69,15 @@ class TestUniformTarget {
 		var generator = new RandomRoundTripGenerator<Node>(scenario);
 		generator.populateRandomly(initialRoundTrips);
 
-		var weights = new MHWeightContainer<MultiRoundTrip<Node>>();
+		var weights = new MHWeightContainer<RoundTrips<Node>>();
 		weights.add(new SingleToMultiWeight<Node>(new IndividualUniformPrior<Node>(scenario)));
 
-		var algo = new MHAlgorithm<MultiRoundTrip<Node>>(
+		var algo = new MHAlgorithm<RoundTrips<Node>>(
 				new MultiRoundTripProposal<Node>(scenario, new RoundTripSingleStepProposal<Node>(scenario)), weights,
 				scenario.getRandom());
 		algo.setInitialState(initialRoundTrips);
 
-		algo.addStateProcessor(new MHStateProcessor<MultiRoundTrip<Node>>() {
+		algo.addStateProcessor(new MHStateProcessor<RoundTrips<Node>>() {
 
 			long it = 0;
 			long[] sizeCounts = new long[timeBinCnt + 1];
@@ -86,9 +87,9 @@ class TestUniformTarget {
 			}
 
 			@Override
-			public void processState(MultiRoundTrip<Node> roundTrips) {
+			public void processState(RoundTrips<Node> roundTrips) {
 				if (this.it++ % 10 == 0) {
-					for (var roundTrip : roundTrips) {
+					for (var roundTrip : roundTrips.getAsMultiRoundTrip()) {
 						this.sizeCounts[roundTrip.size()]++;
 					}
 				}
