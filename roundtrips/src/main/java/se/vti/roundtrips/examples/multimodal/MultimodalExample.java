@@ -31,37 +31,44 @@ import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
+ * Example to demonstrate how multi-step proposals and cold/hot tempering can
+ * explore a multi-modal probability distribution over the state space.
+ * 
  * @author GunnarF
  */
 public class MultimodalExample {
 
-	static long[] run(double expectedColdProposalLength, double expectedHotProposalLength,
-			double coldHotRecombineProba, int iterations) {
+	static long[] run(double expectedColdProposalLength, double expectedHotProposalLength, double coldHotRecombineProba,
+			int iterations) {
 
-		// Build the scenario.
+		/*
+		 * Build a scenario with 10 nodes.
+		 */
 
 		var scenarioBuilder = new ScenarioBuilder<Node>().setRandom(new Random(4711)).setNumberOfTimeBins(24)
 				.setTimeBinSize_h(1.0);
-
 		for (int i = 1; i <= 10; i++) {
 			scenarioBuilder.addNode(new Node("" + i));
 		}
-
 		scenarioBuilder.setMoveDistanceFunction((a, b) -> (a == b ? 0.0 : 1.0));
 		scenarioBuilder.setMoveTimeFunction((a, b) -> (a == b ? 0.0 : 1.0));
-
 		var scenario = scenarioBuilder.build();
 
-		// Build the runner.
+		/*
+		 * Build the runner with configurable multi-step proposals and cold/hot
+		 * tempering.
+		 */
 
 		var runner = new Runner<Node>(scenario).setExpectedColdProposalLength(expectedColdProposalLength)
 				.setColdHotParameters(expectedHotProposalLength, coldHotRecombineProba);
 
+		// This weight forbids round trips with a number of stages that is not a power
+		// of two. Single-step proposals can hence not explore the entire state space.
 		runner.setIndividualUniformPrior().addIndividualWeight(new MHWeight<RoundTrip<Node>>() {
 			@Override
 			public double logWeight(RoundTrip<Node> roundTrip) {
 				final double penalty = Double.NEGATIVE_INFINITY;
-				
+
 				int size = roundTrip.size();
 
 				if (size <= 0) {
@@ -79,7 +86,7 @@ public class MultimodalExample {
 				return result;
 			}
 		});
-		
+
 		long[] cnts = new long[1 + 24];
 		runner.addStateProcessor(new MHStateProcessor<RoundTrips<Node>>() {
 
@@ -95,15 +102,14 @@ public class MultimodalExample {
 			@Override
 			public void end() {
 			}
-			
-		});
-		
-		runner.setInitialState(RoundTripUtils.singleton().createEmptyMultiRoundTrip(1));
 
-		runner.setMessageInterval(1000).setNumberOfIterations(iterations);
-		
+		});
+
+		runner.setInitialState(RoundTripUtils.singleton().createEmptyMultiRoundTrip(1)).setMessageInterval(1000)
+				.setNumberOfIterations(iterations);
+
 		runner.run();
-		
+
 		System.out.println("size\tln(count[size])-ln(count[1])");
 		for (int i = 1; i <= 24; i++) {
 			System.out.print(i + "\t");
@@ -113,12 +119,11 @@ public class MultimodalExample {
 				System.out.println(Math.log(cnts[i]) - Math.log(cnts[1]));
 			}
 		}
-		
+
 		return cnts;
 	}
 
 	public static void main(String[] args) {
-
 		run(1.0, 10.0, 0.1, 1_000_000);
 		run(10.0, 10.0, 0.0, 1_000_000);
 	}
