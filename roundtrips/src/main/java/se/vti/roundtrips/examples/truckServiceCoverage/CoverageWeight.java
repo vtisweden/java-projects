@@ -19,7 +19,7 @@
  */
 package se.vti.roundtrips.examples.truckServiceCoverage;
 
-import se.vti.roundtrips.common.RoundTrips;
+import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.simulator.MoveEpisode;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
@@ -28,7 +28,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-class CoverageWeight implements MHWeight<RoundTrips<GridNode>> {
+class CoverageWeight implements MHWeight<MultiRoundTrip<GridNode>> {
 
 	private final int gridSize;
 
@@ -42,7 +42,7 @@ class CoverageWeight implements MHWeight<RoundTrips<GridNode>> {
 	}
 
 	@Override
-	public double logWeight(RoundTrips<GridNode> roundTrips) {
+	public double logWeight(MultiRoundTrip<GridNode> roundTrips) {
 
 		/*
 		 * Check if all nodes can be reached, directly or indirectly, from the depot.

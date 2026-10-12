@@ -9,7 +9,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.single.RoundTrip;
+import se.vti.roundtrips.single.RoundTripUtils;
 
 class TestRoundTripUtils {
 

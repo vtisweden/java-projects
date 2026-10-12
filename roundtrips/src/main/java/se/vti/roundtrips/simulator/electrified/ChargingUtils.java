@@ -23,8 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.simulator.StayEpisode;
 
 /**

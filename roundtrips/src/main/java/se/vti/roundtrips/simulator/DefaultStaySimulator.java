@@ -19,8 +19,8 @@
  */
 package se.vti.roundtrips.simulator;
 
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.common.Scenario;
+import se.vti.roundtrips.scenario.Node;
+import se.vti.roundtrips.scenario.Scenario;
 import se.vti.roundtrips.simulator.DefaultSimulator.StaySimulator;
 import se.vti.roundtrips.single.RoundTrip;
 

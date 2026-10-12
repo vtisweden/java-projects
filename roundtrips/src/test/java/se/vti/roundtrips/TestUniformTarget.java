@@ -26,18 +26,12 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.common.RandomRoundTripGenerator;
-import se.vti.roundtrips.common.RoundTrips;
-import se.vti.roundtrips.common.Scenario;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.multiple.MultiRoundTripProposal;
-import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
-import se.vti.roundtrips.samplingweights.priors.IndividualUniformPrior;
-import se.vti.roundtrips.single.RoundTripSingleStepProposal;
-import se.vti.utils.misc.metropolishastings.MHAlgorithm;
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.runner.Runner;
+import se.vti.roundtrips.scenario.Node;
+import se.vti.roundtrips.scenario.RandomRoundTripGenerator;
+import se.vti.roundtrips.scenario.Scenario;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
-import se.vti.utils.misc.metropolishastings.MHWeightContainer;
 
 /**
  * @author GunnarF
@@ -52,7 +46,7 @@ class TestUniformTarget {
 		int populationSize = 3;
 
 		var scenario = new Scenario<Node>(new Random(4711));
-		scenario.setTimeBinCnt(timeBinCnt);
+		scenario.setNumberOfTimeBins(timeBinCnt);
 		scenario.setTimeBinSize_h(1.0);
 
 		for (String location : locations) {
@@ -65,19 +59,11 @@ class TestUniformTarget {
 			}
 		}
 
-		var initialRoundTrips = new MultiRoundTrip<Node>(populationSize);
-		var generator = new RandomRoundTripGenerator<Node>(scenario);
-		generator.populateRandomly(initialRoundTrips);
 
-		var weights = new MHWeightContainer<RoundTrips<Node>>();
-		weights.add(new SingleToMultiWeight<Node>(new IndividualUniformPrior<Node>(scenario)));
 
-		var algo = new MHAlgorithm<RoundTrips<Node>>(
-				new MultiRoundTripProposal<Node>(scenario, new RoundTripSingleStepProposal<Node>(scenario)), weights,
-				scenario.getRandom());
-		algo.setInitialState(initialRoundTrips);
-
-		algo.addStateProcessor(new MHStateProcessor<RoundTrips<Node>>() {
+		var runner = new Runner<Node>(scenario);
+		runner.setIndividualUniformPrior();
+		runner.addStateProcessor(new MHStateProcessor<MultiRoundTrip<Node>>() {
 
 			long it = 0;
 			long[] sizeCounts = new long[timeBinCnt + 1];
@@ -87,7 +73,7 @@ class TestUniformTarget {
 			}
 
 			@Override
-			public void processState(RoundTrips<Node> roundTrips, double logWeight) {
+			public void processState(MultiRoundTrip<Node> roundTrips, double logWeight) {
 				if (this.it++ % 10 == 0) {
 					for (var roundTrip : roundTrips) {
 						this.sizeCounts[roundTrip.size()]++;
@@ -103,7 +89,13 @@ class TestUniformTarget {
 
 		});
 
-		algo.run(1_000_000);
+		var initialRoundTrips = new MultiRoundTrip<Node>(populationSize);
+		var generator = new RandomRoundTripGenerator<Node>(scenario);
+		generator.populateRandomly(initialRoundTrips);
+		runner.setInitialState(initialRoundTrips);
+		
+		runner.setNumberOfIterations(1_000_000);
+		runner.run();
 
 	}
 

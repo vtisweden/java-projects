@@ -22,8 +22,8 @@ package se.vti.roundtrips.single;
 import java.util.LinkedList;
 import java.util.List;
 
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.common.Scenario;
+import se.vti.roundtrips.scenario.Node;
+import se.vti.roundtrips.scenario.Scenario;
 
 /**
  * 

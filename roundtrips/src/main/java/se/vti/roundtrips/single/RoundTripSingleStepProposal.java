@@ -23,8 +23,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.common.Scenario;
+import se.vti.roundtrips.scenario.Node;
+import se.vti.roundtrips.scenario.Scenario;
 import se.vti.utils.misc.metropolishastings.MHProposal;
 import se.vti.utils.misc.metropolishastings.MHTransition;
 

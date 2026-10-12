@@ -21,12 +21,12 @@ package se.vti.roundtrips.examples.truckServiceCoverage;
 
 import java.util.Random;
 
-import se.vti.roundtrips.common.RoundTripUtils;
-import se.vti.roundtrips.common.Runner;
-import se.vti.roundtrips.common.ScenarioBuilder;
-import se.vti.roundtrips.logging.multiple.SizeDistributionLogger;
-import se.vti.roundtrips.samplingweights.StrictlyForbidShortStays;
-import se.vti.roundtrips.samplingweights.StrictlyPeriodicSchedule;
+import se.vti.roundtrips.examples.loggers.SizeDistributionLogger;
+import se.vti.roundtrips.examples.samplingweights.StrictlyForbidShortStays;
+import se.vti.roundtrips.examples.samplingweights.StrictlyPeriodicSchedule;
+import se.vti.roundtrips.runner.Runner;
+import se.vti.roundtrips.scenario.ScenarioBuilder;
+import se.vti.roundtrips.single.RoundTripUtils;
 
 /**
  * 

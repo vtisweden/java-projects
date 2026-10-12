@@ -21,17 +21,16 @@ package se.vti.roundtrips.examples.activityTimeUse;
 
 import java.util.Random;
 
-import se.vti.roundtrips.common.RoundTripUtils;
-import se.vti.roundtrips.common.RoundTrips;
-import se.vti.roundtrips.common.Runner;
-import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.samplingweights.StrictlyPeriodicSchedule;
-import se.vti.roundtrips.samplingweights.timeUse.LogarithmicTimeUseSinglePersonSingleDay;
+import se.vti.roundtrips.examples.samplingweights.StrictlyPeriodicSchedule;
+import se.vti.roundtrips.examples.samplingweights.timeuse.LogarithmicTimeUseSinglePersonSingleDay;
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.runner.Runner;
+import se.vti.roundtrips.scenario.ScenarioBuilder;
 import se.vti.roundtrips.single.RoundTrip;
+import se.vti.roundtrips.single.RoundTripUtils;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 
 /**
@@ -139,7 +138,7 @@ class ActivityTimeUseExample {
 
 		// Log summary statistics over sampling iterations. See code for interpretation
 		runner.configureWeightLogging("./output/activityExpansion/logWeights.log", totalIterations / 100);
-		runner.addStateProcessor(new MHStateProcessor<RoundTrips<GridNodeWithActivity>>() {
+		runner.addStateProcessor(new MHStateProcessor<MultiRoundTrip<GridNodeWithActivity>>() {
 			private PlotTimeUseHistogram plotHistogram = new PlotTimeUseHistogram(totalIterations / 2,
 					totalIterations / 100);
 
@@ -149,7 +148,7 @@ class ActivityTimeUseExample {
 			}
 
 			@Override
-			public void processState(RoundTrips<GridNodeWithActivity> state, double logWeight) {
+			public void processState(MultiRoundTrip<GridNodeWithActivity> state, double logWeight) {
 				this.plotHistogram.processState(state.getRoundTrip(0), logWeight);
 			}
 

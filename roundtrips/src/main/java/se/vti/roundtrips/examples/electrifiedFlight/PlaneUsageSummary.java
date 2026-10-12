@@ -24,9 +24,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import se.vti.roundtrips.common.NodeWithCoords;
-import se.vti.roundtrips.common.Scenario;
-import se.vti.roundtrips.multiple.MultiRoundTripSummary;
+import se.vti.roundtrips.multi.MultiRoundTripSummary;
+import se.vti.roundtrips.scenario.NodeWithCoords;
+import se.vti.roundtrips.scenario.Scenario;
 import se.vti.roundtrips.simulator.MoveEpisode;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.Tuple;

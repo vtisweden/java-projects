@@ -1,7 +1,7 @@
 /**
  * se.vti.utils
  * 
- * Copyright (C) 2023 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2023-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -24,11 +24,11 @@ package se.vti.utils.misc.metropolishastings;
  * 
  * @author GunnarF
  * 
- * @param <S>
+ * @param <X>
  */
-public interface MHWeight<S extends Object> {
+public interface MHWeight<X extends Object> {
 
-	double logWeight(final S state);
+	double logWeight(final X state);
 
 	default String name() {
 		return this.getClass().getSimpleName();

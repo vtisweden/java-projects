@@ -24,6 +24,8 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import se.vti.roundtrips.scenario.Node;
+
 /**
  * @author GunnarF
  */

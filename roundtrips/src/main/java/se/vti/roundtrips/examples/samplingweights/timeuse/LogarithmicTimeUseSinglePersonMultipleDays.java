@@ -1,0 +1,46 @@
+/**
+ * se.vti.roundtrips.samplingweights.misc
+ * 
+ * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * 
+ * VTI = Swedish National Road and Transport Institute
+ * LiU = Linköping University, Sweden
+ * 
+ * This program is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation, either 
+ * version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
+ */
+package se.vti.roundtrips.examples.samplingweights.timeuse;
+
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.scenario.Node;
+import se.vti.utils.misc.metropolishastings.MHWeight;
+
+/**
+ * 
+ * @author GunnarF
+ *
+ */
+public class LogarithmicTimeUseSinglePersonMultipleDays<N extends Node> extends LogarithmicTimeUse<N>
+		implements MHWeight<MultiRoundTrip<N>> {
+
+	public LogarithmicTimeUseSinglePersonMultipleDays(double period_h, int numberOfDays) {
+		super(period_h, numberOfDays);
+	}
+
+	public LogarithmicTimeUseComponent<N> createComponent(double targetDuration_h, int... dayIndices) {
+		return super.createComponent(targetDuration_h, dayIndices);
+	}
+
+	@Override
+	public double logWeight(MultiRoundTrip<N> multiRoundTrip) {
+		return super.computeLogWeight(multiRoundTrip);
+	}
+}

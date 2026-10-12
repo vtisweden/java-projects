@@ -1,0 +1,66 @@
+/**
+ * se.vti.roundtrips
+ * 
+ * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * 
+ * VTI = Swedish National Road and Transport Institute
+ * LiU = Linköping University, Sweden
+ * 
+ * This program is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation, either 
+ * version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
+ */
+package se.vti.roundtrips.priors;
+
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.scenario.Node;
+import se.vti.roundtrips.scenario.Scenario;
+import se.vti.utils.misc.metropolishastings.MHWeight;
+
+/**
+ * 
+ * @author GunnarF
+ *
+ */
+public class PopulationUniformPrior<N extends Node> implements MHWeight<MultiRoundTrip<N>>, Prior {
+
+	private final int numberOfNodes;
+
+	private final int numberOfTimeBins;
+
+	private double[] uniformLogWeightsOverTotalSize = null; // lazy initialization
+
+	// -------------------- CONSTRUCTION --------------------
+
+	public PopulationUniformPrior(int numberOfNodes, int numberOfTimeBins) {
+		this.numberOfNodes = numberOfNodes;
+		this.numberOfTimeBins = numberOfTimeBins;
+	}
+
+	public PopulationUniformPrior(Scenario<N> scenario) {
+		this(scenario.getNumberOfNodes(), scenario.getNumberOfTimeBins());
+	}
+
+	// -------------------- IMPLEMENTATION OF MHWeight --------------------
+
+	@Override
+	public boolean allowsForWeightsOtherThanOneInMHWeightContainer() {
+		return false;
+	}
+
+	@Override
+	public double logWeight(MultiRoundTrip<N> roundTrips) {
+		if (this.uniformLogWeightsOverTotalSize == null) {
+			this.uniformLogWeightsOverTotalSize = new PriorUtils().computeUniformLogWeights(this.numberOfNodes,
+					this.numberOfTimeBins * roundTrips.size());
+		}
+		return this.uniformLogWeightsOverTotalSize[roundTrips.computeSumOfRoundTripSizes()];
+	}
+}

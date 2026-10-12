@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.simulator.Episode;
 
 /**

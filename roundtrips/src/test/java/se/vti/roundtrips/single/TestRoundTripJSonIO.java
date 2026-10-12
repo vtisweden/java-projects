@@ -37,9 +37,9 @@ import org.junit.jupiter.api.io.TempDir;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.common.NodeWithCoords;
-import se.vti.roundtrips.common.Scenario;
+import se.vti.roundtrips.scenario.Node;
+import se.vti.roundtrips.scenario.NodeWithCoords;
+import se.vti.roundtrips.scenario.Scenario;
 
 /**
  * @author GunnarF

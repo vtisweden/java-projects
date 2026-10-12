@@ -19,7 +19,7 @@
  */
 package se.vti.roundtrips.examples.activityExpandedGridNetwork;
 
-import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.scenario.Node;
 
 /**
  * 

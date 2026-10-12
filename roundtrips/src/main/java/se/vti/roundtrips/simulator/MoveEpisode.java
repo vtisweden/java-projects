@@ -19,7 +19,7 @@
  */
 package se.vti.roundtrips.simulator;
 
-import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.scenario.Node;
 
 /**
  * 

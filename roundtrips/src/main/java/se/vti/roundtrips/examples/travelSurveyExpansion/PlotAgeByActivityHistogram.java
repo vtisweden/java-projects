@@ -22,9 +22,9 @@ package se.vti.roundtrips.examples.travelSurveyExpansion;
 import java.util.Arrays;
 import java.util.List;
 
-import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
+import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.simulator.Episode;
 import se.vti.roundtrips.simulator.StayEpisode;
 import se.vti.utils.misc.metropolishastings.MHAbstractStateProcessor;
@@ -34,7 +34,7 @@ import se.vti.utils.misc.metropolishastings.MHAbstractStateProcessor;
  * @author GunnarF
  *
  */
-class PlotAgeByActivityHistogram extends MHAbstractStateProcessor<RoundTrips<GridNodeWithActivity>> {
+class PlotAgeByActivityHistogram extends MHAbstractStateProcessor<MultiRoundTrip<GridNodeWithActivity>> {
 
 	private final List<Person> syntheticPopulation;
 
@@ -51,7 +51,7 @@ class PlotAgeByActivityHistogram extends MHAbstractStateProcessor<RoundTrips<Gri
 	}
 
 	@Override
-	public void processStateHook(RoundTrips<GridNodeWithActivity> roundTrips, double logWeight) {
+	public void processStateHook(MultiRoundTrip<GridNodeWithActivity> roundTrips, double logWeight) {
 		for (var roundTrip : roundTrips) {
 
 			List<Episode> episodes = roundTrip.getEpisodes();

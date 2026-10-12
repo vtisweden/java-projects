@@ -21,7 +21,7 @@ package se.vti.roundtrips.simulator;
 
 import java.util.List;
 
-import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.single.RoundTrip;
 
 /**

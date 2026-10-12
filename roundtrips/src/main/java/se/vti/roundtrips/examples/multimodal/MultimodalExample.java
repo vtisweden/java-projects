@@ -21,12 +21,12 @@ package se.vti.roundtrips.examples.multimodal;
 
 import java.util.Random;
 
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.common.RoundTripUtils;
-import se.vti.roundtrips.common.RoundTrips;
-import se.vti.roundtrips.common.Runner;
-import se.vti.roundtrips.common.ScenarioBuilder;
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.runner.Runner;
+import se.vti.roundtrips.scenario.Node;
+import se.vti.roundtrips.scenario.ScenarioBuilder;
 import se.vti.roundtrips.single.RoundTrip;
+import se.vti.roundtrips.single.RoundTripUtils;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
@@ -60,7 +60,7 @@ public class MultimodalExample {
 		 */
 
 		var runner = new Runner<Node>(scenario).setExpectedColdProposalLength(expectedColdProposalLength)
-				.setColdHotParameters(expectedHotProposalLength, coldHotRecombineProba);
+				.setColdHotParameters(expectedHotProposalLength, coldHotRecombineProba, 0.1);
 
 		// This weight forbids round trips with a number of stages that is not a power
 		// of two. Single-step proposals can hence not explore the entire state space.
@@ -88,14 +88,14 @@ public class MultimodalExample {
 		});
 
 		long[] cnts = new long[1 + 24];
-		runner.addStateProcessor(new MHStateProcessor<RoundTrips<Node>>() {
+		runner.addStateProcessor(new MHStateProcessor<MultiRoundTrip<Node>>() {
 
 			@Override
 			public void start() {
 			}
 
 			@Override
-			public void processState(RoundTrips<Node> state, double logWeight) {
+			public void processState(MultiRoundTrip<Node> state, double logWeight) {
 				cnts[state.getRoundTrip(0).size()]++;
 			}
 

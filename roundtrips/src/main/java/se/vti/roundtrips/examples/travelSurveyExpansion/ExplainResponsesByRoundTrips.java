@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**

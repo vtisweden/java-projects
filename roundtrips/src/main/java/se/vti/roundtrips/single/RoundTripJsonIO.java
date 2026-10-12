@@ -42,8 +42,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.common.Scenario;
+import se.vti.roundtrips.scenario.Node;
+import se.vti.roundtrips.scenario.Scenario;
 
 /**
  * 

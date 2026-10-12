@@ -21,10 +21,9 @@ package se.vti.roundtrips.examples.travelSurveyExpansion;
 
 import java.util.List;
 
-import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.samplingweights.calibration.SurveySmoothingWeight;
+import se.vti.roundtrips.examples.samplingweights.calibration.SurveySmoothingWeight;
+import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
@@ -37,7 +36,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-class ExplainRoundTripsByResponses2 implements MHWeight<RoundTrips<GridNodeWithActivity>> {
+class ExplainRoundTripsByResponses2 implements MHWeight<MultiRoundTrip<GridNodeWithActivity>> {
 
 	private final SurveySmoothingWeight<GridNodeWithActivity> surveySmoothingWeight;
 
@@ -56,7 +55,7 @@ class ExplainRoundTripsByResponses2 implements MHWeight<RoundTrips<GridNodeWithA
 	}
 
 	@Override
-	public double logWeight(RoundTrips<GridNodeWithActivity> multiRoundTrip) {
+	public double logWeight(MultiRoundTrip<GridNodeWithActivity> multiRoundTrip) {
 		return this.surveySmoothingWeight.logWeight(multiRoundTrip);
 	}
 }

@@ -19,7 +19,7 @@
  */
 package se.vti.roundtrips.examples.truckServiceCoverage;
 
-import se.vti.roundtrips.common.RoundTrips;
+import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.utils.misc.metropolishastings.MHToFileLogger;
 
 /**
@@ -27,7 +27,7 @@ import se.vti.utils.misc.metropolishastings.MHToFileLogger;
  * @author GunnarF
  *
  */
-class MissionLogger extends MHToFileLogger<RoundTrips<GridNode>> {
+class MissionLogger extends MHToFileLogger<MultiRoundTrip<GridNode>> {
 
 	private final GridNode depot;
 
@@ -42,7 +42,7 @@ class MissionLogger extends MHToFileLogger<RoundTrips<GridNode>> {
 	}
 
 	@Override
-	public String createDataLine(RoundTrips<GridNode> roundTrips, double logWeight) {
+	public String createDataLine(MultiRoundTrip<GridNode> roundTrips, double logWeight) {
 		int goingThroughDepot = 0;
 		int neverAtDepot = 0;
 		int unused = 0;

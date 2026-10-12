@@ -34,7 +34,7 @@ class MultimodalExampleTest {
 		long[] cnts1 = MultimodalExample.run(1.0, 10.0, 0.0, 5_000);
 		System.out.println(Arrays.toString(cnts1));
 		Assertions.assertArrayEquals(
-				new long[] { 1, 1403, 3596, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, cnts1);
+				new long[] { 1, 1354, 3645, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, cnts1);
 	}
 
 	@Test
@@ -42,7 +42,7 @@ class MultimodalExampleTest {
 		long[] cnts1 = MultimodalExample.run(8.0, 8.0, 0.0, 5_000);
 		System.out.println(Arrays.toString(cnts1));
 		Assertions.assertArrayEquals(
-				new long[] { 1, 5, 5, 0, 65, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4923, 0, 0, 0, 0, 0, 0, 0, 0 }, cnts1);
+				new long[] { 1, 20, 76, 0, 189, 0, 0, 0, 1382, 0, 0, 0, 0, 0, 0, 0, 3332, 0, 0, 0, 0, 0, 0, 0, 0 }, cnts1);
 	}
 
 	@Test
@@ -50,7 +50,7 @@ class MultimodalExampleTest {
 		long[] cnts1 = MultimodalExample.run(1.0, 8.0, 0.1, 5_000);
 		System.out.println(Arrays.toString(cnts1));
 		Assertions.assertArrayEquals(
-				new long[] { 2, 323, 1008, 0, 924, 0, 0, 0, 948, 0, 0, 0, 0, 0, 0, 0, 1795, 0, 0, 0, 0, 0, 0, 0, 0 },
+				new long[] { 2, 125, 367, 0, 1201, 0, 0, 0, 2759, 0, 0, 0, 0, 0, 0, 0, 546, 0, 0, 0, 0, 0, 0, 0, 0 },
 				cnts1);
 	}
 

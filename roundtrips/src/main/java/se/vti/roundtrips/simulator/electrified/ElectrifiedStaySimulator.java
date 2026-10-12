@@ -19,8 +19,8 @@
  */
 package se.vti.roundtrips.simulator.electrified;
 
-import se.vti.roundtrips.common.Node;
-import se.vti.roundtrips.common.Scenario;
+import se.vti.roundtrips.scenario.Node;
+import se.vti.roundtrips.scenario.Scenario;
 import se.vti.roundtrips.simulator.DefaultStaySimulator;
 import se.vti.roundtrips.simulator.SimulatorState;
 import se.vti.roundtrips.simulator.StayEpisode;

@@ -23,14 +23,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import se.vti.roundtrips.common.RoundTripUtils;
-import se.vti.roundtrips.common.Runner;
-import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
-import se.vti.roundtrips.samplingweights.StrictlyPeriodicSchedule;
-import se.vti.roundtrips.samplingweights.StrictlyRequireMaxNumberOfStops;
+import se.vti.roundtrips.examples.samplingweights.StrictlyPeriodicSchedule;
+import se.vti.roundtrips.examples.samplingweights.StrictlyRequireMaxNumberOfStops;
+import se.vti.roundtrips.runner.Runner;
+import se.vti.roundtrips.scenario.ScenarioBuilder;
+import se.vti.roundtrips.single.RoundTripUtils;
 
 /**
  * 

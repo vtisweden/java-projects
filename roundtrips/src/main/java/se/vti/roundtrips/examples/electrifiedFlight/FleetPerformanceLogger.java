@@ -23,15 +23,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import se.vti.roundtrips.common.NodeWithCoords;
-import se.vti.roundtrips.common.RoundTrips;
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.scenario.NodeWithCoords;
 import se.vti.roundtrips.simulator.MoveEpisode;
 import se.vti.utils.misc.metropolishastings.MHAbstractStateProcessor;
 
 /**
  * @author GunnarF
  */
-public class FleetPerformanceLogger extends MHAbstractStateProcessor<RoundTrips<NodeWithCoords>> {
+public class FleetPerformanceLogger extends MHAbstractStateProcessor<MultiRoundTrip<NodeWithCoords>> {
 
 	private final Map<NodeWithCoords, Double> node2servedDemandSum_pax = new LinkedHashMap<>();
 
@@ -50,7 +50,7 @@ public class FleetPerformanceLogger extends MHAbstractStateProcessor<RoundTrips<
 	}
 
 	@Override
-	public void processStateHook(RoundTrips<NodeWithCoords> fleet, double logWeight) {
+	public void processStateHook(MultiRoundTrip<NodeWithCoords> fleet, double logWeight) {
 		var summary = fleet.getSummary(PlaneUsageSummary.class);
 		for (var nodeAndServedDemand : summary.node2servedDemand_pax.entrySet()) {
 			this.node2servedDemandSum_pax.compute(nodeAndServedDemand.getKey(),
