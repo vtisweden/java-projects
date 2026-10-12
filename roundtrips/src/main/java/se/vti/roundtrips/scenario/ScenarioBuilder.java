@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 import se.vti.roundtrips.simulator.Simulator;
+import se.vti.utils.misc.SpecificationChecker;
 
 /**
  * @author GunnarF
