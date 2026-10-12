@@ -108,8 +108,8 @@ public class TravelSurveyExpansionExample {
 		var runner = new Runner<GridNodeWithActivity>(scenario);
 
 		// Using multi-step proposals and cold/hot tempering.
-		runner.setExpectedColdProposalLength(2.0); 
-		runner.setColdHotParameters(4.0, 1e-3);
+//		runner.setExpectedColdProposalLength(2.0); 
+//		runner.setColdHotParameters(4.0, 1e-3);
 
 		// Definee the sampling weights.
 		runner.setIndividualUniformPrior()
@@ -126,14 +126,19 @@ public class TravelSurveyExpansionExample {
 //				.addStatisticEstimator(new TotalTravelTime<GridNodeWithActivity>());
 
 		// Configure sampling and run.
+		
 		var initialColdRoundTrip = scenario.createInitialMultiRoundTrip(homes, Arrays.asList(0),
-				syntheticPopulationSize);
-		var initialHotRoundTrip = scenario.createInitialMultiRoundTrip(homes, Arrays.asList(0),
-				syntheticPopulationSize);
-		var initialRoundTrip = new ColdHotMultiRoundTrip<GridNodeWithActivity>(initialColdRoundTrip,
-				initialHotRoundTrip);
-		runner.setInitialState(initialRoundTrip).setMessageInterval(totalIterations / 100)
+				syntheticPopulationSize);	
+// Commented out is for multi-step proposal and cold/hot tempering.
+//		var initialHotRoundTrip = scenario.createInitialMultiRoundTrip(homes, Arrays.asList(0),
+//				syntheticPopulationSize);
+//		var initialColdHotRoundTrip = new ColdHotMultiRoundTrip<GridNodeWithActivity>(initialColdRoundTrip,
+//				initialHotRoundTrip);
+//		runner.setInitialState(initialColdHotRoundTrip).setMessageInterval(totalIterations / 100)
+//				.setNumberOfIterations(totalIterations);
+		runner.setInitialState(initialColdRoundTrip).setMessageInterval(totalIterations / 100)
 				.setNumberOfIterations(totalIterations);
+
 		runner.run();
 	}
 

@@ -28,6 +28,7 @@ import java.util.function.Function;
 import se.vti.roundtrips.multiple.MultiRoundTripJsonIO;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.multiple.coldhot.ColdHotMultiRoundTripProposal;
+import se.vti.roundtrips.multiple.coldhot.ColdHotPrior;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.priors.IndividualBinomialPrior;
 import se.vti.roundtrips.samplingweights.priors.IndividualUniformPrior;
@@ -172,9 +173,9 @@ public class Runner<N extends Node> {
 			throw new IllegalArgumentException(
 					"expectedHotProposalLength must not be smaller than one but is " + expectedHotProposalLength + ".");
 		}
-		if (coldHotRecombineProba <= 0.0 || coldHotRecombineProba >= 1.0) {
+		if (coldHotRecombineProba < 0.0 || coldHotRecombineProba >= 1.0) {
 			throw new IllegalArgumentException(
-					"coldHotRecombineProba must be in (0,1) but is " + coldHotRecombineProba + ".");
+					"coldHotRecombineProba must be in [0,1) but is " + coldHotRecombineProba + ".");
 		}
 		this.expectedHotProposalLength = expectedHotProposalLength;
 		this.coldHotRecombineProba = coldHotRecombineProba;
@@ -242,7 +243,42 @@ public class Runner<N extends Node> {
 
 		if (checker.check()) {
 
-			this.weights.add(this.prior);
+			final MHProposal<RoundTrip<N>> coldProposal;
+			if (this.expectedColdProposalLength == 1.0) {
+				coldProposal = new RoundTripSingleStepProposal<N>(this.scenario);
+			} else {
+				coldProposal = new RoundTripMultiStepProposal<N>(this.scenario, this.expectedColdProposalLength);
+			}
+
+			final MHAlgorithm<RoundTrips<N>> algo;
+			if ((this.expectedHotProposalLength == 1.0) && (this.coldHotRecombineProba == 0.0)) {
+
+				this.weights.add(this.prior);
+				algo = new MHAlgorithm<RoundTrips<N>>(new MultiRoundTripProposal<N>(this.scenario, coldProposal),
+						this.weights, this.scenario.getRandom());
+
+			} else {
+
+				final MHProposal<RoundTrip<N>> hotProposal;
+				if (this.expectedHotProposalLength == 1.0) {
+					hotProposal = new RoundTripSingleStepProposal<N>(this.scenario);
+				} else {
+					hotProposal = new RoundTripMultiStepProposal<N>(this.scenario, this.expectedHotProposalLength);
+				}
+				this.weights.add(new ColdHotPrior<N>(this.prior));
+				algo = new MHAlgorithm<RoundTrips<N>>(new ColdHotMultiRoundTripProposal<N>(this.scenario, coldProposal,
+						hotProposal, this.coldHotRecombineProba), this.weights, this.scenario.getRandom());
+
+			}
+
+			if ((this.samplesLogFile != null) && (this.sampleExtractors.size() > 0)) {
+				var samplesLogger = new MHSampleLogger<RoundTrips<N>>(this.sampleLogInterval, this.samplesLogFile);
+				this.stateProcessors.add(samplesLogger);
+				for (var entry : this.sampleExtractors.entrySet()) {
+					samplesLogger.add(entry.getKey(), entry.getValue());
+				}
+			}
+
 			if ((this.weightsLogFile != null) && (this.weightsLogInterval > 0)) {
 				this.stateProcessors
 						.add(new MHWeightsToFileLogger<>(this.weightsLogInterval, this.weights, this.weightsLogFile));
@@ -276,44 +312,12 @@ public class Runner<N extends Node> {
 				});
 			}
 
-			final MHProposal<RoundTrip<N>> coldProposal;
-			if (this.expectedColdProposalLength == 1.0) {
-				coldProposal = new RoundTripSingleStepProposal<N>(this.scenario);
-			} else {
-				coldProposal = new RoundTripMultiStepProposal<N>(this.scenario, this.expectedColdProposalLength);
-			}
-
-			final MHAlgorithm<RoundTrips<N>> algo;
-			if (this.expectedHotProposalLength == 1.0 && this.coldHotRecombineProba == 0.0) {
-
-				algo = new MHAlgorithm<RoundTrips<N>>(new MultiRoundTripProposal<N>(this.scenario, coldProposal),
-						this.weights, this.scenario.getRandom());
-
-			} else {
-
-				final MHProposal<RoundTrip<N>> hotProposal;
-				if (this.expectedHotProposalLength == 1.0) {
-					hotProposal = new RoundTripSingleStepProposal<N>(this.scenario);
-				} else {
-					hotProposal = new RoundTripMultiStepProposal<N>(this.scenario, this.expectedHotProposalLength);
-				}
-				algo = new MHAlgorithm<RoundTrips<N>>(new ColdHotMultiRoundTripProposal<N>(this.scenario, coldProposal,
-						hotProposal, this.coldHotRecombineProba), this.weights, this.scenario.getRandom());
-
-			}
-
-			if ((this.samplesLogFile != null) && (this.sampleExtractors.size() > 0)) {
-				var samplesLogger = new MHSampleLogger<RoundTrips<N>>(this.sampleLogInterval, this.samplesLogFile);
-				algo.addStateProcessor(samplesLogger);
-				for (var entry : this.sampleExtractors.entrySet()) {
-					samplesLogger.add(entry.getKey(), entry.getValue());
-				}
-			}
-
 			this.stateProcessors.stream().forEach(sp -> algo.addStateProcessor(sp));
+			
 			algo.setMsgInterval(this.messageInterval);
 			algo.setTerminationCriterion(this.terminationCriterion);
 			algo.setInitialState(this.initialState);
+			
 			algo.run();
 			this.finalState = algo.getFinalState();
 		} else {

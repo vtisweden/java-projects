@@ -89,4 +89,9 @@ public class ColdHotMultiRoundTrip<N extends Node> implements RoundTrips<N> {
 	public ColdHotMultiRoundTrip<N> clone() {
 		return new ColdHotMultiRoundTrip<N>(this.coldMultiRoundTrip.clone(), this.hotMultiRoundTrip.clone());
 	}
+	
+	@Override
+	public String toString() {
+		return this.coldMultiRoundTrip.toString();
+	}
 }

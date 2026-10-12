@@ -19,6 +19,8 @@
  */
 package se.vti.roundtrips.multiple.coldhot;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import se.vti.roundtrips.common.Node;
@@ -42,22 +44,22 @@ public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal
 	private final MultiRoundTripProposal<N> coldProposal;
 	private final MultiRoundTripProposal<N> hotProposal;
 
-	private final double switchProba;
+	private final double coldHotRecombineProba;
 
 	// -------------------- CONSTRUCTION --------------------
 
 	ColdHotMultiRoundTripProposal(MultiRoundTripProposal<N> coldProposal, MultiRoundTripProposal<N> hotProposal,
-			double switchProba) {
+			double coldHotRecombineProba) {
 		this.rnd = coldProposal.getRandom();
 		this.coldProposal = coldProposal;
 		this.hotProposal = hotProposal;
-		this.switchProba = switchProba;
+		this.coldHotRecombineProba = coldHotRecombineProba;
 	}
 
 	public ColdHotMultiRoundTripProposal(Scenario<N> scenario, MHProposal<RoundTrip<N>> coldProposal,
-			MHProposal<RoundTrip<N>> hotProposal, double switchProba) {
+			MHProposal<RoundTrip<N>> hotProposal, double coldHotRecombineProba) {
 		this(new MultiRoundTripProposal<N>(scenario, coldProposal),
-				new MultiRoundTripProposal<N>(scenario, hotProposal), switchProba);
+				new MultiRoundTripProposal<N>(scenario, hotProposal), coldHotRecombineProba);
 	}
 
 	// -------------------- IMPLEMENTATION OF MHProposal --------------------
@@ -75,21 +77,71 @@ public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal
 		final double fwdLogProba;
 		final double bwdLogProba;
 
-		if (this.rnd.nextDouble() < this.switchProba) {
+		if (this.rnd.nextDouble() < this.coldHotRecombineProba) {
 
 			to = fromColdHotMultiRoundTrip.clone();
-			boolean switched = false;
-			while (!switched) {
-				for (int i = 0; i < to.size(); i++) {
+
+			int numberOfDifferentRoundTrips = 0;
+			for (int i = 0; i < to.size(); i++) {
+				if (!to.getCold().getRoundTrip(i).equalsBehaviorally(to.getHot().getRoundTrip(i))) {
+					numberOfDifferentRoundTrips++;
 					if (this.rnd.nextBoolean()) {
 						to.switchRoundTrip(i);
-						switched = true;
 					}
 				}
 			}
-			fwdLogProba = Math.log(this.switchProba) + to.size() * Math.log(0.5)
-					- Math.log(1.0 - Math.pow(0.5, to.size()));
+
+			fwdLogProba = Math.log(this.coldHotRecombineProba) + numberOfDifferentRoundTrips * Math.log(0.5)
+					- Math.log(1.0 - Math.pow(0.5, numberOfDifferentRoundTrips));
 			bwdLogProba = fwdLogProba;
+
+//			List<Integer> indicesOfBehaviorallyDifferentRoundTrips = new ArrayList<>(to.size());
+//			for (int i = 0; i < to.size(); i++) {
+//				if (!to.getCold().getRoundTrip(i).equalsBehaviorally(to.getHot().getRoundTrip(i))) {
+//					indicesOfBehaviorallyDifferentRoundTrips.add(i);
+//				}
+//			}
+//
+//			if (indicesOfBehaviorallyDifferentRoundTrips.size() == 0) {
+//
+//				// Staying in the same state is possible, if all roundtrips are behaviorally
+//				// equal.
+//				fwdLogProba = Math.log(this.switchProba);
+//				bwdLogProba = fwdLogProba;
+//
+//			} else {
+//
+//				for (int i : indicesOfBehaviorallyDifferentRoundTrips) {
+//					if (this.rnd.nextBoolean()) {
+//						to.switchRoundTrip(i);
+//					}
+//				}
+//
+//				fwdLogProba = Math.log(this.switchProba)
+//						+ indicesOfBehaviorallyDifferentRoundTrips.size() * Math.log(0.5)
+//						- Math.log(1.0 - Math.pow(0.5, indicesOfBehaviorallyDifferentRoundTrips.size()));
+//				bwdLogProba = fwdLogProba;
+//			}
+
+//			boolean switched = false;
+//			while (!switched) {
+//				for (int i = 0; i < to.size(); i++) {
+//					
+//					if (to.getCold().getRoundTrip(i).equalsBehaviorally(to.getHot().getRoundTrip(i))) {
+//						numberOfBehaviorallyEqualRoundTrips++;
+//					} else {
+//						
+//					}
+//					
+//					if (this.rnd.nextBoolean()) {
+//						to.switchRoundTrip(i);
+//						switched = true;
+//					}
+//				}
+//			}
+//			fwdLogProba = Math.log(this.switchProba) + to.size() * Math.log(0.5)
+//					- Math.log(1.0 - Math.pow(0.5, to.size()));
+//			bwdLogProba = fwdLogProba;
 
 		} else {
 
@@ -99,9 +151,9 @@ public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal
 					.newTransition(fromColdHotMultiRoundTrip.getHot());
 			to = new ColdHotMultiRoundTrip<>(coldTransition.getNewState().getAsMultiRoundTrip(),
 					hotTransition.getNewState().getAsMultiRoundTrip());
-			fwdLogProba = Math.log(1.0 - this.switchProba) + coldTransition.getFwdLogProb()
+			fwdLogProba = Math.log(1.0 - this.coldHotRecombineProba) + coldTransition.getFwdLogProb()
 					+ hotTransition.getFwdLogProb();
-			bwdLogProba = Math.log(1.0 - this.switchProba) + coldTransition.getBwdLogProb()
+			bwdLogProba = Math.log(1.0 - this.coldHotRecombineProba) + coldTransition.getBwdLogProb()
 					+ hotTransition.getBwdLogProb();
 
 		}

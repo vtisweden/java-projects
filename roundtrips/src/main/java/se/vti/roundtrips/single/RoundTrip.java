@@ -171,6 +171,10 @@ public class RoundTrip<N extends Node> implements Iterable<RoundTrip<N>> {
 		}
 	}
 
+	public boolean equalsBehaviorally(RoundTrip<N> other) {
+		return ((this.size() == other.size()) && this.departures.equals(other.departures) && this.nodes.equals(other.nodes));
+	}
+
 	// -------------------- IMPLEMENTATION OF Iterable --------------------
 
 	@Override
