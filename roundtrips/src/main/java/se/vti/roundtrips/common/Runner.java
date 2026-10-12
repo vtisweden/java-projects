@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripJsonIO;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
 import se.vti.roundtrips.multiple.coldhot.ColdHotMultiRoundTrip;
@@ -225,9 +226,9 @@ public class Runner<N extends Node> {
 		return this.weights.getWeightsView();
 	}
 
-	private RoundTrips<N> finalState = null;
+	private MultiRoundTrip<N> finalState = null;
 
-	public RoundTrips<N> getFinalState() {
+	public MultiRoundTrip<N> getFinalState() {
 		return this.finalState;
 	}
 
@@ -320,12 +321,12 @@ public class Runner<N extends Node> {
 
 			algo.setMsgInterval(this.messageInterval);
 			algo.setTerminationCriterion(this.terminationCriterion);
-			
+
 			this.initialState.simulateAll(this.scenario.getOrCreateSimulator());
 			algo.setInitialState(this.initialState);
 
 			algo.run();
-			this.finalState = algo.getFinalState();
+			this.finalState = algo.getFinalState().getMultiRoundTrip();
 		} else {
 			throw new RuntimeException(checker.getRecentErrors());
 		}
