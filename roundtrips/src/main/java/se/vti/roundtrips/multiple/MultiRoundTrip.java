@@ -73,10 +73,6 @@ public class MultiRoundTrip<N extends Node> implements Iterable<RoundTrip<N>>, R
 		this.class2summary.put(summary.getClass(), summary);
 	}
 
-	public <S extends MultiRoundTripSummary<N>> S getSummary(Class<S> summaryClass) {
-		return (S) this.class2summary.get(summaryClass);
-	}
-
 	public void recomputeSummaries() {
 		for (MultiRoundTripSummary<N> summary : this.class2summary.values()) {
 			summary.clear();
@@ -88,13 +84,17 @@ public class MultiRoundTrip<N extends Node> implements Iterable<RoundTrip<N>>, R
 		}
 	}
 
+	// --------------- IMPLEMENTATION/OVERRIDING OF RoundTrips ---------------
+
+	public <S extends MultiRoundTripSummary<N>> S getSummary(Class<S> summaryClass) {
+		return (S) this.class2summary.get(summaryClass);
+	}
+
 	public void simulateAll(Simulator<N> simulator) {
 		for (RoundTrip<N> roundTrip : this.roundTrips) {
 			roundTrip.setEpisodes(simulator.simulate(roundTrip));
 		}
 	}
-
-	// --------------- IMPLEMENTATION/OVERRIDING OF RoundTrips ---------------
 
 	@Override
 	public RoundTrip<N> getRoundTrip(int i) {

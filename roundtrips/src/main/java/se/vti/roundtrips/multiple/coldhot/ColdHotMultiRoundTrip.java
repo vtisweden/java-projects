@@ -25,6 +25,7 @@ import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripSummary;
+import se.vti.roundtrips.simulator.Simulator;
 import se.vti.roundtrips.single.RoundTrip;
 
 /**
@@ -106,5 +107,11 @@ public class ColdHotMultiRoundTrip<N extends Node> implements RoundTrips<N> {
 	@Override
 	public String toString() {
 		return this.coldMultiRoundTrip.toString();
+	}
+
+	@Override
+	public void simulateAll(Simulator<N> simulator) {
+		this.coldMultiRoundTrip.simulateAll(simulator);
+		this.hotMultiRoundTrip.simulateAll(simulator);
 	}
 }

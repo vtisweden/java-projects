@@ -21,6 +21,7 @@ package se.vti.roundtrips.examples.truckServiceCoverage;
 
 import java.util.Random;
 
+import se.vti.roundtrips.common.RoundTripUtils;
 import se.vti.roundtrips.common.Runner;
 import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.logging.multiple.SizeDistributionLogger;
@@ -40,7 +41,7 @@ class TruckServiceCoverageExample {
 		this.seed = seed;
 	}
 
-	void run(long totalIterations) {
+	int[] run(long totalIterations) {
 
 		/*
 		 * What feasible truck round tours may arise in a given system, subject to fleet
@@ -110,7 +111,7 @@ class TruckServiceCoverageExample {
 		 */
 
 		// Initialize all trucks to just stay at the depot.
-		runner.setInitialState(scenario.createInitialMultiRoundTrip(nodes[0][0], 0, fleetSize));
+		runner.setInitialState(RoundTripUtils.singleton().createMultiRoundTrip(nodes[0][0], 0, fleetSize));
 
 		// Log summary statistics over sampling iterations. See code for interpretation
 		runner.configureWeightLogging("./output/truckServiceCoverage/logWeights.log", totalIterations / 100);
@@ -126,21 +127,7 @@ class TruckServiceCoverageExample {
 		// The resulting files in the output folder can directly be pasted into Excel.
 
 		// testing
-		this.lastSizes = sizeLogger.getLastSizeCounts();
-	}
-
-	// testing
-	private int[] lastSizes = null;
-
-	// testing
-	int[] getLastSizes() {
-		return this.lastSizes;
-	}
-
-	// testing
-	int[] test1() {
-		this.run(1000);
-		return this.lastSizes;
+		return sizeLogger.getLastSizeCounts();
 	}
 
 	public static void main(String[] args) {

@@ -203,47 +203,4 @@ public class Scenario<N extends Node> {
 		return this.od2time_h;
 	}
 
-	// -------------------- UTILITIES --------------------
-
-	private RoundTrip<N> createInitialRoundTrip(int index, N node, Integer departure) {
-		if (node == null) {
-			node = this.locationsView.get(this.getRandom().nextInt(this.locationsView.size()));
-		}
-		if (departure == null) {
-			departure = this.getRandom().nextInt(this.numberOfTimeBins);
-		}
-		var result = new RoundTrip<N>(index, new ArrayList<>(Arrays.asList(node)),
-				new ArrayList<>(Arrays.asList(departure)));
-		result.setEpisodes(this.getOrCreateSimulator().simulate(result));
-		return result;
-	}
-
-	public RoundTrip<N> createInitialRoundTrip(N node, Integer departure) {
-		return this.createInitialRoundTrip(0, node, departure);
-	}
-
-	public void populateInitialMultiRoundTrip(MultiRoundTrip<N> result, List<N> nodes, List<Integer> departures) {
-		for (int i = 0; i < result.size(); i++) {
-			N node = nodes.get(this.rnd.nextInt(nodes.size()));
-			Integer departure = departures.get(this.rnd.nextInt(departures.size()));
-			result.setRoundTripAndUpdateSummaries(i, this.createInitialRoundTrip(i, node, departure));
-		}
-	}
-
-	public void populateInitialMultiRoundTrip(MultiRoundTrip<N> result, N node, Integer departure) {
-		this.populateInitialMultiRoundTrip(result, Arrays.asList(node), Arrays.asList(departure));
-	}
-
-	public MultiRoundTrip<N> createInitialMultiRoundTrip(N node, Integer departure, int numberOfRoundTrips) {
-		MultiRoundTrip<N> result = new MultiRoundTrip<>(numberOfRoundTrips);
-		this.populateInitialMultiRoundTrip(result, node, departure);
-		return result;
-	}
-
-	public MultiRoundTrip<N> createInitialMultiRoundTrip(List<N> nodes, List<Integer> departures,
-			int numberOfRoundTrips) {
-		MultiRoundTrip<N> result = new MultiRoundTrip<>(numberOfRoundTrips);
-		this.populateInitialMultiRoundTrip(result, nodes, departures);
-		return result;
-	}
 }

@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.single.RoundTrip;
 
 /**
@@ -34,14 +35,38 @@ import se.vti.roundtrips.single.RoundTrip;
 public class RoundTripUtils {
 
 	private static final RoundTripUtils singleton = new RoundTripUtils();
-	
+
 	public static RoundTripUtils singleton() {
 		return singleton;
 	}
-	
+
 	public RoundTripUtils() {
 	}
-	
+
+	public <N extends Node> RoundTrip<N> createEmptyRoundTrip(int index) {
+		return new RoundTrip<N>(index, Collections.emptyList(), Collections.emptyList());
+	}
+
+	public <N extends Node> MultiRoundTrip<N> createEmptyMultiRoundTrip(int size) {
+		MultiRoundTrip<N> result = new MultiRoundTrip<>(size);
+		for (int i = 0; i < size; i++) {
+			result.setRoundTripAndUpdateSummaries(i, this.createEmptyRoundTrip(i));
+		}
+		return result;
+	}
+
+	public <N extends Node> RoundTrip<N> createRoundTrip(int index, N node, Integer departure) {
+		return new RoundTrip<N>(index, Arrays.asList(node), Arrays.asList(departure));
+	}
+
+	public <N extends Node> MultiRoundTrip<N> createMultiRoundTrip(N node, Integer departure, int size) {
+		MultiRoundTrip<N> result = new MultiRoundTrip<>(size);
+		for (int i = 0; i < size; i++) {
+			result.setRoundTripAndUpdateSummaries(i, this.createRoundTrip(i, node, departure));
+		}
+		return result;
+	}
+
 	public <N extends Node> int[] findIndices(N node, RoundTrip<N> roundTrip) {
 		return IntStream.range(0, roundTrip.size()).filter(i -> roundTrip.getNode(i) == node).toArray();
 	}

@@ -19,15 +19,13 @@
  */
 package se.vti.roundtrips.examples.multimodal;
 
-import java.util.Arrays;
 import java.util.Random;
 
 import se.vti.roundtrips.common.Node;
+import se.vti.roundtrips.common.RoundTripUtils;
 import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.common.Runner;
 import se.vti.roundtrips.common.ScenarioBuilder;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
-import se.vti.roundtrips.multiple.coldhot.ColdHotMultiRoundTrip;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 import se.vti.utils.misc.metropolishastings.MHWeight;
@@ -100,13 +98,8 @@ public class MultimodalExample {
 			
 		});
 		
-		var initialColdMultiRoundTrip = new MultiRoundTrip<Node>(1);
-		initialColdMultiRoundTrip.setRoundTripAndUpdateSummaries(0, new RoundTrip<Node>(0, Arrays.asList(), Arrays.asList()));
+		runner.setInitialState(RoundTripUtils.singleton().createEmptyMultiRoundTrip(1));
 
-		var initialHotMultiRoundTrip = new MultiRoundTrip<Node>(1);
-		initialHotMultiRoundTrip.setRoundTripAndUpdateSummaries(0, new RoundTrip<Node>(0, Arrays.asList(), Arrays.asList()));
-
-		runner.setInitialState(new ColdHotMultiRoundTrip<Node>(initialColdMultiRoundTrip, initialHotMultiRoundTrip));
 		runner.setMessageInterval(1000).setNumberOfIterations(iterations);
 		
 		runner.run();

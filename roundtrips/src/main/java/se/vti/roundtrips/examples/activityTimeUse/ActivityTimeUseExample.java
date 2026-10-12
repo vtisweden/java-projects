@@ -21,6 +21,7 @@ package se.vti.roundtrips.examples.activityTimeUse;
 
 import java.util.Random;
 
+import se.vti.roundtrips.common.RoundTripUtils;
 import se.vti.roundtrips.common.RoundTrips;
 import se.vti.roundtrips.common.Runner;
 import se.vti.roundtrips.common.ScenarioBuilder;
@@ -30,6 +31,7 @@ import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUni
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.samplingweights.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.samplingweights.timeUse.LogarithmicTimeUseSinglePersonSingleDay;
+import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 
 /**
@@ -45,7 +47,7 @@ class ActivityTimeUseExample {
 		this.seed = seed;
 	}
 
-	void run(long totalIterations) {
+	RoundTrip<GridNodeWithActivity> run(long totalIterations) {
 
 		var builder = new ScenarioBuilder<GridNodeWithActivity>();
 
@@ -131,7 +133,7 @@ class ActivityTimeUseExample {
 		 * Ready to set up the sampling machinery.
 		 */
 		var initialState = new MultiRoundTrip<GridNodeWithActivity>(1);
-		initialState.setRoundTripAndUpdateSummaries(0, scenario.createInitialRoundTrip(home, 0));
+		initialState.setRoundTripAndUpdateSummaries(0, RoundTripUtils.singleton().createRoundTrip(0, home, 0));
 		runner.setInitialState(initialState).setNumberOfIterations(totalIterations)
 				.setMessageInterval(totalIterations / 100);
 
@@ -158,6 +160,8 @@ class ActivityTimeUseExample {
 		});
 
 		runner.run();
+		
+		return runner.getFinalState().getRoundTrip(0);		
 	}
 
 	public static void main(String[] args) {

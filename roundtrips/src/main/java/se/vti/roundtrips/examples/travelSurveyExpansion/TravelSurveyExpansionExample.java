@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import se.vti.roundtrips.common.RoundTripUtils;
 import se.vti.roundtrips.common.Runner;
 import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
-import se.vti.roundtrips.multiple.coldhot.ColdHotMultiRoundTrip;
 import se.vti.roundtrips.samplingweights.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.samplingweights.StrictlyRequireMaxNumberOfStops;
 
@@ -45,7 +45,7 @@ public class TravelSurveyExpansionExample {
 		this.seed = seed;
 	}
 
-	void run(long totalIterations) {
+	long[] run(long totalIterations) {
 
 		int syntheticPopulationSize = 50;
 
@@ -107,10 +107,6 @@ public class TravelSurveyExpansionExample {
 
 		var runner = new Runner<GridNodeWithActivity>(scenario);
 
-		// Using multi-step proposals and cold/hot tempering.
-//		runner.setExpectedColdProposalLength(2.0); 
-//		runner.setColdHotParameters(4.0, 1e-3);
-
 		// Definee the sampling weights.
 		runner.setIndividualUniformPrior()
 				.addIndividualWeight(new StrictlyRequireMaxNumberOfStops<GridNodeWithActivity>(6))
@@ -122,24 +118,24 @@ public class TravelSurveyExpansionExample {
 		runner.configureWeightLogging("./output/travelSurveyExpansion/logWeights.log", totalIterations / 100);
 		runner.addStateProcessor(
 				new PlotAgeByActivityHistogram(totalIterations / 2, totalIterations / 100, syntheticPopulation));
-//		runner.configureStatisticsLogging("./output/travelSurveyExpansion/statisticsLogs.log", 1000)
-//				.addStatisticEstimator(new TotalTravelTime<GridNodeWithActivity>());
 
 		// Configure sampling and run.
-		
-		var initialColdRoundTrip = scenario.createInitialMultiRoundTrip(homes, Arrays.asList(0),
-				syntheticPopulationSize);	
-// Commented out is for multi-step proposal and cold/hot tempering.
-//		var initialHotRoundTrip = scenario.createInitialMultiRoundTrip(homes, Arrays.asList(0),
-//				syntheticPopulationSize);
-//		var initialColdHotRoundTrip = new ColdHotMultiRoundTrip<GridNodeWithActivity>(initialColdRoundTrip,
-//				initialHotRoundTrip);
-//		runner.setInitialState(initialColdHotRoundTrip).setMessageInterval(totalIterations / 100)
-//				.setNumberOfIterations(totalIterations);
+
+		var initialColdRoundTrip = RoundTripUtils.singleton().createMultiRoundTrip(homes.get(0), 0,
+				syntheticPopulationSize);
 		runner.setInitialState(initialColdRoundTrip).setMessageInterval(totalIterations / 100)
 				.setNumberOfIterations(totalIterations);
 
 		runner.run();
+
+		long numberOfStops = 0;
+		long sumOfTimeBins = 0;
+		for (var roundTrip : runner.getFinalState()) {
+			numberOfStops += roundTrip.size();
+			sumOfTimeBins += roundTrip.getDeparturesView().stream().mapToInt(v -> v).sum();
+		}
+
+		return new long[] { numberOfStops, sumOfTimeBins };
 	}
 
 	public static void main(String[] args) {

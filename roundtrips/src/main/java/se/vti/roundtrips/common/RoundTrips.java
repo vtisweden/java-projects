@@ -23,6 +23,7 @@ import java.util.Iterator;
 
 import se.vti.roundtrips.multiple.MultiRoundTrip;
 import se.vti.roundtrips.multiple.MultiRoundTripSummary;
+import se.vti.roundtrips.simulator.Simulator;
 import se.vti.roundtrips.single.RoundTrip;
 
 /**
@@ -36,6 +37,8 @@ public interface RoundTrips<N extends Node> extends Iterable<RoundTrip<N>> {
 
 	RoundTrips<N> clone();
 
+	void simulateAll(Simulator<N> simulator);
+
 	default int size() {
 		return this.getMultiRoundTrip().size();
 	}
@@ -48,6 +51,7 @@ public interface RoundTrips<N extends Node> extends Iterable<RoundTrip<N>> {
 		return this.getMultiRoundTrip().computeSumOfRoundTripSizes();
 	}
 
+	
 	default <S extends MultiRoundTripSummary<N>> S getSummary(Class<S> summaryClass) {
 		return this.getMultiRoundTrip().getSummary(summaryClass);
 	}

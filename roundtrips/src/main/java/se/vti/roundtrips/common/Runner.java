@@ -27,6 +27,7 @@ import java.util.function.Function;
 
 import se.vti.roundtrips.multiple.MultiRoundTripJsonIO;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
+import se.vti.roundtrips.multiple.coldhot.ColdHotMultiRoundTrip;
 import se.vti.roundtrips.multiple.coldhot.ColdHotMultiRoundTripProposal;
 import se.vti.roundtrips.multiple.coldhot.ColdHotPrior;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
@@ -268,7 +269,10 @@ public class Runner<N extends Node> {
 				this.weights.add(new ColdHotPrior<N>(this.prior));
 				algo = new MHAlgorithm<RoundTrips<N>>(new ColdHotMultiRoundTripProposal<N>(this.scenario, coldProposal,
 						hotProposal, this.coldHotRecombineProba), this.weights, this.scenario.getRandom());
-
+				if (!(this.initialState instanceof ColdHotMultiRoundTrip)) {
+					this.initialState = new ColdHotMultiRoundTrip<N>(this.initialState.getMultiRoundTrip(),
+							this.initialState.getMultiRoundTrip().clone());
+				}
 			}
 
 			if ((this.samplesLogFile != null) && (this.sampleExtractors.size() > 0)) {
@@ -313,11 +317,13 @@ public class Runner<N extends Node> {
 			}
 
 			this.stateProcessors.stream().forEach(sp -> algo.addStateProcessor(sp));
-			
+
 			algo.setMsgInterval(this.messageInterval);
 			algo.setTerminationCriterion(this.terminationCriterion);
-			algo.setInitialState(this.initialState);
 			
+			this.initialState.simulateAll(this.scenario.getOrCreateSimulator());
+			algo.setInitialState(this.initialState);
+
 			algo.run();
 			this.finalState = algo.getFinalState();
 		} else {
