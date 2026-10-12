@@ -10,7 +10,7 @@ Contact: [gunnar.flotterod@vti.se](mailto:gunnar.flotterod@vti.se)
 
 ## Using the code
 
-** We recommend to use a recent release from GitHub packages. The main branch may change substantially between releases. **
+**We recommend to use a recent release from GitHub packages. The main branch may change substantially between releases.**
 
 The overall workflow when analyzing a scenario looks as follows.
 1. Decide how you want to represent the locations (nodes) of your scenario. Basic `Node.java` and `NodeWithCoords.java` implementations are available. 
