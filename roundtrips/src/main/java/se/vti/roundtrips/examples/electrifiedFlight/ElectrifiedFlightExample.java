@@ -195,7 +195,7 @@ public class ElectrifiedFlightExample {
 
 			@Override
 			public double logWeight(RoundTrips<NodeWithCoords> fleet) {
-				var summary = fleet.getAsMultiRoundTrip().getSummary(PlaneUsageSummary.class);
+				var summary = fleet.getSummary(PlaneUsageSummary.class);
 				return -emptySeatShareWeight * summary.emptySeats_npaxKm / summary.totalDemand_paxKm
 						+ servedDemandShareWeight * summary.servedDemand_paxKm / summary.totalDemand_paxKm;
 			}

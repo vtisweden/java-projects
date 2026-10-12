@@ -51,7 +51,7 @@ public class FleetPerformanceLogger extends MHAbstractStateProcessor<RoundTrips<
 
 	@Override
 	public void processStateHook(RoundTrips<NodeWithCoords> fleet, double logWeight) {
-		var summary = fleet.getAsMultiRoundTrip().getSummary(PlaneUsageSummary.class);
+		var summary = fleet.getSummary(PlaneUsageSummary.class);
 		for (var nodeAndServedDemand : summary.node2servedDemand_pax.entrySet()) {
 			this.node2servedDemandSum_pax.compute(nodeAndServedDemand.getKey(),
 					(n, d) -> (d == null) ? nodeAndServedDemand.getValue() : (d + nodeAndServedDemand.getValue()));
@@ -59,7 +59,7 @@ public class FleetPerformanceLogger extends MHAbstractStateProcessor<RoundTrips<
 		this.servedDemand_paxKm += summary.servedDemand_paxKm;
 		this.emptySeatsSum_npaxKm += summary.emptySeats_npaxKm;
 		this.totalDemandSum_paxKm += summary.totalDemand_paxKm;
-		for (var plane : fleet.getAsMultiRoundTrip()) {
+		for (var plane : fleet) {
 			var episodes = plane.getEpisodes();
 			for (int i = 1; i < episodes.size(); i += 2) {
 				var move = (MoveEpisode<?>) episodes.get(i);

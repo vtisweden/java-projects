@@ -89,7 +89,7 @@ class TestUniformTarget {
 			@Override
 			public void processState(RoundTrips<Node> roundTrips, double logWeight) {
 				if (this.it++ % 10 == 0) {
-					for (var roundTrip : roundTrips.getAsMultiRoundTrip()) {
+					for (var roundTrip : roundTrips) {
 						this.sizeCounts[roundTrip.size()]++;
 					}
 				}

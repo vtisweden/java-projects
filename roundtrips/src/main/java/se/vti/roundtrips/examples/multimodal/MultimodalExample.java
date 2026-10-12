@@ -33,16 +33,16 @@ import se.vti.utils.misc.metropolishastings.MHStateProcessor;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
- * 
+ * @author GunnarF
  */
 public class MultimodalExample {
 
-	static void run(double expectedColdProposalLength, double expectedHotProposalLength,
-			double coldHotRecombineProba) {
+	static long[] run(double expectedColdProposalLength, double expectedHotProposalLength,
+			double coldHotRecombineProba, int iterations) {
 
 		// Build the scenario.
 
-		var scenarioBuilder = new ScenarioBuilder<Node>().setRandom(new Random()).setNumberOfTimeBins(24)
+		var scenarioBuilder = new ScenarioBuilder<Node>().setRandom(new Random(4711)).setNumberOfTimeBins(24)
 				.setTimeBinSize_h(1.0);
 
 		for (int i = 1; i <= 10; i++) {
@@ -107,7 +107,7 @@ public class MultimodalExample {
 		initialHotMultiRoundTrip.setRoundTripAndUpdateSummaries(0, new RoundTrip<Node>(0, Arrays.asList(), Arrays.asList()));
 
 		runner.setInitialState(new ColdHotMultiRoundTrip<Node>(initialColdMultiRoundTrip, initialHotMultiRoundTrip));
-		runner.setMessageInterval(1000).setNumberOfIterations(1_000_000);
+		runner.setMessageInterval(1000).setNumberOfIterations(iterations);
 		
 		runner.run();
 		
@@ -121,12 +121,13 @@ public class MultimodalExample {
 			}
 		}
 		
+		return cnts;
 	}
 
 	public static void main(String[] args) {
 
-//		run(1.0, 10.0, 0.1);
-		run(10.0, 10.0, 0.0);
+		run(1.0, 10.0, 0.1, 1_000_000);
+		run(10.0, 10.0, 0.0, 1_000_000);
 	}
 
 }

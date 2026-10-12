@@ -63,7 +63,7 @@ class CoverageWeight implements MHWeight<RoundTrips<GridNode>> {
 		boolean changed;
 		do {
 			changed = false;
-			for (var roundTrip : roundTrips.getAsMultiRoundTrip()) {
+			for (var roundTrip : roundTrips) {
 				var episodes = roundTrip.getEpisodes();
 				for (int i = 1; i < episodes.size(); i += 2) {
 					// A round trip implies an alternating sequence of stay/move episodes.

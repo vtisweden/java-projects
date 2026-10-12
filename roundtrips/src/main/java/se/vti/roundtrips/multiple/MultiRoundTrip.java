@@ -69,22 +69,6 @@ public class MultiRoundTrip<N extends Node> implements Iterable<RoundTrip<N>>, R
 		this.roundTrips.set(i, roundTrip);
 	}
 
-	public RoundTrip<N> getRoundTrip(int i) {
-		return this.roundTrips.get(i);
-	}
-
-	public int size() {
-		return this.roundTrips.size();
-	}
-	
-	public int computeSumOfRoundTripSizes() {
-		int sizeSum = 0;
-		for (var roundTrip : this) {
-			sizeSum += roundTrip.size();
-		}
-		return sizeSum;		
-	}
-
 	public void addSummary(MultiRoundTripSummary<N> summary) {
 		this.class2summary.put(summary.getClass(), summary);
 	}
@@ -110,14 +94,36 @@ public class MultiRoundTrip<N extends Node> implements Iterable<RoundTrip<N>>, R
 		}
 	}
 
-	// -------------------- IMPLEMENTATION OF Iterable --------------------
+	// --------------- IMPLEMENTATION/OVERRIDING OF RoundTrips ---------------
+
+	@Override
+	public RoundTrip<N> getRoundTrip(int i) {
+		return this.roundTrips.get(i);
+	}
+
+	@Override
+	public int size() {
+		return this.roundTrips.size();
+	}
+
+	@Override
+	public int computeSumOfRoundTripSizes() {
+		int sizeSum = 0;
+		for (var roundTrip : this) {
+			sizeSum += roundTrip.size();
+		}
+		return sizeSum;
+	}
+
+	@Override
+	public MultiRoundTrip<N> getMultiRoundTrip() {
+		return this;
+	}
 
 	@Override
 	public Iterator<RoundTrip<N>> iterator() {
 		return this.roundTrips.iterator();
 	}
-
-	// -------------------- OVERRIDING OF Object --------------------
 
 	@Override
 	public MultiRoundTrip<N> clone() {
@@ -138,6 +144,8 @@ public class MultiRoundTrip<N extends Node> implements Iterable<RoundTrip<N>>, R
 		return result;
 	}
 
+	// -------------------- OVERRIDING OF Object --------------------
+
 	@Override
 	public String toString() {
 		StringBuffer result = new StringBuffer("{");
@@ -154,10 +162,5 @@ public class MultiRoundTrip<N extends Node> implements Iterable<RoundTrip<N>>, R
 		}
 		result.append("}");
 		return result.toString();
-	}
-
-	@Override
-	public MultiRoundTrip<N> getAsMultiRoundTrip() {
-		return this;
 	}
 }

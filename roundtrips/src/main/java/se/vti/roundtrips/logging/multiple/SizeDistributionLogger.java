@@ -53,9 +53,9 @@ public class SizeDistributionLogger<N extends Node> extends MHToFileLogger<Round
 	}
 
 	@Override
-	public String createDataLine(RoundTrips<N> state, double logWeight) {
+	public String createDataLine(RoundTrips<N> roundTrips, double logWeight) {
 		this.lastSizeCnts = new int[this.maxLength + 1];
-		for (var roundTrip : state.getAsMultiRoundTrip()) {
+		for (var roundTrip : roundTrips) {
 			if (this.includeIntrazonal) {
 				this.lastSizeCnts[roundTrip.size()]++;
 			} else {

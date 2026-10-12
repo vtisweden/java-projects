@@ -46,7 +46,7 @@ class MissionLogger extends MHToFileLogger<RoundTrips<GridNode>> {
 		int goingThroughDepot = 0;
 		int neverAtDepot = 0;
 		int unused = 0;
-		for (var roundTrip : roundTrips.getAsMultiRoundTrip()) {
+		for (var roundTrip : roundTrips) {
 			if (roundTrip.size() < 2) {
 				unused++;
 			} else if (roundTrip.getNodesView().contains(this.depot)) {

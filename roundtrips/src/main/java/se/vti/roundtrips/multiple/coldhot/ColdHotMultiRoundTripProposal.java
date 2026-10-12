@@ -149,8 +149,8 @@ public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal
 					.newTransition(fromColdHotMultiRoundTrip.getCold());
 			MHTransition<RoundTrips<N>> hotTransition = this.hotProposal
 					.newTransition(fromColdHotMultiRoundTrip.getHot());
-			to = new ColdHotMultiRoundTrip<>(coldTransition.getNewState().getAsMultiRoundTrip(),
-					hotTransition.getNewState().getAsMultiRoundTrip());
+			to = new ColdHotMultiRoundTrip<>(coldTransition.getNewState().getMultiRoundTrip(),
+					hotTransition.getNewState().getMultiRoundTrip());
 			fwdLogProba = Math.log(1.0 - this.coldHotRecombineProba) + coldTransition.getFwdLogProb()
 					+ hotTransition.getFwdLogProb();
 			bwdLogProba = Math.log(1.0 - this.coldHotRecombineProba) + coldTransition.getBwdLogProb()

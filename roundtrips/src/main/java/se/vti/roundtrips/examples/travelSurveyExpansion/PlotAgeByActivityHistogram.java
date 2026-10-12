@@ -52,7 +52,7 @@ class PlotAgeByActivityHistogram extends MHAbstractStateProcessor<RoundTrips<Gri
 
 	@Override
 	public void processStateHook(RoundTrips<GridNodeWithActivity> roundTrips, double logWeight) {
-		for (var roundTrip : roundTrips.getAsMultiRoundTrip()) {
+		for (var roundTrip : roundTrips) {
 
 			List<Episode> episodes = roundTrip.getEpisodes();
 			double simWork_h = 0.0;
