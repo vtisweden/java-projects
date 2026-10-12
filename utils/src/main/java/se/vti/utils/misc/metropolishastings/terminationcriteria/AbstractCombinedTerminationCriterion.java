@@ -67,12 +67,12 @@ public abstract class AbstractCombinedTerminationCriterion<X> implements Termina
 		}
 	}
 
-	@Override
-	public final void processState(X state) {
-		for (TerminationCriterion<X> tc : this.terminationCriteria) {
-			tc.processState(state);
-		}
-	}
+//	@Override
+//	public final void processState(X state) {
+//		for (TerminationCriterion<X> tc : this.terminationCriteria) {
+//			tc.processState(state);
+//		}
+//	}
 
 	@Override
 	public abstract boolean terminate();

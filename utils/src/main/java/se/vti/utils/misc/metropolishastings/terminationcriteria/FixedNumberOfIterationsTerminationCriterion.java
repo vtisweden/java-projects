@@ -40,7 +40,7 @@ public class FixedNumberOfIterationsTerminationCriterion<X> implements Terminati
 	}
 
 	@Override
-	public void processState(X state) {
+	public void processState(X state, double logWeight) {
 		this.iterations++;
 	}
 

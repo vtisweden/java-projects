@@ -52,10 +52,10 @@ public abstract class MHAbstractStateProcessor<X> implements MHStateProcessor<X>
 		this.samples = 0;
 	}
 
-	@Override
-	public void processState(X state) {
-		throw new UnsupportedOperationException();
-	}
+//	@Override
+//	public void processState(X state) {
+//		throw new UnsupportedOperationException();
+//	}
 
 	@Override
 	public final void processState(X state, double logWeight) {

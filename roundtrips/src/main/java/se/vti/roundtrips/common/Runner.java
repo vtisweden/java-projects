@@ -241,7 +241,7 @@ public class Runner<N extends Node> {
 					}
 
 					@Override
-					public void processState(RoundTrips<N> state) {
+					public void processState(RoundTrips<N> state, double logWeight) {
 						if (this.iteration % stateDumpInterval == 0) {
 							try {
 								MultiRoundTripJsonIO.singleton().writeToFile(state.getAsMultiRoundTrip(),

@@ -147,8 +147,8 @@ class ActivityTimeUseExample {
 			}
 
 			@Override
-			public void processState(RoundTrips<GridNodeWithActivity> state) {
-				this.plotHistogram.processState(state.getRoundTrip(0));
+			public void processState(RoundTrips<GridNodeWithActivity> state, double logWeight) {
+				this.plotHistogram.processState(state.getRoundTrip(0), logWeight);
 			}
 
 			@Override

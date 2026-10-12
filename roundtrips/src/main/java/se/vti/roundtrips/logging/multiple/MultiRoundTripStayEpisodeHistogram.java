@@ -69,7 +69,7 @@ public class MultiRoundTripStayEpisodeHistogram<L extends Node> implements MHSta
 	}
 
 	@Override
-	public void processState(MultiRoundTrip<L> roundTrips) {
+	public void processState(MultiRoundTrip<L> roundTrips, double logWeight) {
 		if (this.iteration % this.logInterval == 0) {
 			int[] hist = new int[this.maxStayCnt + 1];
 			for (RoundTrip<L> roundTrip : roundTrips) {

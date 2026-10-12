@@ -54,8 +54,7 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 	private int minNumberOfStableSamples = 0;
 
-	// -------------------- INTERNAL STATES, PACKAGE PRIVATE FOR TESTING
-	// --------------------
+	// --------------- INTERNAL STATES, PACKAGE PRIVATE FOR TESTING ---------------
 
 	long iterations;
 
@@ -160,14 +159,14 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 		}
 	}
 
-	@Override
-	public void processState(X state) {
-		if (this.extractor == null) {
-			throw new UnsupportedOperationException();
-		} else {
-			this.processState(state, Double.NaN /* not used for anything */);
-		}
-	}
+//	@Override
+//	public void processState(X state) {
+//		if (this.extractor == null) {
+//			throw new UnsupportedOperationException();
+//		} else {
+//			this.processState(state, Double.NaN /* not used for anything */);
+//		}
+//	}
 
 	@Override
 	public void end() {
@@ -368,7 +367,7 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 			while (!criterion.terminate() && k < 1_000_000) {
 				double x = process.next();
 				xList.add(x);
-				criterion.processState(x);
+				criterion.processState(x, x);
 				if (criterion.terminate()) {
 					System.out.println(criterion.stabilizationMeanRange + "\t" + criterion.stabilizationVarianceRange
 							+ "\t" + criterion.threeWindowMeanRange + "\t" + criterion.threeWindowVarianceRange);

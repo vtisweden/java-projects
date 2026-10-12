@@ -39,7 +39,7 @@ public class TimeLimitTerminationCriterion<X> implements TerminationCriterion<X>
 	}
 
 	@Override
-	public void processState(X state) {
+	public void processState(X state, double logWeight) {
 		this.now_s = System.currentTimeMillis() / 1000.0;
 	}
 

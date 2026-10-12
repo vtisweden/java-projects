@@ -1,7 +1,7 @@
 /**
  * se.vti.utils
  * 
- * Copyright (C) 2023 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2023-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -30,12 +30,14 @@ public interface MHStateProcessor<X> {
 
 	void start();
 
-	void processState(X state);
-	
-	default void processState(X state, double logWeight) {
-		processState(state);
-	}
+//	void processState(X state);
+//	
+//	default void processState(X state, double logWeight) {
+//		processState(state);
+//	}
 
+	void processState(X state, double logWeight);
+	
 	public void end();
 
 }
