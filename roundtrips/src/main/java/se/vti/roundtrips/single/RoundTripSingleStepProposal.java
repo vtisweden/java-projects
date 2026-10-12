@@ -1,7 +1,7 @@
 /**
  * se.vti.roundtrips
  * 
- * Copyright (C) 2023,2024 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2023-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -32,41 +32,41 @@ import se.vti.utils.misc.metropolishastings.MHTransition;
  * 
  * @author GunnarF
  *
- * @param <L> the location type
+ * @param <N> the location type
  */
-public class RoundTripSingleStepProposal<L extends Node> implements MHProposal<RoundTrip<L>> {
+public class RoundTripSingleStepProposal<N extends Node> implements MHProposal<RoundTrip<N>> {
 
 	// -------------------- MEMBERS --------------------
 
 	private final RoundTripProposalParameters proposalParams;
 
-	private final Scenario<L> scenario;
+	private final Scenario<N> scenario;
 
-	private final List<L> allLocations;
+	private final List<N> allLocations;
 
 	private final Random rnd;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public RoundTripSingleStepProposal(RoundTripProposalParameters proposalParams, Scenario<L> scenario) {
+	public RoundTripSingleStepProposal(RoundTripProposalParameters proposalParams, Scenario<N> scenario) {
 		this.proposalParams = proposalParams;
 		this.scenario = scenario;
 		this.allLocations = scenario.getNodesView();
 		this.rnd = scenario.getRandom();
 	}
 
-	public RoundTripSingleStepProposal(Scenario<L> scenario) {
+	public RoundTripSingleStepProposal(Scenario<N> scenario) {
 		this(new RoundTripProposalParameters(), scenario);
 	}
 
 	// -------------------- INTERNALS --------------------
 
-	private L drawLocationDifferentFrom(L notThisOne) {
+	private N drawLocationDifferentFrom(N notThisOne) {
 		if (this.allLocations.size() <= 1) {
 			throw new RuntimeException("Not more than one location available.");
 		}
 		while (true) {
-			final L location = this.allLocations.get(this.rnd.nextInt(this.allLocations.size()));
+			final N location = this.allLocations.get(this.rnd.nextInt(this.allLocations.size()));
 			if (!location.equals(notThisOne)) {
 				return location;
 			}
@@ -88,25 +88,25 @@ public class RoundTripSingleStepProposal<L extends Node> implements MHProposal<R
 	// -------------------- IMPLEMENTATION OF INTERFACE --------------------
 
 	@Override
-	public RoundTrip<L> newInitialState() {
+	public RoundTrip<N> newInitialState() {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public MHTransition<RoundTrip<L>> newTransition(RoundTrip<L> from) {
+	public MHTransition<RoundTrip<N>> newTransition(RoundTrip<N> from) {
 
 		assert (new LinkedHashSet<>(from.getDeparturesView()).size() == from.getDeparturesView().size());
 
-		final RoundTripTransitionKernel<L> fwdTransitionKernel = new RoundTripTransitionKernel<>(from, this.scenario,
+		final RoundTripTransitionKernel<N> fwdTransitionKernel = new RoundTripTransitionKernel<>(from, this.scenario,
 				this.proposalParams);
 
-		final RoundTrip<L> to = from.clone();
+		final RoundTrip<N> to = from.clone();
 
 		final double _U = this.rnd.nextDouble();
 		if (_U < fwdTransitionKernel.insertProba) { // INSERT
 
 			final int whereToInsert = this.rnd.nextInt(from.size() + 1);
-			final L whatLocationToInsert = this.allLocations.get(this.rnd.nextInt(this.allLocations.size()));
+			final N whatLocationToInsert = this.allLocations.get(this.rnd.nextInt(this.allLocations.size()));
 			final Integer whatDepTimeToInsert = this.drawUnusedDepartureTime(from);
 			to.addAndEnsureSortedDepartures(whereToInsert, whatLocationToInsert, whatDepTimeToInsert);
 
@@ -125,7 +125,7 @@ public class RoundTripSingleStepProposal<L extends Node> implements MHProposal<R
 				+ fwdTransitionKernel.flipLocationProba) { // FLIP LOCATION
 
 			final int whereToFlip = this.rnd.nextInt(from.size());
-			final L newLocation = this.drawLocationDifferentFrom(from.getNode(whereToFlip));
+			final N newLocation = this.drawLocationDifferentFrom(from.getNode(whereToFlip));
 			to.setNode(whereToFlip, newLocation);
 
 		} else { // FLIP DEPARTURE TIME
@@ -136,7 +136,7 @@ public class RoundTripSingleStepProposal<L extends Node> implements MHProposal<R
 		}
 
 		to.setEpisodes(this.scenario.getOrCreateSimulator().simulate(to));
-		final RoundTripTransitionKernel<L> bwdTransitionKernel = new RoundTripTransitionKernel<>(to, this.scenario,
+		final RoundTripTransitionKernel<N> bwdTransitionKernel = new RoundTripTransitionKernel<>(to, this.scenario,
 				this.proposalParams);
 
 		assert (fwdTransitionKernel.transitionProba(to) > 0);

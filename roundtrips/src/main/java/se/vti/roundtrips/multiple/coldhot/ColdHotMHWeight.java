@@ -35,7 +35,7 @@ public class ColdHotMHWeight<N extends Node> implements MHWeight<ColdHotMultiRou
 	private final double hotScale;
 
 	public ColdHotMHWeight(MHWeight<MultiRoundTrip<N>> prior, MHWeight<MultiRoundTrip<N>> coldWeight, double hotScale) {
-		if (hotScale < 0 || hotScale > 1.0) {
+		if (hotScale < 0.0 || hotScale > 1.0) {
 			throw new IllegalArgumentException("hotScale is " + hotScale + ", which is not between zero and one");
 		}
 		this.prior = prior;

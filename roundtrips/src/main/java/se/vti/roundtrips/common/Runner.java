@@ -27,6 +27,7 @@ import java.util.function.Function;
 
 import se.vti.roundtrips.multiple.MultiRoundTripJsonIO;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
+import se.vti.roundtrips.multiple.coldhot.ColdHotMultiRoundTripProposal;
 import se.vti.roundtrips.samplingweights.SingleToMultiWeight;
 import se.vti.roundtrips.samplingweights.priors.IndividualBinomialPrior;
 import se.vti.roundtrips.samplingweights.priors.IndividualUniformPrior;
@@ -70,7 +71,9 @@ public class Runner<N extends Node> {
 	private long stateDumpInterval = 0;
 	private String stateDumpFilePrefix = null;
 
-	private double expectedProposalLength = 1.0;
+	private double expectedColdProposalLength = 1.0;
+	private double expectedHotProposalLength = 1.0;
+	private double coldHotRecombineProba = 0.0;
 
 	private RoundTrips<N> initialState = null;
 	private TerminationCriterion<RoundTrips<N>> terminationCriterion = null;
@@ -156,11 +159,25 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
-	public Runner<N> setExpectedProposalLength(double expectedProposalLength) {
-		if (expectedProposalLength < 1.0) {
-			throw new IllegalArgumentException("expectedProposalLength must not be smaller than one.");
+	public Runner<N> setExpectedColdProposalLength(double expectedColdProposalLength) {
+		if (expectedColdProposalLength < 1.0) {
+			throw new IllegalArgumentException("expectedColdProposalLength must not be smaller than one.");
 		}
-		this.expectedProposalLength = expectedProposalLength;
+		this.expectedColdProposalLength = expectedColdProposalLength;
+		return this;
+	}
+
+	public Runner<N> setColdHotParameters(double expectedHotProposalLength, double coldHotRecombineProba) {
+		if (expectedHotProposalLength < 1.0) {
+			throw new IllegalArgumentException(
+					"expectedHotProposalLength must not be smaller than one but is " + expectedHotProposalLength + ".");
+		}
+		if (coldHotRecombineProba <= 0.0 || coldHotRecombineProba >= 1.0) {
+			throw new IllegalArgumentException(
+					"coldHotRecombineProba must be in (0,1) but is " + coldHotRecombineProba + ".");
+		}
+		this.expectedHotProposalLength = expectedHotProposalLength;
+		this.coldHotRecombineProba = coldHotRecombineProba;
 		return this;
 	}
 
@@ -259,15 +276,31 @@ public class Runner<N extends Node> {
 				});
 			}
 
-			final MHProposal<RoundTrip<N>> roundTripProposal;
-			if (this.expectedProposalLength == 1.0) {
-				roundTripProposal = new RoundTripSingleStepProposal<N>(this.scenario);
+			final MHProposal<RoundTrip<N>> coldProposal;
+			if (this.expectedColdProposalLength == 1.0) {
+				coldProposal = new RoundTripSingleStepProposal<N>(this.scenario);
 			} else {
-				roundTripProposal = new RoundTripMultiStepProposal<N>(this.scenario, this.expectedProposalLength);
+				coldProposal = new RoundTripMultiStepProposal<N>(this.scenario, this.expectedColdProposalLength);
 			}
 
-			var algo = new MHAlgorithm<RoundTrips<N>>(new MultiRoundTripProposal<N>(this.scenario, roundTripProposal),
-					this.weights, this.scenario.getRandom());
+			final MHAlgorithm<RoundTrips<N>> algo;
+			if (this.expectedHotProposalLength == 1.0 && this.coldHotRecombineProba == 0.0) {
+
+				algo = new MHAlgorithm<RoundTrips<N>>(new MultiRoundTripProposal<N>(this.scenario, coldProposal),
+						this.weights, this.scenario.getRandom());
+
+			} else {
+
+				final MHProposal<RoundTrip<N>> hotProposal;
+				if (this.expectedHotProposalLength == 1.0) {
+					hotProposal = new RoundTripSingleStepProposal<N>(this.scenario);
+				} else {
+					hotProposal = new RoundTripMultiStepProposal<N>(this.scenario, this.expectedHotProposalLength);
+				}
+				algo = new MHAlgorithm<RoundTrips<N>>(new ColdHotMultiRoundTripProposal<N>(this.scenario, coldProposal,
+						hotProposal, this.coldHotRecombineProba), this.weights, this.scenario.getRandom());
+
+			}
 
 			if ((this.samplesLogFile != null) && (this.sampleExtractors.size() > 0)) {
 				var samplesLogger = new MHSampleLogger<RoundTrips<N>>(this.sampleLogInterval, this.samplesLogFile);

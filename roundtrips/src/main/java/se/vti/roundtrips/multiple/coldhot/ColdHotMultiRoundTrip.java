@@ -27,7 +27,7 @@ import se.vti.roundtrips.single.RoundTrip;
 /**
  * @author GunnarF
  */
-class ColdHotMultiRoundTrip<N extends Node> implements RoundTrips<N> {
+public class ColdHotMultiRoundTrip<N extends Node> implements RoundTrips<N> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -37,13 +37,13 @@ class ColdHotMultiRoundTrip<N extends Node> implements RoundTrips<N> {
 
 	// -------------------- CONSTRUCTION --------------------
 
-	ColdHotMultiRoundTrip(MultiRoundTrip<N> coldMultiRoundTrip, MultiRoundTrip<N> hotMultiRoundTrip) {
+	public ColdHotMultiRoundTrip(MultiRoundTrip<N> coldMultiRoundTrip, MultiRoundTrip<N> hotMultiRoundTrip) {
 		assert (coldMultiRoundTrip.size() == hotMultiRoundTrip.size());
 		this.coldMultiRoundTrip = coldMultiRoundTrip;
 		this.hotMultiRoundTrip = hotMultiRoundTrip;
 	}
 
-	ColdHotMultiRoundTrip(int size) {
+	public ColdHotMultiRoundTrip(int size) {
 		this(new MultiRoundTrip<>(size), new MultiRoundTrip<>(size));
 	}
 
@@ -62,6 +62,8 @@ class ColdHotMultiRoundTrip<N extends Node> implements RoundTrips<N> {
 	MultiRoundTrip<N> getHot() {
 		return this.hotMultiRoundTrip;
 	}
+
+	// -------------------- IMPLEMENTATION OF RoundTrips --------------------
 
 	@Override
 	public int size() {

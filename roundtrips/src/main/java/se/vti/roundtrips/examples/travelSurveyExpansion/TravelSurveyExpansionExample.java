@@ -28,6 +28,7 @@ import se.vti.roundtrips.common.ScenarioBuilder;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.Activity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivity;
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
+import se.vti.roundtrips.multiple.coldhot.ColdHotMultiRoundTrip;
 import se.vti.roundtrips.samplingweights.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.samplingweights.StrictlyRequireMaxNumberOfStops;
 
@@ -105,11 +106,14 @@ public class TravelSurveyExpansionExample {
 		var scenario = scenarioBuilder.build();
 
 		var runner = new Runner<GridNodeWithActivity>(scenario);
-		
-		runner.setExpectedProposalLength(10.0); // testing the feature
+
+		// Using multi-step proposals and cold/hot tempering.
+		runner.setExpectedColdProposalLength(2.0); 
+		runner.setColdHotParameters(4.0, 1e-3);
 
 		// Definee the sampling weights.
-		runner.setIndividualUniformPrior().addIndividualWeight(new StrictlyRequireMaxNumberOfStops<GridNodeWithActivity>(6))
+		runner.setIndividualUniformPrior()
+				.addIndividualWeight(new StrictlyRequireMaxNumberOfStops<GridNodeWithActivity>(6))
 				.addIndividualWeight(new StrictlyPeriodicSchedule<GridNodeWithActivity>(scenario.getPeriodLength_h()))
 				.addIndividualWeight(new StrictlyEnforceUniqueHomeLocation())
 				.addPopulationWeight(new ExplainRoundTripsByResponses2(responses, syntheticPopulation));
@@ -122,7 +126,12 @@ public class TravelSurveyExpansionExample {
 //				.addStatisticEstimator(new TotalTravelTime<GridNodeWithActivity>());
 
 		// Configure sampling and run.
-		var initialRoundTrip = scenario.createInitialMultiRoundTrip(homes, Arrays.asList(0), syntheticPopulationSize);
+		var initialColdRoundTrip = scenario.createInitialMultiRoundTrip(homes, Arrays.asList(0),
+				syntheticPopulationSize);
+		var initialHotRoundTrip = scenario.createInitialMultiRoundTrip(homes, Arrays.asList(0),
+				syntheticPopulationSize);
+		var initialRoundTrip = new ColdHotMultiRoundTrip<GridNodeWithActivity>(initialColdRoundTrip,
+				initialHotRoundTrip);
 		runner.setInitialState(initialRoundTrip).setMessageInterval(totalIterations / 100)
 				.setNumberOfIterations(totalIterations);
 		runner.run();

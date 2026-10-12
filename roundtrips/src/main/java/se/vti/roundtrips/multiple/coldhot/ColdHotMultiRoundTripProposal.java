@@ -23,8 +23,9 @@ import java.util.Random;
 
 import se.vti.roundtrips.common.Node;
 import se.vti.roundtrips.common.RoundTrips;
-import se.vti.roundtrips.multiple.MultiRoundTrip;
+import se.vti.roundtrips.common.Scenario;
 import se.vti.roundtrips.multiple.MultiRoundTripProposal;
+import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHProposal;
 import se.vti.utils.misc.metropolishastings.MHTransition;
 
@@ -45,12 +46,18 @@ public class ColdHotMultiRoundTripProposal<N extends Node> implements MHProposal
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public ColdHotMultiRoundTripProposal(MultiRoundTripProposal<N> coldProposal, MultiRoundTripProposal<N> hotProposal,
+	ColdHotMultiRoundTripProposal(MultiRoundTripProposal<N> coldProposal, MultiRoundTripProposal<N> hotProposal,
 			double switchProba) {
 		this.rnd = coldProposal.getRandom();
 		this.coldProposal = coldProposal;
 		this.hotProposal = hotProposal;
 		this.switchProba = switchProba;
+	}
+
+	public ColdHotMultiRoundTripProposal(Scenario<N> scenario, MHProposal<RoundTrip<N>> coldProposal,
+			MHProposal<RoundTrip<N>> hotProposal, double switchProba) {
+		this(new MultiRoundTripProposal<N>(scenario, coldProposal),
+				new MultiRoundTripProposal<N>(scenario, hotProposal), switchProba);
 	}
 
 	// -------------------- IMPLEMENTATION OF MHProposal --------------------
