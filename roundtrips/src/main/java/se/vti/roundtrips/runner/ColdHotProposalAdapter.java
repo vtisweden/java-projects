@@ -80,9 +80,7 @@ class ColdHotProposalAdapter<N extends Node> implements MHProposal<RoundTrips<N>
 					}
 				}
 			}
-
-			fwdLogProba = Math.log(this.coldHotRecombineProba) + numberOfDifferentRoundTrips * Math.log(0.5)
-					- Math.log(1.0 - Math.pow(0.5, numberOfDifferentRoundTrips));
+			fwdLogProba = Math.log(this.coldHotRecombineProba) + numberOfDifferentRoundTrips * Math.log(0.5);
 			bwdLogProba = fwdLogProba;
 
 		} else {
