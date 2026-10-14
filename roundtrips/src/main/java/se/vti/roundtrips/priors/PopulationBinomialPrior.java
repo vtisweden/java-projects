@@ -10,7 +10,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class PopulationBinomialPrior<N extends Node> implements MHWeight<MultiRoundTrip<N>>, Prior {
+public class PopulationBinomialPrior<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
 
 	// -------------------- CONSTANTS --------------------
 

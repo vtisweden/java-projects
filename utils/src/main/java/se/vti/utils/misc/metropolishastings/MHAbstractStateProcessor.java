@@ -27,21 +27,30 @@ package se.vti.utils.misc.metropolishastings;
  */
 public abstract class MHAbstractStateProcessor<X> implements MHStateProcessor<X> {
 
-	private final long burnInIterations;
-	private final long samplingInterval;
+	private long burnInIterations;
+	private long samplingInterval;
 	private long iteration;
 	private long samples;
-	
+
 	public MHAbstractStateProcessor(long burnInIterations, long samplingInterval) {
 		super();
+		this.setBurnInIterations(burnInIterations).setSamplingInterval(samplingInterval);
+	}
+
+	public MHAbstractStateProcessor<X> setBurnInIterations(long burnInIterations) {
 		this.burnInIterations = burnInIterations;
+		return this;
+	}
+
+	public MHAbstractStateProcessor<X> setSamplingInterval(long samplingInterval) {
 		this.samplingInterval = samplingInterval;
+		return this;
 	}
 
 	public long iteration() {
 		return this.iteration;
 	}
-	
+
 	public long samples() {
 		return this.samples;
 	}
@@ -51,11 +60,6 @@ public abstract class MHAbstractStateProcessor<X> implements MHStateProcessor<X>
 		this.iteration = 0;
 		this.samples = 0;
 	}
-
-//	@Override
-//	public void processState(X state) {
-//		throw new UnsupportedOperationException();
-//	}
 
 	@Override
 	public final void processState(X state, double logWeight) {

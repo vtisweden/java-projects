@@ -1,7 +1,7 @@
 /**
- * se.vti.roundtrips
+ * se.vti.roundtrips.multiple
  * 
- * Copyright (C) 2025-2026 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2024-26 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -17,38 +17,32 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.runner;
+package se.vti.roundtrips.runner.coldhot;
 
 import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.scenario.Node;
-import se.vti.utils.misc.metropolishastings.MHStateProcessor;
+import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
  * @author GunnarF
  * 
- * @param <N> node type
+ * @param <N>
  */
-class RoundTripsStateProcessorAdapter<N extends Node> implements MHStateProcessor<RoundTrips<N>> {
+class ColdHotWeightWrapper<N extends Node> implements MHWeight<ColdHotMultiRoundTrip<N>> {
 
-	private final MHStateProcessor<MultiRoundTrip<N>> delegate;
-	
-	RoundTripsStateProcessorAdapter(MHStateProcessor<MultiRoundTrip<N>> delegate) {
-		this.delegate = delegate;
+	private final MHWeight<MultiRoundTrip<N>> delegate;
+	private final double hotScale;
+
+	ColdHotWeightWrapper(MHWeight<MultiRoundTrip<N>> multiRoundTripWeight, double hotScale) {
+		this.delegate = multiRoundTripWeight;
+		this.hotScale = hotScale;
 	}
 
 	@Override
-	public void start() {
-		this.delegate.start();
+	public double logWeight(ColdHotMultiRoundTrip<N> state) {
+		var coldHotState = (ColdHotMultiRoundTrip<N>) state;
+		return this.delegate.logWeight(coldHotState.getCold())
+				+ this.hotScale * this.delegate.logWeight(coldHotState.getHot());
 	}
 
-	@Override
-	public void processState(RoundTrips<N> roundTrips, double logWeight) {
-		this.delegate.processState(roundTrips.getMultiRoundTrip(), logWeight);
-	}
-
-	@Override
-	public void end() {
-		this.delegate.end();
-	}
-	
 }

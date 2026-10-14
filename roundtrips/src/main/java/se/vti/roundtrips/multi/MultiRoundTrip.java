@@ -25,7 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import se.vti.roundtrips.runner.RoundTrips;
+import se.vti.roundtrips.runner.MultiRoundTripWrapper;
 import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.simulator.Simulator;
 import se.vti.roundtrips.single.RoundTrip;
@@ -36,7 +36,7 @@ import se.vti.roundtrips.single.RoundTrip;
  *
  * @param <N>
  */
-public class MultiRoundTrip<N extends Node> implements Iterable<RoundTrip<N>>, RoundTrips<N> {
+public class MultiRoundTrip<N extends Node> implements Iterable<RoundTrip<N>>, MultiRoundTripWrapper<N> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -96,17 +96,17 @@ public class MultiRoundTrip<N extends Node> implements Iterable<RoundTrip<N>>, R
 		}
 	}
 
-	@Override
+//	@Override
 	public RoundTrip<N> getRoundTrip(int i) {
 		return this.roundTrips.get(i);
 	}
 
-	@Override
+//	@Override
 	public int size() {
 		return this.roundTrips.size();
 	}
 
-	@Override
+//	@Override
 	public int computeSumOfRoundTripSizes() {
 		int sizeSum = 0;
 		for (var roundTrip : this) {

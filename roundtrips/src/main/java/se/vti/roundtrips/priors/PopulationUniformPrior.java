@@ -29,7 +29,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class PopulationUniformPrior<N extends Node> implements MHWeight<MultiRoundTrip<N>>, Prior {
+public class PopulationUniformPrior<N extends Node> implements MHWeight<MultiRoundTrip<N>> {
 
 	private final int numberOfNodes;
 

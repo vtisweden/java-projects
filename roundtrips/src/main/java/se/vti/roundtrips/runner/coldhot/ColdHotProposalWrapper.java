@@ -17,13 +17,13 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.runner;
+package se.vti.roundtrips.runner.coldhot;
 
 import java.util.Random;
 
+import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.scenario.Scenario;
-import se.vti.roundtrips.single.RoundTrip;
 import se.vti.utils.misc.metropolishastings.MHProposal;
 import se.vti.utils.misc.metropolishastings.MHTransition;
 
@@ -31,24 +31,24 @@ import se.vti.utils.misc.metropolishastings.MHTransition;
  * 
  * @param <N>
  */
-class ColdHotProposalAdapter<N extends Node> implements MHProposal<RoundTrips<N>> {
+class ColdHotProposalWrapper<N extends Node> implements MHProposal<ColdHotMultiRoundTrip<N>> {
 
 	// -------------------- MEMBERS --------------------
 
 	private final Random rnd;
 
-	private final RoundTripsProposalAdapter<N> coldProposal;
-	private final RoundTripsProposalAdapter<N> hotProposal;
+	private final MHProposal<MultiRoundTrip<N>> coldProposal;
+	private final MHProposal<MultiRoundTrip<N>> hotProposal;
 
 	private final double coldHotRecombineProba;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	ColdHotProposalAdapter(Scenario<N> scenario, MHProposal<RoundTrip<N>> coldProposal,
-			MHProposal<RoundTrip<N>> hotProposal, double coldHotRecombineProba) {		
+	ColdHotProposalWrapper(Scenario<N> scenario, MHProposal<MultiRoundTrip<N>> coldProposal,
+			MHProposal<MultiRoundTrip<N>> hotProposal, double coldHotRecombineProba) {
 		this.rnd = scenario.getRandom();
-		this.coldProposal = new RoundTripsProposalAdapter<N>(scenario, coldProposal);
-		this.hotProposal = new RoundTripsProposalAdapter<N>(scenario, hotProposal);
+		this.coldProposal = coldProposal;
+		this.hotProposal = hotProposal;
 		this.coldHotRecombineProba = coldHotRecombineProba;
 	}
 
@@ -60,16 +60,15 @@ class ColdHotProposalAdapter<N extends Node> implements MHProposal<RoundTrips<N>
 	}
 
 	@Override
-	public MHTransition<RoundTrips<N>> newTransition(RoundTrips<N> from) {
+	public MHTransition<ColdHotMultiRoundTrip<N>> newTransition(ColdHotMultiRoundTrip<N> from) {
 
-		final ColdHotMultiRoundTrip<N> fromColdHotMultiRoundTrip = (ColdHotMultiRoundTrip<N>) from;
 		final ColdHotMultiRoundTrip<N> to;
 		final double fwdLogProba;
 		final double bwdLogProba;
 
 		if (this.rnd.nextDouble() < this.coldHotRecombineProba) {
 
-			to = fromColdHotMultiRoundTrip.clone();
+			to = from.clone();
 
 			int numberOfDifferentRoundTrips = 0;
 			for (int i = 0; i < to.size(); i++) {
@@ -85,17 +84,14 @@ class ColdHotProposalAdapter<N extends Node> implements MHProposal<RoundTrips<N>
 
 		} else {
 
-			MHTransition<RoundTrips<N>> coldTransition = this.coldProposal
-					.newTransition(fromColdHotMultiRoundTrip.getCold());
-			MHTransition<RoundTrips<N>> hotTransition = this.hotProposal
-					.newTransition(fromColdHotMultiRoundTrip.getHot());
-			to = new ColdHotMultiRoundTrip<>(coldTransition.getNewState().getMultiRoundTrip(),
-					hotTransition.getNewState().getMultiRoundTrip());
+			MHTransition<MultiRoundTrip<N>> coldTransition = this.coldProposal.newTransition(from.getCold());
+			MHTransition<MultiRoundTrip<N>> hotTransition = this.hotProposal.newTransition(from.getHot());
+			to = new ColdHotMultiRoundTrip<>(coldTransition.getNewState(), hotTransition.getNewState());
 			fwdLogProba = Math.log(1.0 - this.coldHotRecombineProba) + coldTransition.getFwdLogProb()
 					+ hotTransition.getFwdLogProb();
 			bwdLogProba = Math.log(1.0 - this.coldHotRecombineProba) + coldTransition.getBwdLogProb()
 					+ hotTransition.getBwdLogProb();
-
+			
 		}
 
 		return new MHTransition<>(from, to, fwdLogProba, bwdLogProba);

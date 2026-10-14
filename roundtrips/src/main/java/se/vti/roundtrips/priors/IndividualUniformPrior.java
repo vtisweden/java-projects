@@ -29,7 +29,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class IndividualUniformPrior<N extends Node> implements MHWeight<RoundTrip<N>>, Prior {
+public class IndividualUniformPrior<N extends Node> implements MHWeight<RoundTrip<N>> {
 
 	private final double[] uniformLogWeightsOverSize;
 

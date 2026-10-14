@@ -26,11 +26,19 @@ package se.vti.utils.misc.metropolishastings;
  */
 public class MHWeightsToFileLogger<X> extends MHToFileLogger<X> {
 
-	final MHWeightContainer<X> samplingWeights;
+	private final MHWeightContainer<X> samplingWeights;
 
 	public MHWeightsToFileLogger(long samplingInterval, MHWeightContainer<X> samplingWeights, String logFileName) {
 		super(samplingInterval, logFileName);
 		this.samplingWeights = samplingWeights;
+	}
+
+	public MHWeightsToFileLogger(long samplingInterval, String logFileName) {
+		this(samplingInterval, new MHWeightContainer<X>(), logFileName);
+	}
+	
+	public void addWeight(MHWeight<X> component) {
+		this.samplingWeights.add(component);
 	}
 
 	@Override

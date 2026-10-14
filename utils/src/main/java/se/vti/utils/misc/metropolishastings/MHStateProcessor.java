@@ -28,16 +28,10 @@ package se.vti.utils.misc.metropolishastings;
  */
 public interface MHStateProcessor<X> {
 
-	void start();
-
-//	void processState(X state);
-//	
-//	default void processState(X state, double logWeight) {
-//		processState(state);
-//	}
+	default void start() {};
 
 	void processState(X state, double logWeight);
 	
-	public void end();
+	default void end() {};
 
 }

@@ -17,16 +17,16 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.runner;
+package se.vti.roundtrips.runner.coldhot;
 
 import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.runner.MultiRoundTripWrapper;
 import se.vti.roundtrips.scenario.Node;
-import se.vti.roundtrips.simulator.Simulator;
 
 /**
  * @author GunnarF
  */
-class ColdHotMultiRoundTrip<N extends Node> implements RoundTrips<N> {
+public class ColdHotMultiRoundTrip<N extends Node> implements MultiRoundTripWrapper<N> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -50,11 +50,11 @@ class ColdHotMultiRoundTrip<N extends Node> implements RoundTrips<N> {
 		this.hotMultiRoundTrip.setRoundTripAndUpdateSummaries(i, previouslyColdRoundTrip);
 	}
 
-	MultiRoundTrip<N> getCold() {
+	public MultiRoundTrip<N> getCold() {
 		return this.coldMultiRoundTrip;
 	}
 
-	MultiRoundTrip<N> getHot() {
+	public MultiRoundTrip<N> getHot() {
 		return this.hotMultiRoundTrip;
 	}
 
@@ -65,10 +65,14 @@ class ColdHotMultiRoundTrip<N extends Node> implements RoundTrips<N> {
 		return this.coldMultiRoundTrip;
 	}
 
-	@Override
-	public void simulateAll(Simulator<N> simulator) {
-		this.coldMultiRoundTrip.simulateAll(simulator);
-		this.hotMultiRoundTrip.simulateAll(simulator);
+//	@Override
+//	public void simulateAll(Simulator<N> simulator) {
+//		this.coldMultiRoundTrip.simulateAll(simulator);
+//		this.hotMultiRoundTrip.simulateAll(simulator);
+//	}
+
+	public int size() {
+		return this.coldMultiRoundTrip.size();
 	}
 
 	@Override

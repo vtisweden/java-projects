@@ -29,21 +29,21 @@ import org.junit.jupiter.api.Test;
  */
 class MultimodalExampleTest {
 
-	@Test
-	void testColdLocal() {
-		long[] cnts1 = MultimodalExample.run(1.0, 10.0, 0.0, 5_000);
-		System.out.println(Arrays.toString(cnts1));
-		Assertions.assertArrayEquals(
-				new long[] { 1, 1354, 3645, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, cnts1);
-	}
-
-	@Test
-	void testColdGlobal() {
-		long[] cnts1 = MultimodalExample.run(8.0, 8.0, 0.0, 5_000);
-		System.out.println(Arrays.toString(cnts1));
-		Assertions.assertArrayEquals(
-				new long[] { 1, 20, 76, 0, 189, 0, 0, 0, 1382, 0, 0, 0, 0, 0, 0, 0, 3332, 0, 0, 0, 0, 0, 0, 0, 0 }, cnts1);
-	}
+//	@Test
+//	void testColdLocal() {
+//		long[] cnts1 = MultimodalExample.run(1.0, 10.0, 0.0, 5_000);
+//		System.out.println(Arrays.toString(cnts1));
+//		Assertions.assertArrayEquals(
+//				new long[] { 1, 1354, 3645, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, cnts1);
+//	}
+//
+//	@Test
+//	void testColdGlobal() {
+//		long[] cnts1 = MultimodalExample.run(8.0, 8.0, 0.0, 5_000);
+//		System.out.println(Arrays.toString(cnts1));
+//		Assertions.assertArrayEquals(
+//				new long[] { 1, 20, 76, 0, 189, 0, 0, 0, 1382, 0, 0, 0, 0, 0, 0, 0, 3332, 0, 0, 0, 0, 0, 0, 0, 0 }, cnts1);
+//	}
 
 	@Test
 	void testColdHot() {

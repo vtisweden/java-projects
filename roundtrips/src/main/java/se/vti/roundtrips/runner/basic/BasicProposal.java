@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
-package se.vti.roundtrips.runner;
+package se.vti.roundtrips.runner.basic;
 
 import java.util.Random;
 
@@ -33,7 +33,7 @@ import se.vti.utils.misc.metropolishastings.MHTransition;
  * @author GunnarF
  *
  */
-class RoundTripsProposalAdapter<N extends Node> implements MHProposal<RoundTrips<N>> {
+public class BasicProposal<N extends Node> implements MHProposal<MultiRoundTrip<N>> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -45,16 +45,12 @@ class RoundTripsProposalAdapter<N extends Node> implements MHProposal<RoundTrips
 
 	// -------------------- CONSTRUCTION --------------------
 
-	RoundTripsProposalAdapter(Random rnd, MHProposal<RoundTrip<N>> singleRoundTripProposal) {
-		this.rnd = rnd;
+	public BasicProposal(Scenario<N> scenario, MHProposal<RoundTrip<N>> singleRoundTripProposal) {
+		this.rnd = scenario.getRandom();
 		this.singleRoundTripProposal = singleRoundTripProposal;
 	}
 
-	RoundTripsProposalAdapter(Scenario<N> scenario, MHProposal<RoundTrip<N>> singleRoundTripProposal) {
-		this(scenario.getRandom(), singleRoundTripProposal);
-	}
-
-	RoundTripsProposalAdapter<N> setFlipProbability(double flipProbability) {
+	BasicProposal<N> setFlipProbability(double flipProbability) {
 		this.flipProba = flipProbability;
 		return this;
 	}
@@ -62,18 +58,18 @@ class RoundTripsProposalAdapter<N extends Node> implements MHProposal<RoundTrips
 	// -------------------- IMPLEMENTATION OF MHProposal --------------------
 
 	@Override
-	public RoundTrips<N> newInitialState() {
+	public MultiRoundTrip<N> newInitialState() {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public MHTransition<RoundTrips<N>> newTransition(RoundTrips<N> from) {
+	public MHTransition<MultiRoundTrip<N>> newTransition(MultiRoundTrip<N> from) {
 
 		final double minFlipProba = 1.0 / Math.max(1.0, from.size());
 		final double flipProba = (this.flipProba != null ? Math.max(this.flipProba, minFlipProba) : minFlipProba);
 		final double atLeastOneFlipProba = 1.0 - Math.pow(1.0 - flipProba, from.size());
 
-		final MultiRoundTrip<N> to = (MultiRoundTrip<N>) from.clone();
+		final MultiRoundTrip<N> to = from.clone();
 
 		boolean flipped = false;
 		double fwdLogProba;

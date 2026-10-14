@@ -32,7 +32,7 @@ import java.util.Locale;
  */
 public class MHToFileLogger<X> extends MHAbstractStateProcessor<X> implements MHStateProcessor<X> {
 
-	private final File logFile;
+	private File logFile;
 
 	PrintWriter writer;
 
@@ -40,11 +40,17 @@ public class MHToFileLogger<X> extends MHAbstractStateProcessor<X> implements MH
 
 	public MHToFileLogger(long samplingInterval, String logFileName) {
 		super(0, samplingInterval);
-		this.logFile = new File(logFileName);
+		this.setLogFilename(logFileName);
 	}
-
-	public void setFlushEachLine(boolean flushEachLine) {
+	
+	public MHToFileLogger<X> setLogFilename(String logFileName) {
+		this.logFile = new File(logFileName);
+		return this;
+	}
+	
+	public MHToFileLogger<X> setFlushEachLine(boolean flushEachLine) {
 		this.flushEachLine = flushEachLine;
+		return this;
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * @author GunnarF
  *
  */
-public class IndividualBinomialPrior<N extends Node> implements MHWeight<RoundTrip<N>>, Prior {
+public class IndividualBinomialPrior<N extends Node> implements MHWeight<RoundTrip<N>> {
 
 	private final IndividualUniformPrior<N> uniformPrior;
 
