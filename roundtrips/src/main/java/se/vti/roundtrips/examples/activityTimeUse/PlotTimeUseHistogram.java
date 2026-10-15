@@ -36,19 +36,17 @@ import se.vti.utils.misc.metropolishastings.MHAbstractStateProcessor;
  * @author GunnarF
  *
  */
-class PlotTimeUseHistogram extends MHAbstractStateProcessor<RoundTrip<GridNodeWithActivity>> {
+class PlotTimeUseHistogram  {
 
 	private Map<Activity, long[]> activity2histogram;
 
-	public PlotTimeUseHistogram(long burnInIterations, long samplingInterval) {
-		super(burnInIterations, samplingInterval);
+	public PlotTimeUseHistogram() {
 		this.activity2histogram = new LinkedHashMap<>();
 		this.activity2histogram.put(Activity.HOME, new long[24]);
 		this.activity2histogram.put(Activity.WORK, new long[24]);
 		this.activity2histogram.put(Activity.OTHER, new long[24]);
 	}
 
-	@Override
 	public void processStateHook(RoundTrip<GridNodeWithActivity> roundTrip, double logWeight) {
 		List<Episode> episodes = roundTrip.getEpisodes();
 		for (int i = 0; i < episodes.size(); i += 2) {
@@ -62,9 +60,7 @@ class PlotTimeUseHistogram extends MHAbstractStateProcessor<RoundTrip<GridNodeWi
 		}
 	}
 
-	@Override
 	public void end() {
-		super.end();
 		System.out.println("----------------------------------------");
 		System.out.println("hour\thome\twork\tother");
 		for (int hour = 0; hour < 24; hour++) {

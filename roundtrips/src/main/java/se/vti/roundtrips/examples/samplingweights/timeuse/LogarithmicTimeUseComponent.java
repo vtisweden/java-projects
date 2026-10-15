@@ -1,7 +1,7 @@
 /**
- * se.vti.roundtrips.samplingweights.misc.timeUse
+ * se.vti.roundtrips
  * 
- * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2025-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -42,7 +42,7 @@ public class LogarithmicTimeUseComponent<N extends Node> {
 
 	final double targetDuration_h;
 	final double period_h;
-	final int[] roundTripIndices; // keeps track of roundtrips with these indices
+	final int[] indices; // keeps track of roundtrips with these indices
 	final Set<N> nodes = new LinkedHashSet<>(); // keeps track of stay episodes at these nodes
 
 	private List<Tuple<Double, Double>> openInterval_h;
@@ -62,7 +62,7 @@ public class LogarithmicTimeUseComponent<N extends Node> {
 	LogarithmicTimeUseComponent(double targetDuration_h, double period_h, int... roundTripIndices) {
 		this.targetDuration_h = targetDuration_h;
 		this.period_h = period_h;
-		this.roundTripIndices = roundTripIndices;
+		this.indices = roundTripIndices;
 		this.openInterval_h = Arrays.asList(new Tuple<>(0.0, period_h));
 		this.minEnBlockDurationAtLeastOnce_h = 0.0;
 		this.minEnBlockDurationEachTime_h = 0.0;
@@ -153,7 +153,7 @@ public class LogarithmicTimeUseComponent<N extends Node> {
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + ": targetDuration_h=" + this.targetDuration_h + ", period_h="
-				+ this.period_h + ", roundTripIndices=" + Arrays.toString(this.roundTripIndices) + ", nodes="
+				+ this.period_h + ", roundTripIndices=" + Arrays.toString(this.indices) + ", nodes="
 				+ this.nodes + ", openInterval_h=" + this.openInterval_h + ", minEnBlockDurationAtLeastOnce_h="
 				+ this.minEnBlockDurationAtLeastOnce_h + ", minEnBlockDurationEachTime_h="
 				+ this.minEnBlockDurationEachTime_h;

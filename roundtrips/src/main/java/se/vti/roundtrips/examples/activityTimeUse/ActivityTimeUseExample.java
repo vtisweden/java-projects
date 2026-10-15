@@ -31,7 +31,7 @@ import se.vti.roundtrips.runner.Runner;
 import se.vti.roundtrips.scenario.ScenarioBuilder;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.roundtrips.single.RoundTripUtils;
-import se.vti.utils.misc.metropolishastings.MHStateProcessor;
+import se.vti.utils.misc.metropolishastings.MHAbstractStateProcessor;
 
 /**
  * 
@@ -138,18 +138,16 @@ class ActivityTimeUseExample {
 
 		// Log summary statistics over sampling iterations. See code for interpretation
 		runner.configureWeightLogging("./output/activityExpansion/logWeights.log", totalIterations / 100);
-		runner.addStateProcessor(new MHStateProcessor<MultiRoundTrip<GridNodeWithActivity>>() {
-			private PlotTimeUseHistogram plotHistogram = new PlotTimeUseHistogram(totalIterations / 2,
-					totalIterations / 100);
+		runner.addStateProcessor(new MHAbstractStateProcessor<MultiRoundTrip<GridNodeWithActivity>>(totalIterations / 2, 1000) {
+			private PlotTimeUseHistogram plotHistogram = new PlotTimeUseHistogram();
 
 			@Override
 			public void start() {
-				this.plotHistogram.start();
 			}
 
 			@Override
-			public void processState(MultiRoundTrip<GridNodeWithActivity> state, double logWeight) {
-				this.plotHistogram.processState(state.getRoundTrip(0), logWeight);
+			public void processStateHook(MultiRoundTrip<GridNodeWithActivity> state, double logWeight) {
+				this.plotHistogram.processStateHook(state.getRoundTrip(0), logWeight);
 			}
 
 			@Override

@@ -1,7 +1,7 @@
 /**
- * se.vti.roundtrips.samplingweights.misc
+ * se.vti.roundtrips
  * 
- * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2025-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -73,8 +73,11 @@ class LogarithmicTimeUse<N extends Node> {
 			List<Episode> episodes = roundTrip.getEpisodes();
 			for (int i = 0; i < episodes.size(); i += 2) {
 				StayEpisode<N> stay = (StayEpisode<N>) episodes.get(i);
-				for (var component : node2Components.get(stay.getLocation())) {
-					component.update(stay);
+				var components = node2Components.get(stay.getLocation());
+				if (components != null) {
+					for (var component : components) {
+						component.update(stay);
+					}
 				}
 			}
 		}
@@ -92,8 +95,8 @@ class LogarithmicTimeUse<N extends Node> {
 		if (component.isLocked()) {
 			throw new RuntimeException("Component is locked.");
 		}
-		for (int roundTripIndex : component.roundTripIndices) {
-			var node2Components = this.node2ComponentsOverIndices.get(roundTripIndex);
+		for (int indices : component.indices) {
+			var node2Components = this.node2ComponentsOverIndices.get(indices);
 			for (N node : component.nodes) {
 				node2Components.computeIfAbsent(node, n -> new LinkedHashSet<>()).add(component);
 			}
