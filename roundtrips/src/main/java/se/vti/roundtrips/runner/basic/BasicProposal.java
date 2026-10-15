@@ -25,6 +25,8 @@ import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.scenario.Scenario;
 import se.vti.roundtrips.single.RoundTrip;
+import se.vti.roundtrips.single.RoundTripMultiStepProposal;
+import se.vti.roundtrips.single.RoundTripSingleStepProposal;
 import se.vti.utils.misc.metropolishastings.MHProposal;
 import se.vti.utils.misc.metropolishastings.MHTransition;
 
@@ -55,6 +57,17 @@ public class BasicProposal<N extends Node> implements MHProposal<MultiRoundTrip<
 		return this;
 	}
 
+	public static <N extends Node> BasicProposal<N> createDefaultInstance(Scenario<N> scenario,
+			double expectedProposalLength) {
+		MHProposal<RoundTrip<N>> singleProposal;
+		if (expectedProposalLength == 1.0) {
+			singleProposal = new RoundTripSingleStepProposal<N>(scenario);
+		} else {
+			singleProposal = new RoundTripMultiStepProposal<N>(scenario, expectedProposalLength);
+		}
+		return new BasicProposal<N>(scenario, singleProposal);
+	}
+
 	// -------------------- IMPLEMENTATION OF MHProposal --------------------
 
 	@Override
@@ -79,7 +92,8 @@ public class BasicProposal<N extends Node> implements MHProposal<MultiRoundTrip<
 			bwdLogProba = 0.0;
 			for (int i = 0; i < from.size(); i++) {
 				if (this.rnd.nextDouble() < flipProba) {
-					MHTransition<RoundTrip<N>> transition = this.singleRoundTripProposal.newTransition(from.getRoundTrip(i));
+					MHTransition<RoundTrip<N>> transition = this.singleRoundTripProposal
+							.newTransition(from.getRoundTrip(i));
 					to.setRoundTripAndUpdateSummaries(i, transition.getNewState());
 					fwdLogProba += Math.log(flipProba) + transition.getFwdLogProb();
 					bwdLogProba += Math.log(flipProba) + transition.getBwdLogProb();

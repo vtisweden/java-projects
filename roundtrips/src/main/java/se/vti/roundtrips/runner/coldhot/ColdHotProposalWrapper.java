@@ -23,7 +23,6 @@ import java.util.Random;
 
 import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.scenario.Node;
-import se.vti.roundtrips.scenario.Scenario;
 import se.vti.utils.misc.metropolishastings.MHProposal;
 import se.vti.utils.misc.metropolishastings.MHTransition;
 
@@ -44,9 +43,9 @@ class ColdHotProposalWrapper<N extends Node> implements MHProposal<ColdHotMultiR
 
 	// -------------------- CONSTRUCTION --------------------
 
-	ColdHotProposalWrapper(Scenario<N> scenario, MHProposal<MultiRoundTrip<N>> coldProposal,
+	ColdHotProposalWrapper(Random rnd, MHProposal<MultiRoundTrip<N>> coldProposal,
 			MHProposal<MultiRoundTrip<N>> hotProposal, double coldHotRecombineProba) {
-		this.rnd = scenario.getRandom();
+		this.rnd = rnd;
 		this.coldProposal = coldProposal;
 		this.hotProposal = hotProposal;
 		this.coldHotRecombineProba = coldHotRecombineProba;
@@ -71,7 +70,7 @@ class ColdHotProposalWrapper<N extends Node> implements MHProposal<ColdHotMultiR
 			to = from.clone();
 
 			int numberOfDifferentRoundTrips = 0;
-			for (int i = 0; i < to.size(); i++) {
+			for (int i = 0; i < to.getMultiRoundTrip().size(); i++) {
 				if (!to.getCold().getRoundTrip(i).equalsBehaviorally(to.getHot().getRoundTrip(i))) {
 					numberOfDifferentRoundTrips++;
 					if (this.rnd.nextBoolean()) {
@@ -91,7 +90,7 @@ class ColdHotProposalWrapper<N extends Node> implements MHProposal<ColdHotMultiR
 					+ hotTransition.getFwdLogProb();
 			bwdLogProba = Math.log(1.0 - this.coldHotRecombineProba) + coldTransition.getBwdLogProb()
 					+ hotTransition.getBwdLogProb();
-			
+
 		}
 
 		return new MHTransition<>(from, to, fwdLogProba, bwdLogProba);

@@ -1,7 +1,7 @@
 /**
  * se.vti.roundtrips
  * 
- * Copyright (C) 2025-2026 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -23,10 +23,6 @@ import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.runner.AbstractStateAdapter;
 import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.scenario.Scenario;
-import se.vti.roundtrips.single.RoundTrip;
-import se.vti.roundtrips.single.RoundTripMultiStepProposal;
-import se.vti.roundtrips.single.RoundTripSingleStepProposal;
-import se.vti.utils.misc.metropolishastings.MHProposal;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 
 /**
@@ -34,6 +30,8 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  * 
  */
 public class BasicStateAdapter<N extends Node> extends AbstractStateAdapter<N, MultiRoundTrip<N>> {
+
+	// -------------------- CONSTRUCTION --------------------
 
 	public BasicStateAdapter(Scenario<N> scenario) {
 		super(scenario);
@@ -44,39 +42,29 @@ public class BasicStateAdapter<N extends Node> extends AbstractStateAdapter<N, M
 		return this;
 	}
 
+	public static <N extends Node> BasicStateAdapter<N> createDefaultInstance(Scenario<N> scenario,
+			double expectedProposalLength) {
+		return new BasicStateAdapter<>(scenario)
+				.setProposal(BasicProposal.createDefaultInstance(scenario, expectedProposalLength));
+	}
+
+	// -------------------- EXTENSIN OF AbstractStateAdapter --------------------
+
 	@Override
-	public BasicStateAdapter<N> setInitialState(MultiRoundTrip<N> initialState) {
+	protected BasicStateAdapter<N> setInitialState(MultiRoundTrip<N> initialState) {
 		this.initialState = initialState;
 		return this;
 	}
 
 	@Override
-	public BasicStateAdapter<N> addPrior(MHWeight<MultiRoundTrip<N>> weight) {
+	protected BasicStateAdapter<N> addPrior(MHWeight<MultiRoundTrip<N>> weight) {
 		this.weights.add(weight, 1.0);
 		return this;
 	}
 
 	@Override
-	public BasicStateAdapter<N> addWeight(MHWeight<MultiRoundTrip<N>> weight, double scale) {
+	protected BasicStateAdapter<N> addWeight(MHWeight<MultiRoundTrip<N>> weight, double scale) {
 		this.weights.add(weight, scale);
 		return this;
 	}
-
-	// HELPERS
-	
-	public static <N extends Node> BasicProposal<N> createPlainProposal(Scenario<N> scenario, double proposalLength) {
-		MHProposal<RoundTrip<N>> singleProposal;
-		if (proposalLength == 1.0) {
-			singleProposal = new RoundTripSingleStepProposal<N>(scenario);
-		} else {
-			singleProposal = new RoundTripMultiStepProposal<N>(scenario, proposalLength);
-		}
-		return new BasicProposal<N>(scenario, singleProposal);
-	}
-
-	public static <N extends Node> BasicStateAdapter<N> createDefaultInstance(Scenario<N> scenario, double proposalLength) {
-		return new BasicStateAdapter<>(scenario).setProposal(createPlainProposal(scenario, proposalLength));
-	}
-
-	
 }

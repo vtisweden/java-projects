@@ -19,12 +19,10 @@
  */
 package se.vti.roundtrips.runner;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 import se.vti.roundtrips.multi.MultiRoundTrip;
-import se.vti.roundtrips.multi.MultiRoundTripJsonIO;
+import se.vti.roundtrips.multi.MultiRoundTripJsonLogger;
 import se.vti.roundtrips.priors.IndividualBinomialPrior;
 import se.vti.roundtrips.priors.IndividualUniformPrior;
 import se.vti.roundtrips.priors.PopulationBinomialPrior;
@@ -54,21 +52,18 @@ public class Runner<N extends Node> {
 
 	private final Scenario<N> scenario;
 
-	private Map<String, Function<MultiRoundTrip<N>, Double>> sampleExtractors = new LinkedHashMap<>();
+	private MHSampleLogger<MultiRoundTrip<N>> samplesLogger = new MHSampleLogger<MultiRoundTrip<N>>(10_000,
+			"./samples.log");
 
-	private final MHWeightsToFileLogger<MultiRoundTrip<N>> weightsToFileLogger = new MHWeightsToFileLogger<MultiRoundTrip<N>>(
+	private MHWeightsToFileLogger<MultiRoundTrip<N>> weightsToFileLogger = new MHWeightsToFileLogger<MultiRoundTrip<N>>(
 			10_000l, "./logWeights.log");
 
-	private long sampleLogInterval = 1000l;
-	private String samplesLogFile = "./samples.log";
+	private MultiRoundTripJsonLogger<N> stateLogger = null;
 
-	private long stateDumpInterval = 0;
-	private String stateDumpFilePrefix = null;
-
-	private long messageInterval = 1000l;
+	private long messageInterval = 10_000l;
 
 	private boolean priorAlreadyAdded = false;
-	
+
 	private boolean runWasAlreadyCalled = false;
 
 	// -------------------- CONSTRUCTION --------------------
@@ -82,7 +77,7 @@ public class Runner<N extends Node> {
 		this(scenario, BasicStateAdapter.createDefaultInstance(scenario, 1.0));
 	}
 
-	// PASS-THROUGH TO STATE ADAPTER
+	// -------------------- CONFIGURATION --------------------
 
 	public Runner<N> setInitialState(MultiRoundTrip<N> initialState) {
 		initialState.simulateAll(this.scenario.getOrCreateSimulator());
@@ -90,27 +85,35 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
+	public Runner<N> setTerminationCriterion(TerminationCriterion<MultiRoundTrip<N>> criterion) {
+		this.stateAdapter.setTerminationCriterion(criterion);
+		return this;
+	}
+
+	public Runner<N> addStateProcessor(MHStateProcessor<MultiRoundTrip<N>> processor) {
+		this.stateAdapter.addStateProcessor(processor);
+		return this;
+	}
+
+	public Runner<N> setNumberOfIterations(long numberOfIterations) {
+		return this.setTerminationCriterion(
+				new FixedNumberOfIterationsTerminationCriterion<MultiRoundTrip<N>>(numberOfIterations));
+	}
+
+	public Runner<N> setMessageInterval(long messageInterval) {
+		this.messageInterval = messageInterval;
+		return this;
+	}
+
 	// PRIORS
 
-	public Runner<N> setIndividualPrior(MHWeight<RoundTrip<N>> prior) {
-		return this.setPopulationPrior(new SingleToMultiWeight<N>(prior));
-	}
-
-	public Runner<N> setIndividualUniformPrior() {
-		return this.setIndividualPrior(new IndividualUniformPrior<>(this.scenario));
-	}
-
-	public Runner<N> setIndividualBinomialPrior(double meanRoundTripSize) {
-		return this.setIndividualPrior(new IndividualBinomialPrior<>(this.scenario, meanRoundTripSize));
-	}
-
 	public Runner<N> setPopulationPrior(MHWeight<MultiRoundTrip<N>> prior) {
-		
+
 		if (this.priorAlreadyAdded) {
 			throw new RuntimeException("Cannot add more than one prior.");
-		} 
+		}
 		this.priorAlreadyAdded = true;
-		
+
 		this.stateAdapter.addPrior(prior);
 		this.weightsToFileLogger.addWeight(prior);
 		return this;
@@ -124,7 +127,19 @@ public class Runner<N extends Node> {
 		return this.setPopulationPrior(new PopulationBinomialPrior<>(this.scenario, meanRoundTripSize));
 	}
 
-	// SAMPLING WEIGHTS
+	public Runner<N> setIndividualPrior(MHWeight<RoundTrip<N>> prior) {
+		return this.setPopulationPrior(new SingleToMultiWeight<N>(prior));
+	}
+
+	public Runner<N> setIndividualUniformPrior() {
+		return this.setIndividualPrior(new IndividualUniformPrior<>(this.scenario));
+	}
+
+	public Runner<N> setIndividualBinomialPrior(double meanRoundTripSize) {
+		return this.setIndividualPrior(new IndividualBinomialPrior<>(this.scenario, meanRoundTripSize));
+	}
+
+	// TARGET WEIGHTS
 
 	public Runner<N> addPopulationWeight(MHWeight<MultiRoundTrip<N>> weight, double scale) {
 		this.stateAdapter.addWeight(weight, scale);
@@ -145,87 +160,42 @@ public class Runner<N extends Node> {
 		return this.addIndividualWeight(weight, 1.0);
 	}
 
-	// STATISTICS
+	// LOGGING
 
-	public Runner<N> addSampleExtractor(String name, Function<MultiRoundTrip<N>, Double> function) {
-		this.sampleExtractors.put(name, function);
-		return this;
-	}
-
-	// OTHER
-
-	public Runner<N> addStateProcessor(MHStateProcessor<MultiRoundTrip<N>> processor) {
-		this.stateAdapter.addStateProcessor(processor);
-		return this;
-	}
-
-	public Runner<N> setTerminationCriterion(TerminationCriterion<MultiRoundTrip<N>> criterion) {
-		this.stateAdapter.setTerminationCriterion(criterion);
-		return this;
-	}
-
-	public Runner<N> setNumberOfIterations(long numberOfIterations) {
-		return this.setTerminationCriterion(
-				new FixedNumberOfIterationsTerminationCriterion<MultiRoundTrip<N>>(numberOfIterations));
-	}
-
-	public Runner<N> setMessageInterval(long messageInterval) {
-		this.messageInterval = messageInterval;
-		return this;
+	private boolean doNotLog(String fileName, long logInterval) {
+		return ((fileName == null) || (logInterval <= 0));
 	}
 
 	public Runner<N> configureWeightLogging(String fileName, long logInterval) {
-		this.weightsToFileLogger.setLogFilename(fileName).setSamplingInterval(logInterval);
+		if (this.doNotLog(fileName, logInterval)) {
+			this.weightsToFileLogger = null;
+		} else {
+			this.weightsToFileLogger.setLogFilename(fileName).setSamplingInterval(logInterval);
+		}
 		return this;
 	}
 
-	public Runner<N> configureStateDumping(String fileNamePrefix, long dumpInterval) {
-		this.stateDumpInterval = dumpInterval;
-		this.stateDumpFilePrefix = fileNamePrefix;
+	public Runner<N> configureStateLogger(String fileNamePrefix, long logInterval) {
+		if (this.doNotLog(fileNamePrefix, logInterval)) {
+			this.stateLogger = null;
+		} else {
+			this.stateLogger = new MultiRoundTripJsonLogger<N>(logInterval, fileNamePrefix);
+		}
 		return this;
 	}
 
-	// -------------------- INTERNALS --------------------
-
-	private void completeStateProcessors() {
-		
-		if ((this.samplesLogFile != null) && (this.sampleExtractors.size() > 0)) {
-			var samplesLogger = new MHSampleLogger<MultiRoundTrip<N>>(this.sampleLogInterval, this.samplesLogFile);
-			for (var entry : this.sampleExtractors.entrySet()) {
-				samplesLogger.add(entry.getKey(), rts -> entry.getValue().apply(rts));
-			}
-			this.stateAdapter.addStateProcessor(samplesLogger);
+	public Runner<N> configureSampleLogging(String fileName, long logInterval) {
+		if (this.doNotLog(fileName, logInterval)) {
+			this.samplesLogger = null;
+		} else {
+			this.samplesLogger.setLogFilename(fileName).setSamplingInterval(logInterval);
 		}
+		return this;
+	}
 
-		this.stateAdapter.addStateProcessor(this.weightsToFileLogger);
-
-		if ((this.stateDumpFilePrefix != null) && (this.stateDumpInterval > 0)) {
-			this.stateAdapter.addStateProcessor(new MHStateProcessor<MultiRoundTrip<N>>() {
-				int iteration;
-
-				@Override
-				public void start() {
-					this.iteration = 0;
-				}
-
-				@Override
-				public void processState(MultiRoundTrip<N> state, double logWeight) {
-					if (this.iteration % stateDumpInterval == 0) {
-						try {
-							MultiRoundTripJsonIO.singleton().writeToFile(state,
-									stateDumpFilePrefix + "." + this.iteration + ".json");
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					}
-					this.iteration++;
-				}
-
-				@Override
-				public void end() {
-				}
-			});
-		}
+	public Runner<N> addSampleExtractor(String name, Function<MultiRoundTrip<N>, Double> function) {
+		this.samplesLogger.add(name, function);
+		return this;
 	}
 
 	// -------------------- RUNNING --------------------
@@ -243,7 +213,15 @@ public class Runner<N extends Node> {
 		}
 		this.runWasAlreadyCalled = true;
 
-		this.completeStateProcessors();
+		if ((this.samplesLogger) != null && (this.samplesLogger.getName2Extractor().size() > 0)) {
+			this.stateAdapter.addStateProcessor(this.samplesLogger);
+		}
+		if (this.weightsToFileLogger != null) {
+			this.stateAdapter.addStateProcessor(this.weightsToFileLogger);
+		}
+		if (this.stateLogger != null) {
+			this.stateAdapter.addStateProcessor(this.stateLogger);
+		}
 
 		var checker = new SpecificationChecker();
 		this.stateAdapter.check(checker);

@@ -30,58 +30,50 @@ public class ColdHotMultiRoundTrip<N extends Node> implements MultiRoundTripWrap
 
 	// -------------------- MEMBERS --------------------
 
-	private final MultiRoundTrip<N> coldMultiRoundTrip;
+	private final MultiRoundTrip<N> cold;
 
-	private final MultiRoundTrip<N> hotMultiRoundTrip;
+	private final MultiRoundTrip<N> hot;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	ColdHotMultiRoundTrip(MultiRoundTrip<N> coldMultiRoundTrip, MultiRoundTrip<N> hotMultiRoundTrip) {
-		assert (coldMultiRoundTrip.size() == hotMultiRoundTrip.size());
-		this.coldMultiRoundTrip = coldMultiRoundTrip;
-		this.hotMultiRoundTrip = hotMultiRoundTrip;
+	ColdHotMultiRoundTrip(MultiRoundTrip<N> cold, MultiRoundTrip<N> hot) {
+		assert (cold.size() == hot.size());
+		this.cold = cold;
+		this.hot = hot;
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
 
 	void switchRoundTrip(int i) {
-		var previouslyColdRoundTrip = this.coldMultiRoundTrip.getRoundTrip(i);
-		this.coldMultiRoundTrip.setRoundTripAndUpdateSummaries(i, this.hotMultiRoundTrip.getRoundTrip(i));
-		this.hotMultiRoundTrip.setRoundTripAndUpdateSummaries(i, previouslyColdRoundTrip);
+		var previouslyColdRoundTrip = this.cold.getRoundTrip(i);
+		this.cold.setRoundTripAndUpdateSummaries(i, this.hot.getRoundTrip(i));
+		this.hot.setRoundTripAndUpdateSummaries(i, previouslyColdRoundTrip);
 	}
 
 	public MultiRoundTrip<N> getCold() {
-		return this.coldMultiRoundTrip;
+		return this.cold;
 	}
 
 	public MultiRoundTrip<N> getHot() {
-		return this.hotMultiRoundTrip;
+		return this.hot;
 	}
 
-	// -------------------- IMPLEMENTATION OF RoundTrips --------------------
+	// --------------- IMPLEMENTATION OF MultiRoundTripWrapper ---------------
 
 	@Override
 	public MultiRoundTrip<N> getMultiRoundTrip() {
-		return this.coldMultiRoundTrip;
+		return this.cold;
 	}
 
-//	@Override
-//	public void simulateAll(Simulator<N> simulator) {
-//		this.coldMultiRoundTrip.simulateAll(simulator);
-//		this.hotMultiRoundTrip.simulateAll(simulator);
-//	}
-
-	public int size() {
-		return this.coldMultiRoundTrip.size();
-	}
+	// -------------------- OVERRIDING OF Object --------------------
 
 	@Override
 	public ColdHotMultiRoundTrip<N> clone() {
-		return new ColdHotMultiRoundTrip<N>(this.coldMultiRoundTrip.clone(), this.hotMultiRoundTrip.clone());
+		return new ColdHotMultiRoundTrip<N>(this.cold.clone(), this.hot.clone());
 	}
 
 	@Override
 	public String toString() {
-		return this.coldMultiRoundTrip.toString();
+		return this.cold.toString();
 	}
 }

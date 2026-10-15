@@ -1,7 +1,7 @@
 /**
  * se.vti.roundtrips
  * 
- * Copyright (C) 2025-2026 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -22,7 +22,6 @@ package se.vti.roundtrips.runner.coldhot;
 import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.runner.AbstractStateAdapter;
 import se.vti.roundtrips.runner.basic.BasicProposal;
-import se.vti.roundtrips.runner.basic.BasicStateAdapter;
 import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.scenario.Scenario;
 import se.vti.utils.misc.metropolishastings.MHWeight;
@@ -33,18 +32,34 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
  */
 public class ColdHotStateAdapter<N extends Node> extends AbstractStateAdapter<N, ColdHotMultiRoundTrip<N>> {
 
-	private final double hotScale;
+	// -------------------- CONSTANTS --------------------
 
-	public ColdHotStateAdapter(Scenario<N> scenario, double hotScale) {
+	private final double relativeHotScale;
+
+	// -------------------- CONSTRUCTION --------------------
+
+	public ColdHotStateAdapter(Scenario<N> scenario, double relativeHotScale) {
 		super(scenario);
-		this.hotScale = hotScale;
+		this.relativeHotScale = relativeHotScale;
 	}
 
 	public ColdHotStateAdapter<N> setProposals(BasicProposal<N> coldProposal, BasicProposal<N> hotProposal,
 			double coldHotRecombineProba) {
-		this.proposal = new ColdHotProposalWrapper<N>(this.scenario, coldProposal, hotProposal, coldHotRecombineProba);
+		this.proposal = new ColdHotProposalWrapper<N>(this.scenario.getRandom(), coldProposal, hotProposal,
+				coldHotRecombineProba);
 		return this;
 	}
+
+	public static <N extends Node> ColdHotStateAdapter<N> createDefaultInstance(Scenario<N> scenario,
+			double relativeHotScale, double expectedColdProposalLength, double expectedHotProposalLength,
+			double coldHotRecombineProba) {
+		var coldProposal = BasicProposal.createDefaultInstance(scenario, expectedColdProposalLength);
+		var hotProposal = BasicProposal.createDefaultInstance(scenario, expectedHotProposalLength);
+		return new ColdHotStateAdapter<N>(scenario, relativeHotScale).setProposals(coldProposal, hotProposal,
+				coldHotRecombineProba);
+	}
+
+	// -------------------- EXTENSION OF AbstractStateAdapter --------------------
 
 	@Override
 	public ColdHotStateAdapter<N> setInitialState(MultiRoundTrip<N> initialState) {
@@ -62,18 +77,7 @@ public class ColdHotStateAdapter<N extends Node> extends AbstractStateAdapter<N,
 
 	@Override
 	public ColdHotStateAdapter<N> addWeight(MHWeight<MultiRoundTrip<N>> weight, double scale) {
-		this.weights.add(new ColdHotWeightWrapper<N>(weight, this.hotScale), scale);
+		this.weights.add(new ColdHotWeightWrapper<N>(weight, this.relativeHotScale), scale);
 		return this;
 	}
-
-	// HELPERS
-
-	public static <N extends Node> ColdHotStateAdapter<N> createDefaultInstance(Scenario<N> scenario, double hotScale,
-			double expectedColdProposalLength, double expectedHotProposalLength, double coldHotRecombineProba) {
-		var coldProposal = BasicStateAdapter.createPlainProposal(scenario, expectedColdProposalLength);
-		var hotProposal = BasicStateAdapter.createPlainProposal(scenario, expectedHotProposalLength);
-		return new ColdHotStateAdapter<N>(scenario, hotScale).setProposals(coldProposal, hotProposal,
-				coldHotRecombineProba);
-	}
-
 }

@@ -31,18 +31,18 @@ import se.vti.utils.misc.metropolishastings.MHWeight;
 class ColdHotWeightWrapper<N extends Node> implements MHWeight<ColdHotMultiRoundTrip<N>> {
 
 	private final MHWeight<MultiRoundTrip<N>> delegate;
-	private final double hotScale;
+	private final double relativeHotScale;
 
-	ColdHotWeightWrapper(MHWeight<MultiRoundTrip<N>> multiRoundTripWeight, double hotScale) {
+	ColdHotWeightWrapper(MHWeight<MultiRoundTrip<N>> multiRoundTripWeight, double relativeHotScale) {
 		this.delegate = multiRoundTripWeight;
-		this.hotScale = hotScale;
+		this.relativeHotScale = relativeHotScale;
 	}
 
 	@Override
 	public double logWeight(ColdHotMultiRoundTrip<N> state) {
 		var coldHotState = (ColdHotMultiRoundTrip<N>) state;
 		return this.delegate.logWeight(coldHotState.getCold())
-				+ this.hotScale * this.delegate.logWeight(coldHotState.getHot());
+				+ this.relativeHotScale * this.delegate.logWeight(coldHotState.getHot());
 	}
 
 }

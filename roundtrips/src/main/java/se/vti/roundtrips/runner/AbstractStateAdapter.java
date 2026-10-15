@@ -1,7 +1,7 @@
 /**
  * se.vti.roundtrips
  * 
- * Copyright (C) 2025-2026 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -39,9 +39,9 @@ import se.vti.utils.misc.metropolishastings.terminationcriteria.TerminationCrite
  */
 public abstract class AbstractStateAdapter<N extends Node, R extends MultiRoundTripWrapper<N>> {
 
-	// -------------------- WRAPPERS --------------------
+	// -------------------- WRAPPER CLASSES --------------------
 
-	private class StateProcessorWrapper<P extends MHStateProcessor<MultiRoundTrip<N>>> implements MHStateProcessor<R> {
+	protected class StateProcessorWrapper<P extends MHStateProcessor<MultiRoundTrip<N>>> implements MHStateProcessor<R> {
 
 		protected final P delegate;
 
@@ -50,23 +50,23 @@ public abstract class AbstractStateAdapter<N extends Node, R extends MultiRoundT
 		}
 
 		@Override
-		public void start()  {
+		public void start() {
 			this.delegate.start();
 		}
-		
+
 		@Override
 		public void processState(R roundTrips, double logWeight) {
 			this.delegate.processState(roundTrips.getMultiRoundTrip(), logWeight);
 		}
-		
+
 		@Override
-		public void end()  {
+		public void end() {
 			this.delegate.end();
 		}
-		
+
 	}
 
-	private class TerminationCriterionWrapper extends StateProcessorWrapper<TerminationCriterion<MultiRoundTrip<N>>>
+	protected class TerminationCriterionWrapper extends StateProcessorWrapper<TerminationCriterion<MultiRoundTrip<N>>>
 			implements TerminationCriterion<R> {
 
 		public TerminationCriterionWrapper(TerminationCriterion<MultiRoundTrip<N>> delegate) {
@@ -75,7 +75,7 @@ public abstract class AbstractStateAdapter<N extends Node, R extends MultiRoundT
 
 		@Override
 		public boolean terminate() {
-			return super.delegate.terminate();
+			return this.delegate.terminate();
 		}
 	}
 
@@ -95,17 +95,17 @@ public abstract class AbstractStateAdapter<N extends Node, R extends MultiRoundT
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public AbstractStateAdapter(Scenario<N> scenario) {
+	protected AbstractStateAdapter(Scenario<N> scenario) {
 		this.scenario = scenario;
 	}
 
-	// -------------------- INTERFACE/BUILDING --------------------
+	// --------------- MultiRoundTrip-SPECIFIC FUNCTIONALITY ---------------
 
-	public abstract AbstractStateAdapter<N, R> setInitialState(MultiRoundTrip<N> initialState);
+	protected abstract AbstractStateAdapter<N, R> setInitialState(MultiRoundTrip<N> initialState);
 
-	public abstract AbstractStateAdapter<N, R> addPrior(MHWeight<MultiRoundTrip<N>> weight);
+	protected abstract AbstractStateAdapter<N, R> addPrior(MHWeight<MultiRoundTrip<N>> weight);
 
-	public abstract AbstractStateAdapter<N, R> addWeight(MHWeight<MultiRoundTrip<N>> weight, double scale);
+	protected abstract AbstractStateAdapter<N, R> addWeight(MHWeight<MultiRoundTrip<N>> weight, double scale);
 
 	protected AbstractStateAdapter<N, R> addStateProcessor(MHStateProcessor<MultiRoundTrip<N>> stateProcessor) {
 		this.stateProcessors.add(new StateProcessorWrapper<>(stateProcessor));
@@ -117,22 +117,24 @@ public abstract class AbstractStateAdapter<N extends Node, R extends MultiRoundT
 		this.terminationCriterion = new TerminationCriterionWrapper(terminationCriterion);
 		return this;
 	}
-	
-	public AbstractStateAdapter<N, R> addNativeStateProcessor(MHStateProcessor<R> stateProcessor) {
+
+	// --------------- NATIVE (TYPE R)-SPECIFIC FUNCTIONALITY ---------------
+
+	protected AbstractStateAdapter<N, R> addNativeStateProcessor(MHStateProcessor<R> stateProcessor) {
 		this.stateProcessors.add(stateProcessor);
-		return this;		
+		return this;
 	}
 
 	// -------------------- RESULT --------------------
 
-	public void check(SpecificationChecker checker) {
+	protected void check(SpecificationChecker checker) {
 		checker.defineError(() -> (this.scenario == null), "No scenario defined")
-		.defineError(() -> (this.initialState == null), "No initial state defined")
-		.defineError(() -> (this.weights.getComponentsView().size() == 0), "No weights defined")
-		.defineError(() -> (this.terminationCriterion == null), "Undefined termination criterion");
+				.defineError(() -> (this.initialState == null), "No initial state defined")
+				.defineError(() -> (this.weights.getComponentsView().size() == 0), "No weights defined")
+				.defineError(() -> (this.terminationCriterion == null), "Undefined termination criterion");
 	}
-	
-	public MHAlgorithm<? extends MultiRoundTripWrapper<N>> createAlgorithm() {
+
+	protected MHAlgorithm<? extends MultiRoundTripWrapper<N>> createAlgorithm() {
 		var algo = new MHAlgorithm<R>(this.proposal, this.weights, this.scenario.getRandom());
 		algo.setInitialState(this.initialState);
 		algo.setTerminationCriterion(this.terminationCriterion);
