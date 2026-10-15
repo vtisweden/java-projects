@@ -41,6 +41,10 @@ public class MHSampleLogger<X> extends MHToFileLogger<X> {
 		this.name2Extractor.put(name, sampleExtractor);
 	}
 
+	public Map<String, Function<X, Double>> getName2Extractor() {
+		return this.name2Extractor;
+	}
+	
 	@Override
 	public String createHeaderLine() {
 		StringBuffer result = new StringBuffer(super.createHeaderLine());
