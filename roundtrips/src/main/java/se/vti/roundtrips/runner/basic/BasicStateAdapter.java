@@ -57,12 +57,6 @@ public class BasicStateAdapter<N extends Node> extends AbstractStateAdapter<N, M
 	}
 
 	@Override
-	protected BasicStateAdapter<N> addPrior(MHWeight<MultiRoundTrip<N>> weight) {
-		this.weights.add(weight, 1.0);
-		return this;
-	}
-
-	@Override
 	protected BasicStateAdapter<N> addWeight(MHWeight<MultiRoundTrip<N>> weight, double scale) {
 		this.weights.add(weight, scale);
 		return this;

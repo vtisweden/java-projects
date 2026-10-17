@@ -103,9 +103,12 @@ public abstract class AbstractStateAdapter<N extends Node, R extends MultiRoundT
 
 	protected abstract AbstractStateAdapter<N, R> setInitialState(MultiRoundTrip<N> initialState);
 
-	protected abstract AbstractStateAdapter<N, R> addPrior(MHWeight<MultiRoundTrip<N>> weight);
-
 	protected abstract AbstractStateAdapter<N, R> addWeight(MHWeight<MultiRoundTrip<N>> weight, double scale);
+
+	protected AbstractStateAdapter<N, R> addPrior(MHWeight<MultiRoundTrip<N>> weight) {
+		this.addWeight(weight, 1.0);
+		return this;
+	}
 
 	protected AbstractStateAdapter<N, R> addStateProcessor(MHStateProcessor<MultiRoundTrip<N>> stateProcessor) {
 		this.stateProcessors.add(new StateProcessorWrapper<>(stateProcessor));

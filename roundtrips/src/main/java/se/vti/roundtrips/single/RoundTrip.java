@@ -1,7 +1,7 @@
 /**
  * se.vti.roundtrips
  * 
- * Copyright (C) 2023,2024 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2023-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -57,7 +57,7 @@ public class RoundTrip<N extends Node> implements Iterable<RoundTrip<N>> {
 		this.departures = departures;
 	}
 
-	// -------------------- INTERNALS --------------------
+	// -------------------- WRAP-AROUND INDEXING --------------------
 
 	public int predecessorIndex(int i) {
 		if (this.size() == 0) {
@@ -91,16 +91,16 @@ public class RoundTrip<N extends Node> implements Iterable<RoundTrip<N>> {
 		return this.nodes.size();
 	}
 
-	public N getPredecessorNode(int i) {
-		return this.nodes.get(this.predecessorIndex(i));
-	}
-
 	public N getNode(int i) {
 		return this.nodes.get(i);
 	}
 
+	public N getPredecessorNode(int i) {
+		return this.getNode(this.predecessorIndex(i));
+	}
+
 	public N getSuccessorNode(int i) {
-		return this.nodes.get(this.successorIndex(i));
+		return this.getNode(this.successorIndex(i));
 	}
 
 	public List<N> getNodesView() {
@@ -121,7 +121,7 @@ public class RoundTrip<N extends Node> implements Iterable<RoundTrip<N>> {
 	}
 
 	public Integer getNextDeparture(int i) {
-		return this.departures.get(this.successorIndex(i));
+		return this.getDeparture(this.successorIndex(i));
 	}
 
 	public boolean containsDeparture(int bin) {
@@ -172,7 +172,8 @@ public class RoundTrip<N extends Node> implements Iterable<RoundTrip<N>> {
 	}
 
 	public boolean equalsBehaviorally(RoundTrip<N> other) {
-		return ((this.size() == other.size()) && this.departures.equals(other.departures) && this.nodes.equals(other.nodes));
+		return ((this.size() == other.size()) && this.departures.equals(other.departures)
+				&& this.nodes.equals(other.nodes));
 	}
 
 	// -------------------- IMPLEMENTATION OF Iterable --------------------

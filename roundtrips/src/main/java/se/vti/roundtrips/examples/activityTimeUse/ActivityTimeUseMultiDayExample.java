@@ -26,8 +26,11 @@ import se.vti.roundtrips.examples.activityExpandedGridNetwork.GridNodeWithActivi
 import se.vti.roundtrips.examples.activityExpandedGridNetwork.StrictlyEnforceUniqueHomeLocation;
 import se.vti.roundtrips.examples.samplingweights.StrictlyPeriodicSchedule;
 import se.vti.roundtrips.examples.samplingweights.timeuse.LogarithmicTimeUseSinglePersonMultipleDays;
+import se.vti.roundtrips.examples.samplingweights.timeuse.UniqueHomeLocationModifier;
 import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.runner.Runner;
+import se.vti.roundtrips.runner.basic.BasicProposal;
+import se.vti.roundtrips.runner.modified.ModifiedStateAdapter;
 import se.vti.roundtrips.scenario.ScenarioBuilder;
 import se.vti.roundtrips.single.RoundTrip;
 import se.vti.roundtrips.single.RoundTripUtils;
@@ -68,12 +71,14 @@ class ActivityTimeUseMultiDayExample {
 		double edgeTime_h = 0.1;
 
 		double timeBinSize_h = 0.25;
-		int numberOfTimeBins = 4 * 25;
+		int numberOfTimeBins = 4 * 24;
 		builder.setRandom(new Random(this.seed)).setTimeBinSize_h(timeBinSize_h).setNumberOfTimeBins(numberOfTimeBins);
 
-		// A single corner node allows for "home" activities (could be a suburb).
-		GridNodeWithActivity home = new GridNodeWithActivity(0, 0, Activity.HOME);
-		builder.addNode(home);
+		// All corner nodes allow for "home" activities
+		GridNodeWithActivity initialHome = new GridNodeWithActivity(0, 0, Activity.HOME);
+		builder.addNode(initialHome).addNode(new GridNodeWithActivity(0, gridSize - 1, Activity.HOME))
+				.addNode(new GridNodeWithActivity(gridSize - 1, 0, Activity.HOME))
+				.addNode(new GridNodeWithActivity(gridSize - 1, gridSize - 1, Activity.HOME));
 
 		// Only the center nodes allow for "work" activities (could be CBD).
 		for (int row = 1; row < gridSize - 1; row++) {
@@ -96,10 +101,17 @@ class ActivityTimeUseMultiDayExample {
 		var scenario = builder.build();
 
 		/*
+		 * Define the modified sampling space. This is needed to modify round trips
+		 * under the hood.
+		 */
+		var stateAdapter = new ModifiedStateAdapter<>(scenario, new UniqueHomeLocationModifier<GridNodeWithActivity>(),
+				BasicProposal.createDefaultInstance(scenario, 1.0));
+
+		/*
 		 * Define the sampling weights. For this, create a SamplingWeights container and
 		 * populate it with SamplingWeight instances.
 		 */
-		var runner = new Runner<GridNodeWithActivity>(scenario);
+		var runner = new Runner<GridNodeWithActivity>(scenario, stateAdapter);
 
 		runner.setIndividualUniformPrior();
 
@@ -108,6 +120,9 @@ class ActivityTimeUseMultiDayExample {
 
 		// Enforce that all round trips start and end their unique home location.
 		runner.addIndividualWeight(new StrictlyEnforceUniqueHomeLocation());
+
+		// TODO ENFORCE ACROSS DIFFERENT DAYS!!! NEEDS POSTPROCESSING FOR WEEK-WIDE
+		// SWITCH!!!
 
 		// Sample round trips according to time use assumptions. See LogarithmicTimeUse
 		// implementation for details.
@@ -128,17 +143,14 @@ class ActivityTimeUseMultiDayExample {
 		otherComponent.addObservedNodes(scenario, node -> Activity.OTHER.equals(node.getActivity()));
 		timeUse.addConfiguredComponent(otherComponent);
 
-		runner.addPopulationWeight(timeUse, 7.0);
+		runner.addPopulationWeight(timeUse, 4.0);
 
 		/*
 		 * Ready to set up the sampling machinery.
 		 */
-		var initialState = new MultiRoundTrip<GridNodeWithActivity>(7);
-		for (int day = 0; day < 7; day++) {
-			var roundTrip = RoundTripUtils.singleton().createRoundTrip(day, home, 0);
-			roundTrip.setEpisodes(scenario.getOrCreateSimulator().simulate(roundTrip));
-			initialState.setRoundTripAndUpdateSummaries(day, roundTrip);
-		}
+
+		var initialState = RoundTripUtils.singleton().createMultiRoundTrip(initialHome, 0, 7);
+
 		runner.setInitialState(initialState).setNumberOfIterations(totalIterations)
 				.setMessageInterval(totalIterations / 100);
 
@@ -180,7 +192,7 @@ class ActivityTimeUseMultiDayExample {
 	}
 
 	public static void main(String[] args) {
-		ActivityTimeUseMultiDayExample example = new ActivityTimeUseMultiDayExample(4711);
+		ActivityTimeUseMultiDayExample example = new ActivityTimeUseMultiDayExample(new Random().nextLong());
 		example.run(1_000_000);
 	}
 }
