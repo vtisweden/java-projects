@@ -121,9 +121,6 @@ class ActivityTimeUseMultiDayExample {
 		// Enforce that all round trips start and end their unique home location.
 		runner.addIndividualWeight(new StrictlyEnforceUniqueHomeLocation());
 
-		// TODO ENFORCE ACROSS DIFFERENT DAYS!!! NEEDS POSTPROCESSING FOR WEEK-WIDE
-		// SWITCH!!!
-
 		// Sample round trips according to time use assumptions. See LogarithmicTimeUse
 		// implementation for details.
 
