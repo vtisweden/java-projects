@@ -59,4 +59,11 @@ public class NodeWithCoords extends Node {
 		return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
 	}
 
+	public double computeManhattanDistance(NodeWithCoords other) {
+		double deltaX = this.x - other.x;
+		double deltaY = this.y - other.y;
+		double deltaZ = this.z - other.z;
+		return Math.abs(deltaX) + Math.abs(deltaY) + Math.abs(deltaZ);
+	}
+
 }

@@ -19,10 +19,13 @@
  */
 package se.vti.roundtrips.runner;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.multi.MultiRoundTripJsonLogger;
+import se.vti.roundtrips.multi.MultiRoundTripSummary;
 import se.vti.roundtrips.priors.IndividualBinomialPrior;
 import se.vti.roundtrips.priors.IndividualUniformPrior;
 import se.vti.roundtrips.priors.PopulationBinomialPrior;
@@ -51,6 +54,9 @@ public class Runner<N extends Node> {
 	private final AbstractStateAdapter<N, ? extends MultiRoundTripWrapper<N>> stateAdapter;
 
 	private final Scenario<N> scenario;
+	
+	private MultiRoundTrip<N> initialState = null;
+	private final Map<Class<MultiRoundTripSummary<N>>, MultiRoundTripSummary<N>> summaries = new LinkedHashMap<>();
 
 	private MHSampleLogger<MultiRoundTrip<N>> samplesLogger = new MHSampleLogger<MultiRoundTrip<N>>(10_000,
 			"./samples.log");
@@ -80,11 +86,15 @@ public class Runner<N extends Node> {
 	// -------------------- CONFIGURATION --------------------
 
 	public Runner<N> setInitialState(MultiRoundTrip<N> initialState) {
-		initialState.simulateAll(this.scenario.getOrCreateSimulator());
-		this.stateAdapter.setInitialState(initialState);
+		this.initialState = initialState;
 		return this;
 	}
 
+	public Runner<N> addSummary(MultiRoundTripSummary<N> summary) {
+		this.summaries.put((Class<MultiRoundTripSummary<N>>) summary.getClass(), summary);
+		return this;
+	}
+	
 	public Runner<N> setTerminationCriterion(TerminationCriterion<MultiRoundTrip<N>> criterion) {
 		this.stateAdapter.setTerminationCriterion(criterion);
 		return this;
@@ -223,11 +233,17 @@ public class Runner<N extends Node> {
 			this.stateAdapter.addStateProcessor(this.stateLogger);
 		}
 
+		this.initialState.simulateAll(this.scenario.getOrCreateSimulator());
+		for (var summary : this.summaries.values()) {
+			this.initialState.addSummary(summary);
+		}
+		this.initialState.recomputeSummaries();
+		this.stateAdapter.setInitialState(this.initialState);
+		
 		var checker = new SpecificationChecker();
 		this.stateAdapter.check(checker);
 
 		if (checker.check()) {
-
 			var algo = this.stateAdapter.createAlgorithm();
 			algo.setMsgInterval(this.messageInterval);
 			algo.run();

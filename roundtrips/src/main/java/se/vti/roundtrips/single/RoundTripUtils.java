@@ -1,9 +1,7 @@
-package se.vti.roundtrips.single;
-
 /**
- * se.vti.samgods.transportation.loops
+ * se.vti.roundtrips
  * 
- * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2025-2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -19,6 +17,7 @@ package se.vti.roundtrips.single;
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>. See also COPYING and WARRANTY file.
  */
+package se.vti.roundtrips.single;
 
 import java.util.ArrayList;
 import java.util.Arrays;

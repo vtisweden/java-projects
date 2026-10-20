@@ -176,10 +176,8 @@ public class ElectrifiedFlightExample {
 		var initialFlightPattern = new MultiRoundTrip<NodeWithCoords>(fleetSize);
 		new RandomRoundTripGenerator<>(scenario).setNumberOfStayEpisodesInterval(0, 0)
 				.populateRandomly(initialFlightPattern);
-		initialFlightPattern.simulateAll(scenario.getOrCreateSimulator());
-		initialFlightPattern.addSummary(planeUsage);
-		initialFlightPattern.recomputeSummaries();
 		runner.setInitialState(initialFlightPattern);
+		runner.addSummary(planeUsage);
 
 		/*
 		 * Objective function: reduce empty seats, increase served demand.
