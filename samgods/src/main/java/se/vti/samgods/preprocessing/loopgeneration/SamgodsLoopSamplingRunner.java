@@ -84,7 +84,10 @@ class SamgodsLoopSamplingRunner {
 	final SamgodsConstants.Commodity commodity;
 	final SamgodsConstants.TransportMode transportMode;
 
-	SamgodsLoopSamplingRunner(String[] args) {
+	final SamgodsSamplingVariant samplingVariant;
+
+	SamgodsLoopSamplingRunner(String[] args, SamgodsSamplingVariant samplingVariant) {
+		this.samplingVariant = samplingVariant;
 
 		var options = new Options();
 
@@ -120,10 +123,12 @@ class SamgodsLoopSamplingRunner {
 		linksFileOption.setRequired(false);
 		options.addOption(linksFileOption);
 
-		this.configureSamplingOptions(options);
+//		this.configureSamplingOptions(options);
+		this.samplingVariant.configureOptions(options);
 
+		final CommandLine cmd;
 		try {
-			CommandLine cmd = new DefaultParser().parse(options, args);
+			cmd = new DefaultParser().parse(options, args);
 			Config config = ConfigUtils.loadConfig(cmd.getOptionValue(configFileNameOption));
 			this.samgodsConfig = ConfigUtils.addOrGetModule(config, SamgodsConfigGroup.class);
 			this.initialStateFile = cmd.getOptionValue(initialStateOption);
@@ -161,9 +166,11 @@ class SamgodsLoopSamplingRunner {
 		log.info("  Maximum transport duration is " + durationStats.getMax() + " hours.");
 
 //		List<List<Enum<?>>> allNodeLabels = List.of(List.of());
-		List<List<Enum<?>>> allNodeLabels = new ArrayList<>();
-		allNodeLabels.add(new ArrayList<>(0));
-		this.modifyNodeLabels(allNodeLabels);
+//		List<List<Enum<?>>> allNodeLabels = new ArrayList<>();
+//		allNodeLabels.add(new ArrayList<>(0));
+//		this.modifyNodeLabels(allNodeLabels);
+		var allNodeLabels = this.samplingVariant.createNodeLabels();
+
 		this.dataContainer = new ScenarioDataContainer(loopSamplingData, transportDurations, allNodeLabels);
 		log.info("Total number of OD pairs: " + dataContainer.getOD2Demand_kTon_View().size());
 		log.info("Total freight demand [kTon]: " + dataContainer.getTotalDemand_kTon());
@@ -179,22 +186,23 @@ class SamgodsLoopSamplingRunner {
 		scenarioBuilder.setMoveTimeFunction((a, b) -> this.dataContainer.getTransportDuration_h(a, b));
 
 		this.samplingScenario = scenarioBuilder.build();
-		configureSamplingScenario(args, options);
+		// configureSamplingScenario(args, options);
+		this.samplingVariant.configureScenario(cmd, this.dataContainer, this.samplingScenario);
 	}
 
 	// HOOKS FOR SUBCLASSING (quick fix to not lose electrification functionality)
 
-	void configureSamplingOptions(Options options) {
-	}
-
-	void configureSamplingScenario(String[] args, Options options) {
-	}
-
-	void modifyNodeLabels(List<List<Enum<?>>> allNodeLabels) {
-	}
-
-	void parametrizeInitialRoundTripGenerator(RandomRoundTripGenerator<NodeWithCoords> generator) {
-	}
+//	void configureSamplingOptions(Options options) {
+//	}
+//
+//	void configureSamplingScenario(String[] args, Options options) {
+//	}
+//
+//	void modifyNodeLabels(List<List<Enum<?>>> allNodeLabels) {
+//	}
+//
+//	void parametrizeInitialRoundTripGenerator(RandomRoundTripGenerator<NodeWithCoords> generator) {
+//	}
 
 	List<NodeWithCoords> createInitialNodes() {
 		return new ArrayList<>(this.samplingScenario.getNodesView());
@@ -204,8 +212,8 @@ class SamgodsLoopSamplingRunner {
 		return this.samplingScenario.getNumberOfTimeBins();
 	}
 
-	void addToSamplingWeights(Runner<NodeWithCoords> runner) {
-	}
+//	void addToSamplingWeights(Runner<NodeWithCoords> runner) {
+//	}
 
 	void runSimulation() {
 
@@ -244,7 +252,8 @@ class SamgodsLoopSamplingRunner {
 				return roundTrips.getSummary(ODCoverage.class).getLogWeight();
 			}
 		}, mu);
-		this.addToSamplingWeights(runner);
+//		this.addToSamplingWeights(runner);
+		this.samplingVariant.addSamplingWeights(runner, this.dataContainer, this.samplingScenario);
 
 		final MultiRoundTrip<NodeWithCoords> initialRoundTrips;
 		if (initialStateFile == null) {
@@ -253,9 +262,10 @@ class SamgodsLoopSamplingRunner {
 			var generator = new RandomRoundTripGenerator<>(samplingScenario).setFeasibleNodes(initialNodes)
 					.setFeasibilityCheck(r -> Double.isFinite(strictlyPeriodicWeight.logWeight(r)))
 					.setNumberOfStayEpisodesInterval(1, getMaxNumberOfInitialStayEpisodes());
-			parametrizeInitialRoundTripGenerator(generator);
+//			parametrizeInitialRoundTripGenerator(generator);
+			this.samplingVariant.configureInitialRoundTripGenerator(generator, this.dataContainer,
+					this.samplingScenario);
 			generator.populateRandomly(initialRoundTrips);
-
 		} else {
 			try {
 				initialRoundTrips = MultiRoundTripJsonIO.singleton().readFromFile(samplingScenario, initialStateFile);
@@ -271,7 +281,7 @@ class SamgodsLoopSamplingRunner {
 
 		runner.setMessageInterval(1000);
 		runner.configureWeightLogging("samplingWeights.tsv", 1000);
-		runner.configureStateDumping("./roundTrips", 10_000);
+		runner.configureStateLogging("./roundTrips", 10_000);
 		runner.setTerminationCriterion(new BlockAverageTerminationCriterion<MultiRoundTrip<NodeWithCoords>>()
 				.setCheckInterval(10_000).setConvergenceStatsFileName("convergenceStats.tsv").setMinSamples(100_000));
 		runner.run();
@@ -305,10 +315,16 @@ class SamgodsLoopSamplingRunner {
 
 	public static void main(String[] args) {
 
-//		new SamgodsLoopSamplingRunner(args).runSimulation();
+//		new SamgodsLoopSamplingRunner(args, new SamgodsSamplingVariant() {
+//		}).runSimulation();
 
 //		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
-//				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road" }).runSimulation();
+//				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road" }, new SamgodsSamplingVariant() {
+//		}).runSimulation();
+
+		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
+				"-stationCnt", "200", "-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road",
+				"-stationPlacement", "maxThroughput" }, new ElectrifiedSamplingVariant()).runSimulation();
 
 //		new SamgodsLoopSamplingRunner(args).createGIS(args, false);
 
