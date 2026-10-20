@@ -30,7 +30,6 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.matsim.core.config.Config;
@@ -44,7 +43,6 @@ import se.vti.roundtrips.scenario.NodeWithCoords;
 import se.vti.roundtrips.scenario.RandomRoundTripGenerator;
 import se.vti.roundtrips.scenario.Scenario;
 import se.vti.roundtrips.scenario.ScenarioBuilder;
-import se.vti.samgods.common.OD;
 import se.vti.samgods.common.SamgodsConfigGroup;
 import se.vti.samgods.common.SamgodsConstants;
 import se.vti.samgods.preprocessing.loopgeneration.ODCoverage.Connectivity;
@@ -67,7 +65,7 @@ class SamgodsLoopSamplingRunner {
 	static final String loopCntLabel = "loopCnt";
 	static final String maxCoverageErrorLabel = "maxCoverageError";
 	static final String commodityLabel = "commodity";
-	static final String transportModeLabel = "transportMode";	
+	static final String transportModeLabel = "transportMode";
 	static final String nodesFileLabel = "nodesFile";
 	static final String linksFileLabel = "linksFile";
 	static final String connectivityLabel = "connectivity";
@@ -86,7 +84,7 @@ class SamgodsLoopSamplingRunner {
 	final SamgodsConstants.Commodity commodity;
 	final SamgodsConstants.TransportMode transportMode;
 	final ODCoverage.Connectivity connectivity;
-	
+
 	final SamgodsSamplingVariant samplingVariant;
 
 	SamgodsLoopSamplingRunner(String[] args, SamgodsSamplingVariant samplingVariant) {
@@ -129,7 +127,7 @@ class SamgodsLoopSamplingRunner {
 		var connectivityOption = new Option(connectivityLabel, true, connectivityLabel);
 		connectivityOption.setRequired(true);
 		options.addOption(connectivityOption);
-		
+
 		this.samplingVariant.configureOptions(options);
 
 		final CommandLine cmd;
@@ -143,7 +141,7 @@ class SamgodsLoopSamplingRunner {
 			this.transportMode = SamgodsConstants.TransportMode.valueOf(cmd.getOptionValue(transportModeOption));
 			this.maxCoverageError = Double.parseDouble(cmd.getOptionValue(maxCoverageErrorOption));
 			this.connectivity = ODCoverage.Connectivity.valueOf(cmd.getOptionValue(connectivityOption));
-			
+
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		}
@@ -173,7 +171,7 @@ class SamgodsLoopSamplingRunner {
 				(a, b) -> Units.KM_PER_M * Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y)));
 		scenarioBuilder.setMoveTimeFunction((a, b) -> this.dataContainer.getTransportDuration_h(a, b));
 		this.samplingScenario = scenarioBuilder.build();
-		
+
 		this.samplingVariant.configureScenario(cmd, this.dataContainer, this.samplingScenario);
 	}
 
@@ -241,11 +239,12 @@ class SamgodsLoopSamplingRunner {
 		initialRoundTrips.recomputeSummaries();
 		runner.setInitialState(initialRoundTrips);
 
-		runner.setMessageInterval(1000);
-		runner.configureWeightLogging("samplingWeights.tsv", 1000);
-		runner.configureStateLogging("./roundTrips", 10_000);
+		runner.setMessageInterval(10_000);
+		runner.configureWeightLogging("samplingWeights.tsv", 10_000);
+		runner.configureStateLogging("./roundTrips", 100_000);
 		runner.setTerminationCriterion(new BlockAverageTerminationCriterion<MultiRoundTrip<NodeWithCoords>>()
-				.setCheckInterval(10_000).setConvergenceStatsFileName("convergenceStats.tsv").setMinSamples(100_000));
+				.setCheckInterval(10_000).setConvergenceStatsFileName("convergenceStats.tsv").setMinSamples(1000_000)
+				.setRelativeVarianceTolerance(0.1).setStandardizedMeanTolerance(0.1));
 		runner.run();
 
 		log.info("... DONE");
@@ -278,14 +277,16 @@ class SamgodsLoopSamplingRunner {
 
 	public static void main(String[] args) {
 
-		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
-				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road", "-connectivity", "DIRECT" },
-				new SamgodsSamplingVariant() {
-				}).runSimulation();
-
 //		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
-//				"-stationCnt", "200", "-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road",
-//				"-stationPlacement", "maxThroughput" }, new ElectrifiedSamplingVariant()).runSimulation();
+//				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road", "-connectivity", "DIRECT" },
+//				new SamgodsSamplingVariant() {
+//				}).runSimulation();
+
+		new SamgodsLoopSamplingRunner(
+				new String[] { "-configFileName", "config.xml", "-loopCnt", "1000", "-stationCnt", "200",
+						"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road",
+						"-stationPlacement", "maxThroughput", "-connectivity", "DIRECT" },
+				new ElectrifiedSamplingVariant()).runSimulation();
 
 //		new SamgodsLoopSamplingRunner(args).createGIS(args, false);
 	}

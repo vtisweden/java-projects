@@ -19,6 +19,7 @@
  */
 package se.vti.samgods.preprocessing.loopgeneration;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -55,6 +56,11 @@ class ScenarioContainer {
 	private final Map<Id<Node>, Set<NodeWithCoords>> samgodsNodeId2SamplingNodes = new LinkedHashMap<>();
 	private final Map<NodeWithCoords, Id<Node>> samplingNode2SamgodsNodeId = new LinkedHashMap<>();
 
+	final Map<OD, Integer> od2index;
+	final List<OD> index2OD;
+
+	private final double[] odIndex2Demand_kTon;
+
 	// -------------------- CONSTRUCTION --------------------
 
 	ScenarioContainer(SamgodsScenario samgodsScenario, List<List<Enum<?>>> allNodeLabels) {
@@ -63,10 +69,24 @@ class ScenarioContainer {
 		this.transportDurations = new TransportDurations(samgodsScenario.getNetwork(),
 				samgodsScenario.computeTerminalNodeIds(), 80.0);
 
+		Map<OD, Integer> od2index = new LinkedHashMap<>();
+		List<OD> odList = new ArrayList<>();
+		int odIndex = 0;
 		var durationStats = new DescriptiveStatistics();
 		for (OD activeOD : samgodsScenario.getOD2Demand_kTon().keySet()) {
 			durationStats.addValue(transportDurations.getDuration_h(activeOD));
+			odList.add(activeOD);
+			od2index.put(activeOD, odIndex++);
 		}
+		this.od2index = Collections.unmodifiableMap(od2index);
+		this.index2OD = Collections.unmodifiableList(odList);
+
+		this.odIndex2Demand_kTon = new double[this.index2OD.size()];
+		for (odIndex = 0; odIndex < this.index2OD.size(); odIndex++) {
+			this.odIndex2Demand_kTon[odIndex] = this.samgodsScenario.getOD2Demand_kTon()
+					.get(this.index2OD.get(odIndex));
+		}
+
 		log.info("  Average transport duration is " + durationStats.getMean() + " hours.");
 		log.info("  Transport duration standard deviation is " + durationStats.getStandardDeviation() + " hours.");
 		log.info("  Maximum transport duration is " + durationStats.getMax() + " hours.");
@@ -115,10 +135,14 @@ class ScenarioContainer {
 		return Collections.unmodifiableMap(this.samgodsScenario.getOD2Demand_kTon());
 	}
 
-	double getDemand_kTon(OD od) {
-		return this.samgodsScenario.getOD2Demand_kTon().getOrDefault(od, 0.0);
+	double getDemand_kTon(int odIndex) {
+		return this.odIndex2Demand_kTon[odIndex];
 	}
-
+	
+//	double getDemand_kTon(OD od) {
+//		return this.samgodsScenario.getOD2Demand_kTon().getOrDefault(od, 0.0);
+//	}
+//
 //	Set<NodeWithCoords> getSendingSamplingNodes(OD od) {
 //		return this.samgodsNodeId2SamplingNodes.get(od.origin);
 //	}
