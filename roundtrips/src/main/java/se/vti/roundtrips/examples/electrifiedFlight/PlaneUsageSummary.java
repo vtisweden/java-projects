@@ -24,6 +24,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.checkerframework.checker.units.qual.N;
+
+import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.multi.MultiRoundTripSummary;
 import se.vti.roundtrips.scenario.NodeWithCoords;
 import se.vti.roundtrips.scenario.Scenario;
@@ -40,7 +43,7 @@ public class PlaneUsageSummary implements MultiRoundTripSummary<NodeWithCoords> 
 	private final int numberOfPlanes;
 	private final int planeCapacity_pax;
 	private final Map<Tuple<NodeWithCoords, NodeWithCoords>, Double> od2demand;
-	
+
 	private List<Map<Tuple<NodeWithCoords, NodeWithCoords>, Integer>> od2CoveragePerPlane;
 	private Map<Tuple<NodeWithCoords, NodeWithCoords>, Integer> od2CoverageSum;
 
@@ -73,7 +76,7 @@ public class PlaneUsageSummary implements MultiRoundTripSummary<NodeWithCoords> 
 		this.totalDemand_paxKm += dist_km * (demand_pax - this.od2demand.getOrDefault(od, 0.0));
 		this.od2demand.put(od, demand_pax);
 	}
-	
+
 	private <K> void add(Map<K, Integer> addToThis, Map<K, Integer> addend, int factor) {
 		for (var entry : addend.entrySet()) {
 			addToThis.compute(entry.getKey(), (k, v) -> (v == null ? 0 : v) + factor * entry.getValue());
@@ -85,7 +88,9 @@ public class PlaneUsageSummary implements MultiRoundTripSummary<NodeWithCoords> 
 	}
 
 	@Override
-	public void update(int planeIndex, RoundTrip<NodeWithCoords> oldRoundTrip, RoundTrip<NodeWithCoords> newRoundTrip) {
+	public void update(RoundTrip<NodeWithCoords> newRoundTrip, MultiRoundTrip<NodeWithCoords> oldRoundTrips) {
+		int planeIndex = newRoundTrip.getIndex();
+		var oldRoundTrip = oldRoundTrips.getRoundTrip(planeIndex);
 
 		if (oldRoundTrip != null) {
 			this.add(this.od2CoverageSum, this.od2CoveragePerPlane.get(planeIndex), -1);

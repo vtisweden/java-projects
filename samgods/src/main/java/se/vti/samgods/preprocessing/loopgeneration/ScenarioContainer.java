@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Node;
@@ -36,32 +39,40 @@ import se.vti.samgods.common.OD;
 /**
  * @author GunnarF
  */
-class ScenarioDataContainer {
+class ScenarioContainer {
 
-	private final SamgodsScenarioData samogodsScenarioData;
+	// -------------------- CONSTANTS --------------------
+
+	private static final Logger log = LogManager.getLogger(ScenarioContainer.class);
+
+	// -------------------- MEMBERS --------------------
+
+	private final SamgodsScenario samgodsScenario;
+
 	private final TransportDurations transportDurations;
-	private final double totalDemand_kTon;
-	private final double demandVectorLength_kTon;
 
-	/*
-	 * Necessary because sampling may happen on an (electrification-)expanded
-	 * network.
-	 */
-	private Map<Id<Node>, Set<NodeWithCoords>> samgodsNodeId2SamplingNodes = new LinkedHashMap<>();
-	private Map<NodeWithCoords, Id<Node>> samplingNode2SamgodsNodeId = new LinkedHashMap<>();
+	// Necessary because sampling may happen on an expanded network.
+	private final Map<Id<Node>, Set<NodeWithCoords>> samgodsNodeId2SamplingNodes = new LinkedHashMap<>();
+	private final Map<NodeWithCoords, Id<Node>> samplingNode2SamgodsNodeId = new LinkedHashMap<>();
 
-	ScenarioDataContainer(SamgodsScenarioData loopSamplingData, TransportDurations transportDurations) {
-		this(loopSamplingData, transportDurations, List.of(List.of()));
-	}
+	// -------------------- CONSTRUCTION --------------------
 
-	ScenarioDataContainer(SamgodsScenarioData samgodsScenarioData, TransportDurations transportDurations,
-			List<List<Enum<?>>> allNodeLabels) {
-		this.samogodsScenarioData = samgodsScenarioData;
-		this.transportDurations = transportDurations;
-		this.totalDemand_kTon = this.samogodsScenarioData.computeTotalDemand_kTon();
-		this.demandVectorLength_kTon = this.samogodsScenarioData.computeDemandVectorLength_kTon();
-		for (Id<Node> samgodsNodeId : samgodsScenarioData.computeTerminalNodeIds()) {
-			Coord coord = samgodsScenarioData.getNetwork().getNodes().get(samgodsNodeId).getCoord();
+	ScenarioContainer(SamgodsScenario samgodsScenario, List<List<Enum<?>>> allNodeLabels) {
+		this.samgodsScenario = samgodsScenario;
+
+		this.transportDurations = new TransportDurations(samgodsScenario.getNetwork(),
+				samgodsScenario.computeTerminalNodeIds(), 80.0);
+
+		var durationStats = new DescriptiveStatistics();
+		for (OD activeOD : samgodsScenario.getOD2Demand_kTon().keySet()) {
+			durationStats.addValue(transportDurations.getDuration_h(activeOD));
+		}
+		log.info("  Average transport duration is " + durationStats.getMean() + " hours.");
+		log.info("  Transport duration standard deviation is " + durationStats.getStandardDeviation() + " hours.");
+		log.info("  Maximum transport duration is " + durationStats.getMax() + " hours.");
+
+		for (Id<Node> samgodsNodeId : samgodsScenario.computeTerminalNodeIds()) {
+			Coord coord = samgodsScenario.getNetwork().getNodes().get(samgodsNodeId).getCoord();
 			for (List<Enum<?>> nodeLabels : allNodeLabels) {
 				NodeWithCoords samplingNode = new NodeWithCoords(samgodsNodeId.toString(), coord.getX(), coord.getY(),
 						nodeLabels);
@@ -91,7 +102,7 @@ class ScenarioDataContainer {
 	Id<Node> getSamgodsNodeId(NodeWithCoords samplingNode) {
 		return this.samplingNode2SamgodsNodeId.get(samplingNode);
 	}
-	
+
 //	Set<Id<Node>> getAllNodeIdsView() {
 //		return Collections.unmodifiableSet(this.nodeId2SamplingNodes.keySet());
 //	}
@@ -101,11 +112,11 @@ class ScenarioDataContainer {
 	}
 
 	Map<OD, Double> getOD2Demand_kTon_View() {
-		return Collections.unmodifiableMap(this.samogodsScenarioData.getOD2Demand_kTon());
+		return Collections.unmodifiableMap(this.samgodsScenario.getOD2Demand_kTon());
 	}
 
 	double getDemand_kTon(OD od) {
-		return this.samogodsScenarioData.getOD2Demand_kTon().getOrDefault(od, 0.0);
+		return this.samgodsScenario.getOD2Demand_kTon().getOrDefault(od, 0.0);
 	}
 
 //	Set<NodeWithCoords> getSendingSamplingNodes(OD od) {
@@ -117,16 +128,13 @@ class ScenarioDataContainer {
 //	}
 
 	double getTotalSent_kTon(Id<Node> samgodsNodeId) {
-		return this.samogodsScenarioData.getNodeId2Sent_Mton()
-				.getOrDefault(samgodsNodeId, 0.0);
+		return this.samgodsScenario.getNodeId2Sent_Mton().getOrDefault(samgodsNodeId, 0.0);
 	}
 
 	double getTotalReceived_kTon(Id<Node> samgodsNodeId) {
-		return this.samogodsScenarioData.getNodeId2Received_Mton()
-				.getOrDefault(samgodsNodeId, 0.0);
+		return this.samgodsScenario.getNodeId2Received_Mton().getOrDefault(samgodsNodeId, 0.0);
 	}
 
-	
 	double getTotalSent_kTon(NodeWithCoords samplingNode) {
 		return this.getTotalSent_kTon(this.samplingNode2SamgodsNodeId.get(samplingNode));
 	}
@@ -145,14 +153,14 @@ class ScenarioDataContainer {
 	}
 
 	double getTotalDemand_kTon() {
-		return this.totalDemand_kTon;
+		return this.samgodsScenario.computeTotalDemand_kTon();
 	}
 
 	double getDemandVectorLength_kTon() {
-		return this.demandVectorLength_kTon;
+		return this.samgodsScenario.computeDemandVectorLength_kTon();
 	}
 
-	OD getOD(NodeWithCoords fromSamplingNode, NodeWithCoords toSamplingNode) {
+	OD createOD(NodeWithCoords fromSamplingNode, NodeWithCoords toSamplingNode) {
 		Id<Node> fromNodeId = this.samplingNode2SamgodsNodeId.get(fromSamplingNode);
 		Id<Node> toNodeId = this.samplingNode2SamgodsNodeId.get(toSamplingNode);
 		if ((fromNodeId != null) && (toNodeId != null)) {

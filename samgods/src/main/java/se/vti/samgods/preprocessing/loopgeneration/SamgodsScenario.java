@@ -52,11 +52,11 @@ import se.vti.utils.misc.Units;
  * @author GunnarF
  *
  */
-class SamgodsScenarioData {
+class SamgodsScenario {
 
 	// -------------------- CONSTANTS --------------------
 
-	private static final Logger log = LogManager.getLogger(SamgodsScenarioData.class);
+	private static final Logger log = LogManager.getLogger(SamgodsScenario.class);
 
 	// -------------------- MEMBERS --------------------
 
@@ -70,7 +70,7 @@ class SamgodsScenarioData {
 
 	// -------------------- CONSTRUCTION --------------------
 
-	SamgodsScenarioData(SamgodsConstants.TransportMode transportMode, boolean onlyDomestic,
+	SamgodsScenario(SamgodsConstants.TransportMode transportMode, boolean onlyDomestic,
 			SamgodsConfigGroup samgodsConfig, SamgodsConstants.Commodity... commodities) {
 
 		log.info("Loading network.");
@@ -86,8 +86,7 @@ class SamgodsScenarioData {
 			final Set<Id<Link>> excludedLinkIds = new LinkedHashSet<>();
 			for (Link link : this.network.getLinks().values()) {
 				SamgodsLinkAttributes linkAttrs = SamgodsNetworkUtils.instance.getLinkAttrs(link);
-				// TODO domestic check should be taken care of by NetworkReader
-				if ((onlyDomestic && !linkAttrs.isDomestic) || !transportMode.equals(linkAttrs.samgodsMode)) {
+				if (!transportMode.equals(linkAttrs.samgodsMode)) {
 					excludedLinkIds.add(link.getId());
 				}
 			}
@@ -103,13 +102,13 @@ class SamgodsScenarioData {
 			if (speed_km_h < 30) {
 				String msg = "Link " + link.getId() + " has speed " + speed_km_h + " km/h.";
 				log.warn(msg);
-				if (speed_km_h <= 0.0) {
+				if (speed_km_h <= 1e-8) {
 					throw new RuntimeException(msg);
 				}
 			}
 		}
 
-		log.info("Extracting OD pairs and transfer nodes.");
+		log.info("Extracting freight OD pairs.");
 		this.od2Demand_kTon = new LinkedHashMap<>();
 		var transportDemand = new TransportDemandAndChains();
 		for (var commodity : commodities) {
@@ -131,7 +130,7 @@ class SamgodsScenarioData {
 			}
 		}
 
-		log.info("Computing OD freight flows.");
+		log.info("Computing freight OD flows.");
 		for (var commodity : commodities) {
 			for (var odAndShipments : transportDemand.getCommodity2od2annualShipments().get(commodity).entrySet()) {
 				OD senderReceiverPair = odAndShipments.getKey();
@@ -141,6 +140,7 @@ class SamgodsScenarioData {
 					List<TransportChain> chains = transportDemand.getCommodity2od2transportChains().get(commodity)
 							.get(senderReceiverPair);
 					if ((chains != null) && (chains.size() > 0)) {
+						// TODO This assumes a uniform distribution of demand over chains.
 						double demandPerChain_kton = totalDemand_kTon / chains.size();
 						for (TransportChain chain : chains) {
 							for (TransportEpisode episode : chain.getEpisodes()) {
@@ -168,8 +168,8 @@ class SamgodsScenarioData {
 		for (var odAndDemand_kTon : this.od2Demand_kTon.entrySet()) {
 			OD od = odAndDemand_kTon.getKey();
 			double amount_Mton = 1e-3 * odAndDemand_kTon.getValue();
-			this.nodeId2Sent_Mton.compute(od.origin, (n, s) -> (s == null) ? amount_Mton : s + amount_Mton);
-			this.nodeId2Received_Mton.compute(od.destination, (n, r) -> (r == null) ? amount_Mton : r + amount_Mton);
+			this.nodeId2Sent_Mton.compute(od.origin, (n, s) -> (s == null) ? amount_Mton : (s + amount_Mton));
+			this.nodeId2Received_Mton.compute(od.destination, (n, r) -> (r == null) ? amount_Mton : (r + amount_Mton));
 		}
 	}
 

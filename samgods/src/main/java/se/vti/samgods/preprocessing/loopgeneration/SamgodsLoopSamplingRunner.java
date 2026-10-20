@@ -47,6 +47,7 @@ import se.vti.roundtrips.scenario.ScenarioBuilder;
 import se.vti.samgods.common.OD;
 import se.vti.samgods.common.SamgodsConfigGroup;
 import se.vti.samgods.common.SamgodsConstants;
+import se.vti.samgods.preprocessing.loopgeneration.ODCoverage.Connectivity;
 import se.vti.utils.misc.Units;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 import se.vti.utils.misc.metropolishastings.terminationcriteria.BlockAverageTerminationCriterion;
@@ -66,15 +67,16 @@ class SamgodsLoopSamplingRunner {
 	static final String loopCntLabel = "loopCnt";
 	static final String maxCoverageErrorLabel = "maxCoverageError";
 	static final String commodityLabel = "commodity";
-	static final String transportModeLabel = "transportMode";
-	static final String nodesFile = "nodesFile";
-	static final String linksFile = "linksFile";
+	static final String transportModeLabel = "transportMode";	
+	static final String nodesFileLabel = "nodesFile";
+	static final String linksFileLabel = "linksFile";
+	static final String connectivityLabel = "connectivity";
 
 	static final int periodLength_h = 7 * 24;
 	static final int timeBinSize_h = 4;
 	static final double minODCoverage = 0.001;
 
-	ScenarioDataContainer dataContainer = null;
+	ScenarioContainer dataContainer = null;
 	Scenario<NodeWithCoords> samplingScenario = null;
 
 	final SamgodsConfigGroup samgodsConfig;
@@ -83,7 +85,8 @@ class SamgodsLoopSamplingRunner {
 	final int loopCount;
 	final SamgodsConstants.Commodity commodity;
 	final SamgodsConstants.TransportMode transportMode;
-
+	final ODCoverage.Connectivity connectivity;
+	
 	final SamgodsSamplingVariant samplingVariant;
 
 	SamgodsLoopSamplingRunner(String[] args, SamgodsSamplingVariant samplingVariant) {
@@ -115,15 +118,18 @@ class SamgodsLoopSamplingRunner {
 		maxCoverageErrorOption.setRequired(true);
 		options.addOption(maxCoverageErrorOption);
 
-		var nodesFileOption = new Option(nodesFile, true, nodesFile);
+		var nodesFileOption = new Option(nodesFileLabel, true, nodesFileLabel);
 		nodesFileOption.setRequired(false);
 		options.addOption(nodesFileOption);
 
-		var linksFileOption = new Option(linksFile, true, linksFile);
+		var linksFileOption = new Option(linksFileLabel, true, linksFileLabel);
 		linksFileOption.setRequired(false);
 		options.addOption(linksFileOption);
 
-//		this.configureSamplingOptions(options);
+		var connectivityOption = new Option(connectivityLabel, true, connectivityLabel);
+		connectivityOption.setRequired(true);
+		options.addOption(connectivityOption);
+		
 		this.samplingVariant.configureOptions(options);
 
 		final CommandLine cmd;
@@ -136,84 +142,40 @@ class SamgodsLoopSamplingRunner {
 			this.commodity = SamgodsConstants.Commodity.valueOf(cmd.getOptionValue(commodityOption));
 			this.transportMode = SamgodsConstants.TransportMode.valueOf(cmd.getOptionValue(transportModeOption));
 			this.maxCoverageError = Double.parseDouble(cmd.getOptionValue(maxCoverageErrorOption));
-
+			this.connectivity = ODCoverage.Connectivity.valueOf(cmd.getOptionValue(connectivityOption));
+			
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		}
 
 		log.info("Loading Samgods scenario.");
-
-		var loopSamplingData = new SamgodsScenarioData(this.transportMode, true, samgodsConfig, this.commodity);
+		var samgodsScenario = new SamgodsScenario(this.transportMode, true, samgodsConfig, this.commodity);
 		try {
-			GeoJsonWriters.writeTerminals(loopSamplingData.getNetwork(), loopSamplingData.computeTerminalNodeIds(),
+			GeoJsonWriters.writeTerminals(samgodsScenario.getNetwork(), samgodsScenario.computeTerminalNodeIds(),
 					"GeoJsonNodes.json");
-			GeoJsonWriters.writeLinks(loopSamplingData.getNetwork(), "GeoJsonLinks.json");
+			GeoJsonWriters.writeLinks(samgodsScenario.getNetwork(), "GeoJsonLinks.json");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		log.info("Number of terminals is " + samgodsScenario.computeTerminalNodeIds().size());
+		log.info("Number of OD pairs is " + samgodsScenario.getOD2Demand_kTon().size());
 
-		var transportDurations = new TransportDurations(loopSamplingData.getNetwork(),
-				loopSamplingData.computeTerminalNodeIds(), 80.0);
-		log.info("Number of terminals is " + loopSamplingData.computeTerminalNodeIds().size());
-		log.info("Number of OD pairs is " + loopSamplingData.getOD2Demand_kTon().size());
-
-		var durationStats = new DescriptiveStatistics();
-		for (OD activeOD : loopSamplingData.getOD2Demand_kTon().keySet()) {
-			durationStats.addValue(transportDurations.getDuration_h(activeOD));
-		}
-		log.info("  Average transport duration is " + durationStats.getMean() + " hours.");
-		log.info("  Transport duration standard deviation is " + durationStats.getStandardDeviation() + " hours.");
-		log.info("  Maximum transport duration is " + durationStats.getMax() + " hours.");
-
-//		List<List<Enum<?>>> allNodeLabels = List.of(List.of());
-//		List<List<Enum<?>>> allNodeLabels = new ArrayList<>();
-//		allNodeLabels.add(new ArrayList<>(0));
-//		this.modifyNodeLabels(allNodeLabels);
-		var allNodeLabels = this.samplingVariant.createNodeLabels();
-
-		this.dataContainer = new ScenarioDataContainer(loopSamplingData, transportDurations, allNodeLabels);
+		this.dataContainer = new ScenarioContainer(samgodsScenario, this.samplingVariant.createNodeLabels());
 		log.info("Total number of OD pairs: " + dataContainer.getOD2Demand_kTon_View().size());
 		log.info("Total freight demand [kTon]: " + dataContainer.getTotalDemand_kTon());
 		log.info("Demand vector length [kTon]: " + dataContainer.getDemandVectorLength_kTon());
 
 		log.info("Creating sampling scenario.");
-
 		var scenarioBuilder = new ScenarioBuilder<NodeWithCoords>().setTimeBinSize_h(timeBinSize_h)
 				.setNumberOfTimeBins(periodLength_h / timeBinSize_h);
 		scenarioBuilder.addNodes(this.dataContainer.getAllSamplingNodesView());
 		scenarioBuilder.setMoveDistanceFunction(
 				(a, b) -> Units.KM_PER_M * Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y)));
 		scenarioBuilder.setMoveTimeFunction((a, b) -> this.dataContainer.getTransportDuration_h(a, b));
-
 		this.samplingScenario = scenarioBuilder.build();
-		// configureSamplingScenario(args, options);
+		
 		this.samplingVariant.configureScenario(cmd, this.dataContainer, this.samplingScenario);
 	}
-
-	// HOOKS FOR SUBCLASSING (quick fix to not lose electrification functionality)
-
-//	void configureSamplingOptions(Options options) {
-//	}
-//
-//	void configureSamplingScenario(String[] args, Options options) {
-//	}
-//
-//	void modifyNodeLabels(List<List<Enum<?>>> allNodeLabels) {
-//	}
-//
-//	void parametrizeInitialRoundTripGenerator(RandomRoundTripGenerator<NodeWithCoords> generator) {
-//	}
-
-	List<NodeWithCoords> createInitialNodes() {
-		return new ArrayList<>(this.samplingScenario.getNodesView());
-	}
-
-	int getMaxNumberOfInitialStayEpisodes() {
-		return this.samplingScenario.getNumberOfTimeBins();
-	}
-
-//	void addToSamplingWeights(Runner<NodeWithCoords> runner) {
-//	}
 
 	void runSimulation() {
 
@@ -258,10 +220,10 @@ class SamgodsLoopSamplingRunner {
 		final MultiRoundTrip<NodeWithCoords> initialRoundTrips;
 		if (initialStateFile == null) {
 			initialRoundTrips = new MultiRoundTrip<>(loopCount);
-			final List<NodeWithCoords> initialNodes = createInitialNodes();
+			final List<NodeWithCoords> initialNodes = new ArrayList<>(this.samplingScenario.getNodesView());
 			var generator = new RandomRoundTripGenerator<>(samplingScenario).setFeasibleNodes(initialNodes)
 					.setFeasibilityCheck(r -> Double.isFinite(strictlyPeriodicWeight.logWeight(r)))
-					.setNumberOfStayEpisodesInterval(1, getMaxNumberOfInitialStayEpisodes());
+					.setNumberOfStayEpisodesInterval(1, this.samplingScenario.getNumberOfTimeBins());
 //			parametrizeInitialRoundTripGenerator(generator);
 			this.samplingVariant.configureInitialRoundTripGenerator(generator, this.dataContainer,
 					this.samplingScenario);
@@ -274,8 +236,8 @@ class SamgodsLoopSamplingRunner {
 			}
 		}
 		initialRoundTrips.simulateAll(this.samplingScenario.getOrCreateSimulator());
-		initialRoundTrips
-				.addSummary(new ODCoverage<NodeWithCoords>(initialRoundTrips.size(), dataContainer, minODCoverage));
+		initialRoundTrips.addSummary(new ODCoverage<NodeWithCoords>(initialRoundTrips.size(), dataContainer,
+				minODCoverage, Connectivity.FULL));
 		initialRoundTrips.recomputeSummaries();
 		runner.setInitialState(initialRoundTrips);
 
@@ -300,7 +262,8 @@ class SamgodsLoopSamplingRunner {
 				System.out.println("Loading sample: " + path.toString());
 				MultiRoundTrip<NodeWithCoords> roundTrips = MultiRoundTripJsonIO.singleton()
 						.readFromFile(samplingScenario, path.toAbsolutePath().toString());
-				roundTrips.addSummary(new ODCoverage<NodeWithCoords>(roundTrips.size(), dataContainer, minODCoverage));
+				roundTrips.addSummary(new ODCoverage<NodeWithCoords>(roundTrips.size(), dataContainer, minODCoverage,
+						Connectivity.FULL));
 				roundTrips.recomputeSummaries();
 				allRoundTrips.add(roundTrips);
 			}
@@ -315,39 +278,15 @@ class SamgodsLoopSamplingRunner {
 
 	public static void main(String[] args) {
 
-//		new SamgodsLoopSamplingRunner(args, new SamgodsSamplingVariant() {
-//		}).runSimulation();
+		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
+				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road", "-connectivity", "DIRECT" },
+				new SamgodsSamplingVariant() {
+				}).runSimulation();
 
 //		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
-//				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road" }, new SamgodsSamplingVariant() {
-//		}).runSimulation();
-
-		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
-				"-stationCnt", "200", "-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road",
-				"-stationPlacement", "maxThroughput" }, new ElectrifiedSamplingVariant()).runSimulation();
+//				"-stationCnt", "200", "-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road",
+//				"-stationPlacement", "maxThroughput" }, new ElectrifiedSamplingVariant()).runSimulation();
 
 //		new SamgodsLoopSamplingRunner(args).createGIS(args, false);
-
-//		runSimulation(args);
-
-//		runSimulation(new String[] { "-configFileName", "./input/config.xml", "-loopCnt", "1000", "-stationCnt", "200",
-//				"-maxCoverageError", "0.1"});
-
-//		runSimulation(new String[] { "-configFileName", "./input/config.xml", "-coverageWeight", "100.0", "-loopCnt",
-//				"1000", "-initialState", "roundTrips.7700000.json" });
-
-//		createGIS(new String[] { "-" + configFileNameLabel, "./input/config.xml", "-" + analysisFileNameLabel,
-//				"./tmp/noStations.json" }, "./noStations.", false);
-//		createGIS(new String[] { "-" + configFileNameLabel, "./input/config.xml", "-" + analysisFileNameLabel,
-//		"./tmp/100stations.json" }, "./100stations.", true);
-//		createGIS(new String[] { "-" + configFileNameLabel, "./input/config.xml", "-" + analysisFileNameLabel,
-//		"./tmp/50stations.json" }, "./50stations.", true);
-//		createGIS(new String[] { "-" + configFileNameLabel, "./input/config.xml", "-" + analysisFileNameLabel,
-//		"./tmp/25stations.json" }, "./25stations.", true);
-//		createGIS(new String[] { "-" + configFileNameLabel, "./input/config.xml", "-" + analysisFileNameLabel,
-//		"./tmp/12stations.json" }, "./12stations.", true);
-
-//		evaluateCharging(new String[] { "-" + configFileNameLabel, "./input/config.xml", "-" + analysisFileNameLabel,
-//				"roundTrips.1000000.json" });
 	}
 }

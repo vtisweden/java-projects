@@ -17,7 +17,7 @@ interface SamgodsSamplingVariant {
 
     default void configureScenario(
             CommandLine cmd,
-            ScenarioDataContainer dataContainer,
+            ScenarioContainer dataContainer,
             Scenario<NodeWithCoords> samplingScenario) {
     }
 
@@ -27,13 +27,13 @@ interface SamgodsSamplingVariant {
 
     default void addSamplingWeights(
             Runner<NodeWithCoords> runner,
-            ScenarioDataContainer dataContainer,
+            ScenarioContainer dataContainer,
             Scenario<NodeWithCoords> samplingScenario) {
     }
 
     default void configureInitialRoundTripGenerator(
             RandomRoundTripGenerator<NodeWithCoords> generator,
-            ScenarioDataContainer dataContainer,
+            ScenarioContainer dataContainer,
             Scenario<NodeWithCoords> samplingScenario) {
     }
 }

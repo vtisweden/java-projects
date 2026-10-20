@@ -130,7 +130,7 @@ class GeoJsonWriters {
 		mapper.writerWithDefaultPrettyPrinter().writeValue(new File(outputFile), root);
 	}
 
-	static void writeCoverage(ScenarioDataContainer scenarioData, List<MultiRoundTrip<NodeWithCoords>> allRoundTrips) {
+	static void writeCoverage(ScenarioContainer scenarioData, List<MultiRoundTrip<NodeWithCoords>> allRoundTrips) {
 
 		double totalTarget_kTon = scenarioData.getTotalDemand_kTon(); // total sent == total received
 
@@ -320,7 +320,7 @@ class GeoJsonWriters {
 
 	private static void writeNodeValues(String fileName, List<String> listOfFieldNames,
 			List<Function<Id<Node>, String>> listOfExtractors, Set<Id<Node>> allSamgodsNodeIds,
-			ScenarioDataContainer scenarioData) {
+			ScenarioContainer scenarioData) {
 
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode root = mapper.createObjectNode();

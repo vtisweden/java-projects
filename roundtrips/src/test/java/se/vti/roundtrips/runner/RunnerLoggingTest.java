@@ -111,14 +111,14 @@ class RunnerLoggingTest {
 	@Test
 	void stateLoggingCreatesFile() throws IOException {
 		Path prefix = tempDir.resolve("state");
-		Runner<Node> runner = createRunner().configureStateLogger(prefix.toString(), 1);
+		Runner<Node> runner = createRunner().configureStateLogging(prefix.toString(), 1);
 		runner.run();
 		assertTrue(fileWithPrefixExists("state"));
 	}
 
 	@Test
 	void stateLoggingCanBeDisabledByNullFilename() throws IOException {
-		Runner<Node> runner = createRunner().configureStateLogger(null, 1);
+		Runner<Node> runner = createRunner().configureStateLogging(null, 1);
 		runner.run();
 		assertFalse(fileWithPrefixExists("state"));
 	}
@@ -126,7 +126,7 @@ class RunnerLoggingTest {
 	@Test
 	void stateLoggingCanBeDisabledByZeroInterval() throws IOException {
 		Path prefix = tempDir.resolve("state");
-		Runner<Node> runner = createRunner().configureStateLogger(prefix.toString(), 0);
+		Runner<Node> runner = createRunner().configureStateLogging(prefix.toString(), 0);
 		runner.run();
 		assertFalse(fileWithPrefixExists("state"));
 	}

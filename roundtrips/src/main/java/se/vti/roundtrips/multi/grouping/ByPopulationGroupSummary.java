@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.multi.MultiRoundTripSummary;
 import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.single.RoundTrip;
@@ -32,10 +33,10 @@ import se.vti.roundtrips.single.RoundTrip;
  * 
  * @author GunnarF
  *
- * @param <L>
+ * @param <N>
  */
-public abstract class ByPopulationGroupSummary<L extends Node, S extends MultiRoundTripSummary<L>>
-		implements MultiRoundTripSummary<L> {
+public abstract class ByPopulationGroupSummary<N extends Node, S extends MultiRoundTripSummary<N>>
+		implements MultiRoundTripSummary<N> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -59,7 +60,7 @@ public abstract class ByPopulationGroupSummary<L extends Node, S extends MultiRo
 	}
 
 	// for deep cloning in subclasses
-	public ByPopulationGroupSummary(ByPopulationGroupSummary<L, S> parent) {
+	public ByPopulationGroupSummary(ByPopulationGroupSummary<N, S> parent) {
 		final Map<S, S> summary2clone = new LinkedHashMap<>(parent.group2summary.size());
 		for (Map.Entry<String, S> entry : parent.group2summary.entrySet()) {
 			final String group = entry.getKey();
@@ -88,14 +89,20 @@ public abstract class ByPopulationGroupSummary<L extends Node, S extends MultiRo
 	}
 
 	@Override
-	public void update(int roundTripIndex, RoundTrip<L> oldRoundTrip, RoundTrip<L> newRoundTrip) {
-		final S summary = this.index2summary.get(roundTripIndex);
+//	public void update(int roundTripIndex, RoundTrip<L> oldRoundTrip, RoundTrip<L> newRoundTrip) {
+//		final S summary = this.index2summary.get(roundTripIndex);
+//		if (summary != null) {
+//			summary.update(roundTripIndex, oldRoundTrip, newRoundTrip);
+//		}
+//	}
+	public void update(RoundTrip<N> newRoundTrip, MultiRoundTrip<N> oldRoundTrips) {
+		final S summary = this.index2summary.get(newRoundTrip.getIndex());
 		if (summary != null) {
-			summary.update(roundTripIndex, oldRoundTrip, newRoundTrip);
+			summary.update(newRoundTrip, oldRoundTrips);
 		}
 	}
 
 	@Override
-	public abstract ByPopulationGroupSummary<L, S> clone();
+	public abstract ByPopulationGroupSummary<N, S> clone();
 
 }

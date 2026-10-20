@@ -45,16 +45,16 @@ import se.vti.utils.misc.Units;
  * @author GunnarF
  * 
  */
-public class TransportDurations {
+class TransportDurations {
 
 	private static final Logger log = LogManager.getLogger(TransportDurations.class);
 
 	private final Map<Id<Node>, Map<Id<Node>, Double>> origin2Destination2TravelTime_s;
 
-	public TransportDurations(Network network, Set<Id<Node>> consideredNodeIds, double maxSpeed_km_h) {
+	TransportDurations(Network network, Set<Id<Node>> consideredNodeIds, double maxSpeed_km_h) {
 		double maxSpeed_m_s = Units.M_S_PER_KM_H * maxSpeed_km_h;
 
-		TravelTime linkTravelTimes = new TravelTime() {
+		var linkTravelTimes = new TravelTime() {
 			@Override
 			public double getLinkTravelTime(Link link, double time, Person person, Vehicle vehicle) {
 				double t0_s = link.getLength() / Math.min(link.getFreespeed(), maxSpeed_m_s);
@@ -65,7 +65,7 @@ public class TransportDurations {
 			}
 		};
 
-		TravelDisutility linkCosts = new TravelDisutility() {
+		var linkCosts = new TravelDisutility() {
 			@Override
 			public double getLinkTravelDisutility(Link link, double time, Person person, Vehicle vehicle) {
 				return linkTravelTimes.getLinkTravelTime(link, 0.0, null, null);

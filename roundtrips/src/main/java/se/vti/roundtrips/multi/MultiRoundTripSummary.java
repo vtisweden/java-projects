@@ -33,13 +33,14 @@ public interface MultiRoundTripSummary<N extends Node> {
 
 	void clear();
 
-	void update(int roundTripIndex, RoundTrip<N> oldRoundTrip, RoundTrip<N> newRoundTrip);
+//	void update(int roundTripIndex, RoundTrip<N> oldRoundTrip, RoundTrip<N> newRoundTrip);
+//
+//	default void update(RoundTrip<N> newRoundTrip, MultiRoundTrip<N> allRoundTrips) {
+//		int roundTripIndex = newRoundTrip.getIndex();
+//		update(roundTripIndex, allRoundTrips.getRoundTrip(roundTripIndex), newRoundTrip);
+//	}
 
-	default void update(RoundTrip<N> newRoundTrip, MultiRoundTrip<N> allRoundTrips) {
-		int roundTripIndex = newRoundTrip.getIndex();
-		update(roundTripIndex, allRoundTrips.getRoundTrip(roundTripIndex), newRoundTrip);
-	}
-
+	void update(RoundTrip<N> newRoundTrip, MultiRoundTrip<N> oldRoundTrips);
 
 	MultiRoundTripSummary<N> clone();
 

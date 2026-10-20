@@ -83,7 +83,7 @@ class ElectrifiedSamplingVariant implements SamgodsSamplingVariant {
 	}
 
 	@Override
-	public void configureScenario(CommandLine cmd, ScenarioDataContainer dataContainer,
+	public void configureScenario(CommandLine cmd, ScenarioContainer dataContainer,
 			Scenario<NodeWithCoords> samplingScenario) {
 
 		this.chargingStationCount = Integer.parseInt(cmd.getOptionValue(stationCntLabel));
@@ -102,7 +102,7 @@ class ElectrifiedSamplingVariant implements SamgodsSamplingVariant {
 	}
 
 	@Override
-	public void addSamplingWeights(Runner<NodeWithCoords> runner, ScenarioDataContainer dataContainer,
+	public void addSamplingWeights(Runner<NodeWithCoords> runner, ScenarioContainer dataContainer,
 			Scenario<NodeWithCoords> samplingScenario) {
 
 		runner.addIndividualWeight(new StrictlyNonNegativeBatteryCharge<>());
@@ -149,7 +149,7 @@ class ElectrifiedSamplingVariant implements SamgodsSamplingVariant {
 
 	@Override
 	public void configureInitialRoundTripGenerator(RandomRoundTripGenerator<NodeWithCoords> generator,
-			ScenarioDataContainer dataContainer, Scenario<NodeWithCoords> samplingScenario) {
+			ScenarioContainer dataContainer, Scenario<NodeWithCoords> samplingScenario) {
 
 		List<NodeWithCoords> initialNodes;
 		if (stationPlacement.equals(maxThroughput) || stationPlacement.equals(maxDegree)) {

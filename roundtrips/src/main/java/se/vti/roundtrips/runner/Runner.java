@@ -185,7 +185,7 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
-	public Runner<N> configureStateLogger(String fileNamePrefix, long logInterval) {
+	public Runner<N> configureStateLogging(String fileNamePrefix, long logInterval) {
 		if (this.doNotLog(fileNamePrefix, logInterval)) {
 			this.stateLogger = null;
 		} else {
