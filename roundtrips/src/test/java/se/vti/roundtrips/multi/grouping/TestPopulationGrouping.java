@@ -21,29 +21,97 @@ package se.vti.roundtrips.multi.grouping;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import se.vti.roundtrips.multi.grouping.PopulationGrouping;
+import se.vti.roundtrips.multi.MultiRoundTrip;
+import se.vti.roundtrips.multi.MultiRoundTripSummary;
+import se.vti.roundtrips.scenario.Node;
+import se.vti.roundtrips.single.RoundTrip;
 
 /**
  * @author GunnarF
  */
 class TestPopulationGrouping {
 
-	@Test
-	void test() {
-		int size = 14;
+	static int populationSize = 14;
+	static int[] expectedGroupIndicesA = new int[] { 8, 11 };
+	static int[] expectedGroupIndicesB = new int[] { 4, 6, 9, 12 };
+	static int[] expectedGroupIndicesC = new int[] { 0, 1, 2, 3, 5, 7, 10, 13 };
 
-		PopulationGrouping g = new PopulationGrouping(size);
+	static PopulationGrouping createGrouping() {
+		PopulationGrouping g = new PopulationGrouping(populationSize);
 		g.addGroup("a", 1.0);
 		g.addGroup("b", 2.0);
 		g.addGroup("c", 4.0);
-
 		g.ensureIndexing();
+		return g;
+	}
 
-		assertArrayEquals(new int[] { 8, 11 }, g.getGroup2Indices().get("a"));
-		assertArrayEquals(new int[] { 4, 6, 9, 12 }, g.getGroup2Indices().get("b"));
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 5, 7, 10, 13 }, g.getGroup2Indices().get("c"));
+	@Test
+	void testAllocationOfIndividualsToGroups() {
+		PopulationGrouping g = createGrouping();
+
+		assertArrayEquals(expectedGroupIndicesA, g.getGroup2Indices().get("a"));
+		assertArrayEquals(expectedGroupIndicesB, g.getGroup2Indices().get("b"));
+		assertArrayEquals(expectedGroupIndicesC, g.getGroup2Indices().get("c"));
+	}
+
+	@Test
+	void testAllocationOfSummariesToIndividuals() {
+		PopulationGrouping g = createGrouping();
+
+		Map<MultiRoundTripSummary<Node>, Integer> summary2updateCount = new LinkedHashMap<>();
+		Supplier<MultiRoundTripSummary<Node>> supplier = new Supplier<>() {
+
+			@Override
+			public MultiRoundTripSummary<Node> get() {
+				return new MultiRoundTripSummary<Node>() {
+					{
+						summary2updateCount.put(this, 0);
+					}
+
+					@Override
+					public void clear() {
+					}
+
+					@Override
+					public void update(RoundTrip<Node> newRoundTrip, MultiRoundTrip<Node> oldRoundTrips) {
+						summary2updateCount.compute(this, (s, c) -> c + 1);
+					}
+
+					@Override
+					public MultiRoundTripSummary<Node> clone() {
+						return null;
+					}
+				};
+			}
+
+		};
+
+		ByPopulationGroupSummary<Node, MultiRoundTripSummary<Node>> byGroupSummary = new ByPopulationGroupSummary<Node, MultiRoundTripSummary<Node>>(
+				g, supplier, Set.of("a", "b", "c")) {
+			@Override
+			public ByPopulationGroupSummary<Node, MultiRoundTripSummary<Node>> clone() {
+				return null;
+			}
+		};
+
+		for (int i = 0; i < populationSize; i++) {
+			byGroupSummary.update(new RoundTrip<>(i, null, null), null);
+		}
+
+		Assertions.assertEquals(expectedGroupIndicesA.length,
+				summary2updateCount.get(byGroupSummary.getSummaries().get("a")));
+		Assertions.assertEquals(expectedGroupIndicesB.length,
+				summary2updateCount.get(byGroupSummary.getSummaries().get("b")));
+		Assertions.assertEquals(expectedGroupIndicesC.length,
+				summary2updateCount.get(byGroupSummary.getSummaries().get("c")));
 	}
 
 }
