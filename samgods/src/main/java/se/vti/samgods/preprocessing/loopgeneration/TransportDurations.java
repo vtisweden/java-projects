@@ -94,7 +94,7 @@ class TransportDurations {
 			destination2TravelTime_s.put(originNode.getId(), 0.0);
 			for (var node : consideredNodes) {
 				destination2TravelTime_s.put(node.getId(), lcpt.getTree().get(node.getId()).getTime());
-				destination2Distance_m.put(node.getId(), this.computeDistance_m(lcpt, network, originNode));
+				destination2Distance_m.put(node.getId(), this.computeDistance_m(lcpt, network, node));
 			}
 			this.origin2Destination2TravelTime_s.put(originNode.getId(), destination2TravelTime_s);
 			this.origin2Destination2Distance_m.put(originNode.getId(), destination2Distance_m);

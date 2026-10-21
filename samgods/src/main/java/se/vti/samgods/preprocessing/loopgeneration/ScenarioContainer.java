@@ -82,17 +82,26 @@ class ScenarioContainer {
 		this.od2index = Collections.unmodifiableMap(od2index);
 		this.index2OD = Collections.unmodifiableList(odList);
 
+		log.info("  Average transport duration is " + durationStats.getMean() + " hours.");
+		log.info("  Transport duration standard deviation is " + durationStats.getStandardDeviation() + " hours.");
+		log.info("  Maximum transport duration is " + durationStats.getMax() + " hours.");
+
+		var speedStats = new DescriptiveStatistics();
 		this.odIndex2Demand_kTon = new double[this.index2OD.size()];
 		this.odIndex2Distance_km = new double[this.index2OD.size()];
 		for (odIndex = 0; odIndex < this.index2OD.size(); odIndex++) {
 			OD od = this.index2OD.get(odIndex);
 			this.odIndex2Demand_kTon[odIndex] = this.samgodsScenario.getOD2Demand_kTon().get(od);
 			this.odIndex2Distance_km[odIndex] = this.transportDurations.getDistance_km(od);
+			if (this.odIndex2Distance_km[odIndex] >= 0.001 && this.transportDurations.getDuration_h(od) > 0.001) {
+				speedStats.addValue(this.odIndex2Distance_km[odIndex] / this.transportDurations.getDuration_h(od));
+			} else {
+				System.out.println("  invalid speed from\t" + this.odIndex2Distance_km[odIndex] + "\t"
+						+ this.transportDurations.getDuration_h(od));
+			}
 		}
-
-		log.info("  Average transport duration is " + durationStats.getMean() + " hours.");
-		log.info("  Transport duration standard deviation is " + durationStats.getStandardDeviation() + " hours.");
-		log.info("  Maximum transport duration is " + durationStats.getMax() + " hours.");
+		log.info("  Average speed is " + speedStats.getMean() + " km/h.");
+		log.info("  Speed standard deviation is " + speedStats.getStandardDeviation() + " km/h.");
 
 		for (Id<Node> samgodsNodeId : samgodsScenario.computeTerminalNodeIds()) {
 			Coord coord = samgodsScenario.getNetwork().getNodes().get(samgodsNodeId).getCoord();
@@ -141,7 +150,7 @@ class ScenarioContainer {
 	double getDemand_kTon(int odIndex) {
 		return this.odIndex2Demand_kTon[odIndex];
 	}
-	
+
 	double getDistance_km(int odIndex) {
 		return this.odIndex2Distance_km[odIndex];
 	}
