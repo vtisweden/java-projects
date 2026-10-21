@@ -55,10 +55,10 @@ class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSummary<N> {
 
 	// -------------------- MEMBERS --------------------
 
-	private List<Set<Integer>> roundTripIndex2ConnectedODIndices = null;
+	List<Set<Integer>> roundTripIndex2ConnectedODIndices = null;
 
 //	private Map<OD, Set<Integer>> od2ConnectingRoundTripIndices = null;
-	private List<Set<Integer>> odIndex2ConnectingRoundTripIndices = null;
+	List<Set<Integer>> odIndex2ConnectingRoundTripIndices = null;
 
 	private double logWeight = 0.0;
 

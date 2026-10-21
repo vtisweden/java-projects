@@ -50,6 +50,7 @@ class TransportDurations {
 	private static final Logger log = LogManager.getLogger(TransportDurations.class);
 
 	private final Map<Id<Node>, Map<Id<Node>, Double>> origin2Destination2TravelTime_s;
+	private final Map<Id<Node>, Map<Id<Node>, Double>> origin2Destination2Distance_m;
 
 	TransportDurations(Network network, Set<Id<Node>> consideredNodeIds, double maxSpeed_km_h) {
 		double maxSpeed_m_s = Units.M_S_PER_KM_H * maxSpeed_km_h;
@@ -80,6 +81,7 @@ class TransportDurations {
 		Set<Node> consideredNodes = consideredNodeIds.stream().map(id -> network.getNodes().get(id))
 				.collect(Collectors.toSet());
 		this.origin2Destination2TravelTime_s = new LinkedHashMap<>(consideredNodes.size());
+		this.origin2Destination2Distance_m = new LinkedHashMap<>(consideredNodes.size());
 		int cnt = 0;
 		for (var originNode : consideredNodes) {
 			log.info("Routing from origin " + (++cnt) + " of " + consideredNodes.size());
@@ -88,33 +90,53 @@ class TransportDurations {
 			lcpt.calculate(network, originNode, 0.0);
 
 			Map<Id<Node>, Double> destination2TravelTime_s = new LinkedHashMap<>(consideredNodes.size());
+			Map<Id<Node>, Double> destination2Distance_m = new LinkedHashMap<>(consideredNodes.size());
 			destination2TravelTime_s.put(originNode.getId(), 0.0);
 			for (var node : consideredNodes) {
 				destination2TravelTime_s.put(node.getId(), lcpt.getTree().get(node.getId()).getTime());
+				destination2Distance_m.put(node.getId(), this.computeDistance_m(lcpt, network, originNode));
 			}
 			this.origin2Destination2TravelTime_s.put(originNode.getId(), destination2TravelTime_s);
+			this.origin2Destination2Distance_m.put(originNode.getId(), destination2Distance_m);
 		}
 	}
 
-	Map<Id<Node>, Map<Id<Node>, Double>> getOrigin2Destination2TravelTime_s() {
-		return this.origin2Destination2TravelTime_s;
+	private double computeDistance_m(LeastCostPathTree tree, Network network, Node destination) {
+		double distance_m = 0.0;
+		Node current = destination;
+		while (!current.equals(tree.getOrigin())) {
+			LeastCostPathTree.NodeData data = tree.getTree().get(current.getId());
+			Id<Node> prevNodeId = data.getPrevNodeId();
+			Link link = current.getInLinks().values().stream().filter(l -> l.getFromNode().getId().equals(prevNodeId))
+					.findFirst().orElseThrow();
+			distance_m += link.getLength();
+			current = network.getNodes().get(prevNodeId);
+		}
+		return distance_m;
+	}
+
+	private Double getValue(Id<Node> from, Id<Node> to, Map<Id<Node>, Map<Id<Node>, Double>> origin2destination2value) {
+		if (origin2destination2value.containsKey(from)) {
+			return origin2destination2value.get(from).get(to);
+		} else {
+			return null;
+		}
+	}
+
+	private Double multiplyOrNull(Double value, double factor) {
+		if (value == null) {
+			return null;
+		} else {
+			return factor * value;
+		}
 	}
 
 	Double getDuration_s(Id<Node> from, Id<Node> to) {
-		if (this.origin2Destination2TravelTime_s.containsKey(from)) {
-			return this.origin2Destination2TravelTime_s.get(from).get(to);
-		} else {
-			return null;
-		}
+		return this.getValue(from, to, this.origin2Destination2TravelTime_s);
 	}
 
 	Double getDuration_h(Id<Node> from, Id<Node> to) {
-		Double duration_s = this.getDuration_s(from, to);
-		if (duration_s != null) {
-			return Units.H_PER_S * duration_s;
-		} else {
-			return null;
-		}
+		return this.multiplyOrNull(this.getDuration_s(from, to), Units.H_PER_S);
 	}
 
 	Double getDuration_s(OD odPair) {
@@ -124,4 +146,21 @@ class TransportDurations {
 	Double getDuration_h(OD odPair) {
 		return this.getDuration_h(odPair.origin, odPair.destination);
 	}
+
+	Double getDistance_m(Id<Node> from, Id<Node> to) {
+		return this.getValue(from, to, this.origin2Destination2Distance_m);
+	}
+
+	Double getDistance_km(Id<Node> from, Id<Node> to) {
+		return this.multiplyOrNull(this.getDistance_m(from, to), Units.KM_PER_M);
+	}
+
+	Double getDistance_m(OD odPair) {
+		return this.getDistance_m(odPair.origin, odPair.destination);
+	}
+
+	Double getDistance_km(OD odPair) {
+		return this.getDistance_km(odPair.origin, odPair.destination);
+	}
+
 }

@@ -212,6 +212,13 @@ class SamgodsLoopSamplingRunner {
 				return roundTrips.getSummary(ODCoverage.class).getLogWeight();
 			}
 		}, mu);
+		
+		
+		// TODO EXPERIMENTAL!
+		runner.addStateProcessor(new TransportEfficiencyAnalysis(dataContainer, 0.1, 0.1, 10_000));
+		
+		
+		
 //		this.addToSamplingWeights(runner);
 		this.samplingVariant.addSamplingWeights(runner, this.dataContainer, this.samplingScenario);
 
@@ -277,16 +284,18 @@ class SamgodsLoopSamplingRunner {
 
 	public static void main(String[] args) {
 
-//		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
-//				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road", "-connectivity", "DIRECT" },
-//				new SamgodsSamplingVariant() {
-//				}).runSimulation();
+		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
+				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road", "-connectivity", "DIRECT" },
+				new SamgodsSamplingVariant() {
+				}).runSimulation();
 
-		new SamgodsLoopSamplingRunner(
-				new String[] { "-configFileName", "config.xml", "-loopCnt", "1000", "-stationCnt", "200",
-						"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road",
-						"-stationPlacement", "maxThroughput", "-connectivity", "DIRECT" },
-				new ElectrifiedSamplingVariant()).runSimulation();
+//		new SamgodsLoopSamplingRunner(
+//				new String[] { "-configFileName", "config.xml", "-loopCnt", "1000", "-stationCnt", "200",
+//						"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road",
+//						"-stationPlacement", "maxThroughput", "-connectivity", "DIRECT" },
+//				new ElectrifiedSamplingVariant()).runSimulation();
+
+//		new SamgodsLoopSamplingRunner(args, new ElectrifiedSamplingVariant()).runSimulation();
 
 //		new SamgodsLoopSamplingRunner(args).createGIS(args, false);
 	}

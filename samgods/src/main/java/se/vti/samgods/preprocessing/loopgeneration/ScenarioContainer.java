@@ -60,6 +60,7 @@ class ScenarioContainer {
 	final List<OD> index2OD;
 
 	private final double[] odIndex2Demand_kTon;
+	private final double[] odIndex2Distance_km;
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -82,9 +83,11 @@ class ScenarioContainer {
 		this.index2OD = Collections.unmodifiableList(odList);
 
 		this.odIndex2Demand_kTon = new double[this.index2OD.size()];
+		this.odIndex2Distance_km = new double[this.index2OD.size()];
 		for (odIndex = 0; odIndex < this.index2OD.size(); odIndex++) {
-			this.odIndex2Demand_kTon[odIndex] = this.samgodsScenario.getOD2Demand_kTon()
-					.get(this.index2OD.get(odIndex));
+			OD od = this.index2OD.get(odIndex);
+			this.odIndex2Demand_kTon[odIndex] = this.samgodsScenario.getOD2Demand_kTon().get(od);
+			this.odIndex2Distance_km[odIndex] = this.transportDurations.getDistance_km(od);
 		}
 
 		log.info("  Average transport duration is " + durationStats.getMean() + " hours.");
@@ -139,17 +142,9 @@ class ScenarioContainer {
 		return this.odIndex2Demand_kTon[odIndex];
 	}
 	
-//	double getDemand_kTon(OD od) {
-//		return this.samgodsScenario.getOD2Demand_kTon().getOrDefault(od, 0.0);
-//	}
-//
-//	Set<NodeWithCoords> getSendingSamplingNodes(OD od) {
-//		return this.samgodsNodeId2SamplingNodes.get(od.origin);
-//	}
-//
-//	Set<NodeWithCoords> getReceivingSamplingNodes(OD od) {
-//		return this.samgodsNodeId2SamplingNodes.get(od.destination);
-//	}
+	double getDistance_km(int odIndex) {
+		return this.odIndex2Distance_km[odIndex];
+	}
 
 	double getTotalSent_kTon(Id<Node> samgodsNodeId) {
 		return this.samgodsScenario.getNodeId2Sent_Mton().getOrDefault(samgodsNodeId, 0.0);
