@@ -57,50 +57,69 @@ class TransportEfficiencyAnalysis extends MHAbstractStateProcessor<MultiRoundTri
 		final double[] unservedDemandPerOD_kTon = new double[numberOfODs];
 		final double[][] transportPerODPerRT_kTon = new double[numberOfODs][roundTrips.size()];
 
-		/*
-		 * Evaluate demand model and resulting flows.
-		 */
+		long it = 0;
+		double maxRelativeChange;
+		do {
 
-		for (int odIndex = 0; odIndex < numberOfODs; odIndex++) {
+			/*
+			 * Evaluate demand model and resulting flows.
+			 */
 
-			final double demand_kTon = this.scenarioContainer.getDemand_kTon(odIndex);
-			final int[] roundTripIndices = odCoverage.odIndex2ConnectingRoundTripIndices.get(odIndex).stream()
-					.mapToInt(i -> i).toArray();
+			for (int odIndex = 0; odIndex < numberOfODs; odIndex++) {
 
-			if (roundTripIndices.length == 0) {
+				final double demand_kTon = this.scenarioContainer.getDemand_kTon(odIndex);
+				final int[] roundTripIndices = odCoverage.odIndex2ConnectingRoundTripIndices.get(odIndex).stream()
+						.mapToInt(i -> i).toArray();
 
-				unservedDemandPerOD_kTon[odIndex] = demand_kTon;
+				if (roundTripIndices.length == 0) {
 
-			} else {
+					unservedDemandPerOD_kTon[odIndex] = demand_kTon;
 
-				unservedDemandPerOD_kTon[odIndex] = 0.0;
+				} else {
 
-				double distance_km = this.scenarioContainer.getDistance_km(odIndex);
-				double[] utilities = new double[roundTripIndices.length];
-				for (int i = 0; i < roundTripIndices.length; i++) {
-					utilities[i] = -this.scale * distance_km * transportCostPerRT_1_km[roundTripIndices[i]];
-				}
+					unservedDemandPerOD_kTon[odIndex] = 0.0;
 
-				double[] transportPerRT_kTon = transportPerODPerRT_kTon[odIndex];
-				double[] choiceProbabilities = this.choiceModel.computeLogitProbabilities(utilities);
-				for (int i = 0; i < roundTripIndices.length; i++) {
-					transportPerRT_kTon[roundTripIndices[i]] = choiceProbabilities[i] * demand_kTon;
+					double distance_km = this.scenarioContainer.getDistance_km(odIndex);
+					double[] utilities = new double[roundTripIndices.length];
+					for (int i = 0; i < roundTripIndices.length; i++) {
+						utilities[i] = -this.scale * distance_km * transportCostPerRT_1_km[roundTripIndices[i]];
+					}
+
+					double[] transportPerRT_kTon = transportPerODPerRT_kTon[odIndex];
+					double[] choiceProbabilities = this.choiceModel.computeLogitProbabilities(utilities);
+					for (int i = 0; i < roundTripIndices.length; i++) {
+						transportPerRT_kTon[roundTripIndices[i]] = choiceProbabilities[i] * demand_kTon;
+					}
 				}
 			}
-		}
 
-		/*
-		 * Evaluate supply model and resulting costs.
-		 */
+			/*
+			 * Evaluate supply model and resulting costs.
+			 */
 
-		for (int roundTripIndex = 0; roundTripIndex < roundTrips.size(); roundTripIndex++) {
-			double maxDemand_kTon = 0.0;
-			for (int odIndex : odCoverage.roundTripIndex2ConnectedODIndices.get(roundTripIndex)) {
-				maxDemand_kTon = Math.max(maxDemand_kTon, transportPerODPerRT_kTon[odIndex][roundTripIndex]);
+			maxRelativeChange = 0.0;
+
+			for (int roundTripIndex = 0; roundTripIndex < roundTrips.size(); roundTripIndex++) {
+				double maxDemand_kTon = 0.0;
+				for (int odIndex : odCoverage.roundTripIndex2ConnectedODIndices.get(roundTripIndex)) {
+					maxDemand_kTon = Math.max(maxDemand_kTon, transportPerODPerRT_kTon[odIndex][roundTripIndex]);
+				}
+				double transportCost_1_km = this.transportCost_1_kTonKm * maxDemand_kTon;
+
+				maxRelativeChange = Math.max(maxRelativeChange,
+						Math.abs(transportCost_1_km - transportCostPerRT_1_km[roundTripIndex])
+								/ (1e-8 + Math.max(transportCost_1_km, transportCostPerRT_1_km[roundTripIndex])));
+
+				double innoWeight = 1.0 / (it + 1);
+				transportCostPerRT_1_km[roundTripIndex] = (1.0 - innoWeight) * transportCostPerRT_1_km[roundTripIndex]
+						+ innoWeight * transportCost_1_km;
 			}
-			transportCostPerRT_1_km[roundTripIndex] = this.transportCost_1_kTonKm * maxDemand_kTon;
-		}
-		
+
+			System.out.println("it " + it + ", relative change = " + maxRelativeChange);
+			it++;
+
+		} while (maxRelativeChange > 1e-2);
+
 		System.out.println("Unserved demand = " + Arrays.stream(unservedDemandPerOD_kTon).sum());
 	}
 }
