@@ -58,7 +58,9 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 	long iterations;
 
-	final List<Double> samples = new ArrayList<>();
+//	final List<Double> samples = new ArrayList<>();
+	final List<Double> sampleSum = new ArrayList<>();
+	final List<Double> sampleSquareSum = new ArrayList<>();
 
 	boolean stabilized = false;
 
@@ -133,7 +135,11 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 	@Override
 	public void start() {
 		this.iterations = 0;
-		this.samples.clear();
+//		this.samples.clear();
+
+		this.sampleSum.clear();
+		this.sampleSquareSum.clear();
+
 		this.stabilized = false;
 		if (this.statsLogger != null) {
 			this.statsLogger.appendLine(
@@ -144,9 +150,15 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 
 	@Override
 	public void processState(X state, double logWeight) {
+
 		this.iterations++;
-		this.samples.add((this.extractor == null) ? logWeight : this.extractor.applyAsDouble(state));
-		if ((this.samples.size() >= this.minSamples) && (this.samples.size() % this.checkInterval == 0)) {
+		double sample = (this.extractor == null) ? logWeight : this.extractor.applyAsDouble(state);
+
+//		this.samples.add(sample);
+		this.accumulate(this.sampleSum, sample);
+		this.accumulate(this.sampleSquareSum, sample * sample);
+
+		if ((this.sampleSum.size() >= this.minSamples) && (this.sampleSum.size() % this.checkInterval == 0)) {
 			checkStabilization();
 			if (this.statsLogger != null) {
 				this.statsLogger.appendLine(this.iterations + "\t" + this.nullToNothing(this.burnInIteration) + "\t"
@@ -159,15 +171,6 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 		}
 	}
 
-//	@Override
-//	public void processState(X state) {
-//		if (this.extractor == null) {
-//			throw new UnsupportedOperationException();
-//		} else {
-//			this.processState(state, Double.NaN /* not used for anything */);
-//		}
-//	}
-
 	@Override
 	public void end() {
 	}
@@ -177,11 +180,9 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 		return this.stabilized && !this.runIndefinitely;
 	}
 
-	// -------------------- INTERNALS --------------------
-
 	private void checkStabilization() {
 
-		int _N = this.samples.size();
+		int _N = this.sampleSum.size();
 
 		List<Double> stabilizationCheckMeans = new ArrayList<>();
 		List<Double> stabilizationCheckVariances = new ArrayList<>();
@@ -269,11 +270,28 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 			// check stabilization
 
 			this.stabilized = (toleranceViolation <= 0.0)
-					&& (this.samples.size() - burnInIndex >= this.minNumberOfStableSamples);
+					&& (this.sampleSum.size() - burnInIndex >= this.minNumberOfStableSamples);
 		}
 	}
 
-	// -------------------- HELPERS --------------------
+	// -------------------- INTERNALS --------------------
+
+	private void accumulate(List<Double> target, double addend) {
+		if (target.size() > 0) {
+			target.add(target.getLast() + addend);
+		} else {
+			target.add(addend);
+		}
+	}
+
+	private double getCumulative(List<Double> data, int toIndexExcluded) {
+		if (toIndexExcluded > 0) {
+			return data.get(toIndexExcluded - 1);
+		} else {
+			return 0.0;
+		}
+
+	}
 
 	private String nullToNothing(Object obj) {
 		return (obj == null) ? "" : obj.toString();
@@ -292,18 +310,34 @@ public class BlockAverageTerminationCriterion<X> implements TerminationCriterion
 	private Stats computeStats(int from, int to) {
 		int n = to - from;
 
-		double sum = 0.0;
-		for (int i = from; i < to; i++) {
-			sum += this.samples.get(i);
-		}
+//		double sum = 0.0;
+//		for (int i = from; i < to; i++) {
+//			sum += this.samples.get(i);
+//		}
+//		double mean = sum / n;
+		double sum = this.getCumulative(this.sampleSum, to) - this.getCumulative(this.sampleSum, from);
 		double mean = sum / n;
+//		if (Math.abs(secondMean - mean) / (secondMean + mean) > 1e-8) {
+//			throw new RuntimeException(
+//					"Too large error in recursive mean calculation: " + (secondMean - mean) / (secondMean + mean));
+//		}
+//		System.out.print(Math.abs(secondMean - mean) + "\t");
 
-		double varSum = 0.0;
-		for (int i = from; i < to; i++) {
-			double d = this.samples.get(i) - mean;
-			varSum += d * d;
-		}
-		double variance = varSum / Math.max(n - 1, 1);
+//		double varSum = 0.0;
+//		for (int i = from; i < to; i++) {
+//			double d = this.samples.get(i) - mean;
+//			varSum += d * d;
+//		}
+//		double variance = varSum / Math.max(n - 1, 1);
+		double variance = 
+				((this.getCumulative(this.sampleSquareSum, to)
+				- this.getCumulative(this.sampleSquareSum, from)) - sum * sum / n) / Math.max(n - 1, 1);
+		variance = Math.max(0.0, variance); // hedge against numerical problems
+		//		if (Math.abs(secondVariance - variance) / (secondVariance + variance) > 1e-8) {
+//			throw new RuntimeException("Too large error in recursive mean calculation: "
+//					+ (secondVariance - variance) / (secondVariance + variance));
+//		}
+//		System.out.println(Math.abs(secondVariance - variance));
 
 		return new Stats(mean, variance);
 	}

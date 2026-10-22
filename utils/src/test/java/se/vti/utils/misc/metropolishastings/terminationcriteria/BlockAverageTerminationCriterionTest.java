@@ -77,7 +77,7 @@ class BlockAverageTerminationCriterionTest {
         criterion.start();
 
         assertEquals(0, criterion.iterations);
-        assertTrue(criterion.samples.isEmpty());
+        assertTrue(criterion.sampleSum.isEmpty());
         assertFalse(criterion.stabilized);
     }
 
@@ -169,7 +169,7 @@ class BlockAverageTerminationCriterionTest {
         }
 
         assertEquals(17, criterion.iterations);
-        assertEquals(17, criterion.samples.size());
+        assertEquals(17, criterion.sampleSum.size());
     }
 
     @Test
@@ -191,7 +191,7 @@ class BlockAverageTerminationCriterionTest {
 
         assertNotNull(criterion.burnInIteration);
         assertTrue(criterion.burnInIteration >= 0);
-        assertTrue(criterion.burnInIteration <= criterion.samples.size());
+        assertTrue(criterion.burnInIteration <= criterion.sampleSum.size());
     }
 
     @Test
