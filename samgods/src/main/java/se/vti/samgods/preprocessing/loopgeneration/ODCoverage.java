@@ -90,6 +90,14 @@ class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSummary<N> {
 		return this.logWeight;
 	}
 
+	int getNumberOfODs() {
+		return this.odIndex2ConnectingRoundTripIndices.size();
+	}
+	
+	int getNumberOfRoundTrips() {
+		return this.roundTripIndex2ConnectedODIndices.size();
+	}
+	
 	// -------------------- INTERNALS --------------------
 
 	private void recomputeInternally(double tol) {
