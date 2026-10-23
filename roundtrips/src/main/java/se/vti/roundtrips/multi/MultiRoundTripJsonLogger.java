@@ -19,6 +19,10 @@
  */
 package se.vti.roundtrips.multi;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import se.vti.roundtrips.scenario.Node;
 import se.vti.utils.misc.metropolishastings.MHAbstractStateProcessor;
 
@@ -27,22 +31,36 @@ import se.vti.utils.misc.metropolishastings.MHAbstractStateProcessor;
  */
 public class MultiRoundTripJsonLogger<N extends Node> extends MHAbstractStateProcessor<MultiRoundTrip<N>> {
 
-	private String stateDumpFilePrefix = null;
+	private Path folder = null;
+	private String filePrefix = null;
 
-	public MultiRoundTripJsonLogger(long samplingInterval, String stateDumpFilePrefix) {
+	public MultiRoundTripJsonLogger(long samplingInterval, Path folder, String stateDumpFilePrefix) {
 		super(0, samplingInterval);
-		this.stateDumpFilePrefix = stateDumpFilePrefix;
+		this.folder = folder;
+		this.filePrefix = stateDumpFilePrefix;
 	}
 
-	public MultiRoundTripJsonLogger<N> setStateDumpPrefix(String prefix) {
-		this.stateDumpFilePrefix = prefix;
+	public MultiRoundTripJsonLogger<N> setFolderAndPrefix(Path folder, String prefix) {
+		this.folder = folder;
+		this.filePrefix = prefix;
 		return this;
+	}
+
+	@Override
+	public void start() {
+		super.start();
+		try {
+			Files.createDirectories(this.folder);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public void processStateHook(MultiRoundTrip<N> state, double logWeight) {
 		try {
-			MultiRoundTripJsonIO.singleton().writeToFile(state, this.stateDumpFilePrefix + "." + iteration() + ".json");
+			MultiRoundTripJsonIO.singleton().writeToFile(state,
+					this.folder.resolve(this.filePrefix + "." + iteration() + ".json").toString());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

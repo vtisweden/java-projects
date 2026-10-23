@@ -19,6 +19,7 @@
  */
 package se.vti.roundtrips.runner;
 
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -206,11 +207,11 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
-	public Runner<N> configureStateLogging(String fileNamePrefix, long logInterval) {
+	public Runner<N> configureStateLogging(Path path, String fileNamePrefix, long logInterval) {
 		if (this.doNotLog(fileNamePrefix, logInterval)) {
 			this.stateLogger = null;
 		} else {
-			this.stateLogger = new MultiRoundTripJsonLogger<N>(logInterval, fileNamePrefix);
+			this.stateLogger = new MultiRoundTripJsonLogger<N>(logInterval, path, fileNamePrefix);
 		}
 		return this;
 	}
