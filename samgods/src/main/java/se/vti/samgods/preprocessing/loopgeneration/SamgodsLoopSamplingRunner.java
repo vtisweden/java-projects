@@ -21,6 +21,7 @@ package se.vti.samgods.preprocessing.loopgeneration;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -188,16 +189,9 @@ class SamgodsLoopSamplingRunner {
 		log.info("  demand vector length = " + this.dataContainer.getDemandVectorLength_kTon() + " kTon");
 		log.info("  =>  mu = " + mu);
 
-//		double numberOfODPairs = this.dataContainer.getOD2Demand_kTon_View().size();
-//		double avgODPairsPerLoop = numberOfODPairs / this.loopCount;
-//		log.info("Parametrizing prior");
-//		log.info("  number of OD pairs = " + numberOfODPairs);
-//		log.info("  avg. OD pairs per loop = " + avgODPairsPerLoop);
-//		log.info("  => setting this as mean per loop in binomial prior");		
 //		runner.setIndividualUniformPrior(); 
 //		runner.setPopulationUniformPrior(); 
 		runner.setIndividualBinomialPrior(0.5 * this.samplingScenario.getNumberOfTimeBins());
-//		runner.setPopulationBinomialPrior(0.5 * this.samplingScenario.getNumberOfTimeBins()); 
 
 		var strictlyPeriodicWeight = new StrictlyPeriodicSchedule<NodeWithCoords>(periodLength_h);
 		runner.addIndividualWeight(strictlyPeriodicWeight);
@@ -212,13 +206,10 @@ class SamgodsLoopSamplingRunner {
 				return roundTrips.getSummary(ODCoverage.class).getLogWeight();
 			}
 		}, mu);
-		
-		
+
 		// TODO EXPERIMENTAL!
-		runner.addStateProcessor(new TransportEfficiencyAnalysis(dataContainer, 0.1, 0.1, 10_000));
-		
-		
-		
+//		runner.addStateProcessor(new TransportEfficiencyAnalysis(dataContainer, 0.1, 0.1, 10_000));
+
 //		this.addToSamplingWeights(runner);
 		this.samplingVariant.addSamplingWeights(runner, this.dataContainer, this.samplingScenario);
 
@@ -248,9 +239,9 @@ class SamgodsLoopSamplingRunner {
 
 		runner.setMessageInterval(10_000);
 		runner.configureWeightLogging("samplingWeights.tsv", 10_000);
-		runner.configureStateLogging("./roundTrips", 100_000);
+		runner.configureStateLogging(Paths.get("./states"), "./roundTrips", 100_000);
 		runner.setTerminationCriterion(new BlockAverageTerminationCriterion<MultiRoundTrip<NodeWithCoords>>()
-				.setCheckInterval(10_000).setConvergenceStatsFileName("convergenceStats.tsv").setMinSamples(1000_000)
+				.setCheckInterval(100).setConvergenceStatsFileName("convergenceStats.tsv").setMinSamples(100)
 				.setRelativeVarianceTolerance(0.1).setStandardizedMeanTolerance(0.1));
 		runner.run();
 
@@ -284,8 +275,9 @@ class SamgodsLoopSamplingRunner {
 
 	public static void main(String[] args) {
 
-		new SamgodsLoopSamplingRunner(new String[] { "-configFileName", "config.xml", "-loopCnt", "1000",
-				"-maxCoverageError", "0.1", "-commodity", "AGRICULTURE", "-transportMode", "Road", "-connectivity", "DIRECT" },
+		new SamgodsLoopSamplingRunner(
+				new String[] { "-configFileName", "config.xml", "-loopCnt", "1000", "-maxCoverageError", "0.1",
+						"-commodity", "AGRICULTURE", "-transportMode", "Road", "-connectivity", "DIRECT" },
 				new SamgodsSamplingVariant() {
 				}).runSimulation();
 

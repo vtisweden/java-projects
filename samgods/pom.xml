@@ -56,7 +56,7 @@
 		<dependency>
 			<groupId>se.vti.java-projects</groupId>
 			<artifactId>roundtrips</artifactId>
-			<version>0.2.2-SNAPSHOT</version>
+			<version>0.2.3-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
