@@ -70,15 +70,6 @@ public class MultimodalExample {
 		} else {
 			var coldHotStateAdapter = ColdHotStateAdapter.createDefaultInstance(scenario, 0.1, expectedColdProposalLength,
 					expectedHotProposalLength, coldHotRecombineProba);
-//			coldHotStateAdapter.addNativeStateProcessor(new MHStateProcessor<ColdHotMultiRoundTrip<Node>>() {
-//				@Override
-//				public void processState(ColdHotMultiRoundTrip<Node> state, double logWeight) {
-//					int size = state.getHot().getRoundTrip(0).size();
-//					if (true || size > 2) {
-//						System.out.println(size);
-//					}
-//				}
-//			});
 			stateAdapter = coldHotStateAdapter;
 		}
 
@@ -87,7 +78,7 @@ public class MultimodalExample {
 		 * tempering.
 		 */
 
-		var runner = new Runner<Node>(scenario, stateAdapter);
+		var runner = new Runner<Node>(scenario, stateAdapter).setBundleSingleWeights(false);
 //				.setExpectedColdProposalLength(expectedColdProposalLength)
 //				.setColdHotParameters(expectedHotProposalLength, coldHotRecombineProba, 0.1);
 

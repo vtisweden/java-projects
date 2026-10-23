@@ -21,6 +21,7 @@ package se.vti.roundtrips.runner.coldhot;
 
 import se.vti.roundtrips.multi.MultiRoundTrip;
 import se.vti.roundtrips.runner.AbstractStateAdapter;
+import se.vti.roundtrips.runner.BundledSingleToMultiWeight;
 import se.vti.roundtrips.runner.basic.BasicProposal;
 import se.vti.roundtrips.scenario.Node;
 import se.vti.roundtrips.scenario.Scenario;
@@ -77,6 +78,9 @@ public class ColdHotStateAdapter<N extends Node> extends AbstractStateAdapter<N,
 
 	@Override
 	public ColdHotStateAdapter<N> addWeight(MHWeight<MultiRoundTrip<N>> weight, double scale) {
+		if (weight instanceof BundledSingleToMultiWeight) {
+			throw new RuntimeException("Cannot handle " + BundledSingleToMultiWeight.class + "; call Runner.setBundleSingleWeights(false).");
+		}
 		this.weights.add(new ColdHotWeightWrapper<N>(weight, this.relativeHotScale), scale);
 		return this;
 	}

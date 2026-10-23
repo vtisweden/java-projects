@@ -54,7 +54,10 @@ public class Runner<N extends Node> {
 	private final AbstractStateAdapter<N, ? extends MultiRoundTripWrapper<N>> stateAdapter;
 
 	private final Scenario<N> scenario;
-	
+
+	private boolean bundleSingleWeights = true;
+	private final BundledSingleToMultiWeight<N> bundledSingleWeights = new BundledSingleToMultiWeight<>();
+
 	private MultiRoundTrip<N> initialState = null;
 	private final Map<Class<MultiRoundTripSummary<N>>, MultiRoundTripSummary<N>> summaries = new LinkedHashMap<>();
 
@@ -85,6 +88,11 @@ public class Runner<N extends Node> {
 
 	// -------------------- CONFIGURATION --------------------
 
+	public Runner<N> setBundleSingleWeights(boolean bundle) {
+		this.bundleSingleWeights = bundle;
+		return this;
+	}
+
 	public Runner<N> setInitialState(MultiRoundTrip<N> initialState) {
 		this.initialState = initialState;
 		return this;
@@ -94,7 +102,7 @@ public class Runner<N extends Node> {
 		this.summaries.put((Class<MultiRoundTripSummary<N>>) summary.getClass(), summary);
 		return this;
 	}
-	
+
 	public Runner<N> setTerminationCriterion(TerminationCriterion<MultiRoundTrip<N>> criterion) {
 		this.stateAdapter.setTerminationCriterion(criterion);
 		return this;
@@ -115,7 +123,7 @@ public class Runner<N extends Node> {
 		return this;
 	}
 
-	// PRIORS
+	// POULATION PRIORS
 
 	public Runner<N> setPopulationPrior(MHWeight<MultiRoundTrip<N>> prior) {
 
@@ -137,8 +145,15 @@ public class Runner<N extends Node> {
 		return this.setPopulationPrior(new PopulationBinomialPrior<>(this.scenario, meanRoundTripSize));
 	}
 
+	// INDIVIDUAL PRIORS
+
 	public Runner<N> setIndividualPrior(MHWeight<RoundTrip<N>> prior) {
-		return this.setPopulationPrior(new SingleToMultiWeight<N>(prior));
+		if (this.bundleSingleWeights) {
+			this.bundledSingleWeights.add(prior, 1.0);
+			return this;
+		} else {
+			return this.setPopulationPrior(new SingleToMultiWeight<N>(prior));
+		}
 	}
 
 	public Runner<N> setIndividualUniformPrior() {
@@ -149,7 +164,7 @@ public class Runner<N extends Node> {
 		return this.setIndividualPrior(new IndividualBinomialPrior<>(this.scenario, meanRoundTripSize));
 	}
 
-	// TARGET WEIGHTS
+	// POPULATION WEIGHTS
 
 	public Runner<N> addPopulationWeight(MHWeight<MultiRoundTrip<N>> weight, double scale) {
 		this.stateAdapter.addWeight(weight, scale);
@@ -161,9 +176,15 @@ public class Runner<N extends Node> {
 		return this.addPopulationWeight(weight, 1.0);
 	}
 
+	// INDIVIDUAL WEIGHTS
+
 	public Runner<N> addIndividualWeight(MHWeight<RoundTrip<N>> weight, double factor) {
-		this.addPopulationWeight(new SingleToMultiWeight<>(weight), factor);
-		return this;
+		if (this.bundleSingleWeights) {
+			this.bundledSingleWeights.add(weight, factor);
+			return this;
+		} else {
+			return this.addPopulationWeight(new SingleToMultiWeight<>(weight), factor);
+		}
 	}
 
 	public Runner<N> addIndividualWeight(MHWeight<RoundTrip<N>> weight) {
@@ -233,13 +254,17 @@ public class Runner<N extends Node> {
 			this.stateAdapter.addStateProcessor(this.stateLogger);
 		}
 
+		if (this.bundleSingleWeights) {
+			this.stateAdapter.addWeight(this.bundledSingleWeights, 1.0);
+		}
+
 		this.initialState.simulateAll(this.scenario.getOrCreateSimulator());
 		for (var summary : this.summaries.values()) {
 			this.initialState.addSummary(summary);
 		}
 		this.initialState.recomputeSummaries();
 		this.stateAdapter.setInitialState(this.initialState);
-		
+
 		var checker = new SpecificationChecker();
 		this.stateAdapter.check(checker);
 

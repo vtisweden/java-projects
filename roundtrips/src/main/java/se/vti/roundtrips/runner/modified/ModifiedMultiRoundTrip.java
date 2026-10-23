@@ -37,11 +37,24 @@ public class ModifiedMultiRoundTrip<N extends Node> implements MultiRoundTripWra
 
 	private final MultiRoundTrip<N> modified;
 
-	ModifiedMultiRoundTrip(Function<MultiRoundTrip<N>, MultiRoundTrip<N>> modifier, MultiRoundTrip<N> original, Simulator<N> simulator) {
+	ModifiedMultiRoundTrip(Function<MultiRoundTrip<N>, MultiRoundTrip<N>> modifier, MultiRoundTrip<N> original,
+			Simulator<N> simulator) {
 		this.modifier = modifier;
 		this.original = original;
 		this.modified = modifier.apply(original);
-		this.modified.simulateAll(simulator);
+
+		/*
+		 * We require that the modifier (1) clones the original MultiRoundTrip and (2)
+		 * clones and re-adds each RundTrip that is changed in the modified
+		 * MultiRoundTrip.
+		 */
+		for (int i = 0; i < original.size(); i++) {
+			var originalRT = original.getRoundTrip(i);
+			var modifiedRT = modified.getRoundTrip(i);
+			if (originalRT != modifiedRT) {
+				modifiedRT.setEpisodes(simulator.simulate(modifiedRT));
+			}
+		}
 	}
 
 	Function<MultiRoundTrip<N>, MultiRoundTrip<N>> getModifier() {
