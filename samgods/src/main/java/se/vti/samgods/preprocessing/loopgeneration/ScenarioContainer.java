@@ -180,6 +180,11 @@ class ScenarioContainer {
 				this.samplingNode2SamgodsNodeId.get(to));
 	}
 
+	double getTransportDistance_km(NodeWithCoords from, NodeWithCoords to) {
+		return this.transportDurations.getDistance_km(this.samplingNode2SamgodsNodeId.get(from),
+				this.samplingNode2SamgodsNodeId.get(to));
+	}
+
 	double getTotalDemand_kTon() {
 		return this.samgodsScenario.computeTotalDemand_kTon();
 	}

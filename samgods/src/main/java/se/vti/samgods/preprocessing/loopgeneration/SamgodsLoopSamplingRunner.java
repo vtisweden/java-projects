@@ -47,7 +47,6 @@ import se.vti.roundtrips.scenario.ScenarioBuilder;
 import se.vti.samgods.common.SamgodsConfigGroup;
 import se.vti.samgods.common.SamgodsConstants;
 import se.vti.samgods.preprocessing.loopgeneration.ODCoverage.Connectivity;
-import se.vti.utils.misc.Units;
 import se.vti.utils.misc.metropolishastings.MHWeight;
 import se.vti.utils.misc.metropolishastings.terminationcriteria.BlockAverageTerminationCriterion;
 
@@ -57,6 +56,8 @@ import se.vti.utils.misc.metropolishastings.terminationcriteria.BlockAverageTerm
  *
  */
 class SamgodsLoopSamplingRunner {
+
+	// -------------------- CONSTANTS --------------------
 
 	static final Logger log = LogManager.getLogger(SamgodsLoopSamplingRunner.class);
 
@@ -70,23 +71,37 @@ class SamgodsLoopSamplingRunner {
 	static final String nodesFileLabel = "nodesFile";
 	static final String linksFileLabel = "linksFile";
 	static final String connectivityLabel = "connectivity";
+	static final String precisionLabel = "precision";
 
 	static final int periodLength_h = 7 * 24;
 	static final int timeBinSize_h = 4;
 	static final double minODCoverage = 0.001;
 
+	// -------------------- MEMBERS --------------------
+
+	final SamgodsSamplingVariant samplingVariant;
+
 	ScenarioContainer dataContainer = null;
+
 	Scenario<NodeWithCoords> samplingScenario = null;
 
 	final SamgodsConfigGroup samgodsConfig;
+
 	final double maxCoverageError;
+
 	final String initialStateFile;
+
 	final int loopCount;
+
 	final SamgodsConstants.Commodity commodity;
+
 	final SamgodsConstants.TransportMode transportMode;
+
 	final ODCoverage.Connectivity connectivity;
 
-	final SamgodsSamplingVariant samplingVariant;
+	final double precision;
+
+	// -------------------- CONSTRUCTION --------------------
 
 	SamgodsLoopSamplingRunner(String[] args, SamgodsSamplingVariant samplingVariant) {
 		this.samplingVariant = samplingVariant;
@@ -129,6 +144,10 @@ class SamgodsLoopSamplingRunner {
 		connectivityOption.setRequired(true);
 		options.addOption(connectivityOption);
 
+		var precisionOption = new Option(precisionLabel, true, precisionLabel);
+		precisionOption.setRequired(true);
+		options.addOption(precisionOption);
+
 		this.samplingVariant.configureOptions(options);
 
 		final CommandLine cmd;
@@ -142,12 +161,12 @@ class SamgodsLoopSamplingRunner {
 			this.transportMode = SamgodsConstants.TransportMode.valueOf(cmd.getOptionValue(transportModeOption));
 			this.maxCoverageError = Double.parseDouble(cmd.getOptionValue(maxCoverageErrorOption));
 			this.connectivity = ODCoverage.Connectivity.valueOf(cmd.getOptionValue(connectivityOption));
+			this.precision = Double.parseDouble(cmd.getOptionValue(precisionOption));
 
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		}
 
-		log.info("Loading Samgods scenario.");
 		var samgodsScenario = new SamgodsScenario(this.transportMode, true, samgodsConfig, this.commodity);
 		try {
 			GeoJsonWriters.writeTerminals(samgodsScenario.getNetwork(), samgodsScenario.computeTerminalNodeIds(),
@@ -164,12 +183,10 @@ class SamgodsLoopSamplingRunner {
 		log.info("Total freight demand [kTon]: " + dataContainer.getTotalDemand_kTon());
 		log.info("Demand vector length [kTon]: " + dataContainer.getDemandVectorLength_kTon());
 
-		log.info("Creating sampling scenario.");
 		var scenarioBuilder = new ScenarioBuilder<NodeWithCoords>().setTimeBinSize_h(timeBinSize_h)
 				.setNumberOfTimeBins(periodLength_h / timeBinSize_h);
 		scenarioBuilder.addNodes(this.dataContainer.getAllSamplingNodesView());
-		scenarioBuilder.setMoveDistanceFunction(
-				(a, b) -> Units.KM_PER_M * Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y)));
+		scenarioBuilder.setMoveDistanceFunction((a, b) -> this.dataContainer.getTransportDuration_h(a, b));
 		scenarioBuilder.setMoveTimeFunction((a, b) -> this.dataContainer.getTransportDuration_h(a, b));
 		this.samplingScenario = scenarioBuilder.build();
 
@@ -177,8 +194,6 @@ class SamgodsLoopSamplingRunner {
 	}
 
 	void runSimulation() {
-
-		log.info("Starting simulation ...");
 
 		var runner = new Runner<NodeWithCoords>(this.samplingScenario);
 
@@ -189,12 +204,15 @@ class SamgodsLoopSamplingRunner {
 		log.info("  demand vector length = " + this.dataContainer.getDemandVectorLength_kTon() + " kTon");
 		log.info("  =>  mu = " + mu);
 
-//		runner.setIndividualUniformPrior(); 
-//		runner.setPopulationUniformPrior(); 
-		runner.setIndividualBinomialPrior(0.5 * this.samplingScenario.getNumberOfTimeBins());
+//		runner.setIndividualBinomialPrior(0.5 * this.samplingScenario.getNumberOfTimeBins());
+		runner.setIndividualUniformPrior();
+
+		runner.addSummary(
+				new ODCoverage<NodeWithCoords>(this.loopCount, this.dataContainer, minODCoverage, this.connectivity));
 
 		var strictlyPeriodicWeight = new StrictlyPeriodicSchedule<NodeWithCoords>(periodLength_h);
 		runner.addIndividualWeight(strictlyPeriodicWeight);
+
 		runner.addPopulationWeight(new MHWeight<MultiRoundTrip<NodeWithCoords>>() {
 			@Override
 			public String name() {
@@ -210,39 +228,35 @@ class SamgodsLoopSamplingRunner {
 		// TODO EXPERIMENTAL!
 //		runner.addStateProcessor(new TransportEfficiencyAnalysis(dataContainer, 0.1, 0.1, 10_000));
 
-//		this.addToSamplingWeights(runner);
 		this.samplingVariant.addSamplingWeights(runner, this.dataContainer, this.samplingScenario);
 
 		final MultiRoundTrip<NodeWithCoords> initialRoundTrips;
 		if (initialStateFile == null) {
 			initialRoundTrips = new MultiRoundTrip<>(loopCount);
-			final List<NodeWithCoords> initialNodes = new ArrayList<>(this.samplingScenario.getNodesView());
-			var generator = new RandomRoundTripGenerator<>(samplingScenario).setFeasibleNodes(initialNodes)
+			var generator = new RandomRoundTripGenerator<>(samplingScenario)
+					.setFeasibleNodes(this.samplingScenario.getNodesView())
 					.setFeasibilityCheck(r -> Double.isFinite(strictlyPeriodicWeight.logWeight(r)))
 					.setNumberOfStayEpisodesInterval(1, this.samplingScenario.getNumberOfTimeBins());
-//			parametrizeInitialRoundTripGenerator(generator);
 			this.samplingVariant.configureInitialRoundTripGenerator(generator, this.dataContainer,
 					this.samplingScenario);
 			generator.populateRandomly(initialRoundTrips);
 		} else {
 			try {
-				initialRoundTrips = MultiRoundTripJsonIO.singleton().readFromFile(samplingScenario, initialStateFile);
+				initialRoundTrips = MultiRoundTripJsonIO.singleton().readFromFile(this.samplingScenario,
+						this.initialStateFile);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		}
-		initialRoundTrips.simulateAll(this.samplingScenario.getOrCreateSimulator());
-		initialRoundTrips.addSummary(new ODCoverage<NodeWithCoords>(initialRoundTrips.size(), dataContainer,
-				minODCoverage, Connectivity.FULL));
-		initialRoundTrips.recomputeSummaries();
 		runner.setInitialState(initialRoundTrips);
 
 		runner.setMessageInterval(10_000);
 		runner.configureWeightLogging("samplingWeights.tsv", 10_000);
 		runner.configureStateLogging(Paths.get("./states"), "./roundTrips", 100_000);
 		runner.setTerminationCriterion(new BlockAverageTerminationCriterion<MultiRoundTrip<NodeWithCoords>>()
-				.setCheckInterval(100).setConvergenceStatsFileName("convergenceStats.tsv").setMinSamples(100)
-				.setRelativeVarianceTolerance(0.1).setStandardizedMeanTolerance(0.1));
+				.setCheckInterval(10 * this.loopCount).setConvergenceStatsFileName("convergenceStats.tsv")
+				.setMinSamples(100_000).setRelativeVarianceTolerance(this.precision)
+				.setStandardizedMeanTolerance(this.precision));
 		runner.run();
 
 		log.info("... DONE");
@@ -275,11 +289,14 @@ class SamgodsLoopSamplingRunner {
 
 	public static void main(String[] args) {
 
-		new SamgodsLoopSamplingRunner(
-				new String[] { "-configFileName", "config.xml", "-loopCnt", "1000", "-maxCoverageError", "0.1",
-						"-commodity", "AGRICULTURE", "-transportMode", "Road", "-connectivity", "DIRECT" },
-				new SamgodsSamplingVariant() {
-				}).runSimulation();
+		new SamgodsLoopSamplingRunner(args, new SamgodsSamplingVariant() {
+		}).runSimulation();
+
+//		new SamgodsLoopSamplingRunner(
+//				new String[] { "-configFileName", "config.xml", "-loopCnt", "1000", "-maxCoverageError", "0.1",
+//						"-commodity", "AGRICULTURE", "-transportMode", "Road", "-connectivity", "DIRECT" },
+//				new SamgodsSamplingVariant() {
+//				}).runSimulation();
 
 //		new SamgodsLoopSamplingRunner(
 //				new String[] { "-configFileName", "config.xml", "-loopCnt", "1000", "-stationCnt", "200",
