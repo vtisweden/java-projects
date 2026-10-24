@@ -20,6 +20,7 @@
 package se.vti.samgods.preprocessing.loopgeneration;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -81,13 +82,7 @@ class SamgodsLoopSamplingRunner {
 
 	final SamgodsSamplingVariant samplingVariant;
 
-	ScenarioContainer dataContainer = null;
-
-	Scenario<NodeWithCoords> samplingScenario = null;
-
 	final SamgodsConfigGroup samgodsConfig;
-
-	final double maxCoverageError;
 
 	final String initialStateFile;
 
@@ -99,7 +94,17 @@ class SamgodsLoopSamplingRunner {
 
 	final ODCoverage.Connectivity connectivity;
 
-	final double precision;
+	// may be null below
+
+	final Double maxCoverageError;
+
+	final Double precision;
+
+	// -------------------- ADDITIONAL MEMBERS --------------------
+
+	ScenarioContainer dataContainer = null;
+
+	Scenario<NodeWithCoords> samplingScenario = null;
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -111,10 +116,6 @@ class SamgodsLoopSamplingRunner {
 		var configFileNameOption = new Option(configFileNameLabel, true, configFileNameLabel);
 		configFileNameOption.setRequired(true);
 		options.addOption(configFileNameOption);
-
-		var initialStateOption = new Option(initialStateLabel, true, initialStateLabel);
-		initialStateOption.setRequired(false);
-		options.addOption(initialStateOption);
 
 		var loopCntOption = new Option(loopCntLabel, true, loopCntLabel);
 		loopCntOption.setRequired(true);
@@ -128,25 +129,33 @@ class SamgodsLoopSamplingRunner {
 		transportModeOption.setRequired(true);
 		options.addOption(transportModeOption);
 
-		var maxCoverageErrorOption = new Option(maxCoverageErrorLabel, true, maxCoverageErrorLabel);
-		maxCoverageErrorOption.setRequired(true);
-		options.addOption(maxCoverageErrorOption);
+//		var nodesFileOption = new Option(nodesFileLabel, true, nodesFileLabel);
+//		nodesFileOption.setRequired(false);
+//		options.addOption(nodesFileOption);
 
-		var nodesFileOption = new Option(nodesFileLabel, true, nodesFileLabel);
-		nodesFileOption.setRequired(false);
-		options.addOption(nodesFileOption);
-
-		var linksFileOption = new Option(linksFileLabel, true, linksFileLabel);
-		linksFileOption.setRequired(false);
-		options.addOption(linksFileOption);
+//		var linksFileOption = new Option(linksFileLabel, true, linksFileLabel);
+//		linksFileOption.setRequired(false);
+//		options.addOption(linksFileOption);
 
 		var connectivityOption = new Option(connectivityLabel, true, connectivityLabel);
 		connectivityOption.setRequired(true);
 		options.addOption(connectivityOption);
 
+		// SIMULATION OPTIONS (could make this a sampling variant)
+
+		var initialStateOption = new Option(initialStateLabel, true, initialStateLabel);
+		initialStateOption.setRequired(false);
+		options.addOption(initialStateOption);
+
+		var maxCoverageErrorOption = new Option(maxCoverageErrorLabel, true, maxCoverageErrorLabel);
+		maxCoverageErrorOption.setRequired(false);
+		options.addOption(maxCoverageErrorOption);
+
 		var precisionOption = new Option(precisionLabel, true, precisionLabel);
-		precisionOption.setRequired(true);
+		precisionOption.setRequired(false);
 		options.addOption(precisionOption);
+
+		// DERIVED OPTIONS
 
 		this.samplingVariant.configureOptions(options);
 
@@ -154,14 +163,18 @@ class SamgodsLoopSamplingRunner {
 		try {
 			cmd = new DefaultParser().parse(options, args);
 			Config config = ConfigUtils.loadConfig(cmd.getOptionValue(configFileNameOption));
+
 			this.samgodsConfig = ConfigUtils.addOrGetModule(config, SamgodsConfigGroup.class);
 			this.initialStateFile = cmd.getOptionValue(initialStateOption);
 			this.loopCount = Integer.parseInt(cmd.getOptionValue(loopCntOption));
 			this.commodity = SamgodsConstants.Commodity.valueOf(cmd.getOptionValue(commodityOption));
 			this.transportMode = SamgodsConstants.TransportMode.valueOf(cmd.getOptionValue(transportModeOption));
-			this.maxCoverageError = Double.parseDouble(cmd.getOptionValue(maxCoverageErrorOption));
 			this.connectivity = ODCoverage.Connectivity.valueOf(cmd.getOptionValue(connectivityOption));
-			this.precision = Double.parseDouble(cmd.getOptionValue(precisionOption));
+
+			this.maxCoverageError = cmd.getOptionValue(maxCoverageErrorOption) == null ? null
+					: Double.parseDouble(cmd.getOptionValue(maxCoverageErrorOption));
+			this.precision = cmd.getOptionValue(precisionOption) == null ? null
+					: Double.parseDouble(cmd.getOptionValue(precisionOption));
 
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
@@ -225,9 +238,6 @@ class SamgodsLoopSamplingRunner {
 			}
 		}, mu);
 
-		// TODO EXPERIMENTAL!
-//		runner.addStateProcessor(new TransportEfficiencyAnalysis(dataContainer, 0.1, 0.1, 10_000));
-
 		this.samplingVariant.addSamplingWeights(runner, this.dataContainer, this.samplingScenario);
 
 		final MultiRoundTrip<NodeWithCoords> initialRoundTrips;
@@ -262,6 +272,48 @@ class SamgodsLoopSamplingRunner {
 		log.info("... DONE");
 	}
 
+	static int readBurnInIteration(Path file) throws IOException {
+		var lines = Files.readAllLines(file);
+		if (lines.size() < 2) {
+			throw new IllegalArgumentException("File contains no data rows.");
+		}
+		var header = lines.get(0).split("\t");
+		int burnInIndex = -1;
+		int stabilizedIndex = -1;
+		for (int i = 0; i < header.length; i++) {
+			if (header[i].equals("burnInIteration")) {
+				burnInIndex = i;
+			} else if (header[i].equals("stabilized")) {
+				stabilizedIndex = i;
+			}
+		}
+		if (burnInIndex < 0 || stabilizedIndex < 0) {
+			throw new IllegalArgumentException("Missing burnInIteration or stabilized column.");
+		}
+		for (int i = 1; i < lines.size(); i++) {
+			var fields = lines.get(i).split("\t");
+			if (Boolean.parseBoolean(fields[stabilizedIndex])) {
+				if (i != lines.size() - 1) {
+					throw new IllegalArgumentException("First stabilized=true is not in the last row.");
+				}
+				return Integer.parseInt(fields[burnInIndex]);
+			}
+		}
+		throw new IllegalArgumentException("No stabilized=true row found.");
+	}
+
+	void analyzeStates() throws IOException {
+
+		int burnInIteration = readBurnInIteration(Paths.get("./convergenceStats.tsv"));
+
+		var odCoverage = new ODCoverage<NodeWithCoords>(this.loopCount, this.dataContainer, minODCoverage,
+				this.connectivity);
+		var efficiencyAnalyzer = new TransportEfficiencyAnalyzer(this.dataContainer, 0.0, 0.0, 1);
+		var stateAnalyzer = new SamgodsLoopsAnalyzer(this.samplingScenario, odCoverage, efficiencyAnalyzer);
+
+		stateAnalyzer.run(Paths.get("./states"), "roundTrips.", ".json", burnInIteration, Integer.MAX_VALUE);
+	}
+
 	void createGIS(String[] args) {
 
 		System.out.println("STARTED createGIS ...");
@@ -287,10 +339,16 @@ class SamgodsLoopSamplingRunner {
 		System.out.println("... DONE");
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
 		new SamgodsLoopSamplingRunner(args, new SamgodsSamplingVariant() {
-		}).runSimulation();
+		}).analyzeStates();
+
+//		new SamgodsLoopSamplingRunner(
+//				new String[] { "-configFileName", "config.xml", "-loopCnt", "1000", 
+//						"-commodity", "AGRICULTURE", "-transportMode", "Road", "-connectivity", "DIRECT" },
+//				new SamgodsSamplingVariant() {
+//				}).analyzeStates();
 
 //		new SamgodsLoopSamplingRunner(
 //				new String[] { "-configFileName", "config.xml", "-loopCnt", "1000", "-maxCoverageError", "0.1",

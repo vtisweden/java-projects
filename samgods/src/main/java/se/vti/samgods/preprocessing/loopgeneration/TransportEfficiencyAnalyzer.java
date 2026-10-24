@@ -31,7 +31,7 @@ import se.vti.utils.misc.metropolishastings.MHAbstractStateProcessor;
 /**
  * @GunnarF
  */
-class TransportEfficiencyAnalysis extends MHAbstractStateProcessor<MultiRoundTrip<NodeWithCoords>> {
+class TransportEfficiencyAnalyzer extends MHAbstractStateProcessor<MultiRoundTrip<NodeWithCoords>> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -49,7 +49,7 @@ class TransportEfficiencyAnalysis extends MHAbstractStateProcessor<MultiRoundTri
 
 	// -------------------- CONSTRUCTION --------------------
 
-	TransportEfficiencyAnalysis(ScenarioContainer scenarioContainer, double transportCost_1_kTonKm,
+	TransportEfficiencyAnalyzer(ScenarioContainer scenarioContainer, double transportCost_1_kTonKm,
 			double choiceModelScale, int samplingInterval) {
 		super(0, samplingInterval);
 		this.scenarioContainer = scenarioContainer;
@@ -59,20 +59,24 @@ class TransportEfficiencyAnalysis extends MHAbstractStateProcessor<MultiRoundTri
 
 	// -------------------- CONSTRUCTION --------------------
 
-	TransportEfficiencyAnalysis setRelativeChangeThreshold(double relativeChangeThreshold) {
+	TransportEfficiencyAnalyzer setRelativeChangeThreshold(double relativeChangeThreshold) {
 		this.relativeChangeThreshold = relativeChangeThreshold;
 		return this;
 	}
 
-	TransportEfficiencyAnalysis setMaxIterations(long maxIterations) {
+	TransportEfficiencyAnalyzer setMaxIterations(long maxIterations) {
 		this.maxIterations = maxIterations;
 		return this;
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
-
+	
 	@Override
 	public void processStateHook(MultiRoundTrip<NodeWithCoords> roundTrips, double logWeight) {
+		this.process(roundTrips);
+	}
+	
+	void process(MultiRoundTrip<NodeWithCoords> roundTrips) {
 
 		final var odCoverage = (ODCoverage<NodeWithCoords>) roundTrips.getSummary(ODCoverage.class);
 
