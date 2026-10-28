@@ -15,10 +15,10 @@ public class SamgodsLoopsAnalyzer {
 
 	private final ODCoverage<NodeWithCoords> odCoverage;
 
-	private final TransportEfficiencyAnalyzer analyzer;
+	private final UniformTransportEfficiencyAnalyzer analyzer;
 
 	public SamgodsLoopsAnalyzer(Scenario<NodeWithCoords> scenario, ODCoverage<NodeWithCoords> odCoverage,
-			TransportEfficiencyAnalyzer analyzer) {
+			UniformTransportEfficiencyAnalyzer analyzer) {
 		this.scenario = scenario;
 		this.odCoverage = odCoverage;
 		this.analyzer = analyzer;
@@ -40,7 +40,7 @@ public class SamgodsLoopsAnalyzer {
 					}
 				});
 		try {
-			directoryReader.run(directory, prefix, suffix, 0, Integer.MAX_VALUE);
+			directoryReader.run(directory, prefix, suffix, min, max);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
