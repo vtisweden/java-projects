@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.matsim.core.config.Config;
@@ -277,10 +279,12 @@ class SamgodsLoopSamplingRunner {
 
 		runner.setMessageInterval(10_000);
 		runner.configureWeightLogging("samplingWeights.tsv", 10_000);
-		runner.configureStateLogging(Paths.get("./states"), "./roundTrips", 100_000);
+
+		int stateLoggingInterval = 100_000;
+		runner.configureStateLogging(Paths.get("./states"), "./roundTrips", stateLoggingInterval);
 		runner.setTerminationCriterion(new BlockAverageTerminationCriterion<MultiRoundTrip<NodeWithCoords>>()
 				.setCheckInterval(10 * this.loopCount).setConvergenceStatsFileName("convergenceStats.tsv")
-				.setMinSamples(100_000).setRelativeVarianceTolerance(this.precision)
+				.setMinNumberOfStableIterations(10 * stateLoggingInterval).setRelativeVarianceTolerance(this.precision)
 				.setStandardizedMeanTolerance(this.precision));
 		runner.run();
 
@@ -293,57 +297,180 @@ class SamgodsLoopSamplingRunner {
 
 		log.info("burn-in iteration = " + burnInIteration);
 
-		final List<double[]> sizeHistogramList = new ArrayList<>();
-		final List<double[]> kTonKmEfficiencyHistogramList = new ArrayList<>();
-		final List<double[]> kTonEfficiencyHistogramList = new ArrayList<>();
+		final List<double[]> sizeHistograms = new ArrayList<>();
+		final List<double[]> kTonKmEfficiencyHistograms = new ArrayList<>();
+		final List<double[]> kTonEfficiencyHistograms = new ArrayList<>();
 
-		final List<double[]> kTonKmEfficiencyOverSize = new ArrayList<>();
-		final List<double[]> kTonEfficiencyOverSize = new ArrayList<>();
+		final List<double[]> kTonKmEfficienciesOverSizes = new ArrayList<>();
+		final List<double[]> kTonEfficienciesOverSizes = new ArrayList<>();
 
-		final List<double[]> coveredDemandShareOverRoundtripsByKTonKmEfficiencyList = new ArrayList<>();
-		final List<double[]> coveredDemandShareOverRoundtripsByKTonEfficiencyList = new ArrayList<>();
-		final List<double[]> coveredDemandShareOverRoundtripsByVolumeList = new ArrayList<>();
-		final List<double[]> coveredDemandShareOverRoundtripsBySizeList = new ArrayList<>();
+		final List<double[]> coveredDemandSharesOverRoundtripSharesByKTonKmEfficiencies = new ArrayList<>();
+		final List<double[]> coveredDemandSharesOverRoundtripsSharesByKTonEfficiencies = new ArrayList<>();
+		final List<double[]> coveredDemandSharesOverRoundtripSharesByKTonVolumes = new ArrayList<>();
+		final List<double[]> coveredDemandSharesOverRoundtripSharesBySizes = new ArrayList<>();
+
+		final List<double[]> coveredODsOverRoundtripSharesByKTonKmEfficiencies = new ArrayList<>();
+		final List<double[]> coveredODsOverRoundtripsSharesByKTonEfficiencies = new ArrayList<>();
+		final List<double[]> coveredODsOverRoundtripSharesByKTonVolumes = new ArrayList<>();
+		final List<double[]> coveredODsOverRoundtripSharesBySizes = new ArrayList<>();
+
+		final List<double[]> odIndex2NumberOfVisists = new ArrayList<>();
 
 		var efficiencyAnalyzer = new UniformTransportEfficiencyAnalyzer(this.dataContainer,
-				this.samplingScenario.getNumberOfTimeBins(), sizeHistogramList, kTonKmEfficiencyHistogramList,
-				kTonEfficiencyHistogramList, kTonKmEfficiencyOverSize, kTonEfficiencyOverSize,
-				coveredDemandShareOverRoundtripsByKTonKmEfficiencyList,
-				coveredDemandShareOverRoundtripsByKTonEfficiencyList, coveredDemandShareOverRoundtripsByVolumeList,
-				coveredDemandShareOverRoundtripsBySizeList);
+				this.samplingScenario.getNumberOfTimeBins(), sizeHistograms, kTonKmEfficiencyHistograms,
+				kTonEfficiencyHistograms, kTonKmEfficienciesOverSizes, kTonEfficienciesOverSizes,
+				coveredDemandSharesOverRoundtripSharesByKTonKmEfficiencies,
+				coveredDemandSharesOverRoundtripsSharesByKTonEfficiencies,
+				coveredDemandSharesOverRoundtripSharesByKTonVolumes, coveredDemandSharesOverRoundtripSharesBySizes,
+				coveredODsOverRoundtripSharesByKTonKmEfficiencies, coveredODsOverRoundtripsSharesByKTonEfficiencies,
+				coveredODsOverRoundtripSharesByKTonVolumes, coveredODsOverRoundtripSharesBySizes,
+				odIndex2NumberOfVisists);
 
 		var stateAnalyzer = new SamgodsLoopsAnalyzer(this.samplingScenario, odCoverage, efficiencyAnalyzer);
 		stateAnalyzer.run(Paths.get("./states"), "roundTrips.", ".json", burnInIteration, Integer.MAX_VALUE);
 
-		if (kTonKmEfficiencyHistogramList.isEmpty()) {
+		if (kTonKmEfficiencyHistograms.isEmpty()) {
 			throw new IllegalStateException("No states were analyzed.");
 		}
 
-		double[] meanSizeHistogram = average(sizeHistogramList);
-		double[] meanKTonKmEfficiencyHistogram = average(kTonKmEfficiencyHistogramList);
-		double[] meanKTonEfficiencyHistogram = average(kTonEfficiencyHistogramList);
-		double[] meanKTonKmEfficiencyOverSize = averageIgnoringNonFinite(kTonKmEfficiencyOverSize);
-		double[] meanKTonEfficiencyOverSize = averageIgnoringNonFinite(kTonEfficiencyOverSize);
-		double[] meanCoveredDemandByKTonKmEfficiency = average(coveredDemandShareOverRoundtripsByKTonKmEfficiencyList);
-		double[] meanCoveredDemandByKTonEfficiency = average(coveredDemandShareOverRoundtripsByKTonEfficiencyList);
-		double[] meanCoveredDemandByVolume = average(coveredDemandShareOverRoundtripsByVolumeList);
-		double[] meanCoveredDemandBySize = average(coveredDemandShareOverRoundtripsBySizeList);
+		var sizeHistogramStats = computeStatistics(sizeHistograms);
+		var kTonKmEfficiencyHistogramStats = computeStatistics(kTonKmEfficiencyHistograms);
+		var tKonEfficiencyHistogramStats = computeStatistics(kTonEfficiencyHistograms);
+		var kTonKmEfficienciesOverSizesStats = computeStatistics(kTonKmEfficienciesOverSizes);
+		var kTonEfficienciesOverSizesStats = computeStatistics(kTonEfficienciesOverSizes);
+
+		var coveredDemandSharesOverRoundTripSharesByKTonKmEfficienciesStats = computeStatistics(
+				coveredDemandSharesOverRoundtripSharesByKTonKmEfficiencies);
+		var coveredDemandSharesOverRoundTripSharesByKTonEfficienciesStats = computeStatistics(
+				coveredDemandSharesOverRoundtripsSharesByKTonEfficiencies);
+		var coveredDemandSharesOverRoundTripSharesByKTonVolumesStats = computeStatistics(
+				coveredDemandSharesOverRoundtripSharesByKTonVolumes);
+		var coveredDemandSharesOverRoundtripSharesBySizesStats = computeStatistics(
+				coveredDemandSharesOverRoundtripSharesBySizes);
+
+		var coveredODsOverRoundTripSharesByKTonKmEfficienciesStats = computeStatistics(
+				coveredODsOverRoundtripSharesByKTonKmEfficiencies);
+		var coveredODsOverRoundTripSharesByKTonEfficienciesStats = computeStatistics(
+				coveredODsOverRoundtripsSharesByKTonEfficiencies);
+		var coveredODsOverRoundTripSharesByKTonVolumesStats = computeStatistics(
+				coveredODsOverRoundtripSharesByKTonVolumes);
+		var coveredODsOverRoundtripSharesBySizesStats = computeStatistics(coveredODsOverRoundtripSharesBySizes);
+
+		var odIndex2NumberOfVisistsStats = computeStatistics(odIndex2NumberOfVisists);
+		final double[] odVisitStateHistogram = computeCumulativeODCoverageOverStates(odIndex2NumberOfVisists);
 
 		try (PrintWriter writer = new PrintWriter("summary-stats.tsv")) {
-			writer.println("shareOfRoundTrips" + "\tsizeHistogram" + "\tkTonKmEfficiencyHistogram"
-					+ "\tkTonEfficiencyHistogram" + "\tkTonKmEfficiencyOverSize" + "\tkTonEfficiencyOverSize"
-					+ "\tcoveredDemandShareByKTonKmEfficiency" + "\tcoveredDemandShareByKTonEfficiency"
-					+ "\tcoveredDemandShareByVolume\tcoveredDemandShareBySize");
-			for (int bin = 0; bin < meanKTonKmEfficiencyHistogram.length; bin++) {
-				double shareOfRoundTrips = (bin + 1.0) / meanKTonKmEfficiencyHistogram.length;
-				writer.println(shareOfRoundTrips + "\t" + meanSizeHistogram[bin] + "\t"
-						+ meanKTonKmEfficiencyHistogram[bin] + "\t" + meanKTonEfficiencyHistogram[bin] + "\t"
-						+ meanKTonKmEfficiencyOverSize[bin] + "\t" + meanKTonEfficiencyOverSize[bin] + "\t"
-						+ meanCoveredDemandByKTonKmEfficiency[bin] + "\t" + meanCoveredDemandByKTonEfficiency[bin]
-						+ "\t" + meanCoveredDemandByVolume[bin] + "\t" + meanCoveredDemandBySize[bin]);
+
+			writer.print("range");
+
+			// histograms
+			writer.print("\tsize");
+			writer.print("\tkTonKm efficiency");
+			writer.print("\tkTon efficiency");
+
+			// over size
+			writer.print("\tkTonKm efficiency");
+			writer.print("\tkTon efficiency");
+
+			writer.print("\tcumulative range");
+			
+			// cumulative demand coverage
+			writer.print("\tlargest size first");
+			writer.print("\tlargest kTon volume first");
+			writer.print("\tlargest kTonKm efficiency first");
+			writer.print("\tlargest kTon efficiency first");
+
+			// cumulative OD coverage
+			writer.print("\tlargest size first");
+			writer.print("\tlargest kTon volume first");
+			writer.print("\tlargest kTonKm efficiency first");
+			writer.print("\tlargest kTon efficiency first");
+
+			writer.println("\tcovered ODs over states");
+
+			double prevShareOfRoundTrips = 0.0;
+			for (int bin = 0; bin < kTonKmEfficiencyHistogramStats.length; bin++) {
+				double shareOfRoundTrips = (bin + 1.0) / kTonKmEfficiencyHistogramStats.length;
+
+				writer.print(prevShareOfRoundTrips + "-" + shareOfRoundTrips);
+				writeStats(writer, sizeHistogramStats[bin]);
+				writeStats(writer, kTonKmEfficiencyHistogramStats[bin]);
+				writeStats(writer, tKonEfficiencyHistogramStats[bin]);
+				writeStats(writer, kTonKmEfficienciesOverSizesStats[bin]);
+				writeStats(writer, kTonEfficienciesOverSizesStats[bin]);
+
+				writer.print("\t" + 0.0 + "-" + shareOfRoundTrips);
+
+				writeStats(writer, coveredDemandSharesOverRoundtripSharesBySizesStats[bin]);
+				writeStats(writer, coveredDemandSharesOverRoundTripSharesByKTonVolumesStats[bin]);
+				writeStats(writer, coveredDemandSharesOverRoundTripSharesByKTonKmEfficienciesStats[bin]);
+				writeStats(writer, coveredDemandSharesOverRoundTripSharesByKTonEfficienciesStats[bin]);
+
+				writeStats(writer, coveredODsOverRoundtripSharesBySizesStats[bin]);
+				writeStats(writer, coveredODsOverRoundTripSharesByKTonVolumesStats[bin]);
+				writeStats(writer, coveredODsOverRoundTripSharesByKTonKmEfficienciesStats[bin]);
+				writeStats(writer, coveredODsOverRoundTripSharesByKTonEfficienciesStats[bin]);
+
+				writer.print("\t" + odVisitStateHistogram[bin]);
+
+				writer.println();
+
+				prevShareOfRoundTrips = shareOfRoundTrips;
 			}
-			writer.flush();
-			writer.close();
+
+			writer.println();
+			double numberOfUnvisitedODs = Arrays.stream(odIndex2NumberOfVisistsStats).filter(s -> (s.getSum() == 0))
+					.count();
+			writer.println("Share of OD pairs that have never been visited in " + odIndex2NumberOfVisists.size()
+					+ " analyzed states: " + (numberOfUnvisitedODs / odIndex2NumberOfVisistsStats.length));
+		}
+	}
+
+	private static double[] computeCumulativeODCoverageOverStates(List<double[]> odIndex2NumberOfVisists) {
+
+		final int binCount = 10;
+		final double[] result = new double[binCount];
+
+		if (odIndex2NumberOfVisists.isEmpty()) {
+			return result;
+		}
+
+		final int numberOfStates = odIndex2NumberOfVisists.size();
+		final int numberOfODs = odIndex2NumberOfVisists.get(0).length;
+
+		final boolean[] covered = new boolean[numberOfODs];
+		int coveredODCount = 0;
+		int includedStateCount = 0;
+
+		for (int bin = 0; bin < binCount; bin++) {
+
+			final int targetStateCount = (int) Math.ceil((bin + 1.0) * numberOfStates / binCount);
+
+			while (includedStateCount < targetStateCount) {
+
+				final double[] odIndex2NumberOfVisits = odIndex2NumberOfVisists.get(includedStateCount);
+
+				for (int odIndex = 0; odIndex < numberOfODs; odIndex++) {
+					if (!covered[odIndex] && odIndex2NumberOfVisits[odIndex] > 0.0) {
+						covered[odIndex] = true;
+						coveredODCount++;
+					}
+				}
+
+				includedStateCount++;
+			}
+
+			result[bin] = ((double) coveredODCount) / numberOfODs;
+		}
+
+		return result;
+	}
+
+	private static void writeStats(PrintWriter writer, DescriptiveStatistics stats) {
+		if ((stats.getN() >= 5)) {
+			writer.print("\t" + stats.getMean());
+		} else {
+			writer.print("\t");
 		}
 	}
 
@@ -377,57 +504,22 @@ class SamgodsLoopSamplingRunner {
 		throw new IllegalArgumentException("No stabilized=true row found.");
 	}
 
-	private static double[] average(List<double[]> values) {
-		if (values.isEmpty()) {
-			throw new IllegalArgumentException("Cannot average an empty list.");
-		}
-
-		int length = values.get(0).length;
-		double[] result = new double[length];
-
-		for (double[] value : values) {
-			if (value.length != length) {
-				throw new IllegalArgumentException("Arrays have different lengths.");
-			}
-			for (int i = 0; i < length; i++) {
-				result[i] += value[i];
-			}
-		}
-
-		for (int i = 0; i < length; i++) {
-			result[i] /= values.size();
-		}
-
-		return result;
-	}
-
-	private static double[] averageIgnoringNonFinite(List<double[]> values) {
-		if (values.isEmpty()) {
-			throw new IllegalArgumentException("Cannot average an empty list.");
-		}
-
+	private static DescriptiveStatistics[] computeStatistics(List<double[]> values) {
 		final int length = values.get(0).length;
-		final double[] sums = new double[length];
-		final int[] counts = new int[length];
-
+		final DescriptiveStatistics[] result = new DescriptiveStatistics[length];
+		for (int i = 0; i < length; i++) {
+			result[i] = new DescriptiveStatistics();
+		}
 		for (double[] value : values) {
 			if (value.length != length) {
 				throw new IllegalArgumentException("Arrays have different lengths.");
 			}
-
 			for (int i = 0; i < length; i++) {
 				if (Double.isFinite(value[i])) {
-					sums[i] += value[i];
-					counts[i]++;
+					result[i].addValue(value[i]);
 				}
 			}
 		}
-
-		final double[] result = new double[length];
-		for (int i = 0; i < length; i++) {
-			result[i] = counts[i] > 0 ? sums[i] / counts[i] : Double.NaN;
-		}
-
 		return result;
 	}
 
@@ -459,10 +551,10 @@ class SamgodsLoopSamplingRunner {
 	public static void main(String[] args) throws IOException {
 
 		new SamgodsLoopSamplingRunner(args, new SamgodsSamplingVariant() {
-		}).analyzeStates();
+		}).runSimulation();
 
-//		new SamgodsLoopSamplingRunner(args, new SamgodsSamplingVariant() {
-//		}).runSimulation();
+		new SamgodsLoopSamplingRunner(args, new SamgodsSamplingVariant() {
+		}).analyzeStates();
 
 //		new SamgodsLoopSamplingRunner(
 //				new String[] { "-configFileName", "config.xml", "-loopCnt", "1000", 

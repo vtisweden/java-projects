@@ -230,7 +230,7 @@ class ODCoverage<N extends NodeWithCoords> implements MultiRoundTripSummary<N> {
 
 		this.numberOfUpdates++;
 		if (this.numberOfUpdates % (10 * this.numberOfRoundTrips) == 0) {
-			this.recomputeInternally(1e-8);
+			this.recomputeInternally(1e-6); // tolerance empirically chosen; 1e-8 is sometimes exceeded
 		}
 	}
 

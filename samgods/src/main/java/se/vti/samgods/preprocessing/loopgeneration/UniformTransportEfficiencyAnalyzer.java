@@ -54,12 +54,16 @@ class UniformTransportEfficiencyAnalyzer {
 	final List<double[]> kTonEfficiencyOverSizeList;
 
 	final List<double[]> coveredDemandShareOverRoundtripsByKTonKmEfficiencyList;
-
 	final List<double[]> coveredDemandShareOverRoundtripsByKTonEfficiencyList;
-
 	final List<double[]> coveredDemandShareOverRoundtripsByVolumeList;
-
 	final List<double[]> coveredDemandShareOverRoundtripsBySizeList;
+
+	final List<double[]> coveredODsOverRoundtripsByKTonKmEfficiencyList;
+	final List<double[]> coveredODsOverRoundtripsByKTonEfficiencyList;
+	final List<double[]> coveredODsOverRoundtripsByVolumeList;
+	final List<double[]> coveredODsOverRoundtripsBySizeList;
+
+	final List<double[]> odIndex2NumberOfVisistsList;
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -70,7 +74,11 @@ class UniformTransportEfficiencyAnalyzer {
 			List<double[]> coveredDemandShareOverRoundtripsByKTonKmEfficiencyList,
 			List<double[]> coveredDemandShareOverRoundtripsByKTonEfficiencyList,
 			List<double[]> coveredDemandShareOverRoundtripsByVolumeList,
-			List<double[]> coveredDemandShareOverRoundtripsBySizeList) {
+			List<double[]> coveredDemandShareOverRoundtripsBySizeList,
+			List<double[]> coveredODsOverRoundtripsByKTonKmEfficiencyList,
+			List<double[]> coveredODsOverRoundtripsByKTonEfficiencyList,
+			List<double[]> coveredODsOverRoundtripsByVolumeList, List<double[]> coveredODsOverRoundtripsBySizeList,
+			List<double[]> odIndex2NumberOfVisistsList) {
 		this.scenarioContainer = scenarioContainer;
 		this.maxSize = maxSize;
 		this.sizeHistogramList = sizeHistogramList;
@@ -78,10 +86,18 @@ class UniformTransportEfficiencyAnalyzer {
 		this.kTonEfficiencyHistogramList = kTonEfficiencyHistogramList;
 		this.kTonKmEfficiencyOverSizeList = kTonKmEfficiencyOverSizeList;
 		this.kTonEfficiencyOverSizeList = kTonEfficiencyOverSizeList;
+
 		this.coveredDemandShareOverRoundtripsByKTonKmEfficiencyList = coveredDemandShareOverRoundtripsByKTonKmEfficiencyList;
 		this.coveredDemandShareOverRoundtripsByKTonEfficiencyList = coveredDemandShareOverRoundtripsByKTonEfficiencyList;
 		this.coveredDemandShareOverRoundtripsByVolumeList = coveredDemandShareOverRoundtripsByVolumeList;
 		this.coveredDemandShareOverRoundtripsBySizeList = coveredDemandShareOverRoundtripsBySizeList;
+
+		this.coveredODsOverRoundtripsByKTonKmEfficiencyList = coveredODsOverRoundtripsByKTonKmEfficiencyList;
+		this.coveredODsOverRoundtripsByKTonEfficiencyList = coveredODsOverRoundtripsByKTonEfficiencyList;
+		this.coveredODsOverRoundtripsByVolumeList = coveredODsOverRoundtripsByVolumeList;
+		this.coveredODsOverRoundtripsBySizeList = coveredODsOverRoundtripsBySizeList;
+
+		this.odIndex2NumberOfVisistsList = odIndex2NumberOfVisistsList;
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
@@ -180,37 +196,33 @@ class UniformTransportEfficiencyAnalyzer {
 		var roundTripCountBySize = new int[BIN_COUNT];
 
 		for (var roundTripEfficiency : roundTripEfficiencies) {
-		    final int size = roundTripEfficiency.size();
+			final int size = roundTripEfficiency.size();
 
-		    if (size < 0 || size > this.maxSize) {
-		        throw new IllegalStateException(
-		                "Round-trip size " + size
-		                        + " is outside the expected interval [0, "
-		                        + this.maxSize + "].");
-		    }
+			if (size < 0 || size > this.maxSize) {
+				throw new IllegalStateException(
+						"Round-trip size " + size + " is outside the expected interval [0, " + this.maxSize + "].");
+			}
 
-		    final int bin = Math.min(
-		            BIN_COUNT - 1,
-		            size * BIN_COUNT / (this.maxSize + 1));
+			final int bin = Math.min(BIN_COUNT - 1, size * BIN_COUNT / (this.maxSize + 1));
 
-		    kTonKmEfficiencyBySize[bin] += roundTripEfficiency.kTonKmEfficiency();
-		    kTonEfficiencyBySize[bin] += roundTripEfficiency.kTonEfficiency();
-		    roundTripCountBySize[bin]++;
+			kTonKmEfficiencyBySize[bin] += roundTripEfficiency.kTonKmEfficiency();
+			kTonEfficiencyBySize[bin] += roundTripEfficiency.kTonEfficiency();
+			roundTripCountBySize[bin]++;
 		}
 
 		for (int bin = 0; bin < BIN_COUNT; bin++) {
-		    if (roundTripCountBySize[bin] > 0) {
-		        kTonKmEfficiencyBySize[bin] /= roundTripCountBySize[bin];
-		        kTonEfficiencyBySize[bin] /= roundTripCountBySize[bin];
-		    } else {
-		        kTonKmEfficiencyBySize[bin] = Double.NaN;
-		        kTonEfficiencyBySize[bin] = Double.NaN;
-		    }
+			if (roundTripCountBySize[bin] > 0) {
+				kTonKmEfficiencyBySize[bin] /= roundTripCountBySize[bin];
+				kTonEfficiencyBySize[bin] /= roundTripCountBySize[bin];
+			} else {
+				kTonKmEfficiencyBySize[bin] = Double.NaN;
+				kTonEfficiencyBySize[bin] = Double.NaN;
+			}
 		}
 
 		this.kTonKmEfficiencyOverSizeList.add(kTonKmEfficiencyBySize);
 		this.kTonEfficiencyOverSizeList.add(kTonEfficiencyBySize);
-		
+
 		/*
 		 * HISTOGRAM OF ROUND-TRIP kTonKm EFFICIENCIES.
 		 */
@@ -240,11 +252,6 @@ class UniformTransportEfficiencyAnalyzer {
 		 * Total OD demand volume, including demand that is not covered by any round
 		 * trip.
 		 */
-//		double totalDemand_kTonKm = 0.0;
-//		for (int odIndex = 0; odIndex < numberOfODs; odIndex++) {
-//			totalDemand_kTonKm += this.scenarioContainer.getDemand_kTon(odIndex)
-//					* this.scenarioContainer.getDistance_km(odIndex);
-//		}
 		double totalDemand_kTon = this.scenarioContainer.getTotalDemand_kTon();
 
 		/*
@@ -252,43 +259,59 @@ class UniformTransportEfficiencyAnalyzer {
 		 * EFFICIENCY.
 		 */
 		roundTripEfficiencies.sort(Comparator.comparingDouble(RoundTripEfficiency::kTonKmEfficiency).reversed());
-		this.coveredDemandShareOverRoundtripsByKTonKmEfficiencyList.add(cumulativeCoveredDemandShares(
-				roundTripEfficiencies, RoundTripEfficiency::loaded_kTon, totalDemand_kTon));
+		this.coveredDemandShareOverRoundtripsByKTonKmEfficiencyList.add(
+				cumulativeDemandCoverage(roundTripEfficiencies, RoundTripEfficiency::loaded_kTon, totalDemand_kTon));
+		this.coveredODsOverRoundtripsByKTonKmEfficiencyList
+				.add(cumulativeODCoverage(roundTripEfficiencies, odCoverage, numberOfODs));
 
 		/*
-		 * CUMULATIVE COVERED-DEMAND SHARES WHEN ROUND TRIPS ARE RANKED BY kTonKm
+		 * CUMULATIVE COVERED-DEMAND SHARES WHEN ROUND TRIPS ARE RANKED BY kTon
 		 * EFFICIENCY.
 		 */
 		roundTripEfficiencies.sort(Comparator.comparingDouble(RoundTripEfficiency::kTonEfficiency).reversed());
-		this.coveredDemandShareOverRoundtripsByKTonEfficiencyList.add(cumulativeCoveredDemandShares(
-				roundTripEfficiencies, RoundTripEfficiency::loaded_kTon, totalDemand_kTon));
+		this.coveredDemandShareOverRoundtripsByKTonEfficiencyList.add(
+				cumulativeDemandCoverage(roundTripEfficiencies, RoundTripEfficiency::loaded_kTon, totalDemand_kTon));
+		this.coveredODsOverRoundtripsByKTonEfficiencyList
+				.add(cumulativeODCoverage(roundTripEfficiencies, odCoverage, numberOfODs));
 
 		/*
 		 * CUMULATIVE COVERED-DEMAND SHARES WHEN ROUND TRIPS ARE RANKED BY VOLUME.
 		 */
-		roundTripEfficiencies.sort(Comparator.comparingDouble(RoundTripEfficiency::loaded_kTonKm).reversed());
-		this.coveredDemandShareOverRoundtripsByVolumeList.add(cumulativeCoveredDemandShares(roundTripEfficiencies,
-				RoundTripEfficiency::loaded_kTon, totalDemand_kTon));
+		roundTripEfficiencies.sort(Comparator.comparingDouble(RoundTripEfficiency::loaded_kTon).reversed());
+		this.coveredDemandShareOverRoundtripsByVolumeList.add(
+				cumulativeDemandCoverage(roundTripEfficiencies, RoundTripEfficiency::loaded_kTon, totalDemand_kTon));
+		this.coveredODsOverRoundtripsByVolumeList
+				.add(cumulativeODCoverage(roundTripEfficiencies, odCoverage, numberOfODs));
 
 		/*
 		 * CUMULATIVE COVERED-DEMAND SHARES WHEN ROUND TRIPS ARE RANKED BY SIZE.
 		 */
 		roundTripEfficiencies.sort(Comparator.comparingDouble(RoundTripEfficiency::size).reversed());
-		this.coveredDemandShareOverRoundtripsBySizeList.add(cumulativeCoveredDemandShares(roundTripEfficiencies,
-				RoundTripEfficiency::loaded_kTon, totalDemand_kTon));
+		this.coveredDemandShareOverRoundtripsBySizeList.add(
+				cumulativeDemandCoverage(roundTripEfficiencies, RoundTripEfficiency::loaded_kTon, totalDemand_kTon));
+		this.coveredODsOverRoundtripsBySizeList
+				.add(cumulativeODCoverage(roundTripEfficiencies, odCoverage, numberOfODs));
 
+		/*
+		 * UPDATE TOTAL NUMBER OF VISITS PER OD PAIR
+		 */
+		double[] odIndex2NumberOfVisits = new double[numberOfODs];
+		for (int odIndex = 0; odIndex < numberOfODs; odIndex++) {
+			odIndex2NumberOfVisits[odIndex] += odCoverage.getConnectingRoundTripIndices(odIndex).size();
+		}
+		this.odIndex2NumberOfVisistsList.add(odIndex2NumberOfVisits);
 	}
 
-	private static double[] cumulativeCoveredDemandShares(ArrayList<RoundTripEfficiency> sortedRoundTripEfficiencies,
-			ToDoubleFunction<RoundTripEfficiency> loadedDemand, double totalDemand) {
+	private static double[] cumulativeDemandCoverage(ArrayList<RoundTripEfficiency> sortedRoundTripEfficiencies,
+			ToDoubleFunction<RoundTripEfficiency> loadedDemand, double totalToBeCovered) {
 
 		final double[] result = new double[BIN_COUNT];
 
-		if (sortedRoundTripEfficiencies.isEmpty() || totalDemand <= 0.0) {
+		if (sortedRoundTripEfficiencies.isEmpty() || totalToBeCovered <= 0.0) {
 			return result;
 		}
 
-		double cumulativeLoadedDemand = 0.0;
+		double cumulative = 0.0;
 		int includedRoundTripCount = 0;
 
 		for (int bin = 0; bin < BIN_COUNT; bin++) {
@@ -297,12 +320,49 @@ class UniformTransportEfficiencyAnalyzer {
 					.ceil((bin + 1.0) * sortedRoundTripEfficiencies.size() / BIN_COUNT);
 
 			while (includedRoundTripCount < targetRoundTripCount) {
-				cumulativeLoadedDemand += loadedDemand
-						.applyAsDouble(sortedRoundTripEfficiencies.get(includedRoundTripCount));
+				cumulative += loadedDemand.applyAsDouble(sortedRoundTripEfficiencies.get(includedRoundTripCount));
 				includedRoundTripCount++;
 			}
 
-			result[bin] = cumulativeLoadedDemand / totalDemand;
+			result[bin] = cumulative / totalToBeCovered;
+		}
+
+		return result;
+	}
+
+	private static double[] cumulativeODCoverage(ArrayList<RoundTripEfficiency> sortedRoundTripEfficiencies,
+			ODCoverage<NodeWithCoords> odCoverage, int numberOfODs) {
+
+		final double[] result = new double[BIN_COUNT];
+
+		if (sortedRoundTripEfficiencies.isEmpty() || numberOfODs == 0) {
+			return result;
+		}
+
+		final boolean[] covered = new boolean[numberOfODs];
+		int coveredODCount = 0;
+		int includedRoundTripCount = 0;
+
+		for (int bin = 0; bin < BIN_COUNT; bin++) {
+
+			final int targetRoundTripCount = (int) Math
+					.ceil((bin + 1.0) * sortedRoundTripEfficiencies.size() / BIN_COUNT);
+
+			while (includedRoundTripCount < targetRoundTripCount) {
+
+				final int roundTripIndex = sortedRoundTripEfficiencies.get(includedRoundTripCount).roundTripIndex();
+
+				for (int odIndex : odCoverage.getConnectedODIndices(roundTripIndex)) {
+					if (!covered[odIndex]) {
+						covered[odIndex] = true;
+						coveredODCount++;
+					}
+				}
+
+				includedRoundTripCount++;
+			}
+
+			result[bin] = ((double) coveredODCount) / numberOfODs;
 		}
 
 		return result;
