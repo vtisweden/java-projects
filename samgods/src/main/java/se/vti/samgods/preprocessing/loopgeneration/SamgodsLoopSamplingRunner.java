@@ -82,6 +82,19 @@ class SamgodsLoopSamplingRunner {
 	static final int periodLength_h = 7 * 24;
 	static final int timeBinSize_h = 4;
 
+	// -------------------- SAMPLING CONFIGURATIONS --------------------
+
+	static final int targetOperationsPerLoop = 100;
+	static final int minNumberOfStableStates = 100;
+
+	int stateLoggingInterval() {
+		return targetOperationsPerLoop * this.loopCount;
+	}
+
+	int minNumberOfStationaryIterations() {
+		return minNumberOfStableStates * this.stateLoggingInterval();
+	}
+
 	// -------------------- MEMBERS --------------------
 
 	final SamgodsSamplingVariant samplingVariant;
@@ -280,12 +293,11 @@ class SamgodsLoopSamplingRunner {
 		runner.setMessageInterval(10_000);
 		runner.configureWeightLogging("samplingWeights.tsv", 10_000);
 
-		int stateLoggingInterval = 100_000;
-		runner.configureStateLogging(Paths.get("./states"), "./roundTrips", stateLoggingInterval);
+		runner.configureStateLogging(Paths.get("./states"), "./roundTrips", this.stateLoggingInterval());
 		runner.setTerminationCriterion(new BlockAverageTerminationCriterion<MultiRoundTrip<NodeWithCoords>>()
-				.setCheckInterval(10 * this.loopCount).setConvergenceStatsFileName("convergenceStats.tsv")
-				.setMinNumberOfStableIterations(10 * stateLoggingInterval).setRelativeVarianceTolerance(this.precision)
-				.setStandardizedMeanTolerance(this.precision));
+				.setCheckInterval(this.stateLoggingInterval()).setConvergenceStatsFileName("convergenceStats.tsv")
+				.setMinNumberOfStableIterations(this.minNumberOfStationaryIterations())
+				.setRelativeVarianceTolerance(this.precision).setStandardizedMeanTolerance(this.precision));
 		runner.run();
 
 		log.info("... DONE");
@@ -356,8 +368,7 @@ class SamgodsLoopSamplingRunner {
 				coveredODsOverRoundtripSharesByKTonVolumes);
 		var coveredODsOverRoundtripSharesBySizesStats = computeStatistics(coveredODsOverRoundtripSharesBySizes);
 
-		var odIndex2NumberOfVisistsStats = computeStatistics(odIndex2NumberOfVisists);
-		final double[] odVisitStateHistogram = computeCumulativeODCoverageOverStates(odIndex2NumberOfVisists);
+		final double[] cumulativeODCoverageOverStates = computeCumulativeODCoverageOverStates(odIndex2NumberOfVisists);
 
 		try (PrintWriter writer = new PrintWriter("summary-stats.tsv")) {
 
@@ -373,7 +384,7 @@ class SamgodsLoopSamplingRunner {
 			writer.print("\tkTon efficiency");
 
 			writer.print("\tcumulative range");
-			
+
 			// cumulative demand coverage
 			writer.print("\tlargest size first");
 			writer.print("\tlargest kTon volume first");
@@ -384,9 +395,7 @@ class SamgodsLoopSamplingRunner {
 			writer.print("\tlargest size first");
 			writer.print("\tlargest kTon volume first");
 			writer.print("\tlargest kTonKm efficiency first");
-			writer.print("\tlargest kTon efficiency first");
-
-			writer.println("\tcovered ODs over states");
+			writer.println("\tlargest kTon efficiency first");
 
 			double prevShareOfRoundTrips = 0.0;
 			for (int bin = 0; bin < kTonKmEfficiencyHistogramStats.length; bin++) {
@@ -411,56 +420,51 @@ class SamgodsLoopSamplingRunner {
 				writeStats(writer, coveredODsOverRoundTripSharesByKTonKmEfficienciesStats[bin]);
 				writeStats(writer, coveredODsOverRoundTripSharesByKTonEfficienciesStats[bin]);
 
-				writer.print("\t" + odVisitStateHistogram[bin]);
-
 				writer.println();
 
 				prevShareOfRoundTrips = shareOfRoundTrips;
 			}
 
 			writer.println();
-			double numberOfUnvisitedODs = Arrays.stream(odIndex2NumberOfVisistsStats).filter(s -> (s.getSum() == 0))
-					.count();
-			writer.println("Share of OD pairs that have never been visited in " + odIndex2NumberOfVisists.size()
-					+ " analyzed states: " + (numberOfUnvisitedODs / odIndex2NumberOfVisistsStats.length));
+			
+			writer.print("stationary iterations:");
+			for (int i = 0; i < cumulativeODCoverageOverStates.length; i++) {
+				writer.print("\t" + (i + 1) * this.stateLoggingInterval());
+			}
+			writer.println();
+			
+			writer.print("cumulative OD coverage:");
+			for (double value : cumulativeODCoverageOverStates) {
+				writer.print("\t" + value);
+			}
+			writer.println();
 		}
 	}
 
 	private static double[] computeCumulativeODCoverageOverStates(List<double[]> odIndex2NumberOfVisists) {
 
-		final int binCount = 10;
-		final double[] result = new double[binCount];
-
 		if (odIndex2NumberOfVisists.isEmpty()) {
-			return result;
+			return new double[0];
 		}
 
-		final int numberOfStates = odIndex2NumberOfVisists.size();
 		final int numberOfODs = odIndex2NumberOfVisists.get(0).length;
-
 		final boolean[] covered = new boolean[numberOfODs];
+		final double[] result = new double[odIndex2NumberOfVisists.size()];
+
 		int coveredODCount = 0;
-		int includedStateCount = 0;
 
-		for (int bin = 0; bin < binCount; bin++) {
+		for (int stateIndex = 0; stateIndex < odIndex2NumberOfVisists.size(); stateIndex++) {
 
-			final int targetStateCount = (int) Math.ceil((bin + 1.0) * numberOfStates / binCount);
+			final double[] odIndex2NumberOfVisits = odIndex2NumberOfVisists.get(stateIndex);
 
-			while (includedStateCount < targetStateCount) {
-
-				final double[] odIndex2NumberOfVisits = odIndex2NumberOfVisists.get(includedStateCount);
-
-				for (int odIndex = 0; odIndex < numberOfODs; odIndex++) {
-					if (!covered[odIndex] && odIndex2NumberOfVisits[odIndex] > 0.0) {
-						covered[odIndex] = true;
-						coveredODCount++;
-					}
+			for (int odIndex = 0; odIndex < numberOfODs; odIndex++) {
+				if (!covered[odIndex] && odIndex2NumberOfVisits[odIndex] > 0.0) {
+					covered[odIndex] = true;
+					coveredODCount++;
 				}
-
-				includedStateCount++;
 			}
 
-			result[bin] = ((double) coveredODCount) / numberOfODs;
+			result[stateIndex] = ((double) coveredODCount) / numberOfODs;
 		}
 
 		return result;
