@@ -123,6 +123,11 @@ public class ReplicationRunner {
 		return this;
 	}
 
+	public ReplicationRunner addSpecialMissions(List<Mission> missions) {
+		this.specialMissions.addAll(missions);
+		return this;
+	}
+
 	public List<SystemState> getSimulatedSystemStates() {
 		return this.simulatedSystemStates;
 	}
@@ -153,7 +158,7 @@ public class ReplicationRunner {
 			simulatedMissions = StartTimeSimulator.getStartTimeSortedMissions(simulatedMissions);
 
 			var missionImplementationSimulator = new MissionImplementationSimulator(id2Vehicle, distances)
-					.setVerbose(false).setRelSOCWhenAvailable(this.minRelSOC);
+					.setVerbose(this.verbose).setRelSOCWhenAvailable(this.minRelSOC);
 			var systemState = missionImplementationSimulator.simulateMissionImplementation(simulatedMissions);
 			this.simulatedSystemStates.add(systemState);
 

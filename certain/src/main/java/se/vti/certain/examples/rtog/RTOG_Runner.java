@@ -73,7 +73,7 @@ class RTOG_Runner {
 	Map<String, Vehicle> id2Vehicle;
 	List<Mission> prototypeMissions;
 
-	List<Mission> extraMissions = new ArrayList<>();
+	List<Mission> specialMissions = new ArrayList<>();
 
 	RTOG_Runner() {
 	}
@@ -106,8 +106,8 @@ class RTOG_Runner {
 		System.out.println("Loaded " + this.prototypeMissions.size() + " prototype missions.");
 	}
 
-	void addMission(Mission mission) {
-		this.extraMissions.add(mission);
+	void addSpecialMission(Mission mission) {
+		this.specialMissions.add(mission);
 	}
 
 	ReplicationAnalyzer analyzer = null;
@@ -135,7 +135,7 @@ class RTOG_Runner {
 		var replicationRunner = new ReplicationRunner(rnd).setVerbose(false)
 				.setNumberOfReplications(numberOfReplications).setTimeLine(timeLine).setMinRelSOC(minRelSOC)
 				.setId2Zone(this.id2Zone).setDistances(this.distances).setId2Vehicle(this.id2Vehicle)
-				.setPrototypeMissions(this.prototypeMissions);
+				.setPrototypeMissions(this.prototypeMissions).addSpecialMissions(this.specialMissions);
 		replicationRunner.run();
 
 		this.analyzer = new ReplicationAnalyzer();
