@@ -19,9 +19,9 @@
  */
 package se.vti.certain.analysis.observables;
 
-import java.util.List;
 import java.util.function.Function;
 
+import se.vti.certain.datastructures.Mission;
 import se.vti.certain.simulation.missionimplementation.SystemState;
 import se.vti.certain.simulation.missionimplementation.VehicleMissionLog;
 
@@ -32,24 +32,35 @@ public class ShareOfIncompleteMissions implements Function<SystemState, Double> 
 
 	public static String NAME = "Incomplete missions [%]";
 
+	private Function<Mission, Boolean> includeMission = (m -> true);
+
+	public ShareOfIncompleteMissions() {
+	}
+
+	public ShareOfIncompleteMissions(Function<Mission, Boolean> includeMission) {
+		this.includeMission = includeMission;
+	}
+
 	@Override
 	public Double apply(SystemState state) {
 		double failedNumber = 0.0;
 		double totalNumber = 0.0;
-		for (List<VehicleMissionLog> listOfLogs : state.getMission2VehicleMissionLogs().values()) {
-			boolean failed = false;
-			for (VehicleMissionLog log : listOfLogs) {
-				if (log.finalStateOfCharge_kWh() < 0.0) {
-					failed = true;
-					break;
-				}
-			}
-			if (failed) {
-				failedNumber++;
-			}
-			totalNumber++;
-		}
-		return (100.0 * failedNumber / totalNumber);
-	}
 
+		for (var missionAndLogs : state.getMission2VehicleMissionLogs().entrySet()) {
+			if (this.includeMission.apply(missionAndLogs.getKey())) {
+				boolean failed = false;
+				for (VehicleMissionLog log : missionAndLogs.getValue()) {
+					if (log.finalStateOfCharge_kWh() < 0.0) {
+						failed = true;
+						break;
+					}
+				}
+				if (failed) {
+					failedNumber++;
+				}
+				totalNumber++;
+			}
+		}
+		return (totalNumber == 0) ? 0.0 : (100.0 * failedNumber / totalNumber);
+	}
 }

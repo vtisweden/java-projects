@@ -22,6 +22,7 @@ package se.vti.certain.simulation.missionimplementation;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.function.Consumer;
 
 import se.vti.certain.datastructures.Mission;
 import se.vti.certain.datastructures.Vehicle;
@@ -38,13 +39,25 @@ public class MissionImplementationSimulator {
 
 	private final Distances distances;
 
+	private final Consumer<Event> eventsListener;
+
 	private boolean verbose = true;
-	
+
 	private double relSOCWhenAvailable = 1.0;
-	
-	public MissionImplementationSimulator(Map<String, Vehicle> id2Vehicle, Distances distances) {
+
+	public MissionImplementationSimulator(Map<String, Vehicle> id2Vehicle, Distances distances,
+			Consumer<Event> eventsListener) {
 		this.id2Vehicle = id2Vehicle;
 		this.distances = distances;
+		this.eventsListener = eventsListener;
+	}
+
+	public MissionImplementationSimulator(Map<String, Vehicle> id2Vehicle, Distances distances) {
+		this(id2Vehicle, distances, new Consumer<>() {
+			@Override
+			public void accept(Event t) {
+			}
+		});
 	}
 
 	public MissionImplementationSimulator setVerbose(boolean verbose) {
@@ -56,7 +69,7 @@ public class MissionImplementationSimulator {
 		this.relSOCWhenAvailable = relSOCWhenAvailable;
 		return this;
 	}
-	
+
 	private boolean canBeSimulated(Mission mission) {
 		return true;
 	}
@@ -72,6 +85,7 @@ public class MissionImplementationSimulator {
 
 		while (!eventQueue.isEmpty()) {
 			Event nextEvent = eventQueue.poll();
+			this.eventsListener.accept(nextEvent);
 			time_h = nextEvent.getStartTime_h();
 			if (this.verbose) {
 				System.out.println(time_h + ": " + nextEvent);

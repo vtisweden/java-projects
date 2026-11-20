@@ -31,6 +31,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciitable.CWC_FixedWidth;
+import se.vti.certain.datastructures.Mission;
 import se.vti.certain.simulation.missionimplementation.SystemState;
 
 /**
@@ -42,10 +43,16 @@ public class ReplicationAnalyzer {
 	private List<DescriptiveStatistics> statisticsList = new ArrayList<>();
 	private Map<String, DescriptiveStatistics> name2Statistics = new LinkedHashMap<>();
 
-	private boolean skipNaNsInAveraging = true;
+//	private Map<Mission, List<SingleMissionAnalyzer>> mission2analyzers = new LinkedHashMap<>();
+
+	private boolean skipNaNsInAveraging = false;
 
 	public ReplicationAnalyzer() {
 	}
+
+//	public void addSingleMissionAnalyzer(SingleMissionAnalyzer singleMissionAnalzyer) {
+//		this.mission2analyzers.computeIfAbsent(singleMissionAnalzyer.mission, m -> new ArrayList<>()).add(singleMissionAnalzyer);
+//	}
 
 	public ReplicationAnalyzer addObservable(String name, Function<SystemState, Double> observable) {
 		this.observablesList.add(observable);

@@ -22,13 +22,16 @@ package se.vti.certain.examples.rtog;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Function;
 
 import se.vti.certain.analysis.ReplicationAnalyzer;
 import se.vti.certain.analysis.ReplicationRunner;
 import se.vti.certain.analysis.observables.AverageMissingSOCWhenOutOfCharge;
+import se.vti.certain.analysis.observables.AverageOverVehiclesObservable;
 import se.vti.certain.analysis.observables.AverageTimeFromVehicleRequestToArrival;
 import se.vti.certain.analysis.observables.NumberOfMissions;
 import se.vti.certain.analysis.observables.ShareOfIncompleteMissions;
@@ -39,6 +42,7 @@ import se.vti.certain.datastructures.Station;
 import se.vti.certain.datastructures.Vehicle;
 import se.vti.certain.datastructures.VehicleType;
 import se.vti.certain.simulation.SimulationTimeLine;
+import se.vti.certain.simulation.missionimplementation.SystemState;
 import se.vti.certain.spatial.DistanceType;
 import se.vti.certain.spatial.Distances;
 import se.vti.certain.spatial.Zone;
@@ -75,10 +79,12 @@ class RTOG_Runner {
 
 	List<Mission> specialMissions = new ArrayList<>();
 
+	Map<String, Function<SystemState, Double>> specialObservables = new LinkedHashMap<>();
+
 	RTOG_Runner() {
 	}
 
-	void loadBaseScenario() throws IOException {
+	RTOG_Runner loadBaseScenario() throws IOException {
 		this.id2VehicleType = VehicleType.readFromJsonFile(this.vehicleTypeFile);
 		System.out.println("Loaded " + this.id2VehicleType.size() + " vehicle types.");
 
@@ -104,10 +110,18 @@ class RTOG_Runner {
 		this.prototypeMissions = Mission.readFromJson(this.missionsFile, this.id2IncidentType, this.id2Zone,
 				this.id2VehicleType, false);
 		System.out.println("Loaded " + this.prototypeMissions.size() + " prototype missions.");
+
+		return this;
 	}
 
-	void addSpecialMission(Mission mission) {
+	RTOG_Runner addSpecialMission(Mission mission) {
 		this.specialMissions.add(mission);
+		return this;
+	}
+
+	RTOG_Runner addSpecialObservable(String name, Function<SystemState, Double> specialObservable) {
+		this.specialObservables.put(name, specialObservable);
+		return this;
 	}
 
 	ReplicationAnalyzer analyzer = null;
@@ -140,11 +154,24 @@ class RTOG_Runner {
 
 		this.analyzer = new ReplicationAnalyzer();
 		this.analyzer.addObservable(NumberOfMissions.NAME, new NumberOfMissions());
-		this.analyzer.addObservable(AverageTimeFromVehicleRequestToArrival.NAME,
-				new AverageTimeFromVehicleRequestToArrival());
-		this.analyzer.addObservable(ShareOfVehiclesRunningOutOfCharge.NAME, new ShareOfVehiclesRunningOutOfCharge());
 		this.analyzer.addObservable(ShareOfIncompleteMissions.NAME, new ShareOfIncompleteMissions());
-		this.analyzer.addObservable(AverageMissingSOCWhenOutOfCharge.NAME, new AverageMissingSOCWhenOutOfCharge());
+
+		this.analyzer.addObservable(AverageTimeFromVehicleRequestToArrival.NAME, new AverageOverVehiclesObservable(
+				l -> 60.0 * (l.arrivalAtSite_h() - l.vehicleRequestedEvent.getRequestTime_h())));
+		this.analyzer.addObservable(ShareOfVehiclesRunningOutOfCharge.NAME,
+				new AverageOverVehiclesObservable(l -> l.finalStateOfCharge_kWh() < 0.0 ? 100.0 : 0.0));
+		this.analyzer.addObservable(AverageMissingSOCWhenOutOfCharge.NAME,
+				new AverageOverVehiclesObservable(l -> 0.0 - l.finalStateOfCharge_kWh())
+						.setIncludeVehicleLog(l -> l.finalStateOfCharge_kWh() < 0));
+
+		this.analyzer.addObservable("OLD: "+ AverageTimeFromVehicleRequestToArrival.NAME,
+				new AverageTimeFromVehicleRequestToArrival());
+		this.analyzer.addObservable("OLD: "+ ShareOfVehiclesRunningOutOfCharge.NAME, new ShareOfVehiclesRunningOutOfCharge());
+		this.analyzer.addObservable("OLD: "+ AverageMissingSOCWhenOutOfCharge.NAME, new AverageMissingSOCWhenOutOfCharge());
+
+		for (var nameAndMission : this.specialObservables.entrySet()) {
+			this.analyzer.addObservable(nameAndMission.getKey(), nameAndMission.getValue());
+		}
 
 		this.analyzer.add(replicationRunner.getSimulatedSystemStates());
 		System.out.println(this.analyzer);

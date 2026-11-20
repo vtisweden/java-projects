@@ -1,7 +1,7 @@
 /**
- * se.vti.certain.analysis
+ * se.vti.certain
  * 
- * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2025, 2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -213,14 +213,9 @@ public class ReplicationRunner {
 		var timeLine = new SimulationTimeLine(Season.WINTER, TypeOfDay.WORKDAY, daylightStart_h, daylightEnd_h,
 				numberOfSimulatedDays);
 
-		var eonMission = Mission
-				.readFromJson(new File(path + "eon-mission.json"), id2IncidentType, id2Zone, id2VehicleType, true)
-				.get(0);
-		eonMission.setStartTime_h(10 * 24.0); // TODO set real time
-
 		var replicationRunner = new ReplicationRunner(rnd).setNumberOfReplications(numberOfReplications)
 				.setTimeLine(timeLine).setMinRelSOC(0.8).setId2Zone(id2Zone).setDistances(distances)
-				.setId2Vehicle(id2Vehicle).setPrototypeMissions(prototypeMissions).addSpecialMission(eonMission);
+				.setId2Vehicle(id2Vehicle).setPrototypeMissions(prototypeMissions);
 		replicationRunner.run();
 
 		var analyzer = new ReplicationAnalyzer();
@@ -234,5 +229,4 @@ public class ReplicationRunner {
 		System.out.println(analyzer);
 
 	}
-
 }

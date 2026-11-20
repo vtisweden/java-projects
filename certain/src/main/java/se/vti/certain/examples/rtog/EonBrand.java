@@ -1,7 +1,7 @@
 /**
- * se.vti.certain.examples.rtog
+ * se.vti.certain
  * 
- * Copyright (C) 2025 by Gunnar Flötteröd (VTI, LiU).
+ * Copyright (C) 2025, 2026 by Gunnar Flötteröd (VTI, LiU).
  * 
  * VTI = Swedish National Road and Transport Institute
  * LiU = Linköping University, Sweden
@@ -27,9 +27,12 @@ import java.util.Map;
 
 import se.vti.certain.analysis.modifiers.VehicleTypeModifier;
 import se.vti.certain.analysis.modifiers.ZoneModifier;
+import se.vti.certain.analysis.observables.AverageMissingSOCWhenOutOfCharge;
+import se.vti.certain.analysis.observables.AverageOverVehiclesObservable;
 import se.vti.certain.analysis.observables.AverageTimeFromVehicleRequestToArrival;
 import se.vti.certain.analysis.observables.NumberOfMissions;
 import se.vti.certain.analysis.observables.ShareOfIncompleteMissions;
+import se.vti.certain.analysis.observables.ShareOfVehiclesRunningOutOfCharge;
 import se.vti.certain.datastructures.IncidentType;
 import se.vti.certain.datastructures.Mission;
 import se.vti.certain.datastructures.VehicleType;
@@ -40,14 +43,17 @@ import se.vti.certain.temporal.TypeOfDay;
 /**
  * @author GunnarF
  */
-public class EonBrand {
+class EonBrand {
 
-	static RTOG_Runner createRunner(double batteryCapacityFactor, double chargingRateFactor,
-			double incidentIntensityFactor) throws IOException {
+	final RTOG_Runner runner;
 
-		var runner = new RTOG_Runner();
+	final Mission eonMission;
 
-		new VehicleTypeModifier(VehicleType.readFromJsonFile(runner.vehicleTypeFile)) {
+	EonBrand(double batteryCapacityFactor, double chargingRateFactor, double incidentIntensityFactor)
+			throws IOException {
+		this.runner = new RTOG_Runner();
+
+		new VehicleTypeModifier(VehicleType.readFromJsonFile(this.runner.vehicleTypeFile)) {
 			@Override
 			public double computeBatteryCapacity_kWh(VehicleType vehicleType) {
 				return batteryCapacityFactor * vehicleType.getBatteryCapacity_kWh();
@@ -59,8 +65,8 @@ public class EonBrand {
 			}
 		}.createVehicleTypeFile("modifiedVehicleTypes.json");
 
-		new ZoneModifier(
-				Zone.readFromJsonFile(runner.zonesFile, IncidentType.readFromJsonFile(runner.incidentTypeFile))) {
+		new ZoneModifier(Zone.readFromJsonFile(this.runner.zonesFile,
+				IncidentType.readFromJsonFile(this.runner.incidentTypeFile))) {
 			@Override
 			public void updateIncidentType2Intensity_1_yr(String zoneId,
 					Map<IncidentType, Double> scenarioIncidentType2Intensity_1_yr) {
@@ -69,33 +75,92 @@ public class EonBrand {
 			}
 		}.createZoneFile("modifiedZones.json");
 
-		runner.vehicleTypeFile = new File("modifiedVehicleTypes.json");
-		runner.zonesFile = new File("modifiedZones.json");
-		runner.loadBaseScenario();
+		this.runner.vehicleTypeFile = new File("modifiedVehicleTypes.json");
+		this.runner.zonesFile = new File("modifiedZones.json");
+		this.runner.loadBaseScenario();
 
-		// >>>>> EON SCENARIO >>>>>
-		// zone: 5710006498000
-		// start: 2020-09-20 15:30:00
-		runner.prototypeMissions.clear(); // only eon
-		var eonMission = Mission.readFromJson(new File("./rtog/input/eon-mission-corrected.json"), runner.id2IncidentType,
-				runner.id2Zone, runner.id2VehicleType, true).get(0);
-		eonMission.setStartTime_h(15.5);
-		runner.addSpecialMission(eonMission);
-		// <<<<< EON SCENARIO <<<<<
+		/*
+		 * Adding the EON mission.
+		 * 
+		 * zone: 5710006498000
+		 * 
+		 * start: 2020-09-20 15:30:00
+		 */
+//		this.runner.prototypeMissions.clear(); // only eon
+		this.eonMission = Mission.readFromJson(new File("./rtog/input/eon-mission-corrected.json"),
+				this.runner.id2IncidentType, this.runner.id2Zone, this.runner.id2VehicleType, true).get(0);
+		this.eonMission.setStartTime_h(15.5);
+		this.runner.addSpecialMission(this.eonMission);
 
-		return runner;
+		this.runner.addSpecialObservable("Eon: " + ShareOfIncompleteMissions.NAME,
+				new ShareOfIncompleteMissions(m -> m == this.eonMission));
+		this.runner.addSpecialObservable("Eon: " + AverageMissingSOCWhenOutOfCharge.NAME,
+				new AverageOverVehiclesObservable(l -> 0.0 - l.finalStateOfCharge_kWh())
+						.setIncludeVehicleLog(l -> l.finalStateOfCharge_kWh() < 0)
+						.setIncludeMissions(m -> m == eonMission));
+		this.runner.addSpecialObservable("Eon: " + AverageTimeFromVehicleRequestToArrival.NAME,
+				new AverageOverVehiclesObservable(
+						l -> 60.0 * (l.arrivalAtSite_h() - l.vehicleRequestedEvent.getRequestTime_h()))
+						.setIncludeMissions(m -> m == eonMission));
+		this.runner.addSpecialObservable("Eon: " + ShareOfVehiclesRunningOutOfCharge.NAME,
+				new AverageOverVehiclesObservable(l -> l.finalStateOfCharge_kWh() < 0.0 ? 1.0 : 0.0)
+						.setIncludeMissions(m -> m == eonMission));
 	}
 
-	static void testSeasons() throws IOException {
-		var runner = createRunner(1.0, 1.0, 1.0);
-		for (var season : Season.values()) {
-			for (var typeOfDay : TypeOfDay.values()) {
-				System.out.println();
-				System.out.println(season + ", " + typeOfDay);
-				runner.run(30, season, typeOfDay, 100, 0.8);
-			}
-		}
-	}
+//	static RTOG_Runner createRunner(double batteryCapacityFactor, double chargingRateFactor,
+//			double incidentIntensityFactor) throws IOException {
+//
+//		var runner = new RTOG_Runner();
+//
+//		new VehicleTypeModifier(VehicleType.readFromJsonFile(runner.vehicleTypeFile)) {
+//			@Override
+//			public double computeBatteryCapacity_kWh(VehicleType vehicleType) {
+//				return batteryCapacityFactor * vehicleType.getBatteryCapacity_kWh();
+//			}
+//
+//			@Override
+//			public double computeChargingRate_kW(VehicleType vehicleType) {
+//				return chargingRateFactor * vehicleType.getChargingRate_kW();
+//			}
+//		}.createVehicleTypeFile("modifiedVehicleTypes.json");
+//
+//		new ZoneModifier(
+//				Zone.readFromJsonFile(runner.zonesFile, IncidentType.readFromJsonFile(runner.incidentTypeFile))) {
+//			@Override
+//			public void updateIncidentType2Intensity_1_yr(String zoneId,
+//					Map<IncidentType, Double> scenarioIncidentType2Intensity_1_yr) {
+//				scenarioIncidentType2Intensity_1_yr.entrySet().stream()
+//						.forEach(e -> e.setValue(incidentIntensityFactor * e.getValue()));
+//			}
+//		}.createZoneFile("modifiedZones.json");
+//
+//		runner.vehicleTypeFile = new File("modifiedVehicleTypes.json");
+//		runner.zonesFile = new File("modifiedZones.json");
+//		runner.loadBaseScenario();
+//
+//		// >>>>> EON SCENARIO >>>>>
+//		// zone: 5710006498000
+//		// start: 2020-09-20 15:30:00
+//		runner.prototypeMissions.clear(); // only eon
+//		var eonMission = Mission.readFromJson(new File("./rtog/input/eon-mission-corrected.json"),
+//				runner.id2IncidentType, runner.id2Zone, runner.id2VehicleType, true).get(0);
+//		eonMission.setStartTime_h(15.5);
+//		runner.addSpecialMission(eonMission);
+//		// <<<<< EON SCENARIO <<<<<
+//
+//		return runner;
+//	}
+
+//	static void testSeasons() throws IOException {
+//		var runner = createRunner(1.0, 1.0, 1.0);
+//		for (var season : Season.values()) {
+//			for (var typeOfDay : TypeOfDay.values()) {
+//				System.out.println();
+//				System.out.println(season + ", " + typeOfDay);
+//				runner.run(30, season, typeOfDay, 100, 0.8);
+//			}
+//		}
+//	}
 
 	/*
 	 * 
@@ -109,7 +174,8 @@ public class EonBrand {
 		for (double incidentIntensityFactor : new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }) {
 			System.out.println();
 			System.out.println("INCIDENT INTENSITY FACTOR = " + incidentIntensityFactor);
-			var runner = createRunner(1.0, 1.0, incidentIntensityFactor);
+			var eonBrand = new EonBrand(1.0, 1.0, incidentIntensityFactor);
+			var runner = eonBrand.runner;
 			runner.run(90, season, typeOfDay, 100, 1.0);
 			intensityFactor.add(incidentIntensityFactor);
 			numberOfMissions.add(runner.analyzer.getStatistics().get(NumberOfMissions.NAME).getMean());
@@ -139,7 +205,8 @@ public class EonBrand {
 		for (double chargingRateFactor : new double[] { 1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1 }) {
 			System.out.println();
 			System.out.println("CHARGING RATE FACTOR = " + chargingRateFactor);
-			var runner = createRunner(0.6, chargingRateFactor, 5.0);
+			var eonBrand = new EonBrand(0.6, chargingRateFactor, 5.0);
+			var runner = eonBrand.runner;
 			runner.run(90, season, typeOfDay, 100, 1.0);
 			chargingRateFactors.add(chargingRateFactor);
 			numberOfMissions.add(runner.analyzer.getStatistics().get(NumberOfMissions.NAME).getMean());
@@ -169,7 +236,8 @@ public class EonBrand {
 		for (double batteryCapacityFactor : new double[] { 1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1 }) {
 			System.out.println();
 			System.out.println("BATTERY CAPACITY FACTOR = " + batteryCapacityFactor);
-			var runner = createRunner(batteryCapacityFactor, 1.0, 5.0);
+			var eonBrand = new EonBrand(batteryCapacityFactor, 1.0, 5.0);
+			var runner = eonBrand.runner;
 			runner.run(90, season, typeOfDay, 100, 1.0);
 
 			batteryCapacityFactors.add(batteryCapacityFactor);
@@ -198,7 +266,9 @@ public class EonBrand {
 		var percentageIncomplete = new ArrayList<Double>();
 
 		for (double minRelSOC : new double[] { 1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1 }) {
-			var runner = createRunner(0.6, 0.6, 5.0);
+			var eonBrand = new EonBrand(0.6, 0.6, 5.0);
+			var runner = eonBrand.runner;
+
 			System.out.println();
 			System.out.println("MIN CHARGING LEVEL = " + minRelSOC);
 			runner.run(90, season, typeOfDay, 100, minRelSOC);
@@ -223,37 +293,13 @@ public class EonBrand {
 	 * 
 	 */
 	static void test(Season season, TypeOfDay typeOfDay) throws IOException {
-		var minRelSOCs = new ArrayList<Double>();
-		var numberOfMissions = new ArrayList<Double>();
-		var timeToArrival = new ArrayList<Double>();
-		var percentageIncomplete = new ArrayList<Double>();
-
-		for (double minRelSOC : new double[] { 1.0}) {
-			var runner = createRunner(1.0, 1.0, 1.0);
+		for (double minRelSOC : new double[] { 1.0 }) {
+			var eonBrand = new EonBrand(1.0, 1.0, 1.0);
+			var runner = eonBrand.runner;
 			System.out.println();
 			System.out.println("MIN CHARGING LEVEL = " + minRelSOC);
-			runner.run(90, season, typeOfDay, 1, minRelSOC);
-
-			for (var vehicle : runner.id2Vehicle.values()) {
-				if (vehicle.getVehicleType().getId().equals("80")) {
-					System.out.println(vehicle);
-				}
-			}
-			
-			minRelSOCs.add(minRelSOC);
-			numberOfMissions.add(runner.analyzer.getStatistics().get(NumberOfMissions.NAME).getMean());
-			timeToArrival
-					.add(runner.analyzer.getStatistics().get(AverageTimeFromVehicleRequestToArrival.NAME).getMean());
-			percentageIncomplete.add(runner.analyzer.getStatistics().get(ShareOfIncompleteMissions.NAME).getMean());
+			runner.run(90, season, typeOfDay, 100, minRelSOC);
 		}
-
-		System.out.println();
-		System.out.println("Factor\tNumberOfMissions\tTimeToArrival[min]\tIncompleteMissions[%]");
-		for (int i = 0; i < minRelSOCs.size(); i++) {
-			System.out.printf(Locale.US, "%.2f\t%.0f\t%.6f\t%.6f\n", minRelSOCs.get(i), numberOfMissions.get(i),
-					timeToArrival.get(i), percentageIncomplete.get(i));
-		}
-		System.out.println();
 	}
 
 	public static void main(String[] args) throws IOException {

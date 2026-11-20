@@ -47,7 +47,7 @@ public class AverageMissingSOCWhenOutOfCharge implements Function<SystemState, D
 		}
 //		System.out.println("sumOfMissingSOC_kWh = " + sumOfMissingSOC_kWh);
 //		System.out.println("number out of charge = " + numberOutOfCharge);
-		return (sumOfMissingSOC_kWh / numberOutOfCharge);
+		return numberOutOfCharge == 0 ? 0 : (sumOfMissingSOC_kWh / numberOutOfCharge);
 	}
 
 }
